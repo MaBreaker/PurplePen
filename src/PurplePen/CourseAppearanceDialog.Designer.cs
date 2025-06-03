@@ -29,6 +29,9 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CourseAppearanceDialog));
             this.groupBoxSizes = new System.Windows.Forms.GroupBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.upDownCOutlineWidth = new System.Windows.Forms.NumericUpDown();
+            this.label13 = new System.Windows.Forms.Label();
             this.comboBoxScaleItemSizes = new System.Windows.Forms.ComboBox();
             this.label11 = new System.Windows.Forms.Label();
             this.labelAutoGapSize = new System.Windows.Forms.Label();
@@ -75,6 +78,7 @@
             this.groupBoxOcadMap = new System.Windows.Forms.GroupBox();
             this.checkBoxOverprint = new System.Windows.Forms.CheckBox();
             this.groupBoxSizes.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.upDownCOutlineWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.upDownLegGapSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.upDownOutlineWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.upDownCenterDot)).BeginInit();
@@ -102,6 +106,9 @@
             // 
             // groupBoxSizes
             // 
+            this.groupBoxSizes.Controls.Add(this.label14);
+            this.groupBoxSizes.Controls.Add(this.upDownCOutlineWidth);
+            this.groupBoxSizes.Controls.Add(this.label13);
             this.groupBoxSizes.Controls.Add(this.comboBoxScaleItemSizes);
             this.groupBoxSizes.Controls.Add(this.label11);
             this.groupBoxSizes.Controls.Add(this.labelAutoGapSize);
@@ -128,6 +135,38 @@
             resources.ApplyResources(this.groupBoxSizes, "groupBoxSizes");
             this.groupBoxSizes.Name = "groupBoxSizes";
             this.groupBoxSizes.TabStop = false;
+            // 
+            // label14
+            // 
+            resources.ApplyResources(this.label14, "label14");
+            this.label14.Name = "label14";
+            // 
+            // upDownCOutlineWidth
+            // 
+            this.upDownCOutlineWidth.DecimalPlaces = 2;
+            this.upDownCOutlineWidth.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            resources.ApplyResources(this.upDownCOutlineWidth, "upDownCOutlineWidth");
+            this.upDownCOutlineWidth.Maximum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            65536});
+            this.upDownCOutlineWidth.Name = "upDownCOutlineWidth";
+            this.upDownCOutlineWidth.Value = new decimal(new int[] {
+            20,
+            0,
+            0,
+            65536});
+            this.upDownCOutlineWidth.ValueChanged += new System.EventHandler(this.upDownOutlineWidth_ValueChanged);
+            // 
+            // label13
+            // 
+            resources.ApplyResources(this.label13, "label13");
+            this.label13.Name = "label13";
             // 
             // comboBoxScaleItemSizes
             // 
@@ -557,6 +596,7 @@
             this.Controls.SetChildIndex(this.groupBoxOcadMap, 0);
             this.groupBoxSizes.ResumeLayout(false);
             this.groupBoxSizes.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.upDownCOutlineWidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.upDownLegGapSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.upDownOutlineWidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.upDownCenterDot)).EndInit();
@@ -627,5 +667,8 @@
         private System.Windows.Forms.Label labelChooseLayer;
         private System.Windows.Forms.ComboBox comboBoxBlendPurple;
         private System.Windows.Forms.Label labelBlendPurple;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.NumericUpDown upDownCOutlineWidth;
+        private System.Windows.Forms.Label label13;
     }
 }

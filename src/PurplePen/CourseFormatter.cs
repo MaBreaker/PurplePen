@@ -475,7 +475,8 @@ namespace PurplePen
         public static string ExpandText(EventDB eventDB, CourseView courseView, string text)
         {
             if (text.Contains(TextMacros.EventTitle))
-                text = text.Replace(TextMacros.EventTitle, QueryEvent.GetEventTitle(eventDB, " "));
+                //JU: Multiline custom event title texts
+                text = text.Replace(TextMacros.EventTitle, QueryEvent.GetEventTitle(eventDB, "|"));
 
             if (text.Contains(TextMacros.CourseName))
                 text = text.Replace(TextMacros.CourseName, courseView.CourseName);
@@ -529,8 +530,9 @@ namespace PurplePen
                     classList = eventDB.GetCourse(courseView.BaseCourseId).secondaryTitle;
                     if (classList == null)
                         classList = "";
-                    else
-                        classList = classList.Replace("|", " ");
+                    //JU: Multiline custom event class texts
+                    //else
+                    //    classList = classList.Replace("|", "|");
                 }
 
                 text = text.Replace(TextMacros.ClassList, classList);
@@ -593,7 +595,7 @@ namespace PurplePen
                 FontStyle fontStyle = Util.GetFontStyle(special.fontBold, special.fontItalic);
                 RectangleF boundingRect = RectangleF.FromLTRB((float)Math.Min(special.locations[0].X, special.locations[1].X), (float)Math.Min(special.locations[0].Y, special.locations[1].Y),
                                                                                               (float)Math.Max(special.locations[0].X, special.locations[1].X), (float)Math.Max(special.locations[0].Y, special.locations[1].Y));
-                courseObj = new BasicTextCourseObj(specialId, text, boundingRect, special.fontName, fontStyle, special.color, special.fontHeight);
+                courseObj = new BasicTextCourseObj(specialId, text, boundingRect, special.fontName, fontStyle, special.color, special.fontHeight /* JU: Rotated and Multile texts */, special.orientation, special.multiline);
                 break;
             case SpecialKind.Descriptions:
                 Debug.Fail("description specials should not be passed to this function");

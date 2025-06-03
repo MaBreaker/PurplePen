@@ -222,28 +222,29 @@ namespace PurplePen
                     pdfImporter = new PdfImporter(sourcePdfMapFileName);
 
                     float scaleRatio = CourseView.CreatePrintingCourseView(eventDB, page.courseDesignator).ScaleRatio;
-                    if (scaleRatio == 1.0) {
+                    if (scaleRatio == 1.0 /* JU: Bleed and Crop */ && false) {
                         // If we're doing a PDF at scale 1, we just copy the page directly.
-                        grTarget = pdfWriter.BeginCopiedPage(pdfImporter, 0);
                         pageToDraw = PdfNonScaledPage(page.courseDesignator);
+                        grTarget = pdfWriter.BeginCopiedPage(pdfImporter, 0);
                     }
                     else {
                         Matrix transform = Geometry.CreateInvertedRectangleTransform(page.printRectangle, page.mapRectangle);
+        //JU: TODO White margins
                         RectangleF printedPortionInMapCoords = Geometry.TransformRectangle(transform, new RectangleF(0, 0, paperSize.Width * 100F, paperSize.Height * 100F));
                         RectangleF printedPortionInInches = new RectangleF(
                             Geometry.InchesFromMm(printedPortionInMapCoords.Left),
                             Geometry.InchesFromMm(mapBounds.Height - printedPortionInMapCoords.Bottom),
                             Geometry.InchesFromMm(printedPortionInMapCoords.Width),
                             Geometry.InchesFromMm(printedPortionInMapCoords.Height));
-
-                        grTarget = pdfWriter.BeginCopiedPartialPage(pdfImporter, 0, paperSize, printedPortionInInches);
+                        
+                        grTarget = pdfWriter.BeginCopiedPartialPage(pdfImporter, 0, paperSize, printedPortionInInches /* JU: Margins */, pageToDraw.margins);
                     }
-
+                    
                     // Don't draw the map normally.
                     mapDisplay.SetMapFile(MapType.None, null);
                 }
                 else {
-                    grTarget = pdfWriter.BeginPage(paperSize);
+                    grTarget = pdfWriter.BeginPage(paperSize /* JU: Margins */, pageToDraw.margins);
                 }
 
                 DrawPage(grTarget, pageToDraw);
@@ -278,7 +279,9 @@ namespace PurplePen
                 landscape = false,
                 mapRectangle = mapBounds,
                 printRectangle = pageArea,
-                paperSize = new PaperSize("", (int) Math.Round(pageArea.Width), (int) Math.Round(pageArea.Height))
+                paperSize = new PaperSize("", (int)Math.Round(pageArea.Width), (int)Math.Round(pageArea.Height)),
+                //JU: Margins
+                margins = 0
             };
         }
 

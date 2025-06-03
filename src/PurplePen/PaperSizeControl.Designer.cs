@@ -119,12 +119,12 @@
             this.tableLayoutPanel1.SetColumnSpan(this.label7, 4);
             this.label7.Dock = System.Windows.Forms.DockStyle.Right;
             this.label7.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label7.Location = new System.Drawing.Point(86, 61);
+            this.label7.Location = new System.Drawing.Point(54, 61);
             this.label7.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(88, 22);
+            this.label7.Size = new System.Drawing.Size(120, 22);
             this.label7.TabIndex = 7;
-            this.label7.Text = "Margin (all sides):";
+            this.label7.Text = "Margin/Bleed (all sides):";
             // 
             // labelPaper
             // 
@@ -185,6 +185,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.upDownMargin.Location = new System.Drawing.Point(180, 60);
             this.upDownMargin.Margin = new System.Windows.Forms.Padding(3, 5, 3, 3);
+            this.upDownMargin.Minimum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            -2147483648});
             this.upDownMargin.Name = "upDownMargin";
             this.upDownMargin.Size = new System.Drawing.Size(50, 20);
             this.upDownMargin.TabIndex = 6;

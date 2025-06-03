@@ -238,6 +238,10 @@ namespace PurplePen
             else if (standardsPage.radioButtonMapSpr2019.Checked) {
                 createEventInfo.mapStandard = "Spr2019";
             }
+            //JU: StreetO
+            else if (standardsPage.radioButtonMapStreetO.Checked) {
+                createEventInfo.mapStandard = "StreetO";
+            }
             else {
                 createEventInfo.mapStandard = "2000";
             }

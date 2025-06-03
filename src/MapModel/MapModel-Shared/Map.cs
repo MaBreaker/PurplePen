@@ -52,6 +52,7 @@ using Color = System.Drawing.Color;
 namespace PurplePen.MapModel
 {
     using PurplePen.Graphics2D;
+    using System.Drawing;
     using System.Drawing.Drawing2D;
 
     // A color matrix
@@ -2123,7 +2124,7 @@ namespace PurplePen.MapModel
             Draw(g, rect, renderOpts, throwOnCancel, 0);
         }
 
-        internal void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel, int templateRecursionCount)
+        public void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel, int templateRecursionCount)
         {
             CheckReadable();
 
@@ -2161,6 +2162,14 @@ namespace PurplePen.MapModel
                         DrawColor(g, curColor, rect, renderOpts, throwOnCancel);
                         if (throwOnCancel != null)
                             throwOnCancel();
+                        
+                        //JU: Custom images above whiteout, but below courses objects and custom texts
+                        if (!layoutHidden && templateRecursionCount == -1 && curColor.OcadId == 44 && curColor.Name == "White" && curColor.Layer == SymLayer.Normal) {
+                            // Draw cuatom images.
+                            DrawColor(g, this.LayoutColor, rect, renderOpts, throwOnCancel);
+                            if (throwOnCancel != null)
+                                throwOnCancel();
+                        }
                     }
 
                     // Update the currentlyDrawing flag.
@@ -2172,7 +2181,8 @@ namespace PurplePen.MapModel
                     }
                 }
 
-                if (currentlyDrawing && !layoutHidden) {
+                if (currentlyDrawing && !layoutHidden && templateRecursionCount >= 0)
+                {
                     // Draw the layout layer.
                     DrawColor(g, this.LayoutColor, rect, renderOpts, throwOnCancel);
                     if (throwOnCancel != null)
@@ -2196,7 +2206,7 @@ namespace PurplePen.MapModel
             return s1.SortOrder.CompareTo(s2.SortOrder);
         }
 
-        // Draw a particular color layer. If curColor is ImageColor or LayoutColor, draw the image layer or Layout layer 
+        // Draw a particular color layer. If curColor is ImageColor or LayoutColor, draw the Image layer or Layout layer 
         private void DrawColor(IGraphicsTarget g, SymColor curColor, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel)
         {
             int symbolsDrawn = 0;
@@ -2375,7 +2385,7 @@ namespace PurplePen.MapModel
                     return layer;
                 ++layer;
             }
-
+            
             if (def.HasColor(this.ImageColor))
                 return layer;
 

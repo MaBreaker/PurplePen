@@ -1307,7 +1307,7 @@ namespace PurplePen.Tests
             controller.SelectTab(3);
 
             // Begin adding a description.
-            controller.BeginAddTextSpecialMode("Course: $(CourseName)", "Arial", true, false, SpecialColor.UpperPurple, -1);
+            controller.BeginAddTextSpecialMode("Course: $(CourseName)", "Arial", true, false, SpecialColor.UpperPurple, -1, 0F, false);
 
             // Check the status text.
             Assert.AreEqual(StatusBarText.AddingText, controller.StatusText);

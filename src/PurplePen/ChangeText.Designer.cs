@@ -47,7 +47,6 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.buttonChangeColor = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
-            this.checkBoxItalic = new System.Windows.Forms.CheckBox();
             this.comboBoxColor = new System.Windows.Forms.ComboBox();
             this.checkBoxBold = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -56,16 +55,22 @@
             this.upDownFontSize = new System.Windows.Forms.NumericUpDown();
             this.labelFontSizeMm = new System.Windows.Forms.Label();
             this.checkBoxAutoFontSize = new System.Windows.Forms.CheckBox();
+            this.checkBoxItalic = new System.Windows.Forms.CheckBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.upDownTextRotation = new System.Windows.Forms.NumericUpDown();
+            this.checkBoxMultiline = new System.Windows.Forms.CheckBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.pictureBoxPreview = new System.Windows.Forms.PictureBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.textBoxMain = new System.Windows.Forms.TextBox();
             this.insertSpecialButton = new System.Windows.Forms.Button();
+            this.textBoxMain = new System.Windows.Forms.TextBox();
             this.specialTextMenu.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.upDownFontSize)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.upDownTextRotation)).BeginInit();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxPreview)).BeginInit();
             this.groupBox3.SuspendLayout();
@@ -186,17 +191,21 @@
             // tableLayoutPanel1
             // 
             resources.ApplyResources(this.tableLayoutPanel1, "tableLayoutPanel1");
-            this.tableLayoutPanel1.Controls.Add(this.buttonChangeColor, 3, 2);
-            this.tableLayoutPanel1.Controls.Add(this.label2, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.checkBoxItalic, 3, 1);
-            this.tableLayoutPanel1.Controls.Add(this.comboBoxColor, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.buttonChangeColor, 3, 3);
+            this.tableLayoutPanel1.Controls.Add(this.label2, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.comboBoxColor, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this.checkBoxBold, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.listBoxFonts, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label3, 0, 3);
-            this.tableLayoutPanel1.Controls.Add(this.upDownFontSize, 1, 3);
-            this.tableLayoutPanel1.Controls.Add(this.labelFontSizeMm, 2, 3);
-            this.tableLayoutPanel1.Controls.Add(this.checkBoxAutoFontSize, 3, 3);
+            this.tableLayoutPanel1.Controls.Add(this.label3, 0, 4);
+            this.tableLayoutPanel1.Controls.Add(this.upDownFontSize, 1, 4);
+            this.tableLayoutPanel1.Controls.Add(this.labelFontSizeMm, 2, 4);
+            this.tableLayoutPanel1.Controls.Add(this.checkBoxAutoFontSize, 3, 4);
+            this.tableLayoutPanel1.Controls.Add(this.checkBoxItalic, 3, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label4, 0, 5);
+            this.tableLayoutPanel1.Controls.Add(this.upDownTextRotation, 1, 5);
+            this.tableLayoutPanel1.Controls.Add(this.checkBoxMultiline, 3, 5);
+            this.tableLayoutPanel1.Controls.Add(this.label5, 2, 5);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             // 
             // buttonChangeColor
@@ -209,13 +218,6 @@
             // 
             resources.ApplyResources(this.label2, "label2");
             this.label2.Name = "label2";
-            // 
-            // checkBoxItalic
-            // 
-            resources.ApplyResources(this.checkBoxItalic, "checkBoxItalic");
-            this.checkBoxItalic.Name = "checkBoxItalic";
-            this.checkBoxItalic.UseVisualStyleBackColor = true;
-            this.checkBoxItalic.CheckedChanged += new System.EventHandler(this.checkBoxItalic_CheckedChanged);
             // 
             // comboBoxColor
             // 
@@ -243,7 +245,7 @@
             this.tableLayoutPanel1.SetColumnSpan(this.listBoxFonts, 2);
             this.listBoxFonts.FormattingEnabled = true;
             this.listBoxFonts.Name = "listBoxFonts";
-            this.tableLayoutPanel1.SetRowSpan(this.listBoxFonts, 2);
+            this.tableLayoutPanel1.SetRowSpan(this.listBoxFonts, 3);
             this.listBoxFonts.Sorted = true;
             this.listBoxFonts.SelectedIndexChanged += new System.EventHandler(this.listBoxFonts_SelectedIndexChanged);
             // 
@@ -286,6 +288,47 @@
             this.checkBoxAutoFontSize.UseVisualStyleBackColor = true;
             this.checkBoxAutoFontSize.CheckedChanged += new System.EventHandler(this.checkBoxAutoFontSize_CheckedChanged);
             // 
+            // checkBoxItalic
+            // 
+            resources.ApplyResources(this.checkBoxItalic, "checkBoxItalic");
+            this.checkBoxItalic.Name = "checkBoxItalic";
+            this.checkBoxItalic.UseVisualStyleBackColor = true;
+            this.checkBoxItalic.CheckedChanged += new System.EventHandler(this.checkBoxItalic_CheckedChanged);
+            // 
+            // label4
+            // 
+            resources.ApplyResources(this.label4, "label4");
+            this.label4.Name = "label4";
+            // 
+            // upDownTextRotation
+            // 
+            this.upDownTextRotation.DecimalPlaces = 1;
+            this.upDownTextRotation.Increment = new decimal(new int[] {
+            45,
+            0,
+            0,
+            0});
+            resources.ApplyResources(this.upDownTextRotation, "upDownTextRotation");
+            this.upDownTextRotation.Maximum = new decimal(new int[] {
+            360,
+            0,
+            0,
+            0});
+            this.upDownTextRotation.Name = "upDownTextRotation";
+            this.upDownTextRotation.ValueChanged += new System.EventHandler(this.upDownTextRotation_ValueChanged);
+            // 
+            // checkBoxMultiline
+            // 
+            resources.ApplyResources(this.checkBoxMultiline, "checkBoxMultiline");
+            this.checkBoxMultiline.Name = "checkBoxMultiline";
+            this.checkBoxMultiline.UseVisualStyleBackColor = true;
+            this.checkBoxMultiline.CheckedChanged += new System.EventHandler(this.checkBoxMultiline_CheckedChanged);
+            // 
+            // label5
+            // 
+            resources.ApplyResources(this.label5, "label5");
+            this.label5.Name = "label5";
+            // 
             // groupBox2
             // 
             resources.ApplyResources(this.groupBox2, "groupBox2");
@@ -315,12 +358,6 @@
             this.tableLayoutPanel2.Controls.Add(this.textBoxMain, 0, 0);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             // 
-            // textBoxMain
-            // 
-            resources.ApplyResources(this.textBoxMain, "textBoxMain");
-            this.textBoxMain.Name = "textBoxMain";
-            this.textBoxMain.TextChanged += new System.EventHandler(this.textBoxMain_TextChanged);
-            // 
             // insertSpecialButton
             // 
             resources.ApplyResources(this.insertSpecialButton, "insertSpecialButton");
@@ -328,6 +365,12 @@
             this.insertSpecialButton.Name = "insertSpecialButton";
             this.insertSpecialButton.UseVisualStyleBackColor = true;
             this.insertSpecialButton.Click += new System.EventHandler(this.insertSpecialButton_Click);
+            // 
+            // textBoxMain
+            // 
+            resources.ApplyResources(this.textBoxMain, "textBoxMain");
+            this.textBoxMain.Name = "textBoxMain";
+            this.textBoxMain.TextChanged += new System.EventHandler(this.textBoxMain_TextChanged);
             // 
             // ChangeText
             // 
@@ -349,6 +392,7 @@
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.upDownFontSize)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.upDownTextRotation)).EndInit();
             this.groupBox2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxPreview)).EndInit();
             this.groupBox3.ResumeLayout(false);
@@ -393,5 +437,9 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.Button insertSpecialButton;
         private System.Windows.Forms.TextBox textBoxMain;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.NumericUpDown upDownTextRotation;
+        private System.Windows.Forms.CheckBox checkBoxMultiline;
+        private System.Windows.Forms.Label label5;
     }
 }

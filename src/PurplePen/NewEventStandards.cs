@@ -18,6 +18,9 @@ namespace PurplePen
                 radioButtonMap2017.Checked = true;
             else if (Settings.Default.NewEventMapStandard == "Spr2019")
                 radioButtonMapSpr2019.Checked = true;
+            //JU: StreetO
+            else if (Settings.Default.NewEventMapStandard == "StreetO")
+                radioButtonMapStreetO.Checked = true;
             else
                 radioButtonMap2000.Checked = true;
 
@@ -31,7 +34,8 @@ namespace PurplePen
         {
             get {
                 return (radioButtonDescriptions2004.Checked || radioButtonDescriptions2018.Checked) &&
-                       (radioButtonMap2000.Checked || radioButtonMap2017.Checked || radioButtonMapSpr2019.Checked);
+                       //JU: StreetO
+                       (radioButtonMap2000.Checked || radioButtonMap2017.Checked || radioButtonMapSpr2019.Checked || radioButtonMapStreetO.Checked);
 
             } 
         }

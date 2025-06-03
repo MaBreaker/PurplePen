@@ -689,7 +689,9 @@ namespace PurplePen
                     // Moving a description. Descriptions are rather special in the way their locations are used.
                     DescriptionCourseObj descObj = (DescriptionCourseObj) courseObjectStart.Clone();
                     descObj.MoveHandle(handleLocation, location);
-                    controller.MoveSpecial(specialId, new PointF[2] { new PointF(descObj.rect.Left, descObj.rect.Bottom), new PointF(descObj.rect.Left + descObj.CellSize, descObj.rect.Bottom) }, descObj.NumberOfColumns);
+                    //JU: generalize code to match other objects
+                    RectangleF rect = descObj.rect;
+                    controller.MoveSpecial(specialId, new PointF[2] { new PointF(rect.Left, rect.Bottom), new PointF(rect.Left + descObj.CellSize, rect.Bottom) }, descObj.NumberOfColumns);
                 }
                 else if (courseObjectStart is RectCourseObj) {
                     // Moving rectangle handles is sort of special too.
@@ -702,8 +704,10 @@ namespace PurplePen
                     // Moving text handles is sort of special too.
                     BasicTextCourseObj textObj = (BasicTextCourseObj)courseObjectStart.Clone();
                     textObj.MoveHandle(handleLocation, location);
-                    RectangleF rect = textObj.GetHighlightBounds();
-                    rect = textObj.AdjustBoundingRect(rect);
+                    //RectangleF rect = textObj.GetHighlightBounds();
+                    RectangleF rect = textObj.rect;
+                    //rect = textObj.AdjustBoundingRect(rect);
+                    rect = textObj.ReverseBoundingRect(rect);
                     controller.MoveSpecial(specialId, new PointF[2] { new PointF(rect.Left, rect.Bottom), new PointF(rect.Right, rect.Top) });
                 }
                 else {

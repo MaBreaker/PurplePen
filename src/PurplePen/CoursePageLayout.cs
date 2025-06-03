@@ -47,13 +47,14 @@ namespace PurplePen
     // Layout of a single page that is being printed. Might be all of a course or just part.
     class CoursePage
     {
-        public CourseDesignator courseDesignator;             // course to print
-        public string description;           // description of course
-        public RectangleF mapRectangle;      // rectangle to print in map coordinates
-        public RectangleF printRectangle;     // rectangle to print to on page, in hundredth of inch.
-        public bool landscape;                       // true if page should be printed in landscape orientation
-        public PaperSize paperSize;            // the paper size for that page.
-        public bool lastPageOfCourseOrPart;    // true if last page of a course or part of course (used for pausing printing)
+        public CourseDesignator courseDesignator;   // course to print
+        public string description;                  // description of course
+        public RectangleF mapRectangle;             // rectangle to print in map coordinates
+        public RectangleF printRectangle;           // rectangle to print to on page, in hundredth of inch.
+        public bool landscape;                      // true if page should be printed in landscape orientation
+        public PaperSize paperSize;                 // the paper size for that page.
+        public bool lastPageOfCourseOrPart;         // true if last page of a course or part of course (used for pausing printing)
+        public int margins;                         //JU: Margin or Bleed
     }
 
     // Class to layout the printing onto pages. Used for both printing and PDF creation.
@@ -138,7 +139,7 @@ namespace PurplePen
             bool landscape;
             PaperSize paperSize;
             string description;
-            int margins;
+            int margins; //JU: Bleed also
             RectangleF mapArea = GetPrintAreaForCourse(courseDesignator, out landscape, out paperSize, out margins, out scaleRatio, out description);
 
             // Get the available page size on the page.
@@ -155,6 +156,8 @@ namespace PurplePen
                     page.paperSize = paperSize;
                     page.mapRectangle = new RectangleF(horizontalLayout.startMap, verticalLayout.startMap, horizontalLayout.lengthMap, verticalLayout.lengthMap);
                     page.printRectangle = new RectangleF(horizontalLayout.startPage, verticalLayout.startPage, horizontalLayout.lengthPage, verticalLayout.lengthPage);
+                    //JU: Margin or Bleed
+                    page.margins = margins;
                     pageList.Add(page);
                 }
 

@@ -262,7 +262,7 @@ namespace PurplePen
         public const float controlOutsideDiameter2000 = 6.0F;    
         public const float controlOutsideDiameter2017 = 5.35F;
         public const float controlOutsideDiameterSpr2019 = 6.35F;
-        public const float finishOutsideDiameter2000 = 7.0F;     
+        public const float finishOutsideDiameter2000 = 7.0F;
         public const float finishOutsideDiameter2017 = 6.35F;
         public const float finishOutsideDiameterSpr2019 = 7.35F;
         public const float finishInsideDiameter2000 = 5.0F;      
@@ -271,6 +271,20 @@ namespace PurplePen
 
         public const float centerDotDiameter = 0.0F;
         public const float crossingRadius = 2.5F;
+        //JU: Control white outline
+        public const float numberOutlineWidth = 0.0F;
+        public const float controlOutlineWidth = 0.0F;
+        //JU: StreetO
+        public const float centerDotDiameterStreetO = 0.60F;
+        public const float numberOutlineWidthStreetO = 0.20F;
+        public const float controlOutlineWidthStreetO = 0.20F;
+        public const float controlOutsideDiameterStreetO = 6.35F;
+        public const float finishOutsideDiameterStreetO = 7.35F;
+        public const float finishInsideDiameterStreetO = 5.35F;
+        public const float courseColorCStreetO = 0.08F;
+        public const float courseColorMStreetO = 1.00F;
+        public const float courseColorYStreetO = 0F;
+        public const float courseColorKStreetO = 0F;
 
         // Map issue point dimensions
         public const float mapIssueLength = 2.5F, mapIssueWidth = 0.6F;  // Map Issue point size.

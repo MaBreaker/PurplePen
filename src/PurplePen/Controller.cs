@@ -494,15 +494,15 @@ namespace PurplePen
 
         // Info needed to create a new event.
         public struct CreateEventInfo {
-            public string title;                         // title of the event
-            public string eventFileName;        // full path name of the Purple Pen file
+            public string title;               // title of the event
+            public string eventFileName;       // full path name of the Purple Pen file
             public MapType mapType;            // map type.
-            public string mapFileName;          // full path of the OCAD file
-            public float scale;                         // map scale
+            public string mapFileName;         // full path of the OCAD file
+            public float scale;                // map scale
             public float allControlsPrintScale; // scale to print all controls at
-            public float dpi;                            // dpi for bitmap scale
-            public int firstCode;                      // first code to use for numbering
-            public bool disallowInvertibleCodes;  // Can invertible codes be used?
+            public float dpi;                  // dpi for bitmap scale
+            public int firstCode;              // first code to use for numbering
+            public bool disallowInvertibleCodes; // Can invertible codes be used?
             public string descriptionLangId;   // language for descriptions.
             public PrintArea printArea;        // default print area.
             public string descriptionStandard; // description IOF standard
@@ -542,6 +542,20 @@ namespace PurplePen
             }
             else if (info.mapStandard == "Spr2019") {
                 ev.courseAppearance.itemScaling = ItemScaling.RelativeToMap;
+            }
+            //JU: StreetO
+            else if (info.mapStandard == "StreetO")
+            {
+                ev.courseAppearance.purpleColorBlend = PurpleColorBlend.Blend;
+                ev.courseAppearance.centerDotDiameter = NormalCourseAppearance.centerDotDiameterStreetO;
+                ev.courseAppearance.numberOutlineWidth = NormalCourseAppearance.numberOutlineWidthStreetO;
+                ev.courseAppearance.controlOutlineWidth = NormalCourseAppearance.controlOutlineWidthStreetO;
+                ev.courseAppearance.useDefaultPurple = false;
+                ev.courseAppearance.purpleC = NormalCourseAppearance.courseColorCStreetO;
+                ev.courseAppearance.purpleM = NormalCourseAppearance.courseColorMStreetO;
+                ev.courseAppearance.purpleY = NormalCourseAppearance.courseColorYStreetO;
+                ev.courseAppearance.purpleK = NormalCourseAppearance.courseColorKStreetO;
+                ev.courseAppearance.itemScaling = ItemScaling.RelativeTo15000;
             }
             else {
                 if (info.allControlsPrintScale >= 9500 && info.allControlsPrintScale <= 15500) {
@@ -2682,6 +2696,11 @@ namespace PurplePen
             else if (selection.SelectionKind == SelectionMgr.SelectionKind.Control && eventDB.GetControl(selection.SelectedControl).kind == ControlPointKind.CrossingPoint) {
                 return CommandStatus.Enabled;
             }
+            //JU: Enable text menu rotation
+            //else if (selection.SelectionKind == SelectionMgr.SelectionKind.Special && eventDB.GetSpecial(selection.SelectedSpecial).kind == SpecialKind.Text)
+            //{
+            //    return CommandStatus.Enabled;
+            //}
             else {
                 return CommandStatus.Disabled;
             }
@@ -2798,7 +2817,7 @@ namespace PurplePen
         }
 
         // Get the text properties of a object if can change the text.
-        public bool GetChangableTextProperties(out string fontName, out bool fontBold, out bool fontItalic, out SpecialColor specialColor, out float fontHeight)
+        public bool GetChangableTextProperties(out string fontName, out bool fontBold, out bool fontItalic, out SpecialColor specialColor, out float fontHeight /* JU: Rotated, Multiline */ , out float textRotation, out bool textMultiline)
         {
             if (CanChangeText() == CommandStatus.Enabled) {
                 Special special = eventDB.GetSpecial(selectionMgr.Selection.SelectedSpecial);
@@ -2807,6 +2826,11 @@ namespace PurplePen
                 fontItalic = special.fontItalic;
                 specialColor = special.color;
                 fontHeight = special.fontHeight;
+                
+                //JU: Rotated and Multiline texts
+                textRotation = special.orientation;
+                textMultiline = special.multiline;
+                
                 return true;
             }
             else {
@@ -2815,12 +2839,17 @@ namespace PurplePen
                 fontItalic = false;
                 specialColor = SpecialColor.UpperPurple;
                 fontHeight = -1;
+                
+                //JU: Rotated and Multiline texts
+                textRotation = 0.0F;
+                textMultiline = false;
+                
                 return false;
             }
         }
 
         // Get the properties of a new text object.
-        public void GetAddTextDefaultProperties(out string fontName, out bool fontBold, out bool fontItalic, out SpecialColor fontColor, out float fontHeight, out bool fontAutoSize)
+        public void GetAddTextDefaultProperties(out string fontName, out bool fontBold, out bool fontItalic, out SpecialColor fontColor, out float fontHeight, out bool fontAutoSize /* JU: Rotated, Multiline */ , out float textRotation, out bool textMultiline)
         {
             var specials = eventDB.AllSpecialPairs.Where(s => s.Value.kind == SpecialKind.Text);
             if (specials.Any()) {
@@ -2832,6 +2861,11 @@ namespace PurplePen
                 fontColor = maxIdSpecial.color;
                 fontAutoSize = (maxIdSpecial.fontHeight < 0);
                 fontHeight = fontAutoSize ? 5.0F : maxIdSpecial.fontHeight;
+                
+                //JU: Rotated and Multiline texts
+                textRotation = 0.0F;
+                textMultiline = false;
+                
                 return;
             }
             else {
@@ -2842,17 +2876,22 @@ namespace PurplePen
                 fontColor = NormalCourseAppearance.fontColorTextSpecial;
                 fontAutoSize = true;
                 fontHeight = 5.0F;
+                
+                //JU: Rotated and Multiline texts
+                textRotation = 0.0F;
+                textMultiline = false;
+                
                 return;
             }
         }
 
-
         // Change the text.
-        public void ChangeText(string newText, string fontName, bool fontBold, bool fontItalic, SpecialColor specialColor, float fontHeight)
+        public void ChangeText(string newText, string fontName, bool fontBold, bool fontItalic, SpecialColor specialColor, float fontHeight /* JU: Rotated, Multiline */ , float textRotation, bool textMultiline)
         {
             if (CanChangeText() == CommandStatus.Enabled) {
                 undoMgr.BeginCommand(7114, CommandNameText.ChangeText);
-                ChangeEvent.ChangeSpecialText(eventDB, selectionMgr.Selection.SelectedSpecial, newText, fontName, fontBold, fontItalic, specialColor, fontHeight);
+                //JU: Rotated and Multiline texts
+                ChangeEvent.ChangeSpecialText(eventDB, selectionMgr.Selection.SelectedSpecial, newText, fontName, fontBold, fontItalic, specialColor, fontHeight /* JU: Rotated, Multiline */ , textRotation, textMultiline);
                 undoMgr.EndCommand(7114);
             }
         }
@@ -3789,9 +3828,9 @@ namespace PurplePen
         }
 
         // Start the mode to add text to a course
-        public void BeginAddTextSpecialMode(string text, string fontName, bool fontBold, bool fontItalic, SpecialColor fontColor, float fontHeight)
+        public void BeginAddTextSpecialMode(string text, string fontName, bool fontBold, bool fontItalic, SpecialColor fontColor, float fontHeight /* JU: Rotated, Multiline */ , float orientation, bool textMultiline)
         {
-            SetCommandMode(new AddTextMode(this, undoMgr, selectionMgr, eventDB, text, fontName, fontBold, fontItalic, fontColor, fontHeight));
+            SetCommandMode(new AddTextMode(this, undoMgr, selectionMgr, eventDB, text, fontName, fontBold, fontItalic, fontColor, fontHeight /* JU: Rotated, Multiline */ , orientation, textMultiline));
         }
 
         // expand text via current state.
@@ -3807,7 +3846,10 @@ namespace PurplePen
 
             bool success = HandleExceptions(
                 delegate {
-                    imageBitmap = (Bitmap)Image.FromFile(fileName);
+                    //JU: Release image handle after import
+                    //imageBitmap = (Bitmap)Image.FromFile(fileName);
+                    //Image.Dispose()
+                    imageBitmap = (Bitmap) Image.FromStream(new MemoryStream(File.ReadAllBytes(fileName)));
                 },
                 MiscText.CannotReadImageFile, fileName);
 

@@ -1,5 +1,9 @@
 bin
 obj
+debug/
+.vs
+.git
+.github
 Debug
 Release
 StorePkg

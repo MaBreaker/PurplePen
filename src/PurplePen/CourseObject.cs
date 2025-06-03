@@ -45,6 +45,16 @@ using PurplePen.Graphics2D;
 using System.Runtime.InteropServices;
 using System.Drawing.Text;
 using System.Linq;
+using static System.Windows.Forms.AxHost;
+using PdfSharp.Drawing;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using Windows.Security.Cryptography.Certificates;
+using System.Windows.Media.Media3D;
+using System.IO.Ports;
+using Windows.UI.Input.Spatial;
+using System.Xaml.Schema;
+using System.Diagnostics.Eventing.Reader;
+using System.Windows.Media.Imaging;
 
 namespace PurplePen
 {
@@ -328,10 +338,28 @@ namespace PurplePen
             get { return FullRadius - ((appearance.lineWidth * NormalCourseAppearance.lineThickness * courseObjRatio) / 2.0F); }
         }
 
+        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
+        {
+            throw new NotImplementedException("Should not be called.");
+        }
+
+        protected abstract SymDef CreateSymDef(Map map, SymColor upper_symColor, SymColor lower_symColor, SymColor whiteColor);
+
         protected override void AddToMap(Map map, SymDef symdef)
         {
             PointSymbol sym = new PointSymbol((PointSymDef)symdef, location, orientation, CircleGap.StartsAndStops(gaps));
             map.AddSymbol(sym);
+        }
+
+        public override void AddToMap(Map map, SymColor symColor, SymColor lower_symColor, CourseLayout.MapRenderOptions mapRenderOptions, Dictionary<object, SymDef> dict)
+        {
+            object key = new Pair<short, object>(symColor.OcadId, SymDefKey());
+            //JU: Control white outline
+            SymColor whiteColor = ((AreaSymDef)dict[CourseLayout.KeyWhiteOut]).FillColor;
+            if (!dict.ContainsKey(key))
+                dict[key] = CreateSymDef(map, symColor, lower_symColor, whiteColor);
+
+            AddToMap(map, dict[key]);
         }
 
         // Get the distance of a point from this object, or 0 if the point is covered by the object.
@@ -1032,18 +1060,22 @@ namespace PurplePen
     abstract class TextCourseObj : CourseObj
     {
         // NOTE: if new fields are added, update Equals implementation.
-        public string text;                             // text for a Text object
+        public string text;                         // text for a Text object
         public PointF topLeft;                      // top-left of the text.
-        public string fontName;                  // font name
-        public FontStyle fontStyle;              // font style
-        public SpecialColor fontColor;           // font color
+        public string fontName;                     // font name
+        public FontStyle fontStyle;                 // font style
+        public SpecialColor fontColor;              // font color
         private float emHeight;                     // em height of the font.
         private float outlineWidth;                 // width of white outline (0 for none)
-
+        
         protected SizeF size;                       // size of the text.
+        
+        //JU: Rotated and Multiline texts
+        public float orientation;                   // orientation in degrees
+        public bool multiline;
 
         // NOTE: scale ratio is not used for this type of object!
-        public TextCourseObj(Id<ControlPoint> controlId, Id<CourseControl> courseControlId, Id<Special> specialId, string text, PointF topLeft, string fontName, FontStyle fontStyle, SpecialColor fontColor, float emHeight, float outlineWidth)
+        public TextCourseObj(Id<ControlPoint> controlId, Id<CourseControl> courseControlId, Id<Special> specialId, string text, PointF topLeft, string fontName, FontStyle fontStyle, SpecialColor fontColor, float emHeight, float outlineWidth, /* JU: Rotated and Multiline texts */ float orientation, bool multiline)
             :
            base(controlId, courseControlId, specialId, 1.0F, new CourseAppearance())
         {
@@ -1055,6 +1087,10 @@ namespace PurplePen
             this.emHeight = emHeight;
             this.outlineWidth = outlineWidth;
             this.size = MeasureText();
+            
+            //JU: Rotated and Multiline texts
+            this.orientation = orientation;
+            this.multiline = multiline;
         }
 
         public float EmHeight {
@@ -1094,7 +1130,10 @@ namespace PurplePen
             public FontStyle fontStyle;
             public SpecialColor fontColor;
             public float emHeight;
-            public float outineWidth;
+            public float outlineWidth;
+            
+            //JU: Rotated text
+            public float orientation;
         }
 
         protected override object SymDefKey()
@@ -1104,7 +1143,10 @@ namespace PurplePen
             key.fontStyle = fontStyle;
             key.fontColor = fontColor;
             key.emHeight = emHeight;
-            key.outineWidth = outlineWidth;
+            key.outlineWidth = outlineWidth;
+            
+            //JU: Rotated text
+            key.orientation = orientation;
 
             return key;
         }
@@ -1119,9 +1161,14 @@ namespace PurplePen
             SymColor symbolColor = (fontColor.Kind == SpecialColor.ColorKind.LowerPurple) ? lower_symColor : upper_symColor;
             // Find a free id.
             string symbolId = map.GetFreeSymbolId(OcadIdIntegerPart);
-
+            
             TextSymDef symdef = new TextSymDef(SymDefName, symbolId, TextSymDef.PreferredSymbolKind.NormalText, null);
-            symdef.SetFont(fontName, emHeight, Util.GetTextEffects(fontStyle), symbolColor, emHeight, 0, 0, 0, null, 0, 1F, TextSymDefHorizAlignment.Left, TextSymDefVertAlignment.TopAscent);
+
+//TODO use font heigth and not static 1.2
+
+            //JU: Match normal DrawString line spacing of HighLight
+            float pixelEmHight = emHeight * 1.2F; //TransformDistance(emHeight, xformWorldToPixel);
+            symdef.SetFont(fontName, emHeight, Util.GetTextEffects(fontStyle), symbolColor, pixelEmHight, 0, 0, 0, null, 0, 1F, TextSymDefHorizAlignment.Left, TextSymDefVertAlignment.TopAscent);
             if (outlineWidth > 0) {
                 TextSymDef.Framing framing = new TextSymDef.Framing() {
                     framingColor = whiteColor,
@@ -1157,7 +1204,9 @@ namespace PurplePen
 
         protected override void AddToMap(Map map, SymDef symdef)
         {
-            TextSymbol sym = new TextSymbol((TextSymDef)symdef, new string[1] { text }, topLeft, 0, 0, TextSymDefHorizAlignment.Default, TextSymDefVertAlignment.Default);
+            //JU: Rotated and Multiline texts
+            //TextSymbol sym = new TextSymbol((TextSymDef)symdef, new string[1] { text }, topLeft, 0, 0, TextSymDefHorizAlignment.Default, TextSymDefVertAlignment.Default);
+            TextSymbol sym = new TextSymbol((TextSymDef)symdef, text.Split('\n'), topLeft, orientation, 0, TextSymDefHorizAlignment.Default, TextSymDefVertAlignment.Default);
 
             /*Show size of text
              * PointF[] pts = { topLeft, new PointF(topLeft.X, topLeft.Y - size.Height), new PointF(topLeft.X + size.Width, topLeft.Y - size.Height), new PointF(topLeft.X + size.Width, topLeft.Y), topLeft };
@@ -1172,6 +1221,10 @@ namespace PurplePen
         {
             // Is point within the rectangle?
             RectangleF rect = new RectangleF(new PointF(topLeft.X, topLeft.Y - size.Height), size);
+            //JU: Rotated text
+            if (orientation > 0.0F) {
+                rect = Geometry.BoundsOfRotatedRectangle(rect, rect.BottomLeft(), orientation);
+            }
             if (rect.Contains(pt))
                 return 0;
 
@@ -1230,8 +1283,12 @@ namespace PurplePen
                         SizeF textSize = g.MeasureString(text, font, topLeftPixel[0], format);
                         Size expandedSize = new Size((int)Math.Ceiling(textSize.Width) + 4, (int)Math.Ceiling(textSize.Height) + 4);
                         try {
+                            //JU: Rotated text highlight
+                            g.TranslateTransform(topLeftPixel[0].X, topLeftPixel[0].Y); 
+                            g.RotateTransform(-orientation); 
                             g.FillRectangle(brush, topLeftPixel[0].X - 2, topLeftPixel[0].Y - 2, expandedSize.Width, expandedSize.Height);
-                            g.DrawString(text, font, brush, topLeftPixel[0], format);
+                            g.DrawString(text, font, brush,  /* topLeftPixel[0] */ new PointF(0, 0) , format);
+                            g.ResetTransform();
                         }
                         catch (Exception) {
                             // Sometimes happens with very small items. Nothing to do but ignore it.
@@ -1246,11 +1303,15 @@ namespace PurplePen
                     using (Font font = GdiplusFontLoader.CreateFont(SafeFontName, pixelEmHight, fontStyle)) {
                         // Outline in white, makes the red text pop much better.
                         GraphicsPath path = new GraphicsPath();
-                        path.AddString(text, fontFam, (int)fontStyle, pixelEmHight, topLeftPixel[0], format);
+                        path.AddString(text, fontFam, (int)fontStyle, pixelEmHight, /* JU: Rotated text: topLeftPixel[0] */ new PointF(0, 0), format);
                         path.CloseAllFigures();
                         using (Pen pen = new Pen(Color.White, 2)) {
                             try {
+                                //JU: Rotated text highlight
+                                g.TranslateTransform(topLeftPixel[0].X, topLeftPixel[0].Y); 
+                                g.RotateTransform(-orientation);
                                 g.DrawPath(pen, path);
+                                g.ResetTransform();
                             }
                             catch (Exception) {
                                 // Sometimes happens with very small items. Nothing to do but ignore it.
@@ -1261,8 +1322,12 @@ namespace PurplePen
                         path.Dispose();
 
                         try {
+                            //JU: Rotated text highlight
+                            g.TranslateTransform(topLeftPixel[0].X, topLeftPixel[0].Y); 
+                            g.RotateTransform(-orientation);
                             // Draw red text.
-                            g.DrawString(text, font, brush, topLeftPixel[0], format);
+                            g.DrawString(text, font, brush, /* topLeftPixel[0] */ new PointF (0, 0), format);
+                            g.ResetTransform();
                         }
                         catch (Exception) {
                             // Sometimes happens with very small items. Nothing to do but ignore it.
@@ -1279,7 +1344,14 @@ namespace PurplePen
         public override RectangleF GetHighlightBounds()
         {
             // CONSIDER: this is sometimes a little bit too small.
-            return new RectangleF(topLeft.X, topLeft.Y - size.Height, size.Width, size.Height);
+            //return new RectangleF(topLeft.X, topLeft.Y - size.Height, size.Width, size.Height);
+
+            //JU: Rotated text highlight
+            RectangleF rect = new RectangleF(topLeft.X, topLeft.Y - size.Height, size.Width, size.Height);
+            if (orientation > 0.0F) {
+                rect = Geometry.BoundsOfRotatedRectangle(rect, rect.BottomLeft(), orientation);
+            }
+            return rect;
         }
 
         // Offset the object by a given amount
@@ -1298,7 +1370,7 @@ namespace PurplePen
 
             TextCourseObj other = (TextCourseObj)obj;
 
-            if (text != other.text || topLeft != other.topLeft || fontName != other.fontName || fontStyle != other.fontStyle || !fontColor.Equals(other.fontColor) || emHeight != other.emHeight)
+            if (text != other.text || topLeft != other.topLeft || fontName != other.fontName || fontStyle != other.fontStyle || !fontColor.Equals(other.fontColor) || emHeight != other.emHeight /* JU: Rotated and Multiline texts */ || orientation != other.orientation || multiline != other.multiline)
                 return false;
 
             return base.Equals(obj);
@@ -1318,7 +1390,7 @@ namespace PurplePen
             : base(controlId, courseControlId, Id<Special>.None, courseObjRatio, appearance, gaps, 0,
                   (appearance.mapStandard == "2017" ? 
                       NormalCourseAppearance.controlOutsideDiameter2017 : 
-                      (appearance.mapStandard == "Spr2019" ? NormalCourseAppearance.controlOutsideDiameterSpr2019 : NormalCourseAppearance.controlOutsideDiameter2000)) / 2F,
+                      (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? NormalCourseAppearance.controlOutsideDiameterSpr2019 : NormalCourseAppearance.controlOutsideDiameter2000)) / 2F,
                   location)
         {
         }
@@ -1326,7 +1398,7 @@ namespace PurplePen
         protected float Diameter {
             get {
                 return (appearance.mapStandard == "2017" ? NormalCourseAppearance.controlOutsideDiameter2017
-                                                         : (appearance.mapStandard == "Spr2019" ? NormalCourseAppearance.controlOutsideDiameterSpr2019 : NormalCourseAppearance.controlOutsideDiameter2000)) * courseObjRatio * appearance.controlCircleSize;
+                                                         : (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? NormalCourseAppearance.controlOutsideDiameterSpr2019 : NormalCourseAppearance.controlOutsideDiameter2000)) * courseObjRatio * appearance.controlCircleSize;
             }
         }
 
@@ -1336,10 +1408,21 @@ namespace PurplePen
             }
         }
 
-        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
+        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor /* JU: Control white outline */, SymColor whiteColor)
         {
             Glyph glyph = new Glyph();
-            glyph.AddCircle(lower_symColor, new PointF(0.0F, 0.0F), LineThickness, Diameter);
+            
+            //JU: Control white outline
+            if(appearance.controlOutlineWidth > 0.0F) {
+                // No blending with white outline (fill control circle background with outwhite)
+                float outlineWidth = courseObjRatio * appearance.controlOutlineWidth;
+                glyph.AddCircle(whiteColor, new PointF(0.0F, 0.0F), LineThickness + outlineWidth, Diameter + outlineWidth*2);
+                glyph.AddCircle(symColor, new PointF(0.0F, 0.0F), LineThickness, Diameter);
+            }
+            else {
+                glyph.AddCircle(lower_symColor, new PointF(0.0F, 0.0F), LineThickness, Diameter);
+            }
+            
             if (appearance.centerDotDiameter > 0.0F) {
                 // The center dot is drawn in the upper purple color.
                 glyph.AddFilledCircle(symColor, new PointF(0.0F, 0.0F), appearance.centerDotDiameter * courseObjRatio);
@@ -1513,7 +1596,6 @@ namespace PurplePen
 
     }
 
-
     // Start triangle
     class StartCourseObj : PointCourseObj
     {
@@ -1532,7 +1614,7 @@ namespace PurplePen
             this.crossHairOptions = crossHairOptions;
         }
 
-        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
+        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor /* JU: Control white outline */, SymColor whiteColor)
         {
             PointF[] coords = (appearance.mapStandard == "2017") ? coords2017 : coords2000;
 
@@ -1541,7 +1623,28 @@ namespace PurplePen
             SymPath path = new SymPath(pts, kinds);
 
             Glyph glyph = new Glyph();
-            glyph.AddLine(lower_symColor, path, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoin.Miter, LineCap.Flat);
+            //JU: Start white outline
+            if (appearance.controlOutlineWidth > 0.0F) {
+                // No blending with white outline (fill finnish symbol background with outwhite)
+                float outlineWidth = courseObjRatio * appearance.controlOutlineWidth;
+
+                //Adjust white outline coordinates by outline width
+                float delta = outlineWidth / 2;
+                float sin30 = (float)Math.Abs(Math.Sin(30 * Math.PI / 180));
+                float tan60 = (float)Math.Abs(Math.Tan(60 * Math.PI / 180));
+                PointF[] ptsW = {
+                    new PointF(pts[0].X, pts[0].Y + delta / sin30),
+                    new PointF(pts[1].X + tan60 * delta, pts[1].Y - delta),
+                    new PointF(pts[2].X - tan60 * delta, pts[2].Y - delta),
+                    new PointF(pts[3].X, pts[0].Y + delta / sin30)
+                };
+                SymPath pathW = new SymPath(ptsW, kinds);
+                glyph.AddLine(whiteColor, pathW, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth + outlineWidth, LineJoin.Miter, LineCap.Flat);
+                glyph.AddLine(symColor, path, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoin.Miter, LineCap.Flat);
+            }
+            else {
+                glyph.AddLine(lower_symColor, path, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoin.Miter, LineCap.Flat);
+            }
             glyph.ConstructionComplete();
 
             PointSymDef symdef = new PointSymDef("Start", "701", glyph, true);
@@ -1581,7 +1684,6 @@ namespace PurplePen
         }
     }
 
-
     // Map Issue Point.
     // Optionally show a "tail", which is useful if we aren't drawing a line from it.
     class MapIssueCourseObj : PointCourseObj
@@ -1615,7 +1717,7 @@ namespace PurplePen
             }
         }
 
-        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
+        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor /* JU: Control white outline */, SymColor whiteColor)
         {
             PointKind[] kinds = { PointKind.Normal, PointKind.Normal };
             PointF[] pts = ScaleCoords((PointF[])coords.Clone());
@@ -1694,7 +1796,7 @@ namespace PurplePen
         public FinishCourseObj(Id<ControlPoint> controlId, Id<CourseControl> courseControlId, float courseObjRatio, CourseAppearance appearance,
             CircleGap[] gaps, PointF location, CrossHairOptions crossHairOptions)
             : base(controlId, courseControlId, Id<Special>.None, courseObjRatio, appearance, gaps, 0,
-                  ((appearance.mapStandard == "2017") ? NormalCourseAppearance.finishOutsideDiameter2017 : (appearance.mapStandard == "Spr2019" ? NormalCourseAppearance.finishOutsideDiameterSpr2019 : NormalCourseAppearance.finishOutsideDiameter2000)) / 2F,
+                  ((appearance.mapStandard == "2017") ? NormalCourseAppearance.finishOutsideDiameter2017 : (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? NormalCourseAppearance.finishOutsideDiameterSpr2019 : NormalCourseAppearance.finishOutsideDiameter2000)) / 2F,
                   location)
         {
             this.crossHairOptions = crossHairOptions;
@@ -1720,13 +1822,22 @@ namespace PurplePen
             }
         }
 
-
-
-        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
+        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor /* JU: Control white outline */, SymColor whiteColor)
         {
             Glyph glyph = new Glyph();
-            glyph.AddCircle(lower_symColor, new PointF(0.0F, 0.0F), LineThickness, InsideDiameter);
-            glyph.AddCircle(lower_symColor, new PointF(0.0F, 0.0F), LineThickness, OutsideDiameter);
+            //JU: Control white outline
+            if (appearance.controlOutlineWidth > 0.0F) {
+                // No blending with white outline (fill control circle background with outwhite)
+                float outlineWidth = courseObjRatio * appearance.controlOutlineWidth;
+                glyph.AddCircle(whiteColor, new PointF(0.0F, 0.0F), LineThickness + outlineWidth, InsideDiameter + outlineWidth * 2);
+                glyph.AddCircle(whiteColor, new PointF(0.0F, 0.0F), LineThickness + outlineWidth, OutsideDiameter + outlineWidth * 2);
+                glyph.AddCircle(symColor, new PointF(0.0F, 0.0F), LineThickness, InsideDiameter);
+                glyph.AddCircle(symColor, new PointF(0.0F, 0.0F), LineThickness, OutsideDiameter);
+            }
+            else {
+                glyph.AddCircle(lower_symColor, new PointF(0.0F, 0.0F), LineThickness, InsideDiameter);
+                glyph.AddCircle(lower_symColor, new PointF(0.0F, 0.0F), LineThickness, OutsideDiameter);
+            }
             glyph.ConstructionComplete();
 
             PointSymDef symdef = new PointSymDef("Finish", "706", glyph, false);
@@ -1734,7 +1845,6 @@ namespace PurplePen
             map.AddSymdef(symdef);
             return symdef;
         }
-
         public override string ToString()
         {
             string result = base.ToString();
@@ -1811,7 +1921,7 @@ namespace PurplePen
         {
         }
 
-        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
+        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor /* JU: Control white outline */, SymColor whiteColor)
         {
             PointKind[] kinds = {
                 PointKind.Normal, PointKind.Normal, PointKind.Normal, PointKind.Normal,
@@ -1918,7 +2028,7 @@ namespace PurplePen
         {
         }
 
-        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
+        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor /* JU: Control white outline */, SymColor whiteColor)
         {
             Glyph glyph = new Glyph();
 
@@ -1997,10 +2107,10 @@ namespace PurplePen
         public float stretch;
 
         public CrossingCourseObj(Id<ControlPoint> controlId, Id<CourseControl> courseControlId, Id<Special> specialId, float courseObjRatio, CourseAppearance appearance, float orientation, float stretch, PointF location)
-            : base(controlId, courseControlId, specialId, courseObjRatio, appearance, null, orientation, (appearance.mapStandard == "Spr2019" ? 1.82F : 1.72F) + stretch / 2, location)
+            : base(controlId, courseControlId, specialId, courseObjRatio, appearance, null, orientation, (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? 1.82F : 1.72F) + stretch / 2, location)
         {
             this.stretch = stretch;
-            if (appearance.mapStandard == "Spr2019") {
+            if (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO") {
                 // In ISSpr2019, the inner width of crossing symbols is larger.
                 for (int i = 0; i < coords1.Length; ++i) {
                     coords1[i].X -= 0.175F;
@@ -2038,7 +2148,7 @@ namespace PurplePen
                 PointKind[] kinds = { PointKind.Normal, PointKind.BezierControl, PointKind.BezierControl, PointKind.Normal, PointKind.Normal, PointKind.BezierControl, PointKind.BezierControl, PointKind.Normal };
                 PointF[] pts = { new PointF(-0.85F, -1.5F - hStretch), new PointF(-0.6F, -1.08F - hStretch), new PointF(-0.48F, -0.5F - hStretch), new PointF(-0.48F, - hStretch),
                                  new PointF(-0.48F, hStretch), new PointF(-0.48F, 0.5F + hStretch), new PointF(-0.6F, 1.08F + hStretch), new PointF(-0.85F, 1.5F + hStretch) };
-                if (appearance.mapStandard == "Spr2019") {
+                if (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO") {
                     // In ISSpr2019, the inner width of crossing symbols is larger.
                     for (int i = 0; i < pts.Length; ++i) {
                         pts[i].X -= 0.175F;
@@ -2050,7 +2160,7 @@ namespace PurplePen
                 kinds = new PointKind[] { PointKind.Normal, PointKind.BezierControl, PointKind.BezierControl, PointKind.Normal, PointKind.Normal, PointKind.BezierControl, PointKind.BezierControl, PointKind.Normal };
                 pts = new PointF[] { new PointF(0.85F, -1.5F - hStretch), new PointF(0.6F, -1.08F - hStretch), new PointF(0.48F, -0.5F - hStretch), new PointF(0.48F, -hStretch),
                                      new PointF(0.48F, hStretch), new PointF(0.48F, 0.5F + hStretch), new PointF(0.6F, 1.08F + hStretch), new PointF(0.85F, 1.5F + hStretch) };
-                if (appearance.mapStandard == "Spr2019") {
+                if (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO") {
                     // In ISSpr2019, the inner width of crossing symbols is larger.
                     for (int i = 0; i < pts.Length; ++i) {
                         pts[i].X += 0.175F;
@@ -2061,7 +2171,7 @@ namespace PurplePen
             }
         }
 
-        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
+        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor /* JU: Control white outline */, SymColor whiteColor)
         {
             Glyph glyph = new Glyph();
             SymPath path1, path2;
@@ -2151,7 +2261,7 @@ namespace PurplePen
         {
         }
 
-        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
+        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor /* JU: Control white outline */, SymColor whiteColor)
         {
             Glyph glyph = new Glyph();
 
@@ -2212,7 +2322,7 @@ namespace PurplePen
         {
         }
 
-        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
+        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor /* JU: Control white outline */, SymColor whiteColor)
         {
             Glyph glyph = new Glyph();
 
@@ -2338,21 +2448,19 @@ namespace PurplePen
         }
     }
 
-
-
     // A boundary
     class BoundaryCourseObj : LineCourseObj
     {
         public BoundaryCourseObj(Id<Special> specialId, float courseObjRatio, CourseAppearance appearance, SymPath path)
             : base(Id<ControlPoint>.None, Id<CourseControl>.None, Id<CourseControl>.None, specialId, courseObjRatio, appearance, 
-                   (appearance.mapStandard == "Spr2019" ? 1.0F : 0.7F) * appearance.lineWidth, 
+                   (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? 1.0F : 0.7F) * appearance.lineWidth, 
                    path, null)
         {
         }
 
         protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
         {
-            LineSymDef symdef = new LineSymDef("Uncrossable boundary", "707", lower_symColor, (appearance.mapStandard == "Spr2019" ? 1.0F : 0.7F) * courseObjRatio * appearance.lineWidth, LineJoin.Miter, LineCap.Flat);
+            LineSymDef symdef = new LineSymDef("Uncrossable boundary", "707", lower_symColor, (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? 1.0F : 0.7F) * courseObjRatio * appearance.lineWidth, LineJoin.Miter, LineCap.Flat);
             symdef.ToolboxImage = MapUtil.CreateToolboxIcon(Properties.Resources.Line_OcadToolbox);
             map.AddSymdef(symdef);
             return symdef;
@@ -2806,7 +2914,7 @@ namespace PurplePen
                    appearance.numberRoboto ? NormalCourseAppearance.controlNumberFontRoboto.Name : NormalCourseAppearance.controlNumberFontArial.Name,
                    appearance.numberBold ? NormalCourseAppearance.controlNumberFontRobotoBold.Style : NormalCourseAppearance.controlNumberFontRoboto.Style, 
                    ColorOfControlNumber(appearance),
-                   NormalCourseAppearance.controlNumberFontRoboto.EmHeight * courseObjRatio * appearance.numberHeight, courseObjRatio * appearance.numberOutlineWidth)
+                   NormalCourseAppearance.controlNumberFontRoboto.EmHeight * courseObjRatio * appearance.numberHeight, courseObjRatio * appearance.numberOutlineWidth /* JU: Rotated, Multiline */, 0.0F, false)
         {
             // Update the top left coord so the text is centered on centerPoint.
             this.centerPoint = centerPoint;
@@ -2826,7 +2934,7 @@ namespace PurplePen
         // but if there is an outline, only upper purple will work.
         internal static SpecialColor ColorOfControlNumber(CourseAppearance appearance)
         {
-            if (appearance.mapStandard == "Spr2019") {
+            if (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO") {
                 return SpecialColor.UpperPurple;
             }
             else if (appearance.numberOutlineWidth > 0) {
@@ -2846,7 +2954,7 @@ namespace PurplePen
         public CodeCourseObj(Id<ControlPoint> controlId, Id<CourseControl> courseControlId, float courseObjRatio, CourseAppearance appearance, string text, PointF centerPoint)
             : base(controlId, courseControlId, Id<Special>.None, text, centerPoint, NormalCourseAppearance.controlCodeFont.Name, NormalCourseAppearance.controlCodeFont.Style, 
                   ControlNumberCourseObj.ColorOfControlNumber(appearance),
-                  NormalCourseAppearance.controlCodeFont.EmHeight * courseObjRatio * appearance.numberHeight, courseObjRatio * appearance.numberOutlineWidth)
+                  NormalCourseAppearance.controlCodeFont.EmHeight * courseObjRatio * appearance.numberHeight, courseObjRatio * appearance.numberOutlineWidth /* JU: Rotated, Multiline */, 0.0F, false)
         {
             // Update the top left coord so the text is centered on centerPoint.
             this.centerPoint = centerPoint;
@@ -2869,7 +2977,7 @@ namespace PurplePen
 
         public VariationCodeCourseObj(Id<ControlPoint> controlId, Id<CourseControl> courseControlId, float courseObjRatio, CourseAppearance appearance, string text, PointF centerPoint)
             : base(controlId, courseControlId, Id<Special>.None, text, centerPoint, NormalCourseAppearance.variationCodeFont.Name, NormalCourseAppearance.variationCodeFont.Style, SpecialColor.LowerPurple,
-            NormalCourseAppearance.variationCodeFont.EmHeight * courseObjRatio, 0)
+            NormalCourseAppearance.variationCodeFont.EmHeight * courseObjRatio /* JU: Rotated, Multiline */, 0, 0.0F, false)
         {
             // Update the top left coord so the text is centered on centerPoint.
             this.centerPoint = centerPoint;
@@ -2888,14 +2996,31 @@ namespace PurplePen
     // Arbitrary text, set withing a bounding rectangle. The text is sized to fit inside the bounding rectangle (automatic sizing) or of a particular height.
     class BasicTextCourseObj : TextCourseObj
     {
+        // JU
+        public RectangleF rect
+        {
+            get {
+                //return base.GetHighlightBounds();
+                return rectBounding;
+            }
+        }
+
         private RectangleF rectBounding;
         public readonly float fontDigitHeight; // -1 for automatic.
 
-        public BasicTextCourseObj(Id<Special> specialId, string text, RectangleF rectBounding, string fontName, FontStyle fontStyle, SpecialColor color, float fontDigitHeight)
-            : base(Id<ControlPoint>.None, Id<CourseControl>.None, specialId, text, new PointF(rectBounding.Left, rectBounding.Bottom), fontName, fontStyle, color, CalculateEmHeight(text, fontName, fontStyle, fontDigitHeight, rectBounding.Size), 0.0F)
+        public BasicTextCourseObj(Id<Special> specialId, string text, RectangleF rect, string fontName, FontStyle fontStyle, SpecialColor color, float fontDigitHeight /* JU: Rotated, Multiline */ , float rotation, bool multiline)
+            : base(Id<ControlPoint>.None, Id<CourseControl>.None, specialId, text, new PointF(rect.Left, rect.Bottom), fontName, fontStyle, color, 0.0F, 0.0F /* JU: Rotated, Multiline */, rotation, multiline)
         {
+            //JU: Multiline
+            if (multiline) {
+                this.text = text.Replace("|", "\n");
+            }
+
             this.fontDigitHeight = fontDigitHeight;
-            this.rectBounding = AdjustBoundingRect(rectBounding);
+            this.rectBounding = AdjustBoundingRect(rect);
+
+            //JU: Calculate text size for original bounding box size before rotation
+            this.EmHeight = CalculateEmHeight(this.text, fontName, fontStyle, fontDigitHeight, rect.Size);
         }
 
         // Get the ratio (emHeight / digitHeight) for the given font.
@@ -2911,7 +3036,7 @@ namespace PurplePen
         }
 
         // Given some text in a font and a bounding rectangle, figure out the correct em-height so that the text fits in the rectangle.
-        static private float CalculateEmHeight(string text, string fontName, FontStyle fontStyle, float fontDigitHeight, SizeF desiredSize)
+        private float CalculateEmHeight(string text, string fontName, FontStyle fontStyle, float fontDigitHeight, SizeF desiredSize)
         {
             if (fontDigitHeight > 0) {
                 // Specific height, but as the height of a digit. Convert to EmHeight for the given font.
@@ -2941,11 +3066,185 @@ namespace PurplePen
             }
         }
 
+        //JU: Calculate TopLeft corner and Size for rotated content rectangle
+        private RectangleF RotatedContentRect(RectangleF newRect, float rotation)
+        {
+            RectangleF textRect = newRect;
+            //Trace.WriteLine(string.Format("Base TopLeft is {0,6:F2}X, {1,6:F2}Y", base.topLeft.X, base.topLeft.Y));
+
+            if (rotation > 0.0F) {
+
+                //     Xa   Xb  
+                //   TL---E---TR
+                // Y |  /   \  |
+                // a | /     \ |
+                //   H-alpha   F
+                // Y | \     / |
+                // b |  \   /  |
+                //   BL---G---BR
+
+                //  +10  BL---- 
+                //       |
+                //   0 - | - -
+                //       |
+                //  -10  TL----
+
+                // Sin 0,  180 = 0
+                // Cos 90, 270 = 0
+
+                float rectSin = (float)Math.Abs(Math.Sin(rotation * Math.PI / 180));
+                float rectCos = (float)Math.Abs(Math.Cos(rotation * Math.PI / 180));
+
+                float partXa = rectCos * size.Width;
+                float partXb = rectSin * size.Height;
+                float sideX = partXa + partXb;
+                float scaleX = newRect.Width / sideX;
+
+                float partYa = rectSin * size.Width;
+                float partYb = rectCos * size.Height;
+                float sideY = partYa + partYb;
+                float scaleY = newRect.Height / sideY;
+                
+                float scale = Math.Min(scaleX, scaleY);
+
+                //SizeF newInnerSize = new SizeF(partXa * scale / rectSin, partYa * scale / rectCos);
+                SizeF newSize = new SizeF(size.Width * scale, size.Height * scale);
+                //Trace.WriteLine(string.Format("Size is {0,6:F2}W, {1,6:F2}H", newSize.Width, newSize.Height));
+
+                PointF topLeft = newRect.TopLeft();
+
+                // Flip rectangle H and W when needed
+                if (rotation < 90.0F) {
+                    // 45deg, 20x20, tl 0,-10
+                    topLeft.X = newRect.Left;
+                    // Trace.WriteLine(string.Format("< 90  X is {0,6:F2} Rect L", newRect.Left));
+                    if (rotation < 45.0F) {
+                        topLeft.Y = newRect.Bottom - partYa * scale; // Inverted Y;
+                        // Trace.WriteLine(string.Format("< 45  Y is {0,6:F2} Rect B - {1,6:F2} partYa * {2,6:F2} scale", newRect.Bottom, partYa, scale));
+                    }
+                    else {
+                        topLeft.Y = newRect.Top + partYb * scale; // Inverted Y;
+                        // Trace.WriteLine(string.Format("< 90  Y is {0,6:F2} Rect T + {1,6:F2} partYb * {2,6:F2} scale", newRect.Top, partYb, scale));
+                    }
+                }
+                else if (rotation < 180.0F) {
+                    // 135eg, 20x20, tl -10,-20
+                    if (rotation < 135.0F) {
+                        topLeft.X = newRect.Left + partXa * scale;
+                        // Trace.WriteLine(string.Format("< 135 X is {0,6:F2} Rect L + {1,6:F2} partXa * {2,6:F2} scale", newRect.Left, partXa, scale));
+                    }
+                    else {
+                        topLeft.X = newRect.Right - partXb * scale;
+                        // Trace.WriteLine(string.Format("< 180 X is {0,6:F2} Rect R - {1,6:F2} partXb * {2,6:F2} scale", newRect.Right, partXb, scale));
+                    }
+                    topLeft.Y = newRect.Top; // Inverted Y;
+                    // Trace.WriteLine(string.Format("< 180 Y is {0,6:F1} Rect T", newRect.Top));
+                }
+                else if (rotation < 270.0F) {
+                    // 225eg, 20x20, tl 20,-10
+                    topLeft.X = newRect.Right; // newRect.Left + newRect.Width;
+                    //Trace.WriteLine(string.Format("< 270 X is {0,6:F2} Rect R", newRect.Right));
+                    if (rotation < 225.0F) {
+                        topLeft.Y = newRect.Top + partYa * scale; // Inverted Y;
+                        // Trace.WriteLine(string.Format("< 225 Y is {0,6:F2} Rect B + {1,6:F2} partYa * {2,6:F2} scale", newRect.Bottom, partYa, scale));
+                    }
+                    else {
+                        topLeft.Y = newRect.Bottom - partYb * scale; // Inverted Y;
+                        // Trace.WriteLine(string.Format("< 270 Y is {0,6:F2} Rect B - {1,6:F2} partYb * {2,6:F2} scale", newRect.Bottom, partYb, scale));
+                    }
+                }
+                else if (rotation < 360.0F) {
+                    // Default
+                    // 315eg, 20x20, tl 10,0
+                    if (rotation < 315.0F) {
+                        topLeft.X = newRect.Right - partXa * scale;
+                        // Trace.WriteLine(string.Format("< 315 X is {0,6:F2} Rect R - {1,6:F2} partXa * {2,6:F2} scale", newRect.Right, partXa, scale));
+                    }
+                    else {
+                        topLeft.X = newRect.Left + partXb * scale;
+                        // Trace.WriteLine(string.Format("< 360 X is {0,6:F2} Rect L + {1,6:F2} partXb * {2,6:F2} scale", newRect.Left, partXb, scale));
+                    }
+                    topLeft.Y = newRect.Bottom; // Inverted Y;
+                    // Trace.WriteLine(string.Format("< 360 Y is {0,6:F1} Rect B", newRect.Bottom));
+                }
+                else {
+                    // The same as 0.0
+                }
+                // Trace.WriteLine(string.Format("Calc TopLeft is {0,6:F2}X, {1,6:F2}Y", topLeft.X, topLeft.Y));
+                textRect = new RectangleF(new PointF(topLeft.X, topLeft.Y - newSize.Height), newSize);
+            }
+            return textRect;
+        }
+
+        //JU: Calculate maximum size for rotated content rectangle
+        private SizeF MaximumContentSize(RectangleF boundingRect, SizeF contentSize, float rotation)
+        {
+            SizeF newSize = contentSize;
+
+            if (rotation > 0.0F) {
+
+                // Rotate content rect
+                RectangleF tmpRect = new RectangleF(new PointF(0.0F, 0.0F), contentSize);
+                tmpRect = Geometry.BoundsOfRotatedRectangle(tmpRect, tmpRect.BottomLeft(), rotation);
+                
+                // Get scale (should be 1)
+                float scaleX = boundingRect.Width / tmpRect.Width;
+                float scaleY = boundingRect.Height / tmpRect.Height;
+                float scale = Math.Min(scaleX, scaleY);
+
+                // Calculate difference between boundary and content
+                float diffX = (boundingRect.Width - tmpRect.Width) * scale;
+                float diffY = (boundingRect.Height - tmpRect.Height) * scale;
+
+                // Flip rectangle H and W where needed
+                if ((rotation > 45.0F && rotation < 135.0F) || (rotation > 225.0F && rotation < 315.0F)) {
+                    // Flip where needed
+                    float tmpX = diffX;
+                    diffX = diffY;
+                    diffY = tmpX;
+                }
+
+                // Scale content size + difference (free space)
+                newSize = new SizeF(contentSize.Width * scale + diffX, contentSize.Height * scale + diffY);
+
+                Trace.WriteLine(string.Format("MaximumContentSize: Size is {0,6:F2}W, {1,6:F2}H", newSize.Width, newSize.Height));
+            }
+            return newSize;
+        }
+
+        //JU: Reverse bounding rect size and position for rotated autosize texts
+        public RectangleF ReverseBoundingRect(RectangleF boundingRect)
+        {
+            RectangleF newRect = RotatedContentRect(boundingRect, orientation); // This works
+
+            // Automatic sizing of text -- calculate reverse rectangle size
+            if (fontDigitHeight < 0) {
+                //JU: Below is impossible to achieve as is with other than 0 & 90deg angles because
+                //    location coordinates are stored that way in xml config text "special-object" and
+                //    used in import fucntions.
+                //    Like size is 0 deg text rect, there is no separate "bounding rect" coordinates
+                //    stored into the config, and hence coordinates are always just the bounding of
+                //    rotated text rect NOT full hilight area with "free space" around texts.
+
+                // Calculate content size diff X and Y (free space) against bounding rect
+                /*
+                SizeF newSize = MaximumContentSize(boundingRect, newRect.Size, orientation); // Not work
+                newRect = new RectangleF(new PointF(newRect.Left, newRect.Bottom - newSize.Height), newSize);
+                */
+            }
+
+            return newRect;
+        }
+
         // Adjust the bounding rect if the text is of a fixed size.
         public RectangleF AdjustBoundingRect(RectangleF boundingRect)
         {
             if (fontDigitHeight < 0 || boundingRect.Height < 0.01F || boundingRect.Width < 0.01F) {
                 // Automatic sizing of text -- don't adjust rectangle.
+                if (orientation > 0.0F) {
+                    boundingRect = Geometry.BoundsOfRotatedRectangle(boundingRect, boundingRect.BottomLeft(), orientation);
+                    //JU: Relocation not needed here, because autosize must fit into the "box"
+                }
                 return boundingRect;
             }
             else {
@@ -2955,7 +3254,17 @@ namespace PurplePen
                 SizeF size;
                 using (Font f = GdiplusFontLoader.CreateFont(SafeFontName, CalculateEmHeight(text, SafeFontName, fontStyle, fontDigitHeight, new SizeF()), fontStyle))
                     size = g.MeasureString(text, f, new PointF(0, 0), StringFormat.GenericTypographic);
-                return RectangleF.FromLTRB(boundingRect.Left, boundingRect.Bottom - size.Height, boundingRect.Left + size.Width, boundingRect.Bottom);
+
+                // return RectangleF.FromLTRB(boundingRect.Left, boundingRect.Bottom - size.Height, boundingRect.Left + size.Width, boundingRect.Bottom);
+
+                //JU: Rotated rectangle selection
+                RectangleF rect = new RectangleF(new PointF(this.topLeft.X, this.topLeft.Y - size.Height), size);
+                //RectangleF rect = new RectangleF(new PointF(boundingRect.Left, boundingRect.Bottom - size.Height), size);
+                //rect.Location = new PointF(boundingRect.Left, boundingRect.Bottom - size.Height);
+                if (orientation > 0.0F) {
+                    rect = Geometry.BoundsOfRotatedRectangle(rect, rect.BottomLeft(), orientation);
+                }
+                return rect;
             }
         }
 
@@ -3053,13 +3362,60 @@ namespace PurplePen
             if (changeRight) right = newHandle.X;
             if (changeBottom) bottom = newHandle.Y;
 
+            // Update the rectangle.
             RectangleF newRect = Geometry.RectFromPoints(left, top, right, bottom);
 
+            if (left > right)
+            {
+                Util.Swap(ref changeLeft, ref changeRight);
+            }
+            if (top > bottom)
+            {
+                Util.Swap(ref changeTop, ref changeBottom);
+            }
+
             // Update the rectangle.
-            base.EmHeight = CalculateEmHeight(text, SafeFontName, fontStyle, fontDigitHeight, newRect.Size);
-            base.topLeft = new PointF(newRect.Left, newRect.Bottom);
+            RectangleUpdating(ref newRect, false, changeLeft, changeTop, changeRight, changeBottom);
             rectBounding = newRect;
-            //rectBounding = AdjustBoundingRect(newRect, text, fontName, fontStyle, fontDigitHeight);
+        }
+
+        // Rectangle is about to be updated by MoveHandle. This method can update the rectangle to something new, if desired.
+        // The boolean params indicate how the rectangle changed.
+        public virtual void RectangleUpdating(ref RectangleF newRect, bool dragAll, bool dragLeft, bool dragTop, bool dragRight, bool dragBottom)
+        {
+            //JU: Dragging HiLight - Get topleft and maximum rotated content size for autosize font
+            RectangleF textRect = RotatedContentRect(newRect, orientation);
+            
+            //SizeF newSize = MaximumContentSize(newRect, orientation);
+            //base.EmHeight = CalculateEmHeight(text, SafeFontName, fontStyle, fontDigitHeight, newSize);
+            //base.topLeft = RotatedContentTopLeft(newRect, orientation);
+            
+            base.topLeft = textRect.BottomLeft();
+            base.EmHeight = CalculateEmHeight(text, SafeFontName, fontStyle, fontDigitHeight, textRect.Size);
+
+            //JU: TODO Dragging HiLight - Relocate topleft properly while dragging
+            /*
+                        //JU: TopLeft for rotated text
+                        if (orientation > 0.0F) {
+
+                            // This works fine, but has "anomalies" with autosize texts
+                            float deltaX = (dragRight ? (newRect.Right - this.rectBounding.Right) : (newRect.Left - this.rectBounding.Left));
+                            float deltaY = (dragTop ? (newRect.Top - this.rectBounding.Top) : (newRect.Bottom - this.rectBounding.Bottom)); //JU: Inverted Y axis
+
+                            //float deltaX = (newRect.Left - this.rectBounding.Left);
+                            //float deltaY = (newRect.Bottom - this.rectBounding.Bottom);
+
+                            base.topLeft = new PointF(topLeft.X + deltaX, topLeft.Y + deltaY);
+                        }
+                        else  {
+                            // This works fine, but has anomalies with autosize texts
+                            //float pointX = (dragRight ? newRect.Right - size.Width : newRect.Left);
+                            //float pointY = (dragTop ? newRect.Top + size.Height : newRect.Bottom); //JU: Inverted Y-axis
+                            //base.topLeft = new PointF(pointX, pointY);
+
+                            base.topLeft = newRect.BottomLeft(); //JU: Inverted Y-axis
+                        }
+            */
         }
 
         public override string ToString()
@@ -3291,6 +3647,8 @@ namespace PurplePen
                  * 
                  * But, ImageSymDef layers the images about white out and other things on the map itself, which is preferable.
                  */
+                //JU: Images below texts
+                //ImageSymDef layoutSymDef = (ImageSymDef)dict["ximage"];
                 ImageSymDef layoutSymDef = (ImageSymDef)dict[CourseLayout.KeyLayout];
 
                 PointF center = Geometry.RectCenter(rect);
@@ -3424,7 +3782,7 @@ namespace PurplePen
             get { return legInsertionLoc; }
         }
 
-        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
+        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor /* JU: Control white outline */, SymColor whiteColor)
         {
             PointKind[] kinds = {
                 PointKind.Normal, PointKind.Normal, PointKind.Normal, PointKind.Normal,

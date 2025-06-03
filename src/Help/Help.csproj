@@ -1,4 +1,4 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="Current">
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <ProjectGuid>{D405472A-56E1-4153-ACB7-677B8E6D5171}</ProjectGuid>
     <!-- Define the output file -->
@@ -7,6 +7,29 @@
     <HelpCompiler>c:\program files (x86)\html help workshop\hhc.exe</HelpCompiler>
     <!-- Define the help project file -->
     <HelpProjectFile>..\..\doc\userdocs\help\Purple Pen Help.hhp</HelpProjectFile>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OutputPath>output\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <!-- 
@@ -20,6 +43,16 @@
     <InputFile Include="..\..\doc\userdocs\help\*.gif" />
     <InputFile Include="..\..\doc\userdocs\help\*.dwt" />
     <InputFile Include="..\..\doc\userdocs\help\*.hhc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Target Name="Build" Inputs="@(InputFile)" Outputs="$(OutputFile)">
     <Message Text="Building help file -- output file is $(OutputFile)" />

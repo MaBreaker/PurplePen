@@ -106,7 +106,7 @@ namespace PurplePen.Tests
                 Dictionary<object, SymDef> dict = new Dictionary<object, SymDef>();
 
                 // Create white color and white-out symdef.
-                SymColor white = map.AddColorBottom("White", 44, 0, 0, 0, 0, false);
+                SymColor white = map.AddColorBottom("White", CourseLayout.WHITEOUT_COLOR_OCADID, 0, 0, 0, 0, false);
                 AreaSymDef whiteArea = new AreaSymDef("White out", "890", white, null);
                 whiteArea.ToolboxImage = MapUtil.CreateToolboxIcon(Properties.Resources.WhiteOut_OcadToolbox);
                 map.AddSymdef(whiteArea);
@@ -852,49 +852,49 @@ namespace PurplePen.Tests
         [TestMethod]
         public void Text()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "Fly", new RectangleF(-4, -2, 8, 6), "Times New Roman", FontStyle.Italic, SpecialColor.UpperPurple, -1);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "Fly", new RectangleF(-4, -2, 8, 6), "Times New Roman", FontStyle.Italic, SpecialColor.UpperPurple, -1 /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckRenderBitmap(courseobj, "text");
         }
 
         [TestMethod]
         public void Text2()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "Fly", new RectangleF(-4, -2, 4, 6), "Times New Roman", FontStyle.Bold, SpecialColor.Black, -1);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "Fly", new RectangleF(-4, -2, 4, 6), "Times New Roman", FontStyle.Bold, SpecialColor.Black, -1 /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckRenderBitmap(courseobj, "text2");
         }
 
         [TestMethod]
         public void TextMissingFont()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "Fly", new RectangleF(-4, -2, 4, 6), "Blazing", FontStyle.Bold, SpecialColor.Black, -1);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "Fly", new RectangleF(-4, -2, 4, 6), "Blazing", FontStyle.Bold, SpecialColor.Black, -1 /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckRenderBitmap(courseobj, "textmissing");
         }
 
         [TestMethod]
         public void TextEmpty()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "", new RectangleF(-4, -2, 8, 6), "Arial", FontStyle.Bold, new SpecialColor(0.8F, 0.5F, 0, 0), -1);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "", new RectangleF(-4, -2, 8, 6), "Arial", FontStyle.Bold, new SpecialColor(0.8F, 0.5F, 0, 0), -1 /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckRenderBitmap(courseobj, "textempty");
         }
 
         [TestMethod]
         public void TextFixedHeight1()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "012", new RectangleF(-4, -2.4F, 8, 6), "Times New Roman", FontStyle.Italic, SpecialColor.LowerPurple, 2F);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "012", new RectangleF(-4, -2.4F, 8, 6), "Times New Roman", FontStyle.Italic, SpecialColor.LowerPurple, 2F /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckRenderBitmap(courseobj, "textfixedheight1");
         }
 
         [TestMethod]
         public void TextFixedHeight2()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "\u00c2012y345", new RectangleF(-3, -2.7F, 7, 5), "Roboto Condensed", FontStyle.Bold, SpecialColor.UpperPurple, 1F);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "\u00c2012y345", new RectangleF(-3, -2.7F, 7, 5), "Roboto Condensed", FontStyle.Bold, SpecialColor.UpperPurple, 1F /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckRenderBitmap(courseobj, "textfixedheight2");
         }
 
         [TestMethod]
         public void TextFixedHeightMissingFont()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "\u00c2012y345", new RectangleF(-3, -2.7F, 7, 5), "Blazing", FontStyle.Bold, SpecialColor.LowerPurple, 1F);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "\u00c2012y345", new RectangleF(-3, -2.7F, 7, 5), "Blazing", FontStyle.Bold, SpecialColor.LowerPurple, 1F /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckRenderBitmap(courseobj, "textfixedheightmissingfont");
         }
 
@@ -2039,42 +2039,42 @@ namespace PurplePen.Tests
         [TestMethod]
         public void TextHighlight()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "sly", new RectangleF(-3.5F, -2.5F, 7, 6), "Times New Roman", FontStyle.Italic, SpecialColor.UpperPurple, -1);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "sly", new RectangleF(-3.5F, -2.5F, 7, 6), "Times New Roman", FontStyle.Italic, SpecialColor.UpperPurple, -1 /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckHighlightBitmap(courseobj, "text_highlight");
         }
 
         [TestMethod]
         public void TextHighlight2()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "sly", new RectangleF(-3.5F, -2.5F, 4, 6), "Times New Roman", FontStyle.Italic, new SpecialColor(0.7F, 0.5F, 0, 0), -1);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "sly", new RectangleF(-3.5F, -2.5F, 4, 6), "Times New Roman", FontStyle.Italic, new SpecialColor(0.7F, 0.5F, 0, 0), -1 /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckHighlightBitmap(courseobj, "text_highlight2");
         }
 
         [TestMethod]
         public void TextHighlightMissingFont()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "sly", new RectangleF(-3.5F, -2.5F, 4, 6), "Blazing", FontStyle.Bold, new SpecialColor(0.7F, 0.5F, 0, 0), -1);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "sly", new RectangleF(-3.5F, -2.5F, 4, 6), "Blazing", FontStyle.Bold, new SpecialColor(0.7F, 0.5F, 0, 0), -1 /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckHighlightBitmap(courseobj, "text_highlightmissingfont");
         }
 
         [TestMethod]
         public void TextFixedHeightHighlight()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "\u00c2012y345", new RectangleF(-3, -2.7F, 7, 5), "Roboto Condensed", FontStyle.Bold, SpecialColor.LowerPurple, 1F);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "\u00c2012y345", new RectangleF(-3, -2.7F, 7, 5), "Roboto Condensed", FontStyle.Bold, SpecialColor.LowerPurple, 1F /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckHighlightBitmap(courseobj, "textfixedheight_highlight");
         }
 
         [TestMethod]
         public void TextFixedHeightHighlight2()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "123", new RectangleF(-3, -2.7F, 7, 5), "Times New Roman", FontStyle.Italic, SpecialColor.UpperPurple, 1F);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "123", new RectangleF(-3, -2.7F, 7, 5), "Times New Roman", FontStyle.Italic, SpecialColor.UpperPurple, 1F /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckHighlightBitmap(courseobj, "textfixedheight2_highlight");
         }
 
         [TestMethod]
         public void TextFixedHeightHighlightMissingFont()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "\u00c2012y345", new RectangleF(-3, -2.7F, 7, 5), "Blazing", FontStyle.Bold, SpecialColor.LowerPurple, 1F);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "\u00c2012y345", new RectangleF(-3, -2.7F, 7, 5), "Blazing", FontStyle.Bold, SpecialColor.LowerPurple, 1F /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckHighlightBitmap(courseobj, "textfixedheightmissingfont_highlight");
         }
 
@@ -2432,21 +2432,21 @@ namespace PurplePen.Tests
         [TestMethod]
         public void TextOffset()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "sly", new RectangleF(-3.5F, -2.5F, 6.5F, 6), "Times New Roman", FontStyle.Italic, SpecialColor.LowerPurple, -1);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "sly", new RectangleF(-3.5F, -2.5F, 6.5F, 6), "Times New Roman", FontStyle.Italic, SpecialColor.LowerPurple, -1 /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckOffsetBitmap(courseobj, "text_offset");
         }
 
         [TestMethod]
         public void TextOffset2()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "sly", new RectangleF(-3.5F, -2.5F, 4.5F, 6), "Times New Roman", FontStyle.Italic, new SpecialColor(0.8F, 0, 0.6F, 0), -1);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "sly", new RectangleF(-3.5F, -2.5F, 4.5F, 6), "Times New Roman", FontStyle.Italic, new SpecialColor(0.8F, 0, 0.6F, 0), -1 /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckOffsetBitmap(courseobj, "text2_offset");
         }
 
         [TestMethod]
         public void TextFixedHeightOffset()
         {
-            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "\u00c2012y345", new RectangleF(-3, -2.7F, 7, 5), "Roboto Condensed", FontStyle.Bold, SpecialColor.UpperPurple, 1F);
+            CourseObj courseobj = new BasicTextCourseObj(SpecialId(0), "\u00c2012y345", new RectangleF(-3, -2.7F, 7, 5), "Roboto Condensed", FontStyle.Bold, SpecialColor.UpperPurple, 1F /* JU: Rotated and Multiline texts */ , 0.0F, false);
             CheckOffsetBitmap(courseobj, "textfixedheight_offset");
         }
 

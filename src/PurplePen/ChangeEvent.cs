@@ -904,7 +904,7 @@ namespace PurplePen
         }
 
         // Change the text associated with a special. Must be an text special
-        public static void ChangeSpecialText(EventDB eventDB, Id<Special> specialId, string newText, string fontName, bool fontBold, bool fontItalic, SpecialColor specialColor, float fontHeight)
+        public static void ChangeSpecialText(EventDB eventDB, Id<Special> specialId, string newText, string fontName, bool fontBold, bool fontItalic, SpecialColor specialColor, float fontHeight /* JU: Rotated, Multiline */ , float textRotation, bool textMultiline)
         {
             Special special = eventDB.GetSpecial(specialId);
 
@@ -917,6 +917,10 @@ namespace PurplePen
             special.fontItalic = fontItalic;
             special.color = specialColor;
             special.fontHeight = fontHeight;
+            
+            //JU: Rotated and Multiline texts
+            special.orientation = textRotation;
+            special.multiline = textMultiline;
 
             eventDB.ReplaceSpecial(specialId, special);
         }
@@ -1424,7 +1428,7 @@ namespace PurplePen
         }
 
         // Add a text special to the event
-        public static Id<Special> AddTextSpecial(EventDB eventDB, RectangleF boundingRectangle, string text, string fontName, bool bold, bool italic, SpecialColor color, float fontHeight)
+        public static Id<Special> AddTextSpecial(EventDB eventDB, RectangleF boundingRectangle, string text, string fontName, bool bold, bool italic, SpecialColor color, float fontHeight /* JU: Rotated and Multiline */ , float textRotation, bool textMultiline)
         {
             Special special = new Special(SpecialKind.Text, new PointF[2] { new PointF(boundingRectangle.Left, boundingRectangle.Bottom), new PointF(boundingRectangle.Right, boundingRectangle.Top) });
             special.text = text;
@@ -1433,7 +1437,11 @@ namespace PurplePen
             special.fontItalic = italic;
             special.color = color;
             special.fontHeight = fontHeight;
-
+            
+            //JU: Rotated and Multiline texts
+            special.orientation = textRotation;
+            special.multiline = textMultiline;
+            
             return eventDB.AddSpecial(special);
         }
 

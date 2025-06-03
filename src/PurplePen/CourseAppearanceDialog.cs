@@ -67,19 +67,29 @@ namespace PurplePen
 
                 if (checkBoxStandardSizes.Checked) {
                     result.lineWidth = result.numberHeight = result.controlCircleSize = 1.0F;
-                    result.centerDotDiameter = 0.0F;
+                    //JU: StreetO
+                    result.centerDotDiameter = (mapStandard == "StreetO" ? NormalCourseAppearance.centerDotDiameterStreetO : NormalCourseAppearance.centerDotDiameter);
+                    result.numberOutlineWidth = (mapStandard == "StreetO" ? NormalCourseAppearance.numberOutlineWidthStreetO : NormalCourseAppearance.numberOutlineWidth);
+                    result.controlOutlineWidth = (mapStandard == "StreetO" ? NormalCourseAppearance.controlOutlineWidthStreetO : NormalCourseAppearance.controlOutlineWidth);
                 }
                 else {
                     if (mapStandard == "2017") 
                         result.controlCircleSize = ((float) upDownControlCircle.Value) / NormalCourseAppearance.controlOutsideDiameter2017;
                     else if (mapStandard == "Spr2019")
-                        result.controlCircleSize = ((float)upDownControlCircle.Value) / NormalCourseAppearance.controlOutsideDiameterSpr2019;
+                        result.controlCircleSize = ((float) upDownControlCircle.Value) / NormalCourseAppearance.controlOutsideDiameterSpr2019;
+                    //JU: StreetO
+                    else if (mapStandard == "StreetO")
+                        result.controlCircleSize = ((float)upDownControlCircle.Value) / NormalCourseAppearance.controlOutsideDiameterStreetO;
                     else
                         result.controlCircleSize = ((float)upDownControlCircle.Value) / NormalCourseAppearance.controlOutsideDiameter2000;
 
                     result.lineWidth = ((float) upDownLineWidth.Value) / NormalCourseAppearance.lineThickness;
                     result.centerDotDiameter = ((float)upDownCenterDot.Value);
                     result.numberHeight = ((float) upDownNumberHeight.Value) / NormalCourseAppearance.nominalControlNumberHeight;
+                    //JU: Standard size checkbox
+                    result.numberOutlineWidth = ((float) upDownOutlineWidth.Value);
+                    //JU: Control white outline
+                    result.controlOutlineWidth = ((float) upDownCOutlineWidth.Value);
                 }
 
                 switch (comboBoxControlNumberStyle.SelectedIndex) {
@@ -101,7 +111,6 @@ namespace PurplePen
                     break;
                 }
 
-                result.numberOutlineWidth = ((float) upDownOutlineWidth.Value);
                 result.autoLegGapSize = ((float) upDownLegGapSize.Value);
                 switch (comboBoxScaleItemSizes.SelectedIndex) {
                     case 0: result.itemScaling = ItemScaling.None; break;
@@ -145,11 +154,15 @@ namespace PurplePen
                     upDownControlCircle.Value = (decimal) (NormalCourseAppearance.controlOutsideDiameter2017 * value.controlCircleSize);
                 else if (mapStandard == "Spr2019")
                     upDownControlCircle.Value = (decimal)(NormalCourseAppearance.controlOutsideDiameterSpr2019 * value.controlCircleSize);
+                //JU: StreetO
+                else if (mapStandard == "StreetO")
+                    upDownControlCircle.Value = (decimal)(NormalCourseAppearance.controlOutsideDiameterStreetO * value.controlCircleSize);
                 else
                     upDownControlCircle.Value = (decimal)(NormalCourseAppearance.controlOutsideDiameter2000 * value.controlCircleSize);
 
                 upDownLineWidth.Value = (decimal) (NormalCourseAppearance.lineThickness * value.lineWidth);
-                upDownCenterDot.Value = (decimal)value.centerDotDiameter;
+                //JU: StreetO
+                upDownCenterDot.Value = (decimal) value.centerDotDiameter;
                 upDownNumberHeight.Value = (decimal) (NormalCourseAppearance.nominalControlNumberHeight * value.numberHeight);
                 if (!value.numberBold && !value.numberRoboto)
                     comboBoxControlNumberStyle.SelectedIndex = 0;
@@ -170,8 +183,14 @@ namespace PurplePen
                     case ItemScaling.RelativeTo15000:
                         comboBoxScaleItemSizes.SelectedIndex = 2; break;
                 }
+                //JU: Control white outline
+                upDownCOutlineWidth.Value = (decimal)value.controlOutlineWidth;
 
-                checkBoxStandardSizes.Checked = (value.controlCircleSize == 1.0F && value.lineWidth == 1.0F && value.numberHeight == 1.0F && value.centerDotDiameter == 0.0F);
+                //JU: StreetO
+                checkBoxStandardSizes.Checked = (value.controlCircleSize == 1.0F && value.lineWidth == 1.0F && value.numberHeight == 1.0F 
+                    && value.centerDotDiameter == (mapStandard == "StreetO" ? NormalCourseAppearance.centerDotDiameterStreetO : NormalCourseAppearance.centerDotDiameter)
+                    && value.numberOutlineWidth == (mapStandard == "StreetO" ? NormalCourseAppearance.numberOutlineWidthStreetO : NormalCourseAppearance.numberOutlineWidth)
+                    && value.controlOutlineWidth == (mapStandard == "StreetO" ? NormalCourseAppearance.controlOutlineWidthStreetO : NormalCourseAppearance.controlOutlineWidth));
 
                 SetCurrentCMYK(value.purpleC, value.purpleM, value.purpleY, value.purpleK);
 
@@ -187,7 +206,6 @@ namespace PurplePen
                 if (purpleLayerIndex >= 0) {
                     comboBoxMapLayers.SelectedIndex = purpleLayerIndex;
                 }
-
 
                 comboBoxDescriptionColor.SelectedIndex = (value.descriptionsPurple ? 1 : 0);
 
@@ -223,16 +241,22 @@ namespace PurplePen
                     upDownControlCircle.Value = (decimal) (NormalCourseAppearance.controlOutsideDiameter2017);
                 else if (mapStandard == "Spr2019")
                     upDownControlCircle.Value = (decimal)(NormalCourseAppearance.controlOutsideDiameterSpr2019);
+                //JU: StreetO
+                else if (mapStandard == "StreetO")
+                    upDownControlCircle.Value = (decimal)(NormalCourseAppearance.controlOutsideDiameterStreetO);
                 else
                     upDownControlCircle.Value = (decimal)(NormalCourseAppearance.controlOutsideDiameter2000);
 
                 upDownLineWidth.Value = (decimal) (NormalCourseAppearance.lineThickness);
                 upDownNumberHeight.Value = (decimal) (NormalCourseAppearance.nominalControlNumberHeight);
-                upDownCenterDot.Value = (decimal)(NormalCourseAppearance.centerDotDiameter);
-                upDownControlCircle.Enabled = upDownCenterDot.Enabled = upDownLineWidth.Enabled = upDownNumberHeight.Enabled = false;
+                //JU: StreetO
+                upDownCenterDot.Value = (decimal) (mapStandard == "StreetO" ? NormalCourseAppearance.centerDotDiameterStreetO : NormalCourseAppearance.centerDotDiameter);
+                //JU: Control white outline
+                upDownControlCircle.Enabled = upDownCenterDot.Enabled = upDownLineWidth.Enabled = upDownNumberHeight.Enabled = comboBoxControlNumberStyle.Enabled = upDownOutlineWidth.Enabled = upDownCOutlineWidth.Enabled = false;
             }
             else {
-                upDownControlCircle.Enabled = upDownCenterDot.Enabled = upDownLineWidth.Enabled = upDownNumberHeight.Enabled = true;
+                //JU: Control white outline
+                upDownControlCircle.Enabled = upDownCenterDot.Enabled = upDownLineWidth.Enabled = upDownNumberHeight.Enabled = comboBoxControlNumberStyle.Enabled = upDownOutlineWidth.Enabled = upDownCOutlineWidth.Enabled = true;
             }
         }
 
@@ -264,27 +288,35 @@ namespace PurplePen
             }
         }
 
-        private void DrawBlackPartsOfPreview(IGraphicsTarget grTarget)
+        //JU: Control white outline preview
+        private void DrawBlackPartsOfPreview(IGraphicsTarget grTarget, int item)
         {
-            // Draw road
-            object roadPen = new object();
-            grTarget.CreatePen(roadPen, CmykColor.FromCmyk(0, 0, 0, 1), 0.35F, LineCap.Flat, LineJoin.Round, 5F);
-            PointF[] roadPts = { new PointF(28.3F, 8.7F), new PointF(28.7F, 6.7F), new PointF(30.8F, 6.3F), new PointF(33.1F, 5.9F),
-                                       new PointF(34.4F, 6.3F), new PointF(36.5F, 5.4F), new PointF(38.9F, 4.3F), new PointF(38.4F, 1.1F), new PointF(37.6F, -0.5F)};
-            GraphicsPathPart roadPathStart = new GraphicsPathPart(GraphicsPathPartKind.Start, new PointF[1] { new PointF(27.8F, 10.5F) });
-            GraphicsPathPart roadPathPart = new GraphicsPathPart(GraphicsPathPartKind.Beziers, roadPts);
-            grTarget.DrawPath(roadPen, new List<GraphicsPathPart> { roadPathStart, roadPathPart });
+            if (item == 1)
+            {
+                // Draw road
+                object roadPen = new object();
+                grTarget.CreatePen(roadPen, CmykColor.FromCmyk(0, 0, 0, 1), 0.35F, LineCap.Flat, LineJoin.Round, 5F);
+                PointF[] roadPts = { new PointF(28.3F, 8.7F), new PointF(28.7F, 6.7F), new PointF(30.8F, 6.3F),
+                                     new PointF(33.1F, 5.9F), new PointF(34.4F, 6.3F), new PointF(36.5F, 5.4F),
+                                     new PointF(38.9F, 4.3F), new PointF(38.4F, 1.1F), new PointF(37.6F, -0.5F)};
+                GraphicsPathPart roadPathStart = new GraphicsPathPart(GraphicsPathPartKind.Start, new PointF[1] { new PointF(27.8F, 10.5F) });
+                GraphicsPathPart roadPathPart = new GraphicsPathPart(GraphicsPathPartKind.Beziers, roadPts);
+                grTarget.DrawPath(roadPen, new List<GraphicsPathPart> { roadPathStart, roadPathPart });
+            }
 
-            // Draw boulder cluster.
-            object boulderBrush = new object();
-            grTarget.CreateSolidBrush(boulderBrush, CmykColor.FromCmyk(0, 0, 0, 1));
-            PointF[] boulderPts = { new PointF(0, -0.4F), new PointF(0.4F, 0.3F), new PointF(-0.4F, 0.3F) };
-            Matrix xformBoulder = new Matrix();
-            xformBoulder.Translate(18, 5.1F);
-            grTarget.PushTransform(xformBoulder);
-            grTarget.FillPolygon(boulderBrush, boulderPts, FillMode.Alternate);
-            grTarget.PopTransform();
+            if (item == 2)
+            {
+                // Draw boulder cluster.
+                object boulderBrush = new object();
+                grTarget.CreateSolidBrush(boulderBrush, CmykColor.FromCmyk(0, 0, 0, 1));
+                PointF[] boulderPts = { new PointF(0, -0.4F), new PointF(0.4F, 0.3F), new PointF(-0.4F, 0.3F) };
+                Matrix xformBoulder = new Matrix();
+                xformBoulder.Translate(18, 5.1F);
+                grTarget.PushTransform(xformBoulder);
+                grTarget.FillPolygon(boulderBrush, boulderPts, FillMode.Alternate);
+                grTarget.PopTransform();
 
+            }
         }
 
         private void pictureBoxPreview_Paint(object sender, PaintEventArgs e)
@@ -313,7 +345,7 @@ namespace PurplePen
                     finishDrawRadiusOuter = ((circleDiameter * NormalCourseAppearance.finishOutsideDiameter2017 / NormalCourseAppearance.controlOutsideDiameter2017) - lineWidth) / 2F;
                     finishDrawRadiusInner = ((circleDiameter * (NormalCourseAppearance.finishInsideDiameter2017 + NormalCourseAppearance.lineThickness) / NormalCourseAppearance.controlOutsideDiameter2017) - 2F * lineWidth) / 2F;
                 }
-                else if (mapStandard == "Spr2019") {
+                else if (mapStandard == "Spr2019" /* JU: StreetO */ || mapStandard == "StreetO") {
                     finishDrawRadiusOuter = ((circleDiameter * NormalCourseAppearance.finishOutsideDiameterSpr2019 / NormalCourseAppearance.controlOutsideDiameterSpr2019) - lineWidth) / 2F;
                     finishDrawRadiusInner = ((circleDiameter * (NormalCourseAppearance.finishInsideDiameterSpr2019 + NormalCourseAppearance.lineThickness) / NormalCourseAppearance.controlOutsideDiameterSpr2019) - 2F * lineWidth) / 2F;
                 }
@@ -336,8 +368,10 @@ namespace PurplePen
 
                 // Draw the black parts of the preview if we are not using the layer option. In the layer option, we
                 // draw the black parts after the purple parts.
-                if (comboBoxBlendPurple.SelectedIndex != 2){
-                    DrawBlackPartsOfPreview(grTarget);
+                //JU: Draw road always under purple
+                DrawBlackPartsOfPreview(grTarget, 1);
+                if (comboBoxBlendPurple.SelectedIndex != 2) {
+                    DrawBlackPartsOfPreview(grTarget, 2);
                 }
 
                 // Calculate control number position
@@ -363,8 +397,19 @@ namespace PurplePen
                     object whiteBrush = new object();
                     grTarget.CreatePen(whitePen, CmykColor.FromCmyk(0, 0, 0, 0), (float)upDownOutlineWidth.Value * 2, LineCap.Round, LineJoin.Round, 5F);
                     grTarget.CreateSolidBrush(whiteBrush, CmykColor.FromCmyk(0, 0, 0, 0));
+                    //JU: No blend with white outline
                     grTarget.DrawText(controlNumberText, font, whiteBrush, controlNumberLocation);
                     grTarget.DrawTextOutline(controlNumberText, font, whitePen, controlNumberLocation);
+                }
+
+                //JU: Add white outline to control for preview
+                if (upDownCOutlineWidth.Value > 0)
+                {
+                    // No blending with white outline
+                    float outlineWidth = (float) upDownCOutlineWidth.Value;
+                    object whitePen = new object(), whitePen2 = new object();
+                    grTarget.CreatePen(whitePen, CmykColor.FromCmyk(0, 0, 0, 0), outlineWidth + lineWidth, LineCap.Round, LineJoin.Round, 5F);
+                    grTarget.DrawEllipse(whitePen, centerCircle, circleDrawRadius + outlineWidth / 2, circleDrawRadius + outlineWidth / 2); 
                 }
 
                 if (comboBoxBlendPurple.SelectedIndex == 1)
@@ -406,7 +451,7 @@ namespace PurplePen
                 // Draw the black parts of the preview if we using the layer option. In the layer option, we
                 // draw the black parts after the purple parts.
                 if (comboBoxBlendPurple.SelectedIndex == 2) {
-                    DrawBlackPartsOfPreview(grTarget);
+                    DrawBlackPartsOfPreview(grTarget /* JU: Control white outline preview */, 2);
                 }
 
                 if (comboBoxBlendPurple.SelectedIndex == 1)

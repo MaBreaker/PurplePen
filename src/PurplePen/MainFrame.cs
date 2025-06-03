@@ -732,6 +732,8 @@ namespace PurplePen
             mapStd2000Menu.Checked = (mapStandard == "2000");
             mapStd2017Menu.Checked = (mapStandard == "2017");
             mapStdSpr2019Menu.Checked = (mapStandard == "Spr2019");
+            //JU: StreetO
+            mapStdStreetOMenu.Checked = (mapStandard == "StreetO");
             dangerousToolStripMenuItem.Visible = (mapStandard == "2000");
             addDangerousMenu.Visible = (mapStandard == "2000");
             if (mapStandard == "2000") {
@@ -1680,6 +1682,10 @@ namespace PurplePen
             float fontHeight;
             bool fontAutoSize;
             SpecialColor fontColor;
+            
+            //JU: Rotated and Multiline texts
+            float orientation;
+            bool textMultiline;
 
             FindPurple.GetPurpleColor(mapDisplay, controller.GetCourseAppearance(), out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
 
@@ -1687,16 +1693,22 @@ namespace PurplePen
                                                CmykColor.FromCmyk(c, m, y, k), controller.ExpandText);
             dialog.HelpTopic = "EditAddText.htm";
 
-            controller.GetAddTextDefaultProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight, out fontAutoSize);
+            //JU: Rotated and Multiline texts
+            controller.GetAddTextDefaultProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight, out fontAutoSize /* JU: Rotated, Multiline */ , out orientation, out textMultiline);
             dialog.FontName = fontName;
             dialog.FontBold = fontBold;
             dialog.FontItalic = fontItalic;
             dialog.FontColor = fontColor;
             dialog.FontSize = fontHeight;
             dialog.FontSizeAutomatic = fontAutoSize;
+            
+            //JU: Rotated and Multiline texts
+            dialog.TextRotation = orientation;
+            dialog.TextMultiline = textMultiline;
 
             if (dialog.ShowDialog(this) == DialogResult.OK) {
-                controller.BeginAddTextSpecialMode(dialog.UserText, dialog.FontName, dialog.FontBold, dialog.FontItalic, dialog.FontColor, dialog.FontSizeAutomatic ? -1 : dialog.FontSize);
+                //JU: Rotated and Multiline texts
+                controller.BeginAddTextSpecialMode(dialog.UserText, dialog.FontName, dialog.FontBold, dialog.FontItalic, dialog.FontColor, dialog.FontSizeAutomatic ? -1 : dialog.FontSize /* JU: Rotated, Multiline */ , dialog.TextRotation, dialog.TextMultiline);
             }
 
             dialog.Dispose();
@@ -1829,11 +1841,17 @@ namespace PurplePen
                 string fontName;
                 bool fontBold, fontItalic;
                 float fontHeight;
+                
+                //JU: Rotated and Multiline texts
+                float orientation;
+                bool multiline;
+                
                 SpecialColor fontColor;
                 FindPurple.GetPurpleColor(mapDisplay, controller.GetCourseAppearance(), out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
 
                 string oldText = controller.GetChangableText();
-                controller.GetChangableTextProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight);
+                //JU: Rotated and Multiline texts
+                controller.GetChangableTextProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight /* JU: Rotated, Multiline */ , out orientation, out multiline);
                 ChangeText dialog = new ChangeText(MiscText.ChangeTextTitle, MiscText.ChangeTextSpecialExplanation, true,
                                                    CmykColor.FromCmyk(c, m, y, k), controller.ExpandText);
                 dialog.HelpTopic = "ItemChangeText.htm";
@@ -1844,9 +1862,13 @@ namespace PurplePen
                 dialog.FontColor = fontColor;
                 dialog.FontSize = (fontHeight < 0) ? 5 : fontHeight;
                 dialog.FontSizeAutomatic = (fontHeight < 0);
+                
+                //JU: Rotated and Multiline texts
+                dialog.TextRotation = orientation;
+                dialog.TextMultiline = multiline;
 
                 if (dialog.ShowDialog(this) == DialogResult.OK) {
-                    controller.ChangeText(dialog.UserText, dialog.FontName, dialog.FontBold, dialog.FontItalic, dialog.FontColor, dialog.FontSizeAutomatic ? -1 : dialog.FontSize);
+                    controller.ChangeText(dialog.UserText, dialog.FontName, dialog.FontBold, dialog.FontItalic, dialog.FontColor, dialog.FontSizeAutomatic ? -1 : dialog.FontSize /* JU: Rotated, Multiline */ , dialog.TextRotation, dialog.TextMultiline);
                 }
 
                 dialog.Dispose();
@@ -3325,6 +3347,11 @@ namespace PurplePen
         private void mapStd2017Menu_Click(object sender, EventArgs e)
         {
             controller.ChangeMapStandard("2017");
+        }
+        //JU´: StreetO
+        private void mapStdStreetOMenu_Click(object sender, EventArgs e)
+        {
+            controller.ChangeMapStandard("StreetO");
         }
 
         private void mapStdSpr2019Menu_Click(object sender, EventArgs e)

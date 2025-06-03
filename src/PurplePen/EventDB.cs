@@ -47,6 +47,7 @@ using System.Globalization;
 namespace PurplePen
 {
     using System.Linq;
+    using System.Windows.Forms;
     using PurplePen.Graphics2D;
     using PurplePen.MapModel;
 
@@ -1679,6 +1680,9 @@ namespace PurplePen
         public int numColumns = 1;          // for description objects, the number of columns.
         public Bitmap imageBitmap;          // for image objects, the bitmap.
 
+        //JU: Multiline texts
+        public bool multiline;              // for text objects, single or multiline
+
         public Special()
         {
         }
@@ -1888,10 +1892,13 @@ namespace PurplePen
 
                 default: xmlinput.BadXml("Invalid special-object kind '{0}'", kindText); break;
             }
-
             if (kind == SpecialKind.OptCrossing) {
                 orientation = xmlinput.GetAttributeFloat("orientation");
                 stretch = xmlinput.GetAttributeFloat("stretch", 0.0F);
+            }
+            //JU: Rotated text
+            if (kind == SpecialKind.Text) {
+                orientation = xmlinput.GetAttributeFloat("orientation", 0.0F);
             }
 
             text = null;
@@ -1956,6 +1963,8 @@ namespace PurplePen
                     dashSize = xmlinput.GetAttributeFloat("dash-size", 0);
                     if (kind == SpecialKind.Rectangle)
                         cornerRadius = xmlinput.GetAttributeFloat("corner-radius", 0);
+                    //JU: Multiline texts
+                    multiline = xmlinput.GetAttributeBool("multiline-text", false);
 
                     xmlinput.Skip();
                     break;
@@ -2032,6 +2041,14 @@ namespace PurplePen
                     xmloutput.WriteAttributeString("stretch", XmlConvert.ToString(stretch));
                 }
             }
+            //JU: Rotated text
+            if (kind == SpecialKind.Text)
+            {
+                if (orientation > 0.0F)
+                {
+                    xmloutput.WriteAttributeString("orientation", XmlConvert.ToString(orientation));
+                }
+            }
 
             // Write sub-elements
             if (text != null) {
@@ -2066,6 +2083,10 @@ namespace PurplePen
                 xmloutput.WriteEndElement();
                 xmloutput.WriteStartElement("appearance");
                 xmloutput.WriteAttributeString("color", color.ToString());
+                //JU: Multiline texts
+                if (multiline) {
+                    xmloutput.WriteAttributeString("multiline-text", XmlConvert.ToString(true)); 
+                }
                 xmloutput.WriteEndElement();
             }
 
@@ -2373,33 +2394,34 @@ namespace PurplePen
     // Describes appearance of the courses.
     public class CourseAppearance
     {
-        public float controlCircleSize = 1.0F;            // ratio to apply to control circles and other point features.
-        public float lineWidth = 1.0F;                       // ratio to apply to the width of lines
-        public float numberHeight = 1.0F;                // ratio to apply to the size of control numbers
-        public float centerDotDiameter = 0.0F;            // center dot diameter, or 0 for no center dot.
-        public bool numberBold = false;                 // Is the number bolded?
-        public bool numberRoboto = true;               // Use Roboto font for numbers?
+        public float controlCircleSize = 1.0F;              // ratio to apply to control circles and other point features.
+        public float lineWidth = 1.0F;                      // ratio to apply to the width of lines
+        public float numberHeight = 1.0F;                   // ratio to apply to the size of control numbers
+        public float centerDotDiameter = 0.0F;              // center dot diameter, or 0 for no center dot.
+        public bool numberBold = false;                     // Is the number bolded?
+        public bool numberRoboto = true;                    // Use Roboto font for numbers?
         public float numberOutlineWidth = 0.0F;             // Width of outline
-        public float autoLegGapSize = 3.5F;             // Size in mm of automatic gap in legs.
+        public float controlOutlineWidth = 0.0F;            //JU: Control white outline
+        public float autoLegGapSize = 3.5F;                 // Size in mm of automatic gap in legs.
 
         public PurpleColorBlend purpleColorBlend = PurpleColorBlend.Blend;        // What type of blending for purple color
-        public int mapLayerForLowerPurple = 0;        // The map layer to use for the lower purple color (lower purple is drawing immediately above this layer). Only used for PurpleColorBlend.UpperLowerPurple.
+        public int mapLayerForLowerPurple = 0;              // The map layer to use for the lower purple color (lower purple is drawing immediately above this layer). Only used for PurpleColorBlend.UpperLowerPurple.
 
-        public bool useDefaultPurple = true;        // if true, use the default purple color (which usually comes from the underlying map)
-        public float purpleC, purpleM, purpleY, purpleK;   // CMYK coloir of the purple color to use if "useDefaultPurple" is false
+        public bool useDefaultPurple = true;                // if true, use the default purple color (which usually comes from the underlying map)
+        public float purpleC, purpleM, purpleY, purpleK;    // CMYK coloir of the purple color to use if "useDefaultPurple" is false
 
-        public bool descriptionsPurple = false;         // If true, descriptions in purple instead of black.
+        public bool descriptionsPurple = false;             // If true, descriptions in purple instead of black.
 
-        public bool useOcadOverprint = false;       // If true, use overprint effect when rendering OCAD map.
+        public bool useOcadOverprint = false;               // If true, use overprint effect when rendering OCAD map.
 
-        public string mapStandard = "2000";         // Which ISOM standard to use.
-        public ItemScaling itemScaling = ItemScaling.None;      // If not None, how objects scale up with map on different print scales (ISOM 2017 style). Otherwise stay the same (ISOM 2000 style).
+        public string mapStandard = "2000";                 // Which ISOM standard to use.
+        public ItemScaling itemScaling = ItemScaling.None;  // If not None, how objects scale up with map on different print scales (ISOM 2017 style). Otherwise stay the same (ISOM 2000 style).
 
         public float ControlCircleOutsideDiameter {
             get {
                 if (mapStandard == "2017")
                     return NormalCourseAppearance.controlOutsideDiameter2017 * controlCircleSize;
-                else if (mapStandard == "Spr2019")
+                else if (mapStandard == "Spr2019" /* JU: StreetO */ || mapStandard == "StreetO")
                     return NormalCourseAppearance.controlOutsideDiameterSpr2019 * controlCircleSize;
                 else
                     return NormalCourseAppearance.controlOutsideDiameter2000 * controlCircleSize;
@@ -2410,7 +2432,7 @@ namespace PurplePen
             get {
                 if (mapStandard == "2017")
                     return NormalCourseAppearance.finishOutsideDiameter2017 * controlCircleSize;
-                else if (mapStandard == "Spr2019")
+                else if (mapStandard == "Spr2019" /* JU: StreetO */ || mapStandard == "StreetO")
                     return NormalCourseAppearance.finishOutsideDiameterSpr2019 * controlCircleSize;
                 else
                     return NormalCourseAppearance.finishOutsideDiameter2000 * controlCircleSize;
@@ -2422,7 +2444,7 @@ namespace PurplePen
             get {
                 if (mapStandard == "2017")
                     return ((NormalCourseAppearance.finishInsideDiameter2017 + NormalCourseAppearance.lineThickness) * controlCircleSize) - (lineWidth * NormalCourseAppearance.lineThickness);
-                else if (mapStandard == "Spr2019")
+                else if (mapStandard == "Spr2019" /* JU: StreetO */ || mapStandard == "StreetO")
                     return ((NormalCourseAppearance.finishInsideDiameterSpr2019 + NormalCourseAppearance.lineThickness) * controlCircleSize) - (lineWidth * NormalCourseAppearance.lineThickness);
                 else
                     return ((NormalCourseAppearance.finishInsideDiameter2000 + NormalCourseAppearance.lineThickness) * controlCircleSize) - (lineWidth * NormalCourseAppearance.lineThickness);
@@ -2460,6 +2482,9 @@ namespace PurplePen
             if (numberOutlineWidth != other.numberOutlineWidth)
                 return false;
             if (autoLegGapSize != other.autoLegGapSize)
+                return false;
+            //JU: Control white outline
+            if (controlOutlineWidth != other.controlOutlineWidth)
                 return false;
             if (useDefaultPurple != other.useDefaultPurple)
                 return false;
@@ -2841,6 +2866,9 @@ namespace PurplePen
             if (courseAppearance.numberOutlineWidth > 0)
                 xmloutput.WriteAttributeString("number-outline-width", XmlConvert.ToString(courseAppearance.numberOutlineWidth));
             xmloutput.WriteAttributeString("auto-leg-gap-size", XmlConvert.ToString(courseAppearance.autoLegGapSize));
+            //JU: Control white outline
+            if (courseAppearance.controlOutlineWidth > 0)
+                xmloutput.WriteAttributeString("control-outline-width", XmlConvert.ToString(courseAppearance.controlOutlineWidth));
             if (courseAppearance.useDefaultPurple == false) {
                 xmloutput.WriteAttributeString("purple-cyan", XmlConvert.ToString(courseAppearance.purpleC));
                 xmloutput.WriteAttributeString("purple-magenta", XmlConvert.ToString(courseAppearance.purpleM));
@@ -2983,6 +3011,8 @@ namespace PurplePen
                         courseAppearance.numberRoboto = (numberFont == "Roboto");
                         courseAppearance.numberOutlineWidth = xmlinput.GetAttributeFloat("number-outline-width", 0.0F);
                         courseAppearance.autoLegGapSize = xmlinput.GetAttributeFloat("auto-leg-gap-size", 3.5F);  // default value
+                        //JU: Control white outline
+                        courseAppearance.controlOutlineWidth = xmlinput.GetAttributeFloat("control-outline-width", 0.0F);
 
                         string blendPurpleText = xmlinput.GetAttributeString("blend-purple", "false");
                         string blendPurpleStyle = xmlinput.GetAttributeString("blend-style", "blend");

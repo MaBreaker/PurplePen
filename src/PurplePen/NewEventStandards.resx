@@ -119,10 +119,10 @@
   </resheader>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="changeLaterLabel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>31, 195</value>
+    <value>31, 203</value>
   </data>
   <data name="changeLaterLabel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>468, 41</value>
+    <value>468, 33</value>
   </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="changeLaterLabel.TabIndex" type="System.Int32, mscorlib">
@@ -173,21 +173,51 @@
   <data name="&gt;&gt;labelTitle.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <data name="radioButtonMapSpr2019.AutoSize" type="System.Boolean, mscorlib">
+  <data name="radioButtonMapStreetO.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="radioButtonMapStreetO.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="radioButtonMapStreetO.Location" type="System.Drawing.Point, System.Drawing">
+    <value>200, 48</value>
+  </data>
+  <data name="radioButtonMapStreetO.Size" type="System.Drawing.Size, System.Drawing">
+    <value>69, 19</value>
+  </data>
+  <data name="radioButtonMapStreetO.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="radioButtonMapStreetO.Text" xml:space="preserve">
+    <value>Street-O</value>
+  </data>
+  <data name="&gt;&gt;radioButtonMapStreetO.Name" xml:space="preserve">
+    <value>radioButtonMapStreetO</value>
+  </data>
+  <data name="&gt;&gt;radioButtonMapStreetO.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;radioButtonMapStreetO.Parent" xml:space="preserve">
+    <value>groupBoxMapStandard</value>
+  </data>
+  <data name="&gt;&gt;radioButtonMapStreetO.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="radioButtonMapSpr2019.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
   <data name="radioButtonMapSpr2019.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
   <data name="radioButtonMapSpr2019.Location" type="System.Drawing.Point, System.Drawing">
-    <value>304, 22</value>
+    <value>24, 48</value>
   </data>
   <data name="radioButtonMapSpr2019.Size" type="System.Drawing.Size, System.Drawing">
     <value>98, 19</value>
   </data>
   <data name="radioButtonMapSpr2019.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
+    <value>3</value>
   </data>
   <data name="radioButtonMapSpr2019.Text" xml:space="preserve">
     <value>ISSprOM 2019</value>
@@ -202,7 +232,7 @@
     <value>groupBoxMapStandard</value>
   </data>
   <data name="&gt;&gt;radioButtonMapSpr2019.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>1</value>
   </data>
   <data name="radioButtonMap2017.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -232,7 +262,7 @@
     <value>groupBoxMapStandard</value>
   </data>
   <data name="&gt;&gt;radioButtonMap2017.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>2</value>
   </data>
   <data name="radioButtonMap2000.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -259,13 +289,13 @@
     <value>groupBoxMapStandard</value>
   </data>
   <data name="&gt;&gt;radioButtonMap2000.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>3</value>
   </data>
   <data name="groupBoxMapStandard.Location" type="System.Drawing.Point, System.Drawing">
     <value>34, 116</value>
   </data>
   <data name="groupBoxMapStandard.Size" type="System.Drawing.Size, System.Drawing">
-    <value>418, 58</value>
+    <value>418, 76</value>
   </data>
   <data name="groupBoxMapStandard.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>

@@ -132,6 +132,18 @@ namespace PurplePen
             set { upDownFontSize.Value = (decimal) value; }
         }
 
+        //JU: Rotated text
+        public float TextRotation {
+            get { return (float) upDownTextRotation.Value; }
+            set { upDownTextRotation.Value = (decimal) value; }
+        }
+
+        //JU: Multiline texts
+        public bool TextMultiline {
+            get { return checkBoxMultiline.Checked; }
+            set { checkBoxMultiline.Checked = value; }
+        }
+
         void InsertSpecialText(string specialText)
         {
             textBoxMain.Paste(specialText);
@@ -217,6 +229,10 @@ namespace PurplePen
         private void pictureBoxPreview_Paint(object sender, PaintEventArgs e)
         {
             string expandedText = textExpander(this.UserText);
+            //JU: Multiline texts
+            if (checkBoxMultiline.Checked) {
+                expandedText = expandedText.Replace("|", "\n");
+            }
             float emHeight = pictureBoxPreview.Height * 0.7F;
             Color textColor = SwopColorConverter.CmykToRgbColor(colorChooser.CmykColor);
 
@@ -269,5 +285,16 @@ namespace PurplePen
             UpdatePreview();
         }
 
+        //JU: Rotated text
+        private void upDownTextRotation_ValueChanged(object sender, EventArgs e)
+        {
+            UpdatePreview();
+        }
+
+        //JU: Multiline texts
+        private void checkBoxMultiline_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdatePreview();
+        }
     }
 }

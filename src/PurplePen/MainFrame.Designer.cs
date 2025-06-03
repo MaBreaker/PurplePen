@@ -98,6 +98,7 @@ namespace PurplePen
             this.createCoursePdfMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createRouteReviewFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createRouteGadgetFilesMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.publishToLiveloxMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createXmlMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createGPXFileMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createKMLFileMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -109,6 +110,7 @@ namespace PurplePen
             this.printAreaThisPartMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.printAreaThisCourseMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.printAreaAllCoursesMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator25 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripSeparator24 = new System.Windows.Forms.ToolStripSeparator();
             this.programLanguageMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
@@ -194,6 +196,7 @@ namespace PurplePen
             this.mapStd2000Menu = new System.Windows.Forms.ToolStripMenuItem();
             this.mapStd2017Menu = new System.Windows.Forms.ToolStripMenuItem();
             this.mapStdSpr2019Menu = new System.Windows.Forms.ToolStripMenuItem();
+            this.mapStdStreetOMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.customizeDescriptionsMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.customizeCourseAppearanceMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.courseMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -557,6 +560,8 @@ namespace PurplePen
             this.createXmlMenu,
             this.createGPXFileMenu,
             this.createKMLFileMenu,
+            this.toolStripSeparator25,
+            this.publishToLiveloxMenu,
             this.toolStripMenuItem1,
             this.printDescriptionsMenu,
             this.printPunchCardsMenu,
@@ -655,6 +660,12 @@ namespace PurplePen
             resources.ApplyResources(this.createRouteGadgetFilesMenu, "createRouteGadgetFilesMenu");
             this.createRouteGadgetFilesMenu.Click += new System.EventHandler(this.createRouteGadgetFilesMenu_Click);
             // 
+            // publishToLiveloxMenu
+            // 
+            this.publishToLiveloxMenu.Name = "publishToLiveloxMenu";
+            resources.ApplyResources(this.publishToLiveloxMenu, "publishToLiveloxMenu");
+            this.publishToLiveloxMenu.Click += new System.EventHandler(this.publishToLiveloxMenu_Click);
+            // 
             // createXmlMenu
             // 
             this.createXmlMenu.Name = "createXmlMenu";
@@ -723,6 +734,11 @@ namespace PurplePen
             this.printAreaAllCoursesMenu.Name = "printAreaAllCoursesMenu";
             resources.ApplyResources(this.printAreaAllCoursesMenu, "printAreaAllCoursesMenu");
             this.printAreaAllCoursesMenu.Click += new System.EventHandler(this.printAreaAllCoursesMenu_Click);
+            // 
+            // toolStripSeparator25
+            // 
+            this.toolStripSeparator25.Name = "toolStripSeparator25";
+            resources.ApplyResources(this.toolStripSeparator25, "toolStripSeparator25");
             // 
             // toolStripSeparator24
             // 
@@ -1274,7 +1290,8 @@ namespace PurplePen
             this.toolStripSeparator4,
             this.mapStd2000Menu,
             this.mapStd2017Menu,
-            this.mapStdSpr2019Menu});
+            this.mapStdSpr2019Menu,
+            this.mapStdStreetOMenu});
             this.iOFStandardsToolStripMenuItem.Name = "iOFStandardsToolStripMenuItem";
             resources.ApplyResources(this.iOFStandardsToolStripMenuItem, "iOFStandardsToolStripMenuItem");
             // 
@@ -1312,6 +1329,12 @@ namespace PurplePen
             this.mapStdSpr2019Menu.Name = "mapStdSpr2019Menu";
             resources.ApplyResources(this.mapStdSpr2019Menu, "mapStdSpr2019Menu");
             this.mapStdSpr2019Menu.Click += new System.EventHandler(this.mapStdSpr2019Menu_Click);
+            // 
+            // mapStdStreetOMenu
+            // 
+            this.mapStdStreetOMenu.Name = "mapStdStreetOMenu";
+            resources.ApplyResources(this.mapStdStreetOMenu, "mapStdStreetOMenu");
+            this.mapStdStreetOMenu.Click += new System.EventHandler(this.mapStdStreetOMenu_Click);
             // 
             // customizeDescriptionsMenu
             // 
@@ -2387,5 +2410,8 @@ namespace PurplePen
         private System.Windows.Forms.ToolStripMenuItem missingTranslationsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem constructionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addConstructionMenu;
+        private System.Windows.Forms.ToolStripMenuItem mapStdStreetOMenu;
+        private System.Windows.Forms.ToolStripMenuItem publishToLiveloxMenu;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator25;
     }
 }

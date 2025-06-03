@@ -67,7 +67,11 @@ namespace PurplePen
         SpecialColor fontColor;
         float fontHeight;
 
-        public AddTextMode(Controller controller, UndoMgr undoMgr, SelectionMgr selectionMgr, EventDB eventDB, string text, string fontName, bool fontBold, bool fontItalic, SpecialColor fontColor, float fontHeight)
+        //JU: Rotated and Multiline texts
+        float orientation;
+        bool multiline;
+
+        public AddTextMode(Controller controller, UndoMgr undoMgr, SelectionMgr selectionMgr, EventDB eventDB, string text, string fontName, bool fontBold, bool fontItalic, SpecialColor fontColor, float fontHeight /* JU: Rotated, Multiline */ , float textRotation, bool textMultiline)
         {
             this.controller = controller;
             this.undoMgr = undoMgr;
@@ -79,6 +83,11 @@ namespace PurplePen
             this.fontItalic = fontItalic;
             this.fontColor = fontColor;
             this.fontHeight = fontHeight;
+            
+            //JU: Rotated and Multiline texts
+            this.orientation = textRotation;
+            this.multiline = textMultiline;
+            
             this.displayText = CourseFormatter.ExpandText(eventDB, selectionMgr.ActiveCourseView, text);
         }
 
@@ -121,7 +130,7 @@ namespace PurplePen
 
             // Begin dragging out the description block.
             startLocation = location;
-            startingObj = new BasicTextCourseObj(Id<Special>.None, displayText, new RectangleF(location, new SizeF(0.001F, 0.001F)), fontName, Util.GetFontStyle(fontBold, fontItalic), fontColor, fontHeight);
+            startingObj = new BasicTextCourseObj(Id<Special>.None, displayText, new RectangleF(location, new SizeF(0.001F, 0.001F)), fontName, Util.GetFontStyle(fontBold, fontItalic), fontColor, fontHeight /* JU: Rotated and Multiline texts */, orientation, multiline);
             handleDragging = location;
             DragTo(location);
             displayUpdateNeeded = true;
@@ -149,7 +158,7 @@ namespace PurplePen
             Graphics g = Util.GetHiresGraphics();
             using (Font f = GdiplusFontLoader.CreateFont(NormalCourseAppearance.fontNameTextSpecial, NormalCourseAppearance.emHeightDefaultTextSpecial, NormalCourseAppearance.fontStyleTextSpecial))
                 size = g.MeasureString(measureText, f, new PointF(0,0), StringFormat.GenericTypographic);
-
+            
             RectangleF boundingRect = new RectangleF(new PointF(location.X, location.Y - size.Height), size);
             boundingRect = currentObj.AdjustBoundingRect(boundingRect);
             CreateTextSpecial(boundingRect);
@@ -178,7 +187,7 @@ namespace PurplePen
         {
             undoMgr.BeginCommand(1551, CommandNameText.AddObject);
 
-            Id<Special> specialId = ChangeEvent.AddTextSpecial(eventDB, boundingRect, text, currentObj.fontName, (currentObj.fontStyle & FontStyle.Bold) != 0, (currentObj.fontStyle & FontStyle.Italic) != 0, currentObj.fontColor, currentObj.fontDigitHeight);
+            Id<Special> specialId = ChangeEvent.AddTextSpecial(eventDB, boundingRect, text, currentObj.fontName, (currentObj.fontStyle & FontStyle.Bold) != 0, (currentObj.fontStyle & FontStyle.Italic) != 0, currentObj.fontColor, currentObj.fontDigitHeight /* JU: Rotated and Multiline texts */, currentObj.orientation, currentObj.multiline);
             undoMgr.EndCommand(1551);
 
             selectionMgr.SelectSpecial(specialId);

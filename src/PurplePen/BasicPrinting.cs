@@ -365,7 +365,7 @@ namespace PurplePen
                 float dpi = 1200;  // Make a PDF high resolution, although this is unlikely to matter much.
 
                 // create and print a page.
-                using (IGraphicsTarget grTarget = pdfWriter.BeginPage(paperSizeInInches)) {
+                using (IGraphicsTarget grTarget = pdfWriter.BeginPage(paperSizeInInches /* JU: Margin */, 0)) {
                     // Move the origin of the graphics to the margin boundaries.
                     Matrix translateTransform = new Matrix();
                     translateTransform.Translate(marginBounds.Left, marginBounds.Top);

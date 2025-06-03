@@ -725,7 +725,8 @@ namespace PurplePen
 
             if (courseMap != null) {
                 using (courseMap.Read())
-                    courseMap.Draw(grTargetCourses, visRect, renderOptions, null);
+                    //JU: Text over images
+                    courseMap.Draw(grTargetCourses, visRect, renderOptions, null, -1);
             }
 
             // Restore old blending setting.
@@ -759,6 +760,7 @@ namespace PurplePen
                     RectangleF draw = RectangleF.FromLTRB(printArea.Value.Right, printArea.Value.Top, visRect.Right, printArea.Value.Bottom);
                     grTargetCourses.FillRectangle(printAreaOutline, draw);
                 }
+//JU: TODO draw printed page boundary with bleed
             }
 
             grTargetCourses.PopAntiAliasing();

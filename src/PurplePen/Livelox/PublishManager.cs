@@ -93,7 +93,13 @@ namespace PurplePen.Livelox
             clonedMapDisplay.SetCourse(null);
             clonedMapDisplay.SetPrintArea(null);
             clonedMapDisplay.ColorModel = ColorModel.CMYK;
-            
+
+            //JU: Testing PDF map type import to Livelox
+            if (mapDisplay.MapType == MapType.PDF)
+            {
+                dpi = 300;
+            }
+
             var mapExporter = new ExportBitmap(clonedMapDisplay);
             mapExporter.CreateBitmap(
                 Path.Combine(temporaryDirectory, mapFileName),
@@ -204,7 +210,8 @@ namespace PurplePen.Livelox
 
         private static GeoCoordinate GetGeoPosition(float x, float y, CoordinateMapper coordinateMapper)
         {
-            if (coordinateMapper.GetLatLong(new PointF(x, y), out var latitude, out var longitude))
+            //JU: Export non georeferenced maps
+            if (coordinateMapper != null && coordinateMapper.GetLatLong(new PointF(x, y), out var latitude, out var longitude))
             {
                 return new GeoCoordinate()
                 {
