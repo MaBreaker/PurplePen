@@ -222,14 +222,14 @@ namespace PurplePen
                     pdfImporter = new PdfImporter(sourcePdfMapFileName);
 
                     float scaleRatio = CourseView.CreatePrintingCourseView(eventDB, page.courseDesignator).ScaleRatio;
-                    if (scaleRatio == 1.0 /* JU: Bleed and Crop */ && false) {
+                    if (scaleRatio == 1.0 /* JU: Bleed and Crop, never go here */ && false) {
                         // If we're doing a PDF at scale 1, we just copy the page directly.
                         pageToDraw = PdfNonScaledPage(page.courseDesignator);
                         grTarget = pdfWriter.BeginCopiedPage(pdfImporter, 0);
                     }
                     else {
                         Matrix transform = Geometry.CreateInvertedRectangleTransform(page.printRectangle, page.mapRectangle);
-        //JU: TODO White margins
+        //JU: TODO White margins etc.
                         RectangleF printedPortionInMapCoords = Geometry.TransformRectangle(transform, new RectangleF(0, 0, paperSize.Width * 100F, paperSize.Height * 100F));
                         RectangleF printedPortionInInches = new RectangleF(
                             Geometry.InchesFromMm(printedPortionInMapCoords.Left),
@@ -309,7 +309,7 @@ namespace PurplePen
 
             // Set the course layout into the map display
             mapDisplay.SetCourse(layout);
-            mapDisplay.SetPrintArea(null);
+            mapDisplay.SetPrintArea(null, null);
 
             // Set the transform, and the clip.
             Matrix transform = Geometry.CreateInvertedRectangleTransform(page.mapRectangle, page.printRectangle);

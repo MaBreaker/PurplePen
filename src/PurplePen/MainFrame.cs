@@ -431,9 +431,9 @@ namespace PurplePen
         void UpdatePrintArea()
         {
             if (hidePrintArea || !Settings.Default.ShowPrintArea)
-                mapDisplay.SetPrintArea(null);
+                mapDisplay.SetPrintArea(null, null);
             else
-                mapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart));
+                mapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart), /* JU: Difficult to get margins value from PageLayout */ null);
         }
 
         // Update the part banner in the map pane.

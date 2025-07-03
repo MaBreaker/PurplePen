@@ -664,13 +664,13 @@
     <value>3, 4, 3, 3</value>
   </data>
   <data name="checkBoxMultiline.Size" type="System.Drawing.Size, System.Drawing">
-    <value>73, 19</value>
+    <value>79, 19</value>
   </data>
   <data name="checkBoxMultiline.TabIndex" type="System.Int32, mscorlib">
     <value>13</value>
   </data>
   <data name="checkBoxMultiline.Text" xml:space="preserve">
-    <value>Multiline</value>
+    <value>Multiline |</value>
   </data>
   <data name="&gt;&gt;checkBoxMultiline.Name" xml:space="preserve">
     <value>checkBoxMultiline</value>

@@ -156,19 +156,19 @@ namespace PurplePen.MapModel
         }
 
         // Get a page that is a copy of a PDF page.
-        public IGraphicsTarget BeginCopiedPartialPage(PdfImporter pdfImporter, int pageNumber, SizeF sizeInInches, RectangleF partialSourcePageInInches, int margin)
+        public IGraphicsTarget BeginCopiedPartialPage(PdfImporter pdfImporter, int pageNumber, SizeF sizeInInches, RectangleF partialSourcePageInInches, int margins)
         {
             XForm xformToCopy = pdfImporter.GetXForm(pageNumber);
             PdfPage pageToCopy = pdfImporter.GetPage(pageNumber);
 
             //JU: PDF white margins
-            float marginInInches = (margin > 0 ? margin / 100F : 0.0F);
+            float marginInInches = (margins > 0 ? margins / 100F : 0.0F);
 
 //JU: TODO new PDF page with smaller size (remove margins) then draw it
-//    and finally extend page size and top left by margins to get empty edges
+//    and finally extend page size and top left by margins to get blank margins
 
             // Get a graphics target
-            IGraphicsTarget target = BeginPage(sizeInInches, margin);
+            IGraphicsTarget target = BeginPage(sizeInInches, margins);
 
             PointF cropBoxOriginInPoints = CropboxOriginInPoints(pageToCopy);
 

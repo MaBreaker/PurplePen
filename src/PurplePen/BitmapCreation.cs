@@ -176,7 +176,7 @@ namespace PurplePen
 
             // Set the course layout into the map display
             mapDisplay.SetCourse(layout);
-            mapDisplay.SetPrintArea(null);
+            mapDisplay.SetPrintArea(null, null);
 
             ExportBitmap exportBitmap = new ExportBitmap(mapDisplay);
             exportBitmap.CreateBitmap(fileName, mapRectangle, GetImageFormat(), bitmapCreationSettings.Dpi,

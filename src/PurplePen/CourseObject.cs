@@ -1164,10 +1164,8 @@ namespace PurplePen
             
             TextSymDef symdef = new TextSymDef(SymDefName, symbolId, TextSymDef.PreferredSymbolKind.NormalText, null);
 
-//TODO use font heigth and not static 1.2
-
-            //JU: Match normal DrawString line spacing of HighLight
-            float pixelEmHight = emHeight * 1.2F; //TransformDistance(emHeight, xformWorldToPixel);
+            //JU: Changed to match line spacing of standard DrawString in HighLight
+            float pixelEmHight = emHeight * 1.2F; //TODO: use font height instead of static 1.2
             symdef.SetFont(fontName, emHeight, Util.GetTextEffects(fontStyle), symbolColor, pixelEmHight, 0, 0, 0, null, 0, 1F, TextSymDefHorizAlignment.Left, TextSymDefVertAlignment.TopAscent);
             if (outlineWidth > 0) {
                 TextSymDef.Framing framing = new TextSymDef.Framing() {

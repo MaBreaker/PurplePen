@@ -61,7 +61,7 @@ namespace PurplePen
             this.controller = controller;
             this.mapDisplay = mapDisplay.CloneToFullIntensity();
             this.mapDisplay.SetCourse(null);
-            this.mapDisplay.SetPrintArea(null);
+            this.mapDisplay.SetPrintArea(null, null);
             this.mapDisplay.ColorModel = ColorModel.CMYK;
         }
 

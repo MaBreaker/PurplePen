@@ -79,6 +79,9 @@ namespace PurplePen
         int? lowerPurpleMapLayer;      // If non-null, place the lower purple of the map just above this OCAD ID color.
 
         RectangleF? printArea;          // print area to display, or null for none.
+        
+        //JU: Margins / Bleed
+        int? margins;                  
 
         // Clones this map display.
         public MapDisplay Clone()
@@ -496,10 +499,11 @@ namespace PurplePen
         }
 
         // Set the print area to display, or null to not display print area.
-        public void SetPrintArea(RectangleF? printArea)
+        public void SetPrintArea(RectangleF? printArea, int? margins)
         {
             if (!this.printArea.Equals(printArea)) {
                 this.printArea = printArea;
+                this.margins = margins;
                 RaiseChanged(null);
             }
         }
@@ -760,7 +764,19 @@ namespace PurplePen
                     RectangleF draw = RectangleF.FromLTRB(printArea.Value.Right, printArea.Value.Top, visRect.Right, printArea.Value.Bottom);
                     grTargetCourses.FillRectangle(printAreaOutline, draw);
                 }
-//JU: TODO draw printed page boundary with bleed
+                if (margins.HasValue && margins != 0) {
+                    // Draw the actual page rectangle.
+                    RectangleF draw = RectangleF.FromLTRB(printArea.Value.Left, printArea.Value.Top, printArea.Value.Right, printArea.Value.Bottom);
+                    object penOutline = new object();
+                    if (margins > 0) {
+                        grTargetCourses.CreatePen(penOutline, CmykColor.FromCmyka(0, 0, 0, 1, 0.12F), 2.0F, LineCap.Flat, LineJoin.Miter, 5F);
+                    }
+                    else {
+                        grTargetCourses.CreatePen(penOutline, CmykColor.FromCmyka(1, 1, 1, 0, 0.12F), 2.0F, LineCap.Flat, LineJoin.Miter, 5F);
+
+                    }
+                    grTargetCourses.DrawRectangle(penOutline, draw);
+                }
             }
 
             grTargetCourses.PopAntiAliasing();
