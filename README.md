@@ -8,3 +8,5 @@ PurplePen Plus additional features:
 - Bleed / Margin for printouts and PDF's
 - Corrected PDF export page size with large PDF background maps
 - Activated Livelox uploads
+- Overprint for Custom colors (pauliojanpera)
+- Fix for default item scaling (kyberias)
