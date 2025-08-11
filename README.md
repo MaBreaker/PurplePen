@@ -1,7 +1,7 @@
 # PurplePen
 Course setting program for orienteering races.
 
-PurplePen Plus additional features:
+PurplePen +Plus additional features:
 - Rotated and multiline custom texts
 - White outline for controls, start and finnish symbols
 - Custom texts and other symbols drawn on top of images
