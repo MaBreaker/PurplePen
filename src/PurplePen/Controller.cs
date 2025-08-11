@@ -558,7 +558,7 @@ namespace PurplePen
                 ev.courseAppearance.itemScaling = ItemScaling.RelativeTo15000;
             }
             else {
-                if (info.allControlsPrintScale >= 9500 && info.allControlsPrintScale <= 15500) {
+                if (info.allControlsPrintScale >= 7500 && info.allControlsPrintScale <= 15500) {
                     ev.courseAppearance.itemScaling = ItemScaling.RelativeTo15000;
                 }
                 else {
