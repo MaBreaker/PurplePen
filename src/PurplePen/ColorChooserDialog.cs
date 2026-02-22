@@ -125,6 +125,8 @@ namespace PurplePen
             comboBox.Items.Add(new ColorAndText(MiscText.Black, SpecialColor.Black, CmykColor.FromCmyk(0, 0, 0, 1)));
             comboBox.Items.Add(new ColorAndText(MiscText.Purple, SpecialColor.UpperPurple, purpleColor));
             comboBox.Items.Add(new ColorAndText(MiscText.LowerPurple, SpecialColor.LowerPurple, purpleColor));
+            //JU: Orange color e.g. help line in children courses (need overprint settings etc.)
+            comboBox.Items.Add(new ColorAndText(MiscText.Orange, CmykColor.FromCmyk(0, 0.5F, 1, 0), true));
             comboBox.Items.Add(new ColorAndText(MiscText.Red, CmykColor.FromCmyk(0, 1, 1, 0), false));
             comboBox.Items.Add(new ColorAndText(MiscText.Yellow, CmykColor.FromCmyk(0, 0, 1, 0), false));
             comboBox.Items.Add(new ColorAndText(MiscText.Green, CmykColor.FromCmyk(1, 0, 1, 0), false));
