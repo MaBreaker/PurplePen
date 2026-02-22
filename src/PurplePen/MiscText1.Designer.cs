@@ -1215,7 +1215,19 @@ namespace PurplePen {
                 return ResourceManager.GetString("OpenOrienteeringMapper", resourceCulture);
             }
         }
-        
+
+        //JU: Orange text
+        /// <summary>
+        ///   Looks up a localized string similar to Orange.
+        /// </summary>
+        internal static string Orange
+        {
+            get
+            {
+                return ResourceManager.GetString("Orange", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to The page size is too small for any descriptions to be printed..
         /// </summary>
