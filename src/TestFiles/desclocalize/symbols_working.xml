@@ -359,6 +359,8 @@ for the symbols.
 		 E in some cases (crossing/junction/between). -->
 
 	<symbol kind="D" id="1.1">
+		<name lang="fr">FrenchTerrace</name>
+		<name lang="de">GermanTerrace</name>
 		<name lang="en">Terrace</name>
 		<text lang="en">terrace</text>
 		<text lang="en" plural="true">terraces</text>
@@ -2020,9 +2022,7 @@ for the symbols.
 	</symbol>
 
 	<symbol kind="D" id="5.20">
-		<name lang="en">New English Statue</name>
-		<name lang="de">New German Statue</name>
-		
+		<name lang="en">Monument or statue</name>
 		<text lang="en">statue</text>
 		<text lang="en" plural="true">statues</text>
 		<lines thickness="12.5">
