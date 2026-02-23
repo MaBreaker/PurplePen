@@ -4,7 +4,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>DotSpatial.Projections</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Configurations>Debug;Release</Configurations>
+    <Configurations>CD_ROM;Debug;DVD-5;Release;SingleImage;StorePkg</Configurations>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'StorePkg|AnyCPU'">
