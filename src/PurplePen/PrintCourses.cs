@@ -49,6 +49,7 @@ namespace PurplePen
         CoursePrintSettings settings;
         internal Controller controller;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public CoursePrintSettings PrintSettings
         {
             get {
@@ -139,6 +140,7 @@ namespace PurplePen
                         settings.PageSettings.PaperSize = printDialog.PrinterSettings.DefaultPageSettings.PaperSize;
                         settings.PageSettings.PaperSource = printDialog.PrinterSettings.DefaultPageSettings.PaperSource;
                         settings.PageSettings.PrinterSettings = printDialog.PrinterSettings;
+                        settings.PageSettings.PrinterSettings.Copies = 1; // ignore copies from the print settings dialog.
                         UpdateDialog();
                     }
                 }

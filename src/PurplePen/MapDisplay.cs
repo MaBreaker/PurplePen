@@ -35,7 +35,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 using PurplePen.MapModel;
@@ -52,7 +51,7 @@ namespace PurplePen
     // on the map. It includes the map proper, as well as the courses and so forth drawn on top.
     // The IMapDisplay interface is the communication channel with the ViewCache and the MapViewer
     // controls -- it simply has to be able to draw itself, and notify when parts change.
-    class MapDisplay: IMapDisplay
+    class MapDisplay: IMapDisplay, IDisposable
     {
         MapType mapType;    // Map type. Note that OpenMapper and OCAD files both called MapType.OCAD. See MapVersion property to distinguish.
         string filename;
@@ -79,9 +78,10 @@ namespace PurplePen
         int? lowerPurpleMapLayer;      // If non-null, place the lower purple of the map just above this OCAD ID color.
 
         RectangleF? printArea;          // print area to display, or null for none.
-        
+        private bool disposed = false;
+
         //JU: Margins / Bleed
-        int? margins;                  
+        int? margins;
 
         // Clones this map display.
         public MapDisplay Clone()
@@ -92,6 +92,52 @@ namespace PurplePen
             newMapDisplay.UpdateDimmedBitmap();
 
             return newMapDisplay;
+        }
+
+        // Dispose managed resources used by the MapDisplay.
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing) {
+                try {
+                    if (bitmap != null) {
+                        bitmap.Dispose();
+                        bitmap = null;
+                    }
+
+                    if (dimmedBitmap != null) {
+                        dimmedBitmap.Dispose();
+                        dimmedBitmap = null;
+                    }
+
+                    if (map != null) {
+                        map.Dispose();
+                        map = null;
+                    }
+
+                    if (pdfMapFile != null) {
+                        pdfMapFile.Dispose();
+                        pdfMapFile = null;
+                    }
+
+                    if (courseMap != null) {
+                        courseMap.Dispose();
+                        courseMap = null;
+                    }
+                }
+                catch {
+                    // Swallow exceptions during dispose to avoid throwing from Dispose.
+                }
+            }
+
+            disposed = true;
         }
 
         // Clones this map display, and set the clone to full intensity
@@ -236,6 +282,18 @@ namespace PurplePen
             }
         }
 
+
+        public List<string> GetReferencedFiles()
+        {
+             if (mapType == MapType.OCAD && map != null) {
+                using (map.Read()) {
+                    return map.GetReferencedFiles(1);
+                }
+            }
+            else {
+                return new List<string>();
+            }
+        }
 
         // Colors in the map, or empty list if no map or bitmap map.
         public List<SymColor> GetMapColors()
@@ -499,11 +557,10 @@ namespace PurplePen
         }
 
         // Set the print area to display, or null to not display print area.
-        public void SetPrintArea(RectangleF? printArea, int? margins)
+        public void SetPrintArea(RectangleF? printArea)
         {
             if (!this.printArea.Equals(printArea)) {
                 this.printArea = printArea;
-                this.margins = margins;
                 RaiseChanged(null);
             }
         }
@@ -527,7 +584,7 @@ namespace PurplePen
 
                 Graphics g = Graphics.FromImage(dimmed);
                 ImageAttributes imageAttributes = new ImageAttributes();
-                imageAttributes.SetColorMatrix(ComputeColorMatrix());
+                imageAttributes.SetColorMatrix(ComputeColorMatrix().ToSysDrawColorMatrix());
                 g.DrawImage(((GDIPlus_Bitmap)bitmap).Bitmap, new Rectangle(0, 0, bitmap.PixelWidth, bitmap.PixelHeight), 0, 0, bitmap.PixelWidth, bitmap.PixelHeight, GraphicsUnit.Pixel, imageAttributes);
                 g.Dispose();
 
@@ -729,8 +786,7 @@ namespace PurplePen
 
             if (courseMap != null) {
                 using (courseMap.Read())
-                    //JU: Text over images
-                    courseMap.Draw(grTargetCourses, visRect, renderOptions, null, -1);
+                    courseMap.Draw(grTargetCourses, visRect, renderOptions, null);
             }
 
             // Restore old blending setting.
@@ -763,19 +819,6 @@ namespace PurplePen
                 if (printArea.Value.Right < visRect.Right) {
                     RectangleF draw = RectangleF.FromLTRB(printArea.Value.Right, printArea.Value.Top, visRect.Right, printArea.Value.Bottom);
                     grTargetCourses.FillRectangle(printAreaOutline, draw);
-                }
-                if (margins.HasValue && margins != 0) {
-                    // Draw the actual page rectangle.
-                    RectangleF draw = RectangleF.FromLTRB(printArea.Value.Left, printArea.Value.Top, printArea.Value.Right, printArea.Value.Bottom);
-                    object penOutline = new object();
-                    if (margins > 0) {
-                        grTargetCourses.CreatePen(penOutline, CmykColor.FromCmyka(0, 0, 0, 1, 0.12F), 2.0F, LineCap.Flat, LineJoin.Miter, 5F);
-                    }
-                    else {
-                        grTargetCourses.CreatePen(penOutline, CmykColor.FromCmyka(1, 1, 1, 0, 0.12F), 2.0F, LineCap.Flat, LineJoin.Miter, 5F);
-
-                    }
-                    grTargetCourses.DrawRectangle(penOutline, draw);
                 }
             }
 

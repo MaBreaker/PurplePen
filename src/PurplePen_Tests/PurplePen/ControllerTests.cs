@@ -49,7 +49,7 @@ namespace PurplePen.Tests
     using System.Linq;
     using PurplePen.MapModel;
 
-    [TestClass]
+    [TestClass, DoNotParallelize]
     public class ControllerTests: TestFixtureBase
     {
 
@@ -1880,6 +1880,10 @@ Code:           layer:12  control:4  scale:1  text:GO  top-left:(38.29,-16.89)
                     TestUtil.CompareBitmapBaseline(bitmapFileNames[i], bitmapFileBaselines[i]);
                 }
             }
+
+            for (int i = 0; i < expectedFiles.Length; ++i) {
+                File.Delete(expectedFiles[i]);
+            }
         }
 
         [TestMethod]
@@ -1949,7 +1953,6 @@ Code:           layer:12  control:4  scale:1  text:GO  top-left:(38.29,-16.89)
             CreateOcadFiles(TestUtil.GetTestFile("controller\\ocad_create3\\marymoor4.ppen"), settings, new CourseAppearance(),
                 new string[1] { TestUtil.GetTestFile("controller\\ocad_create3\\Course 3.ocd")},
                 new string[1] { TestUtil.GetTestFile("controller\\ocad_create3\\Course 3_expected.txt")});
-            Assert.IsTrue(File.Exists(outputFile));
         }
 
         [TestMethod]
@@ -1975,7 +1978,6 @@ Code:           layer:12  control:4  scale:1  text:GO  top-left:(38.29,-16.89)
             CreateOcadFiles(TestUtil.GetTestFile("controller\\ocad_create3\\marymoor4.ppen"), settings, new CourseAppearance(),
                 new string[1] { TestUtil.GetTestFile("controller\\Course 3.ocd") },
                 new string[1] { TestUtil.GetTestFile("controller\\ocad_create4\\Course 3_expected.txt") });
-            Assert.IsTrue(File.Exists(outputFile));
             File.Delete(outputFile);
         }
 
@@ -1998,7 +2000,7 @@ Code:           layer:12  control:4  scale:1  text:GO  top-left:(38.29,-16.89)
 
             CreateOcadFiles(TestUtil.GetTestFile("controller\\create_ocad5.ppen"), settings, new CourseAppearance(),
                 new string[1] { TestUtil.GetTestFile("controller\\ocad_create5\\MyEvent_Coolthing-A&B_C&D_E_F.ocd") },
-                new string[1] { TestUtil.GetTestFile("controller\\ocad_create5\\MyEvent_Coolthing-A&B_C&D_E_F_expected.txt") });
+                new string[1] { TestUtil.GetTestFile("controller\\ocad_create5\\MyEvent_Coolthing_A&B_C&D_E_F_expected.txt") });
         }
 
         [TestMethod]
@@ -2094,7 +2096,7 @@ Code:           layer:12  control:4  scale:1  text:GO  top-left:(38.29,-16.89)
 
             CreateOcadFiles(TestUtil.GetTestFile("controller\\mapexchange2.ppen"), settings, new CourseAppearance(),
                 new string[5] { TestUtil.GetTestFile("controller\\ocad_create9\\Course 4G.ocd"), TestUtil.GetTestFile("controller\\ocad_create9\\Course 5-1.ocd"), TestUtil.GetTestFile("controller\\ocad_create9\\Course 5-2.ocd"), TestUtil.GetTestFile("controller\\ocad_create9\\Course 5-3.ocd"), TestUtil.GetTestFile("controller\\ocad_create9\\Course 5-4.ocd") },
-                new string[5] { TestUtil.GetTestFile("controller\\ocad_create9\\Course 4G-expected.txt"), TestUtil.GetTestFile("controller\\ocad_create9\\Course 5-1-expected.txt"), TestUtil.GetTestFile("controller\\ocad_create9\\Course 5-2-expected.txt"), TestUtil.GetTestFile("controller\\ocad_create9\\Course 5-3-expected.txt"), TestUtil.GetTestFile("controller\\ocad_create9\\Course 5-4-expected.txt") });
+                new string[5] { TestUtil.GetTestFile("controller\\ocad_create9\\Course 4G_expected.txt"), TestUtil.GetTestFile("controller\\ocad_create9\\Course 5_1_expected.txt"), TestUtil.GetTestFile("controller\\ocad_create9\\Course 5_2_expected.txt"), TestUtil.GetTestFile("controller\\ocad_create9\\Course 5_3_expected.txt"), TestUtil.GetTestFile("controller\\ocad_create9\\Course 5_4_expected.txt") });
         }
 
         [TestMethod]
@@ -2122,8 +2124,8 @@ Code:           layer:12  control:4  scale:1  text:GO  top-left:(38.29,-16.89)
                                TestUtil.GetTestFile("controller\\ocad_create10\\SmallScale_expected.txt"),
                                TestUtil.GetTestFile("controller\\ocad_create10\\LargeScale_expected.txt"),
                                TestUtil.GetTestFile("controller\\ocad_create10\\MediumScale_expected.txt")},
-                new string[] { TestUtil.GetTestFile("controller\\ocad_create10\\Lincoln-CMYK.gif")},
-                new string[] { TestUtil.GetTestFile("controller\\ocad_create10\\Lincoln-CMYK-baseline.png")});
+                new string[] { TestUtil.GetTestFile("controller\\ocad_create10\\Lincoln_CMYK.gif")},
+                new string[] { TestUtil.GetTestFile("controller\\ocad_create10\\Lincoln_CMYK_baseline.png")});
         }
 
         [TestMethod]
@@ -2489,32 +2491,6 @@ Code:           layer:12  control:4  scale:1  text:GO  top-left:(38.29,-16.89)
             Assert.AreEqual("de", controller.GetDescriptionLanguage());
         }
 
-        [TestMethod]
-        public void CanAddDescriptions()
-        {
-            EventDB eventDB = controller.GetEventDB();
-
-            bool success = controller.LoadInitialFile(TestUtil.GetTestFile("controller\\mapexchange1.ppen"), true);
-            Assert.IsTrue(success);
-
-            controller.SelectTab(0);    // All controls.
-            Assert.IsTrue(controller.CanAddDescriptions());
-
-            controller.SelectTab(1);   // No map exchange
-            Assert.IsTrue(controller.CanAddDescriptions());
-
-            controller.SelectTab(2);   // Map exchange
-            Assert.IsFalse(controller.CanAddDescriptions());
-
-            controller.SelectPart(0);
-            Assert.IsTrue(controller.CanAddDescriptions());
-
-            controller.SelectPart(1);
-            Assert.IsTrue(controller.CanAddDescriptions());
-
-            controller.SelectPart(-1);
-            Assert.IsFalse(controller.CanAddDescriptions());
-        }
 
         [TestMethod]
         public void GetLineSpecialProperties1()

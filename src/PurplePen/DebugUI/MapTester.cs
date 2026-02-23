@@ -36,13 +36,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
 
+using PurplePen.Graphics2D;
 using PurplePen.MapModel;
 using PurplePen.MapView;
 
@@ -109,7 +109,7 @@ namespace PurplePen.DebugUI
             matrix.Translate(-centerPoint.X, -centerPoint.Y);
 
             // Draw into a new bitmap.
-            Bitmap bitmapNew = new Bitmap(bitmapSize.Width, bitmapSize.Height, PixelFormat.Format24bppRgb);
+            Bitmap bitmapNew = new Bitmap(bitmapSize.Width, bitmapSize.Height, GDIPlus_GraphicsTarget.NonAlphaPixelFormat);
             float minResolution = mapArea.Width / (float) bitmapSize.Width;
 
             if (mapDisplay != null) {

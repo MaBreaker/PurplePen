@@ -36,14 +36,12 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Diagnostics;
 using NUnit.Framework;
 using TestingUtils;
+using PurplePen.Graphics2D;
 using PurplePen.MapModel;
-using System.Net;
 
 namespace Map_PDF.Tests
 {
@@ -54,7 +52,7 @@ namespace Map_PDF.Tests
 
         static Rendering()
         {
-            Uri uri = new Uri(typeof(Rendering).Assembly.CodeBase);
+            Uri uri = new Uri(typeof(Rendering).Assembly.Location);
             string executablePath = Path.GetDirectoryName(uri.LocalPath);
             string fontPath = Path.Combine(executablePath, "fonts");
 
@@ -248,8 +246,8 @@ namespace Map_PDF.Tests
         [Test]
         public void FramingLines()
         {
-            CheckTest("framingline-test.txt", false, true, 6, 10);
-            CheckTest("framingline-test9.txt", false, true, 6, 10);
+            CheckTest("framinglinetest.txt", false, true, 6, 10);
+            CheckTest("framinglinetest9.txt", false, true, 6, 10);
         }
 
         [Test]
@@ -824,6 +822,16 @@ namespace Map_PDF.Tests
         {
             CheckTest("RobotoTest.txt", false, false, 9, 12);
         }
+
+#if false
+        // This doesn't work yet for PDFs.
+        [Test]
+        public void FontFallback()
+        {
+            CheckTest("fontfallback.txt", false, false, 9, 12);
+        }
+#endif
+
 
     }
 

@@ -32,27 +32,22 @@
  * OF SUCH DAMAGE.
  */
 
+using PdfSharp.Drawing;
+using PurplePen.Graphics2D;
+using PurplePen.MapModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
-using SysDraw = System.Drawing;
+using System.Threading;
+using Bitmap = System.Drawing.Bitmap;
 using PointF = System.Drawing.PointF;
 using RectangleF = System.Drawing.RectangleF;
 using SizeF = System.Drawing.SizeF;
-using Matrix = System.Drawing.Drawing2D.Matrix;
-using FillMode = System.Drawing.Drawing2D.FillMode;
-using LineJoin = System.Drawing.Drawing2D.LineJoin;
-using LineCap = System.Drawing.Drawing2D.LineCap;
-using Bitmap = System.Drawing.Bitmap;
-using StringFormat = System.Drawing.StringFormat;
 using StringAlignment = System.Drawing.StringAlignment;
+using StringFormat = System.Drawing.StringFormat;
 using StringFormatFlags = System.Drawing.StringFormatFlags;
-
-using PurplePen.MapModel;
-using PurplePen.Graphics2D;
-using PdfSharp.Drawing;
+using SysDraw = System.Drawing;
 
 // TODO: Needs more work to handle CMYK color space!
 
@@ -110,7 +105,7 @@ namespace PurplePen.MapModel
             throw new NotSupportedException();
         }
 
-        public void CreatePen(object penKey, object brushKey, float width, LineCap caps, LineJoin join, float miterLimit)
+        public void CreatePen(object penKey, object brushKey, float width, LineCapMode caps, LineJoinMode join, float miterLimit)
         {
             if (penMap.ContainsKey(penKey))
                 throw new InvalidOperationException("Key already has a pen created for it");
@@ -123,7 +118,7 @@ namespace PurplePen.MapModel
             penMap.Add(penKey, pen);
         }
 
-        public void CreatePen(object penKey, CmykColor color, float width, LineCap caps, LineJoin join, float miterLimit)
+        public void CreatePen(object penKey, CmykColor color, float width, LineCapMode caps, LineJoinMode join, float miterLimit)
         {
             if (penMap.ContainsKey(penKey))
                 throw new InvalidOperationException("Key already has a pen created for it");
@@ -136,17 +131,17 @@ namespace PurplePen.MapModel
             penMap.Add(penKey, pen);
         }
 
-        private XLineJoin ToXLineJoin(LineJoin linejoin)
+        private XLineJoin ToXLineJoin(LineJoinMode linejoin)
         {
             switch (linejoin)
             {
-                case LineJoin.Bevel:
+                case LineJoinMode.Bevel:
                     return XLineJoin.Bevel;
-                case LineJoin.Miter:
+                case LineJoinMode.Miter:
                     return XLineJoin.Miter;
-                case LineJoin.MiterClipped:
+                case LineJoinMode.MiterClipped:
                     return XLineJoin.Miter;
-                case LineJoin.Round:
+                case LineJoinMode.Round:
                     return XLineJoin.Round;
                 default:
                     Debug.Fail("unexpected join");
@@ -154,15 +149,15 @@ namespace PurplePen.MapModel
             }
         }
 
-        private XLineCap ToXLineCap(LineCap linecap)
+        private XLineCap ToXLineCap(LineCapMode linecap)
         {
             switch (linecap)
             {
-                case LineCap.Flat:
+                case LineCapMode.Flat:
                     return XLineCap.Flat;
-                case LineCap.Round:
+                case LineCapMode.Round:
                     return XLineCap.Round;
-                case LineCap.Square:
+                case LineCapMode.Square:
                     return XLineCap.Square;
                 default:
                     Debug.Fail("unexpected line cap");
@@ -203,7 +198,7 @@ namespace PurplePen.MapModel
             fontMap.Add(fontKey, font);
         }
 
-        public void CreatePath(object pathKey, List<GraphicsPathPart> parts, FillMode windingMode)
+        public void CreatePath(object pathKey, List<GraphicsPathPart> parts, AreaFillMode windingMode)
         {
             if (pathMap.ContainsKey(pathKey))
                 throw new InvalidOperationException("Key already has a path created for it");
@@ -212,7 +207,7 @@ namespace PurplePen.MapModel
             pathMap.Add(pathKey, path);
         }
 
-        XGraphicsPath GetXGraphicsPath(List<GraphicsPathPart> parts, FillMode windingMode)
+        XGraphicsPath GetXGraphicsPath(List<GraphicsPathPart> parts, AreaFillMode windingMode)
         {
             XGraphicsPath path = new XGraphicsPath();
             path.FillMode = ToXFillMode(windingMode);
@@ -257,7 +252,7 @@ namespace PurplePen.MapModel
         public void PushTransform(Matrix matrix)
         {
             stateStack.Push(gfx.Save());
-            gfx.MultiplyTransform(matrix, XMatrixOrder.Prepend);
+            gfx.MultiplyTransform(matrix.ToSysDrawMatrix(), XMatrixOrder.Prepend);
         }
 
         // Pop the transform
@@ -273,7 +268,7 @@ namespace PurplePen.MapModel
             gfx.IntersectClip(GetGraphicsPath(pathKey));
         }
 
-        public void PushClip(List<GraphicsPathPart> parts, FillMode windingMode)
+        public void PushClip(List<GraphicsPathPart> parts, AreaFillMode windingMode)
         {
             stateStack.Push(gfx.Save());
             gfx.IntersectClip(GetXGraphicsPath(parts, windingMode));
@@ -386,18 +381,18 @@ namespace PurplePen.MapModel
         }
 
         // Fill a polygon with a brush
-        public void FillPolygon(object brushKey, PointF[] pts, FillMode windingMode)
+        public void FillPolygon(object brushKey, PointF[] pts, AreaFillMode windingMode)
         {
             gfx.DrawPolygon(GetBrush(brushKey), pts, ToXFillMode(windingMode));
         }
 
-        private XFillMode ToXFillMode(FillMode windingMode)
+        private XFillMode ToXFillMode(AreaFillMode windingMode)
         {
             switch (windingMode)
             {
-                case FillMode.Alternate:
+                case AreaFillMode.Alternate:
                     return XFillMode.Alternate;
-                case FillMode.Winding:
+                case AreaFillMode.Winding:
                     return XFillMode.Winding;
                 default:
                     return XFillMode.Alternate;
@@ -412,7 +407,7 @@ namespace PurplePen.MapModel
 
         public void DrawPath(object penKey, List<GraphicsPathPart> parts)
         {
-            XGraphicsPath path = GetXGraphicsPath(parts, FillMode.Alternate);
+            XGraphicsPath path = GetXGraphicsPath(parts, AreaFillMode.Alternate);
             gfx.DrawPath(GetPen(penKey), path);
         }
 
@@ -422,7 +417,7 @@ namespace PurplePen.MapModel
             gfx.DrawPath(GetBrush(brushKey), GetGraphicsPath(pathKey));
         }
 
-        public void FillPath(object brushKey, List<GraphicsPathPart> parts, FillMode windingMode)
+        public void FillPath(object brushKey, List<GraphicsPathPart> parts, AreaFillMode windingMode)
         {
             XGraphicsPath path = GetXGraphicsPath(parts, windingMode);
             gfx.DrawPath(GetBrush(brushKey), path);
@@ -500,18 +495,18 @@ namespace PurplePen.MapModel
             return glyphs;
         }
 
-        [ThreadStatic]
-        static System.Drawing.Graphics hiResGraphics = null;
+        private static ThreadLocal<System.Drawing.Graphics> hiresGraphics = new ThreadLocal<System.Drawing.Graphics>(() => {
+            System.Drawing.Graphics g = System.Drawing.Graphics.FromHwnd(IntPtr.Zero);
+            g.ScaleTransform(50F, -50F);
+            return g;
+        });
 
-        private static System.Drawing.Graphics GetHiresGraphics()
+        // Returns a graphics scaled with negative Y and hi-resolution (50 units/pixel or so).
+        // Instances are per-thread, so that tests that use this can run in parallel.
+        public static System.Drawing.Graphics GetHiresGraphics()
         {
-            if (hiResGraphics == null) {
-                hiResGraphics = System.Drawing.Graphics.FromHwnd(IntPtr.Zero);
-                hiResGraphics.ScaleTransform(50F, -50F);
-            }
-            return hiResGraphics;
+            return hiresGraphics.Value;
         }
-
 
         // Draw text outline with upper-left corner of text at the given locations.
         public void DrawTextOutline(string text, object fontKey, object penKey, PointF upperLeft)

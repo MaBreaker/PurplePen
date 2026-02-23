@@ -32,20 +32,22 @@
  * OF SUCH DAMAGE.
  */
 
+using PurplePen.MapModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-
-using PurplePen.MapModel;
+using Gr2DMatrix = PurplePen.Graphics2D.Matrix;
+using SysDrawMatrix = System.Drawing.Drawing2D.Matrix;
 
 namespace PurplePen.MapModel
 {
     using PurplePen.Graphics2D;
-    using System.IO;
     using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
+    using System.IO;
+    using System.Runtime.InteropServices;
+    using System.Threading;
 
     // A GraphicsTarget encapsulates either a Graphics (for WinForms) or a DrawingContext (for WPF)
     public class GDIPlus_GraphicsTarget: IGraphicsTarget
@@ -66,6 +68,17 @@ using System.Runtime.InteropServices;
         // Bitmaps above this size are split when drawing.
         private const int BITMAP_DRAW_LIMIT = 10000000;
 
+#if NETFRAMEWORK
+        // These are the pixel modes we always used with .NET Framework.
+        public const PixelFormat AlphaPixelFormat = PixelFormat.Format32bppArgb;
+        public const PixelFormat NonAlphaPixelFormat = PixelFormat.Format24bppRgb;
+#else
+        // The System.Drawing in .net code doesn't work well with 24 bpp modes, so use
+        // 32 bpp modes for both alpha and non-alpha. 
+        public const PixelFormat AlphaPixelFormat = PixelFormat.Format32bppPArgb;
+        public const PixelFormat NonAlphaPixelFormat = PixelFormat.Format32bppPArgb;
+#endif
+
         public GDIPlus_GraphicsTarget(Graphics g, GDIPlus_ColorConverter colorConverter, float intensity)
         {
             this.Graphics = g;
@@ -73,7 +86,7 @@ using System.Runtime.InteropServices;
             this.intensity = intensity;
             if (intensity < 1.0F) {
                 imageAttributes = new ImageAttributes();
-                imageAttributes.SetColorMatrix(ComputeColorMatrix(intensity));
+                imageAttributes.SetColorMatrix(ComputeColorMatrix(intensity).ToSysDrawColorMatrix());
             }
 
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
@@ -160,28 +173,28 @@ using System.Runtime.InteropServices;
             return new GDIPlus_BrushTarget(this, g, bitmap, size, angle);
         }
 
-        public void CreatePen(object penKey, object brushKey, float width, LineCap caps, LineJoin join, float miterLimit)
+        public void CreatePen(object penKey, object brushKey, float width, LineCapMode caps, LineJoinMode join, float miterLimit)
         {
             if (penMap.ContainsKey(penKey))
                 throw new InvalidOperationException("Key already has a pen created for it");
 
             Brush brush = GetBrush(brushKey);
             Pen pen = new Pen(brush, width);
-            pen.StartCap = pen.EndCap = caps;
-            pen.LineJoin = join;
+            pen.StartCap = pen.EndCap = caps.ToSysDrawLineCap();
+            pen.LineJoin = join.ToSysDrawLineJoin();
             pen.MiterLimit = miterLimit;
 
             penMap.Add(penKey, pen);
         }
 
-        public void CreatePen(object penKey, CmykColor color, float width, LineCap caps, LineJoin join, float miterLimit)
+        public void CreatePen(object penKey, CmykColor color, float width, LineCapMode caps, LineJoinMode join, float miterLimit)
         {
             if (penMap.ContainsKey(penKey))
                 throw new InvalidOperationException("Key already has a pen created for it");
 
             Pen pen = new Pen(ConvertColor(color), width);
-            pen.StartCap = pen.EndCap = caps;
-            pen.LineJoin = join;
+            pen.StartCap = pen.EndCap = caps.ToSysDrawLineCap();
+            pen.LineJoin = join.ToSysDrawLineJoin();
             pen.MiterLimit = miterLimit;
 
             penMap.Add(penKey, pen);
@@ -210,7 +223,7 @@ using System.Runtime.InteropServices;
             fontMap.Add(fontKey, font);
         }
 
-        public void CreatePath(object pathKey, List<GraphicsPathPart> parts, FillMode windingMode)
+        public void CreatePath(object pathKey, List<GraphicsPathPart> parts, AreaFillMode windingMode)
         {
             if (pathMap.ContainsKey(pathKey))
                 throw new InvalidOperationException("Key already has a path created for it");
@@ -220,9 +233,9 @@ using System.Runtime.InteropServices;
             pathMap.Add(pathKey, path);
         }
 
-        private GraphicsPath GetGraphicsPath(List<GraphicsPathPart> parts, FillMode windingMode)
+        private GraphicsPath GetGraphicsPath(List<GraphicsPathPart> parts, AreaFillMode windingMode)
         {
-            GraphicsPath path = new GraphicsPath(windingMode);
+            GraphicsPath path = new GraphicsPath(windingMode.ToSysDrawFillMode());
             PointF startPoint = default(PointF);
 
             foreach (GraphicsPathPart part in parts) {
@@ -264,7 +277,7 @@ using System.Runtime.InteropServices;
         public void PushTransform(Matrix matrix)
         {
             stateStack.Push(Graphics.Save());
-            Graphics.MultiplyTransform(matrix, MatrixOrder.Prepend);
+            Graphics.MultiplyTransform(matrix.ToSysDrawMatrix(), System.Drawing.Drawing2D.MatrixOrder.Prepend);
         }
 
         // Pop the transform
@@ -281,7 +294,7 @@ using System.Runtime.InteropServices;
                 Graphics.IntersectClip(region);
         }
 
-        public void PushClip(List<GraphicsPathPart> parts, FillMode fillMode)
+        public void PushClip(List<GraphicsPathPart> parts, AreaFillMode fillMode)
         {
             stateStack.Push(Graphics.Save());
 
@@ -441,10 +454,10 @@ using System.Runtime.InteropServices;
         }
 
         // Fill a polygon with a brush
-        public void FillPolygon(object brushKey, PointF[] pts, FillMode windingMode)
+        public void FillPolygon(object brushKey, PointF[] pts, AreaFillMode windingMode)
         {
             try {
-                Graphics.FillPolygon(GetBrush(brushKey), pts, windingMode);
+                Graphics.FillPolygon(GetBrush(brushKey), pts, windingMode.ToSysDrawFillMode());
             }
             catch (Exception) {
                 // Do nothing. Very occasionally, GDI+ given an overflow exception or ExternalException or OutOfMemory exception. 
@@ -468,7 +481,7 @@ using System.Runtime.InteropServices;
         public void DrawPath(object penKey, List<GraphicsPathPart> parts)
         {
             try {
-                using (GraphicsPath grPath = GetGraphicsPath(parts, FillMode.Alternate)) {
+                using (GraphicsPath grPath = GetGraphicsPath(parts, AreaFillMode.Alternate)) {
                     Graphics.DrawPath(GetPen(penKey), grPath);
                 }
             }
@@ -490,7 +503,7 @@ using System.Runtime.InteropServices;
             }
         }
 
-        public void FillPath(object brushKey, List<GraphicsPathPart> parts, FillMode fillMode)
+        public void FillPath(object brushKey, List<GraphicsPathPart> parts, AreaFillMode fillMode)
         {
             try {
                 using (GraphicsPath grPath = GetGraphicsPath(parts, fillMode)) {
@@ -538,7 +551,7 @@ using System.Runtime.InteropServices;
         public void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
         {
             // If the transformed rectangle is too large, we can run out of memory.
-            RectangleF transformedBounds = Geometry.BoundsOfTransformedRectangle(rectangle, Graphics.Transform);
+            RectangleF transformedBounds = Geometry.BoundsOfTransformedRectangle(rectangle, Graphics.Transform.ToGraphics2DMatrix());
             if (Math.Abs(transformedBounds.Width * transformedBounds.Height) > 35000000)
                 scalingMode = BitmapScaling.NearestNeighbor;
 
@@ -575,7 +588,7 @@ using System.Runtime.InteropServices;
         public void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
         {
             // If the transformed rectangle is too large, we can run out of memory.
-            RectangleF transformedBounds = Geometry.BoundsOfTransformedRectangle(rectangle, Graphics.Transform);
+            RectangleF transformedBounds = Geometry.BoundsOfTransformedRectangle(rectangle, Graphics.Transform.ToGraphics2DMatrix());
             if (Math.Abs(transformedBounds.Width * transformedBounds.Height) > 35000000)
                 scalingMode = BitmapScaling.NearestNeighbor;
 
@@ -798,7 +811,7 @@ using System.Runtime.InteropServices;
             if (clipRegion != null)
                 graphics.IntersectClip(clipRegion);
 
-            graphics.Transform = transform;
+            graphics.Transform = transform.ToSysDrawMatrix();
 
             if (initialColor != null) {
                 colorConverter = colorConverter ?? new GDIPlus_ColorConverter();
@@ -824,7 +837,7 @@ using System.Runtime.InteropServices;
 
         static Bitmap GetBitmap(int pixelWidth, int pixelHeight, bool alpha)
         {
-            PixelFormat format = alpha ? PixelFormat.Format32bppPArgb : PixelFormat.Format24bppRgb;
+            PixelFormat format = alpha ? AlphaPixelFormat : NonAlphaPixelFormat;
             return new Bitmap(pixelWidth, pixelHeight, format);
         }
 
@@ -1068,24 +1081,35 @@ using System.Runtime.InteropServices;
 
         public float  GetTextWidth(string text)
         {
-            return GetHiresGraphics().MeasureString(text, font, new PointF(0, 0), stringFormat).Width;
+            // This isn't actually the best way to measure text width, since it doesn't take kerning into account.
+            // We should use MeasureCharacterRanges instead, but since we are switching to SkiaSharp very soon, I'm
+            // not going to potentially change behavior now.
+
+            float width = GetHiresGraphics().MeasureString(text, font, new PointF(0, 0), stringFormat).Width;
+            return width;
         }
 
         public SizeF  GetTextSize(string text)
         {
+            // This isn't actually the best way to measure text width, since it doesn't take kerning into account.
+            // We should use MeasureCharacterRanges instead, but since we are switching to SkiaSharp very soon, I'm
+            // not going to potentially change behavior now.
+
             return GetHiresGraphics().MeasureString(text, font, new PointF(0, 0), stringFormat);
         }
 
-        [ThreadStatic]
-        static Graphics hiResGraphics = null;
+        private static ThreadLocal<Graphics> hiresGraphics = new ThreadLocal<Graphics>(() => {
+            Graphics g = Graphics.FromImage(new Bitmap(1, 1));
+            g.ScaleTransform(10F, -10F);
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+            return g;
+        });
 
-        private static Graphics GetHiresGraphics()
+        // Returns a graphics scaled with negative Y and hi-resolution (50 units/pixel or so).
+        // Instances are per-thread, so that tests that use this can run in parallel.
+        public static Graphics GetHiresGraphics()
         {
-            if (hiResGraphics == null) {
-                hiResGraphics = Graphics.FromImage(new Bitmap(1, 1));
-                hiResGraphics.ScaleTransform(10F, -10F);
-            }
-            return hiResGraphics;
+            return hiresGraphics.Value;
         }
 
         public void  Dispose()
@@ -1259,7 +1283,7 @@ using System.Runtime.InteropServices;
             return newMap;
         }
 
-        private string SearchForFile(string path)
+        public string SearchForFile(string path)
         {
             try {
                 if (File.Exists(path))

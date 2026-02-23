@@ -47,6 +47,7 @@ using System.Windows.Forms;
 using PurplePen.MapModel;
 using PurplePen.Graphics2D;
 using System.Drawing.Imaging;
+using System.Threading;
 
 namespace PurplePen
 {
@@ -60,31 +61,50 @@ namespace PurplePen
     /// </summary>
     static class Util
     {
-        [DllImport("shlwapi.dll", CharSet = CharSet.Auto)]
-        static extern bool PathRelativePathTo(
-             [Out] StringBuilder pszPath,
-             [In] string pszFrom,
-             [In] uint dwAttrFrom,
-             [In] string pszTo,
-             [In] uint dwAttrTo
-        );
-        const uint FILE_ATTRIBUTE_DIRECTORY = 0x10;
-        const uint FILE_ATTRIBUTE_NORMAL = 0x0;
-        const int MAX_PATH = 260;
+        static class NativeMethods
+        {
+            [DllImport("shlwapi.dll", CharSet = CharSet.Auto, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+            public static extern bool PathRelativePathTo(
+                 [Out] StringBuilder pszPath,
+                 [In] string pszFrom,
+                 [In] uint dwAttrFrom,
+                 [In] string pszTo,
+                 [In] uint dwAttrTo
+            );
+            public const uint FILE_ATTRIBUTE_DIRECTORY = 0x10;
+            public const uint FILE_ATTRIBUTE_NORMAL = 0x0;
+            public const int MAX_PATH = 260;
+
+            // Windows API for loading a cursor from file. The Cursor constructor does not work
+            // correctly with .cur files that have 32-bit color with alpha transparency.
+            [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+            public static extern IntPtr LoadCursorFromFile(string path);
+        }
 
         // Get the relative name, if possible, of one file relative to another.
         public static string GetRelativeFileName(string relativeTo, string file)
         {
-            StringBuilder result = new StringBuilder(MAX_PATH);
-            bool ret = PathRelativePathTo(result, relativeTo, FILE_ATTRIBUTE_NORMAL, file, FILE_ATTRIBUTE_NORMAL);
+#if NET5_0_OR_GREATER
+            // Use the built-in .NET method (available in .NET 5+)
+            try {
+                string result = Path.GetRelativePath(Path.GetDirectoryName(relativeTo), file);
+                return result;
+            }
+            catch {
+                return file; // Fall back to absolute path if relative path can't be computed
+            }
+#else
+            // Use P/Invoke for .NET Framework 4.8
+            StringBuilder result = new StringBuilder(NativeMethods.MAX_PATH);
+            bool ret = NativeMethods.PathRelativePathTo(result, relativeTo, NativeMethods.FILE_ATTRIBUTE_NORMAL, file, NativeMethods.FILE_ATTRIBUTE_NORMAL);
             if (ret == false)
-                return file;        // no relative path.
+                return file;
             else {
-                // If the hittest starts with .\, remove that.
                 if (result.Length > 2 && result[0] == '.' && result[1] == '\\')
                     result.Remove(0, 2);
                 return result.ToString();
             }
+#endif
         }
 
         // Get the relative name, if possible, of one file relative to the output file name
@@ -129,7 +149,7 @@ namespace PurplePen
         {
             // Using Application.StartupPath would be
             // simpler and probably faster, but doesn't work with NUnit.
-            string codebase = typeof(Controller).Assembly.CodeBase;
+            string codebase = typeof(Controller).Assembly.Location;
             Uri uri = new Uri(codebase);
             string appPath = Path.GetDirectoryName(uri.LocalPath);
 
@@ -253,18 +273,18 @@ namespace PurplePen
             return Rectangle.FromLTRB((int)Math.Round(rect.Left), (int)Math.Round(rect.Top), (int)Math.Round(rect.Right), (int)Math.Round(rect.Bottom));
         }
 
-        private static Graphics hiresGraphics;
+        private static ThreadLocal<Graphics> hiresGraphics = new ThreadLocal<Graphics>(() => {
+            Graphics g = Graphics.FromHwnd(IntPtr.Zero);
+            g.ScaleTransform(50F, -50F);
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+            return g;
+        });
 
         // Returns a graphics scaled with negative Y and hi-resolution (50 units/pixel or so).
+        // Instances are per-thread, so that tests that use this can run in parallel.
         public static Graphics GetHiresGraphics()
         {
-            if (hiresGraphics == null) {
-                hiresGraphics = Graphics.FromHwnd(IntPtr.Zero);
-                hiresGraphics.ScaleTransform(50F, -50F);
-                hiresGraphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-            }
-
-            return hiresGraphics;
+            return hiresGraphics.Value;
         }
 
         // Go to a given web page.
@@ -317,13 +337,59 @@ namespace PurplePen
         private static Cursor moveHandleCursor;
         private static Cursor deleteHandleCursor;
 
+        /// <summary>
+        /// Loads a cursor from a Stream (e.g., embedded resource stream), preserving 32-bit color and alpha transparency.
+        /// </summary>
+        /// <param name="cursorStream">The stream containing the cursor data.</param>
+        /// <returns>A standard Windows Forms Cursor object.</returns>
+        public static Cursor LoadCursorFromResource(Stream cursorStream)
+        {
+            if (cursorStream == null)
+                throw new ArgumentNullException(nameof(cursorStream));
+
+            // 1. Create a temporary file path with .cur extension
+            string tempPath = Path.GetTempFileName();
+            string tempCursorPath = Path.ChangeExtension(tempPath, ".cur");
+
+            // Cleanup the initial temp file created by GetTempFileName if it differs from our new path
+            if (File.Exists(tempPath) && tempPath != tempCursorPath)
+                File.Delete(tempPath);
+
+            try {
+                // 2. Write the stream data to the temporary file
+                using (FileStream fs = new FileStream(tempCursorPath, FileMode.Create, FileAccess.Write)) {
+                    // Reset stream position if possible, just in case
+                    if (cursorStream.CanSeek) {
+                        cursorStream.Position = 0;
+                    }
+                    cursorStream.CopyTo(fs);
+                }
+
+                // 3. Load the cursor from the temp file using the P/Invoke method
+                IntPtr hCursor = NativeMethods.LoadCursorFromFile(tempCursorPath);
+
+                if (hCursor == IntPtr.Zero) {
+                    throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+                }
+
+                // 4. Create the managed Cursor object
+                return new Cursor(hCursor);
+            }
+            finally {
+                // 5. Clean up: Delete the temp file immediately
+                if (File.Exists(tempCursorPath)) {
+                    File.Delete(tempCursorPath);
+                }
+            }
+        }
+
         // Load the MoveHandle cursor.
         public static Cursor MoveHandleCursor
         {
             get
             {
                 if (moveHandleCursor == null) {
-                    moveHandleCursor = new Cursor(typeof(Util).Assembly.GetManifestResourceStream("PurplePen.Images.MoveHandle.cur"));
+                    moveHandleCursor = LoadCursorFromResource(typeof(Util).Assembly.GetManifestResourceStream("PurplePen.Images.MoveHandle.cur"));
                 }
                 return moveHandleCursor;
             }
@@ -335,7 +401,7 @@ namespace PurplePen
             get
             {
                 if (deleteHandleCursor == null) {
-                    deleteHandleCursor = new Cursor(typeof(Util).Assembly.GetManifestResourceStream("PurplePen.Images.DeleteHandle.cur"));
+                    deleteHandleCursor = LoadCursorFromResource(typeof(Util).Assembly.GetManifestResourceStream("PurplePen.Images.DeleteHandle.cur"));
                 }
                 return deleteHandleCursor;
             }
@@ -444,11 +510,20 @@ namespace PurplePen
             }
         }
 
+        // Determine if the current culture uses metric. This is based on the CultureInfo.CurrentCulture, 
+        // NOT the RegionInfo.CurrentRegion, for compatibility for what we always did (and I think it's the 
+        // right thing).
+        public static bool IsCurrentCultureMetric()
+        {
+            RegionInfo regionInfo = new RegionInfo(Thread.CurrentThread.CurrentCulture.Name);
+            return regionInfo.IsMetric;
+        }
+
         // Get text describing a distance. The input is in hundreths of an inch.
         public static string GetDistanceText(int distance, bool addUnits = true)
         {
             string result;
-            if (RegionInfo.CurrentRegion.IsMetric) {
+            if (Util.IsCurrentCultureMetric()) {
                 result = (distance * 25.4 / 100.0).ToString("0");
                 if (addUnits)
                     result += "mm";
@@ -465,7 +540,7 @@ namespace PurplePen
         // Get decimal for a distance.
         public static decimal GetDistanceValue(int distance)
         {
-            if (RegionInfo.CurrentRegion.IsMetric) {
+            if (Util.IsCurrentCultureMetric()) {
                 return ((decimal) distance * 25.4M / 100.0M);
             }
             else {
@@ -476,7 +551,7 @@ namespace PurplePen
         // Get distance in hundredth of an inch from a decimal.
         public static int GetDistanceFromValue(decimal value)
         {
-            if (RegionInfo.CurrentRegion.IsMetric) {
+            if (Util.IsCurrentCultureMetric()) {
                 return (int) Math.Round(value * 100.0M / 25.4M);
             }
             else {

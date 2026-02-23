@@ -35,7 +35,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using PurplePen.Graphics2D;
 using PurplePen.MapModel;
 
@@ -43,7 +42,7 @@ namespace PurplePen
 {
     // Renders a course view into the punch card with all the punches. Also allows checking to see if
     // the punches are missing.
-    class PunchesRenderer: IPrintableRectangle
+    class PunchesRenderer: IPrintableRectangle, IDisposable
     {
         private float margin = 3;           
         private float cellSize = 30;
@@ -54,6 +53,8 @@ namespace PurplePen
         object blackBrush;
         object thinPen, thickPen;
         ITextMetrics textMetrics;
+
+        bool disposed;
 
         public PunchesRenderer(EventDB eventDB)
         {
@@ -122,9 +123,9 @@ namespace PurplePen
             blackBrush = new object();
             g.CreateSolidBrush(blackBrush, black);
             thinPen = new object();
-            g.CreatePen(thinPen, black, PunchcardAppearance.thinLine, LineCap.Flat, LineJoin.Miter, 5F);
+            g.CreatePen(thinPen, black, PunchcardAppearance.thinLine, LineCapMode.Flat, LineJoinMode.Miter, 5F);
             thickPen = new object();
-            g.CreatePen(thickPen, black, PunchcardAppearance.thickLine, LineCap.Flat, LineJoin.Miter, 5F);
+            g.CreatePen(thickPen, black, PunchcardAppearance.thickLine, LineCapMode.Flat, LineJoinMode.Miter, 5F);
 
             textMetrics = new GDIPlus_TextMetrics();        }
 
@@ -134,8 +135,10 @@ namespace PurplePen
             blackBrush = null;
             thinPen = null;
             thickPen = null;
-            textMetrics.Dispose();
-            textMetrics = null;
+            if (textMetrics != null) {
+                textMetrics.Dispose();
+                textMetrics = null;
+            }
         }
 
         // Get all the boxes we are going to fill into an array.
@@ -334,6 +337,27 @@ namespace PurplePen
             grTarget.PushTransform(transform);
             Render(grTarget, startLine, countLines);
             grTarget.PopTransform();
+        }
+
+
+        // Dispose pattern - release any managed resources we may still be holding.
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing) {
+                // Dispose managed resources
+                DisposeObjects();
+            }
+
+            disposed = true;
         }
     }
 

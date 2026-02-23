@@ -45,6 +45,7 @@ src/SetupIS/SetupIS
 .bzr/
 
 **/.vs
+src/.claude/
 Thumbs.db
 *.opendb
 *.db
@@ -62,6 +63,7 @@ ipch/
 *_temp.*
 *_diff.png
 *_new.png
+*_tempnew.png
 *.crunchproject.local.xml
 src/TestResults
 src/tools/TranslateTool/TestResults
@@ -79,7 +81,6 @@ doc/userdocs/Help/*.log
 doc/userdocs/Help/desktop.ini
 src/PPenDXCore.Solution
 *.DS_Store
-src/TestFiles/rendering/startendglyph9_tempnew.png
 *.VC.opendb
 *.VC.db
 src/packages/
@@ -115,5 +116,6 @@ src/.vs/
 /src/PurplePenMsixInstaller/BundleArtifacts/Upload/x86.txt
 src/MsixInstaller/AppPackages/
 src/MsftStoreInstaller/AppPackages/
-/src/FontInstaller/output/Roboto Font Installer.exe
+/src/FontInstaller/output/
 loc/po/tar/
+/src/Help/output/Purple Pen Help.log

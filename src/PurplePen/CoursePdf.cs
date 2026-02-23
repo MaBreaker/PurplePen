@@ -216,31 +216,39 @@ namespace PurplePen
                 IGraphicsTarget grTarget;
                 PdfImporter pdfImporter = null;
 
-                if (IsPdfMap) {
+                if (coursePdfSettings.DontPrintBaseMap) {
+                    // Don't print the base map, just the course.
+                    mapDisplay.SetMapFile(MapType.None, null);
+                    grTarget = pdfWriter.BeginPage(paperSize);
+                }
+                else if (IsPdfMap) {
+                    // Import the base map from the PDF map file, so that it is vector, not raster.
+
                     // We need to re-obtain a PdfImporter every time, or else very strange bugs start to crop up.
 
                     pdfImporter = new PdfImporter(sourcePdfMapFileName);
 
                     float scaleRatio = CourseView.CreatePrintingCourseView(eventDB, page.courseDesignator).ScaleRatio;
-                    if (scaleRatio == 1.0 /* JU: Bleed and Crop, never go here */ && false) {
-                        // If we're doing a PDF at scale 1, we just copy the page directly.
-                        pageToDraw = PdfNonScaledPage(page.courseDesignator);
+        //JU: TODO White margins etc.
+                    RectangleF sourcePortionInInches = new RectangleF(
+                        Geometry.InchesFromMm(page.mapRectangle.Left),
+                        Geometry.InchesFromMm(mapBounds.Height - page.mapRectangle.Bottom),
+                        Geometry.InchesFromMm(page.mapRectangle.Width),
+                        Geometry.InchesFromMm(page.mapRectangle.Height));
+                    RectangleF cropRectangleInInches = new RectangleF(page.printRectangle.Left / 100F, page.printRectangle.Top / 100F,
+                                                                    page.printRectangle.Width / 100F, page.printRectangle.Height / 100F);
+
+                    if (scaleRatio == 1.0 && Geometry.SimilarRectangles(cropRectangleInInches, new RectangleF(0, 0, paperSize.Width, paperSize.Height), 0.01F) &&
+                        Geometry.SimilarRectangles(page.mapRectangle, mapBounds, 0.01F)) 
+                    {
+                        // If we're doing a PDF at scale 1, no cropping, and the print area is the same as the page size, we just copy the page directly.
                         grTarget = pdfWriter.BeginCopiedPage(pdfImporter, 0);
                     }
                     else {
-                        Matrix transform = Geometry.CreateInvertedRectangleTransform(page.printRectangle, page.mapRectangle);
-        //JU: TODO White margins etc.
-                        RectangleF printedPortionInMapCoords = Geometry.TransformRectangle(transform, new RectangleF(0, 0, paperSize.Width * 100F, paperSize.Height * 100F));
-                        RectangleF printedPortionInInches = new RectangleF(
-                            Geometry.InchesFromMm(printedPortionInMapCoords.Left),
-                            Geometry.InchesFromMm(mapBounds.Height - printedPortionInMapCoords.Bottom),
-                            Geometry.InchesFromMm(printedPortionInMapCoords.Width),
-                            Geometry.InchesFromMm(printedPortionInMapCoords.Height));
-                        
-                        grTarget = pdfWriter.BeginCopiedPartialPage(pdfImporter, 0, paperSize, printedPortionInInches /* JU: Margins */, pageToDraw.margins);
+                        grTarget = pdfWriter.BeginCopiedPartialPage(pdfImporter, 0, paperSize, sourcePortionInInches, cropRectangleInInches /* JU: Margins */, pageToDraw.margins);
                     }
-                    
-                    // Don't draw the map normally.
+
+                    // Don't draw the map normally, which would case the rasterized map to be drawn over the PDF map.
                     mapDisplay.SetMapFile(MapType.None, null);
                 }
                 else {
@@ -335,7 +343,7 @@ namespace PurplePen
                 new GraphicsPathPart(GraphicsPathPartKind.Start, new PointF[] { rect.Location }),
                 new GraphicsPathPart(GraphicsPathPartKind.Lines, new PointF[] { new PointF(rect.Right, rect.Top), new PointF(rect.Right, rect.Bottom), new PointF(rect.Left, rect.Bottom), new PointF(rect.Left, rect.Top)}),
                 new GraphicsPathPart(GraphicsPathPartKind.Close, new PointF[0])
-            }, FillMode.Winding);
+            }, AreaFillMode.Winding);
             graphicsTarget.PushClip(rectanglePath);
         }
     }
@@ -346,6 +354,7 @@ namespace PurplePen
         public Id<Course>[] CourseIds;          // Courses to print, None is all controls.
         public bool AllCourses = true;          // If true, overrides CourseIds except for all controls.
 
+        public bool DontPrintBaseMap = false;    // If true, the base map is not rendered, just the course.
         public bool CropLargePrintArea = true;       // If true, crop a large print area instead of printing multiple pages 
         public bool PrintMapExchangesOnOneMap = false;
         public PdfFileCreation FileCreation = PdfFileCreation.FilePerCourse; 

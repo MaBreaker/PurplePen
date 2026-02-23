@@ -42,28 +42,21 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.IO;
 
-using SysDraw = System.Drawing;
-using SysDraw2D = System.Drawing.Drawing2D;
-using PointF = System.Drawing.PointF;
-using RectangleF = System.Drawing.RectangleF;
-using SizeF = System.Drawing.SizeF;
-using Matrix = System.Drawing.Drawing2D.Matrix;
-using FillMode = System.Drawing.Drawing2D.FillMode;
-using LineJoin = System.Drawing.Drawing2D.LineJoin;
-using LineCap = System.Drawing.Drawing2D.LineCap;
-
 
 
 namespace PurplePen.MapModel
 {
+    using Map_SkiaStd;
     using PurplePen.Graphics2D;
     using SkiaSharp;
+    using SkiaSharp.HarfBuzz;
+    using System.Collections.Concurrent;
     using System.Drawing;
 
     // A GraphicsTarget encapsulates an SKCanvas
     public class Skia_GraphicsTarget: IGraphicsTarget
     {
-        private SKCanvas canvas;
+        protected SKCanvas canvas;
         private SkiaColorConverter colorConverter;
         private float intensity;    // color intensity level, 1.0F is full intensity (no lightening)
         private int pushLevel;      // How many pushes have we done?
@@ -114,7 +107,7 @@ namespace PurplePen.MapModel
             brushMap.Add(brushKey, paint);
         }
 
-        private void CreatePenCore(object penKey, SKPaint basePaint, float width, SysDraw2D.LineCap caps, SysDraw2D.LineJoin join, float miterLimit)
+        private void CreatePenCore(object penKey, SKPaint basePaint, float width, LineCapMode caps, LineJoinMode join, float miterLimit)
         {
             if (penMap.ContainsKey(penKey))
                 throw new InvalidOperationException("Key already has a pen created for it");
@@ -124,13 +117,13 @@ namespace PurplePen.MapModel
             paint.StrokeWidth = width;
 
             switch (caps) {
-                case System.Drawing.Drawing2D.LineCap.Flat:
+                case LineCapMode.Flat:
                     paint.StrokeCap = SKStrokeCap.Butt;
                     break;
-                case System.Drawing.Drawing2D.LineCap.Round:
+                case LineCapMode.Round:
                     paint.StrokeCap = SKStrokeCap.Round;
                     break;
-                case System.Drawing.Drawing2D.LineCap.Square:
+                case LineCapMode.Square:
                     paint.StrokeCap = SKStrokeCap.Square;
                     break;
                 default:
@@ -138,14 +131,14 @@ namespace PurplePen.MapModel
             }
 
             switch (join) {
-                case System.Drawing.Drawing2D.LineJoin.Bevel:
+                case LineJoinMode.Bevel:
                     paint.StrokeJoin = SKStrokeJoin.Bevel;
                     break;
-                case System.Drawing.Drawing2D.LineJoin.Miter:
+                case LineJoinMode.Miter:
                     paint.StrokeJoin = SKStrokeJoin.Miter;
                     paint.StrokeMiter = miterLimit;
                     break;
-                case System.Drawing.Drawing2D.LineJoin.Round:
+                case LineJoinMode.Round:
                     paint.StrokeJoin = SKStrokeJoin.Round;
                     break;
                 default:
@@ -155,14 +148,14 @@ namespace PurplePen.MapModel
             penMap.Add(penKey, paint);
         }
 
-        public void CreatePen(object penKey, CmykColor color, float width, SysDraw2D.LineCap caps, SysDraw2D.LineJoin join, float miterLimit)
+        public void CreatePen(object penKey, CmykColor color, float width, LineCapMode caps, LineJoinMode join, float miterLimit)
         {
             SKPaint paint = new SKPaint();
             paint.Color = ConvertColor(color);
             CreatePenCore(penKey, paint, width, caps, join, miterLimit);
         }
 
-        public void CreatePen(object penKey, object brushKey, float width, SysDraw2D.LineCap caps, SysDraw2D.LineJoin join, float miterLimit)
+        public void CreatePen(object penKey, object brushKey, float width, LineCapMode caps, LineJoinMode join, float miterLimit)
         {
             SKPaint brushPaint = GetBrushPaint(brushKey);
             CreatePenCore(penKey, brushPaint, width, caps, join, miterLimit);
@@ -198,7 +191,7 @@ namespace PurplePen.MapModel
             fontMap.Add(fontKey, font);
         }
 
-        public void CreatePath(object pathKey, List<GraphicsPathPart> parts, FillMode windingMode)
+        public void CreatePath(object pathKey, List<GraphicsPathPart> parts, AreaFillMode windingMode)
         {
             if (pathMap.ContainsKey(pathKey))
                 throw new InvalidOperationException("Key already has a path created for it");
@@ -207,11 +200,11 @@ namespace PurplePen.MapModel
             pathMap.Add(pathKey, path);
         }
 
-        private SKPath GetPath(List<GraphicsPathPart> parts, FillMode windingMode)
+        private SKPath GetPath(List<GraphicsPathPart> parts, AreaFillMode windingMode)
         {
             SKPath path = new SKPath();
             
-            path.FillType = (windingMode == FillMode.Alternate) ? SKPathFillType.EvenOdd : SKPathFillType.Winding;
+            path.FillType = (windingMode == AreaFillMode.Alternate) ? SKPathFillType.EvenOdd : SKPathFillType.Winding;
 
             int count = parts.Count;
             for (int partIndex = 0; partIndex < count; ++partIndex) {
@@ -276,7 +269,7 @@ namespace PurplePen.MapModel
             PushClip(GetSkPath(pathKey));
         }
 
-        public void PushClip(List<GraphicsPathPart> parts, FillMode windingMode)
+        public void PushClip(List<GraphicsPathPart> parts, AreaFillMode windingMode)
         {
             using (SKPath path = GetPath(parts, windingMode)) {
                 PushClip(path);
@@ -403,10 +396,10 @@ namespace PurplePen.MapModel
         }
 
         // Fill a polygon with a brush
-        public void FillPolygon(object brushKey, PointF[] pts, SysDraw2D.FillMode windingMode)
+        public void FillPolygon(object brushKey, PointF[] pts, AreaFillMode windingMode)
         {
             using (SKPath path = new SKPath()) {
-		        path.FillType = (windingMode == FillMode.Alternate) ? SKPathFillType.EvenOdd : SKPathFillType.Winding;
+		        path.FillType = (windingMode == AreaFillMode.Alternate) ? SKPathFillType.EvenOdd : SKPathFillType.Winding;
 
                 path.MoveTo(pts[0].X, pts[0].Y);
                 for (int i = 1; i < pts.Length; ++i)
@@ -429,7 +422,7 @@ namespace PurplePen.MapModel
 
         public void DrawPath(object penKey, List<GraphicsPathPart> parts)
         {
-            DrawSKPath(penKey, GetPath(parts, FillMode.Winding));
+            DrawSKPath(penKey, GetPath(parts, AreaFillMode.Winding));
         }
 
         private void FillSKPath(object brushKey, SKPath path)
@@ -443,7 +436,7 @@ namespace PurplePen.MapModel
             FillSKPath(brushKey, GetSkPath(pathKey));
         }
 
-        public void FillPath(object brushKey, List<GraphicsPathPart> parts, FillMode windingMode)
+        public void FillPath(object brushKey, List<GraphicsPathPart> parts, AreaFillMode windingMode)
         {
             FillSKPath(brushKey, GetPath(parts, windingMode));
         }
@@ -456,7 +449,6 @@ namespace PurplePen.MapModel
             using (SKPaint paint = new SKPaint()) {
                 paint.Color = brushPaint.Color;
                 paint.Shader = brushPaint.Shader;
-                paint.Typeface = font.Typeface;
                 paint.TextSize = font.EmHeight;
                 paint.TextAlign = SKTextAlign.Left;
                 paint.IsAntialias = antiAlias;
@@ -464,9 +456,8 @@ namespace PurplePen.MapModel
                 paint.SubpixelText = false;
 
                 // paint.UnderlineText = font.Underline;  // TODO: Underline not yet supported.
-                canvas.DrawText(text, upperLeft.X, upperLeft.Y + font.Ascent, paint);
+                font.EnhancedTypeface.DrawText(canvas, text, new SKPoint(upperLeft.X, upperLeft.Y), font.EmHeight, paint);
             }
-            float emHeight = font.EmHeight;
         }
 
         // Draw text outline with upper-left corner of text at the given locations.
@@ -476,7 +467,6 @@ namespace PurplePen.MapModel
             SKPaint penPaint = GetPenPaint(penKey);
             
             using (SKPaint paint = new SKPaint()) {
-                paint.Typeface = font.Typeface;
                 paint.TextSize = font.EmHeight;
                 paint.TextAlign = SKTextAlign.Left;
                 paint.IsAntialias = antiAlias;
@@ -487,7 +477,8 @@ namespace PurplePen.MapModel
                 paint.StrokeJoin = penPaint.StrokeJoin;
                 paint.StrokeCap = penPaint.StrokeCap;
                 paint.StrokeMiter = penPaint.StrokeMiter;
-                canvas.DrawText(text, upperLeft.X, upperLeft.Y + font.Ascent, paint);
+
+                font.EnhancedTypeface.DrawText(canvas, text, new SKPoint(upperLeft.X, upperLeft.Y), font.EmHeight, paint);
             }
         }
 
@@ -694,32 +685,71 @@ namespace PurplePen.MapModel
 
     public class SkiaFont: ITextFaceMetrics
     {
-		private SKTypeface typeface;
+        //private SKTypeface typeface;
+        //private SKShaper shaper;
+        private ShapedTypeface shapedTypeface;
+        private EnhancedTypeface enhancedTypeface;
 		private float emHeight;
         private SKFontMetrics fontMetrics;
         private bool fontMetricsObtained;
         private bool underline;
-        private float spaceWidth = -1, capHeight = -1;
+        private float spaceWidth = -1, capHeight = -1;  
 
-		public SkiaFont(string familyName, float emHeight, TextEffects effects)
-		{
-			this.emHeight = emHeight;
-            if (familyName == "Arial Narrow") {
-                // Special case for Arial Narrow. Use "Arial" with a condensed style instead.
-                this.typeface = SKTypeface.FromFamilyName("Arial", GetSKFontStyleWeight(effects), SKFontStyleWidth.Condensed, GetSKFontStyleSlant(effects));
-            }
-            else {
-                this.typeface = SKTypeface.FromFamilyName(familyName, GetSKFontStyleWeight(effects), SKFontStyleWidth.Normal, GetSKFontStyleSlant(effects));
-            }
+        // These properties mostly duplicates how OCAD renders text.
+        private readonly Dictionary<string, int> harfBuzzProperties = new Dictionary<string, int>() {
+            { "kern", 1 },  // enable kerning
+            { "liga", 0 },  // disable standard ligatures
+            { "clig", 0 },  // disable contextual ligatures
+            { "dlig", 0 },  // disable discretionary ligatures
+            { "hlig", 0 },  // disable optional ligatures
+            { "calt", 0 },  // disable contextual alternates
+        };
+
+        private readonly string[] fallbackFontsWindows = new string[] {
+            "Segoe UI",              // Latin, Cyrillic, Greek, Arabic, Hebrew
+            "Tahoma",                // Broad Latin/Arabic backup
+            "Nirmala UI",            // Indic scripts (Devanagari, Bengali, Tamil, Telugu, etc.)
+            "Leelawadee UI",         // Thai, Lao, Khmer
+            "Yu Gothic UI",          // Japanese
+            "Microsoft YaHei UI",    // Chinese Simplified
+            "Microsoft JhengHei UI", // Chinese Traditional
+            "Malgun Gothic",         // Korean
+            "Ebrima",                // Ethiopic, N'Ko, Tifinagh, Vai, Osmanya
+            "Gadugi",                // Cherokee, Canadian Aboriginal Syllabics
+            "Sylfaen",               // Georgian, Armenian
+            "Myanmar Text",          // Myanmar
+            "Microsoft Himalaya",    // Tibetan
+            "Mongolian Baiti",       // Mongolian
+            "Segoe UI Symbol",       // Miscellaneous symbols, math, Braille
+            "Segoe UI Emoji",        // Emoji
+            "Segoe UI Historic",     // Miscellaneous letters, like runic
+        };
+
+        private ConcurrentDictionary<TextEffects, ShapedTypeface[]> fallbackTypefaceCache = new ConcurrentDictionary<TextEffects, ShapedTypeface[]>();
+
+        public SkiaFont(string familyName, float emHeight, TextEffects effects)
+        {
+            ShapedTypeface[] fallbackTypefaces = fallbackTypefaceCache.GetOrAdd(effects, (te) => {
+                List<ShapedTypeface> list = new List<ShapedTypeface>();
+                foreach (string fallbackFamily in fallbackFontsWindows) {
+                    ShapedTypeface shapedTypeface = ShapedTypeface.Get(fallbackFamily, GetSKFontStyleWeight(effects), SKFontStyleWidth.Normal, GetSKFontStyleSlant(effects));
+                    if (shapedTypeface != null)
+                        list.Add(shapedTypeface);
+                }
+                return list.ToArray();
+            });
+
+            this.emHeight = emHeight;
+            this.shapedTypeface = ShapedTypeface.Get(familyName, GetSKFontStyleWeight(effects), SKFontStyleWidth.Normal, GetSKFontStyleSlant(effects));
+            this.enhancedTypeface = new EnhancedTypeface(this.shapedTypeface, fallbackTypefaces, harfBuzzProperties);
             this.underline = ((effects & TextEffects.Underline) != 0);
-		}
+        }
 
-		public SKTypeface Typeface
-		{
-			get { return typeface; }
-		}
+        public EnhancedTypeface EnhancedTypeface { 
+            get { return enhancedTypeface; } 
+        }
 
-		public float EmHeight
+        public float EmHeight
 		{
 			get { return emHeight; }
 		}
@@ -763,7 +793,7 @@ namespace PurplePen.MapModel
                 if (capHeight < 0) {
                     using (SKPaint paint = new SKPaint()) {
                         paint.IsAntialias = true;
-                        paint.Typeface = typeface;
+                        paint.Typeface = shapedTypeface.Typeface;
                         paint.TextSize = emHeight * 100;
                         using (SKPath path = paint.GetTextPath("W", 0, 0)) {
                             SKRect rect = path.TightBounds;
@@ -790,9 +820,9 @@ namespace PurplePen.MapModel
 
         public void Dispose()
 		{
-            if (typeface != null) {
-                typeface.Dispose();
-                typeface = null; 
+            if (shapedTypeface != null) {
+                shapedTypeface.Dispose();
+                shapedTypeface = null; 
             }
 		}
 
@@ -820,30 +850,21 @@ namespace PurplePen.MapModel
             }
         }
 
-
         public float GetTextWidth(string text)
         {
-            using (SKPaint paint = new SKPaint()) {
-                paint.IsAntialias = true;
-                paint.Typeface = typeface;
-                paint.TextSize = emHeight;
-                paint.TextEncoding = SKTextEncoding.Utf16;
-                return paint.MeasureText(text);
-            }
+            // We need to use the shaper, to take kerning into account.
+            float width = enhancedTypeface.MeasureTextAdvanceWidth(text, emHeight * 100);
+
+            return width / 100;
         }
 
         public SizeF GetTextSize(string text)
         {
-            SKRect rect = new SKRect();
+            // We need to use the shaper, to take kerning into account.
+            float width = enhancedTypeface.MeasureTextAdvanceWidth(text, emHeight * 100);
+            SKRect bounds = enhancedTypeface.MeasureTextBounds(text, emHeight * 100);
 
-            using (SKPaint paint = new SKPaint()) {
-                paint.IsAntialias = true;
-                paint.Typeface = typeface;
-                paint.TextSize = emHeight * 100;
-                paint.TextEncoding = SKTextEncoding.Utf16;
-                paint.MeasureText(text, ref rect);
-                return new SizeF((rect.Right - rect.Left) / 100F, Math.Max((rect.Bottom - rect.Top) / 100, Ascent + Descent));
-            }
+            return new SizeF(width / 100, Math.Max((bounds.Bottom - bounds.Top) / 100, Ascent + Descent));
         }
 
         void LoadFontMetrics()
@@ -851,7 +872,7 @@ namespace PurplePen.MapModel
             if (!fontMetricsObtained) {
                 using (SKPaint paint = new SKPaint()) {
                     paint.IsAntialias = true;
-                    paint.Typeface = typeface;
+                    paint.Typeface = shapedTypeface.Typeface;
                     paint.TextSize = emHeight;
                     fontMetrics = paint.FontMetrics;
                 }
@@ -863,34 +884,14 @@ namespace PurplePen.MapModel
 
     public class Skia_TextMetrics: ITextMetrics
     {
-        public static ITextFaceMetrics GetMetrics(string familyName, float emHeight, TextEffects effects)
-        {
-            if (!IsTextFaceInstalled(familyName))
-                familyName = "Arial";          // Map non-existant fonts to "Arial".
-
-            return new SkiaFont(familyName, emHeight, effects);
-        }
-
-        public static bool IsTextFaceInstalled(string familyName)
-        {
-            // Get the glyphTypeface to see if the font exists.
-            SKTypeface typeface = SKTypeface.FromFamilyName(familyName);
-
-            if (typeface == null)
-                return false;
-            typeface.Dispose();
-            typeface = null;
-            return true;
-        }
-
         public ITextFaceMetrics GetTextFaceMetrics(string familyName, float emHeight, TextEffects effects)
         {
-            return GetMetrics(familyName, emHeight, effects);
+            return new SkiaFont(familyName, emHeight, effects);
         }
 
         public bool TextFaceIsInstalled(string familyName)
         {
-            return IsTextFaceInstalled(familyName);
+            return SkiaFontManager.FontFamilyIsInstalled(familyName);
         }
 
         public void Dispose()
@@ -904,6 +905,11 @@ namespace PurplePen.MapModel
         int width, height;
         SKBitmap bitmap;
         SKSurface surface;
+
+        Stack<SKBitmap> bitmapStack = new Stack<SKBitmap>();
+        Stack<SKSurface> surfaceStack = new Stack<SKSurface>();
+        Stack<SKCanvas> canvasStack = new Stack<SKCanvas>();
+        Stack<BlendMode> blendStack = new Stack<BlendMode>();
 
         public Skia_BitmapGraphicsTarget(int pixelWidth, int pixelHeight, bool alpha, CmykColor initialColor, RectangleF rectangle, bool inverted, SkiaColorConverter colorConverter = null, float intensity = 1.0F)
             : this(GetBitmap(pixelWidth, pixelHeight, alpha), initialColor, rectangle, inverted, colorConverter, intensity)
@@ -980,6 +986,80 @@ namespace PurplePen.MapModel
             Skia_Bitmap skBitmap = new Skia_Bitmap(bitmap);
             bitmap = null;  // Now owned by the Skia_Bitmap.
             return skBitmap;
+        }
+
+        // Push a blending mode. For Darken mode, creates a new offscreen bitmap with a white background
+        // to draw onto. When PopBlending is called, the offscreen content is composited back using
+        // Skia's native Darken blend mode (minimum of each R, G, B component).
+        public override bool PushBlending(BlendMode blendMode)
+        {
+            blendStack.Push(blendMode);
+
+            if (blendMode == BlendMode.Darken) {
+                // Save current canvas and surface.
+                canvasStack.Push(this.canvas);
+                surfaceStack.Push(this.surface);
+                bitmapStack.Push(this.bitmap);
+
+                // Create new bitmap to hold the content to blend.
+                SKBitmap currentBitmap = this.bitmap;
+                SKBitmap newBitmap = new SKBitmap(currentBitmap.Width, currentBitmap.Height, currentBitmap.ColorType, currentBitmap.AlphaType);
+                SKSurface newSurface = GetSurface(newBitmap);
+                SKCanvas newCanvas = newSurface.Canvas;
+
+                // Copy the transform and clip from the current canvas.
+                newCanvas.SetMatrix(this.canvas.TotalMatrix);
+
+                // Clear to white -- darken blend takes the minimum of each component,
+                // so white (255,255,255) acts as the identity for undrawn areas.
+                newCanvas.Clear(SKColors.White);
+
+                this.canvas = newCanvas;
+                this.surface = newSurface;
+                this.bitmap = newBitmap;
+
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        // Pop the blending mode. For Darken mode, composites the offscreen bitmap back onto the
+        // underlying bitmap using Skia's native SKBlendMode.Darken.
+        public override void PopBlending()
+        {
+            BlendMode blendMode = blendStack.Pop();
+
+            if (blendMode == BlendMode.Darken) {
+                // Get the bitmap we drew on and flush its surface.
+                SKBitmap blendFrom = this.bitmap;
+                SKSurface blendSurface = this.surface;
+                SKCanvas blendCanvas = this.canvas;
+                blendSurface.Flush();
+
+                // Restore the previous canvas, surface, and bitmap.
+                this.canvas = canvasStack.Pop();
+                this.surface = surfaceStack.Pop();
+                this.bitmap = bitmapStack.Pop();
+
+                // Draw the offscreen bitmap onto the destination using Darken blend mode.
+                // Skia's Darken blend computes: result = min(src, dst) per component.
+                using (SKPaint blendPaint = new SKPaint()) {
+                    blendPaint.BlendMode = SKBlendMode.Darken;
+
+                    // Draw in bitmap coordinates (identity transform), since both bitmaps have the same dimensions.
+                    this.canvas.Save();
+                    this.canvas.SetMatrix(SKMatrix.Identity);
+                    this.canvas.DrawBitmap(blendFrom, 0, 0, blendPaint);
+                    this.canvas.Restore();
+                }
+
+                // Dispose the offscreen resources.
+                blendCanvas.Dispose();
+                blendSurface.Dispose();
+                blendFrom.Dispose();
+            }
         }
 
         public override void Dispose()
@@ -1084,7 +1164,7 @@ namespace PurplePen.MapModel
     {
         public virtual SKColor ToColor(CmykColor cmykColor)
         {
-            SysDraw.Color sysColor = ColorConverter.ToColor(cmykColor);
+            Color sysColor = PurplePen.Graphics2D.ColorConverter.ToColor(cmykColor);
             return new SKColor(sysColor.R, sysColor.G, sysColor.B, sysColor.A);
         }
     }

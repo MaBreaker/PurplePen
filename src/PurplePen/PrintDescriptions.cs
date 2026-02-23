@@ -51,6 +51,7 @@ namespace PurplePen
         internal Controller controller;
         readonly bool isPdfCreation = false;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public DescriptionPrintSettings PrintSettings
         {
             get {
@@ -184,6 +185,7 @@ namespace PurplePen
                         settings.PageSettings.PaperSize = printDialog.PrinterSettings.DefaultPageSettings.PaperSize;
                         settings.PageSettings.PaperSource = printDialog.PrinterSettings.DefaultPageSettings.PaperSource;
                         settings.PageSettings.PrinterSettings = printDialog.PrinterSettings;
+                        settings.PageSettings.PrinterSettings.Copies = 1; // ignore copies from the print settings dialog.
                         UpdateDialog();
                     }
                 }
@@ -198,7 +200,7 @@ namespace PurplePen
                     UpdateSettings();
                     Margins originalMargins = settings.PageSettings.Margins;
 
-                    if (RegionInfo.CurrentRegion.IsMetric)     // work around bug
+                    if (Util.IsCurrentCultureMetric())     // work around bug
                         settings.PageSettings.Margins = PrinterUnitConvert.Convert(settings.PageSettings.Margins, PrinterUnit.Display, PrinterUnit.TenthsOfAMillimeter);
 
                     pageSetupDialog.PrinterSettings = settings.PageSettings.PrinterSettings;

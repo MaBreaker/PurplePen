@@ -264,6 +264,156 @@
   <data name="tableLayoutPanel1.ColumnCount" type="System.Int32, mscorlib">
     <value>4</value>
   </data>
+<<<<<<< HEAD
+=======
+  <data name="&gt;&gt;buttonChangeColor.Name" xml:space="preserve">
+    <value>buttonChangeColor</value>
+  </data>
+  <data name="&gt;&gt;buttonChangeColor.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;buttonChangeColor.Parent" xml:space="preserve">
+    <value>tableLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;buttonChangeColor.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;label2.Name" xml:space="preserve">
+    <value>label2</value>
+  </data>
+  <data name="&gt;&gt;label2.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label2.Parent" xml:space="preserve">
+    <value>tableLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;label2.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;checkBoxItalic.Name" xml:space="preserve">
+    <value>checkBoxItalic</value>
+  </data>
+  <data name="&gt;&gt;checkBoxItalic.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;checkBoxItalic.Parent" xml:space="preserve">
+    <value>tableLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;checkBoxItalic.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;comboBoxColor.Name" xml:space="preserve">
+    <value>comboBoxColor</value>
+  </data>
+  <data name="&gt;&gt;comboBoxColor.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;comboBoxColor.Parent" xml:space="preserve">
+    <value>tableLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;comboBoxColor.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;checkBoxBold.Name" xml:space="preserve">
+    <value>checkBoxBold</value>
+  </data>
+  <data name="&gt;&gt;checkBoxBold.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;checkBoxBold.Parent" xml:space="preserve">
+    <value>tableLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;checkBoxBold.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;label1.Name" xml:space="preserve">
+    <value>label1</value>
+  </data>
+  <data name="&gt;&gt;label1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label1.Parent" xml:space="preserve">
+    <value>tableLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;label1.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;listBoxFonts.Name" xml:space="preserve">
+    <value>listBoxFonts</value>
+  </data>
+  <data name="&gt;&gt;listBoxFonts.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ListBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;listBoxFonts.Parent" xml:space="preserve">
+    <value>tableLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;listBoxFonts.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;label3.Name" xml:space="preserve">
+    <value>label3</value>
+  </data>
+  <data name="&gt;&gt;label3.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label3.Parent" xml:space="preserve">
+    <value>tableLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;label3.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;upDownFontSize.Name" xml:space="preserve">
+    <value>upDownFontSize</value>
+  </data>
+  <data name="&gt;&gt;upDownFontSize.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;upDownFontSize.Parent" xml:space="preserve">
+    <value>tableLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;upDownFontSize.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;labelFontSizeMm.Name" xml:space="preserve">
+    <value>labelFontSizeMm</value>
+  </data>
+  <data name="&gt;&gt;labelFontSizeMm.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelFontSizeMm.Parent" xml:space="preserve">
+    <value>tableLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;labelFontSizeMm.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;checkBoxAutoFontSize.Name" xml:space="preserve">
+    <value>checkBoxAutoFontSize</value>
+  </data>
+  <data name="&gt;&gt;checkBoxAutoFontSize.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;checkBoxAutoFontSize.Parent" xml:space="preserve">
+    <value>tableLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;checkBoxAutoFontSize.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="tableLayoutPanel1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="tableLayoutPanel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 19</value>
+  </data>
+  <data name="tableLayoutPanel1.RowCount" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="tableLayoutPanel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>357, 189</value>
+  </data>
+  <data name="tableLayoutPanel1.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+>>>>>>> upstream/master
   <data name="buttonChangeColor.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -284,18 +434,6 @@
   </data>
   <data name="buttonChangeColor.Text" xml:space="preserve">
     <value>Change Color...</value>
-  </data>
-  <data name="&gt;&gt;buttonChangeColor.Name" xml:space="preserve">
-    <value>buttonChangeColor</value>
-  </data>
-  <data name="&gt;&gt;buttonChangeColor.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;buttonChangeColor.Parent" xml:space="preserve">
-    <value>tableLayoutPanel1</value>
-  </data>
-  <data name="&gt;&gt;buttonChangeColor.ZOrder" xml:space="preserve">
-    <value>0</value>
   </data>
   <data name="label2.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -318,6 +456,7 @@
   <data name="label2.Text" xml:space="preserve">
     <value>Color:</value>
   </data>
+<<<<<<< HEAD
   <data name="&gt;&gt;label2.Name" xml:space="preserve">
     <value>label2</value>
   </data>
@@ -329,6 +468,25 @@
   </data>
   <data name="&gt;&gt;label2.ZOrder" xml:space="preserve">
     <value>1</value>
+=======
+  <data name="checkBoxItalic.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="checkBoxItalic.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="checkBoxItalic.Location" type="System.Drawing.Point, System.Drawing">
+    <value>255, 28</value>
+  </data>
+  <data name="checkBoxItalic.Size" type="System.Drawing.Size, System.Drawing">
+    <value>51, 19</value>
+  </data>
+  <data name="checkBoxItalic.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="checkBoxItalic.Text" xml:space="preserve">
+    <value>Italic</value>
+>>>>>>> upstream/master
   </data>
   <data name="comboBoxColor.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Left, Right</value>
@@ -342,6 +500,7 @@
   <data name="comboBoxColor.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
   </data>
+<<<<<<< HEAD
   <data name="&gt;&gt;comboBoxColor.Name" xml:space="preserve">
     <value>comboBoxColor</value>
   </data>
@@ -354,6 +513,8 @@
   <data name="&gt;&gt;comboBoxColor.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
+=======
+>>>>>>> upstream/master
   <data name="checkBoxBold.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -372,6 +533,7 @@
   <data name="checkBoxBold.Text" xml:space="preserve">
     <value>Bold</value>
   </data>
+<<<<<<< HEAD
   <data name="&gt;&gt;checkBoxBold.Name" xml:space="preserve">
     <value>checkBoxBold</value>
   </data>
@@ -384,6 +546,8 @@
   <data name="&gt;&gt;checkBoxBold.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
+=======
+>>>>>>> upstream/master
   <data name="label1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -405,6 +569,7 @@
   <data name="label1.Text" xml:space="preserve">
     <value>Font:</value>
   </data>
+<<<<<<< HEAD
   <data name="&gt;&gt;label1.Name" xml:space="preserve">
     <value>label1</value>
   </data>
@@ -417,6 +582,8 @@
   <data name="&gt;&gt;label1.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
+=======
+>>>>>>> upstream/master
   <data name="listBoxFonts.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Bottom, Left, Right</value>
   </data>
@@ -432,6 +599,7 @@
   <data name="listBoxFonts.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
   </data>
+<<<<<<< HEAD
   <data name="&gt;&gt;listBoxFonts.Name" xml:space="preserve">
     <value>listBoxFonts</value>
   </data>
@@ -444,6 +612,8 @@
   <data name="&gt;&gt;listBoxFonts.ZOrder" xml:space="preserve">
     <value>5</value>
   </data>
+=======
+>>>>>>> upstream/master
   <data name="label3.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -462,6 +632,7 @@
   <data name="label3.Text" xml:space="preserve">
     <value>Size:</value>
   </data>
+<<<<<<< HEAD
   <data name="&gt;&gt;label3.Name" xml:space="preserve">
     <value>label3</value>
   </data>
@@ -474,6 +645,8 @@
   <data name="&gt;&gt;label3.ZOrder" xml:space="preserve">
     <value>6</value>
   </data>
+=======
+>>>>>>> upstream/master
   <data name="upDownFontSize.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
   </data>
@@ -489,6 +662,7 @@
   <data name="upDownFontSize.TabIndex" type="System.Int32, mscorlib">
     <value>8</value>
   </data>
+<<<<<<< HEAD
   <data name="&gt;&gt;upDownFontSize.Name" xml:space="preserve">
     <value>upDownFontSize</value>
   </data>
@@ -501,6 +675,8 @@
   <data name="&gt;&gt;upDownFontSize.ZOrder" xml:space="preserve">
     <value>7</value>
   </data>
+=======
+>>>>>>> upstream/master
   <data name="labelFontSizeMm.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -519,6 +695,7 @@
   <data name="labelFontSizeMm.Text" xml:space="preserve">
     <value>mm</value>
   </data>
+<<<<<<< HEAD
   <data name="&gt;&gt;labelFontSizeMm.Name" xml:space="preserve">
     <value>labelFontSizeMm</value>
   </data>
@@ -531,6 +708,8 @@
   <data name="&gt;&gt;labelFontSizeMm.ZOrder" xml:space="preserve">
     <value>8</value>
   </data>
+=======
+>>>>>>> upstream/master
   <data name="checkBoxAutoFontSize.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -552,6 +731,7 @@
   <data name="checkBoxAutoFontSize.Text" xml:space="preserve">
     <value>Automatic</value>
   </data>
+<<<<<<< HEAD
   <data name="&gt;&gt;checkBoxAutoFontSize.Name" xml:space="preserve">
     <value>checkBoxAutoFontSize</value>
   </data>
@@ -771,6 +951,8 @@
   <data name="&gt;&gt;groupBox1.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
+=======
+>>>>>>> upstream/master
   <data name="groupBox2.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom, Left, Right</value>
   </data>
@@ -822,6 +1004,21 @@
   <data name="&gt;&gt;groupBox2.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
+<<<<<<< HEAD
+=======
+  <data name="pictureBoxPreview.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="pictureBoxPreview.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 19</value>
+  </data>
+  <data name="pictureBoxPreview.Size" type="System.Drawing.Size, System.Drawing">
+    <value>357, 67</value>
+  </data>
+  <data name="pictureBoxPreview.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+>>>>>>> upstream/master
   <data name="tableLayoutPanel2.ColumnCount" type="System.Int32, mscorlib">
     <value>1</value>
   </data>

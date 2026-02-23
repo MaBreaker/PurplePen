@@ -40,7 +40,6 @@ using SysDraw = System.Drawing;
 using PointF = System.Drawing.PointF;
 using RectangleF = System.Drawing.RectangleF;
 using SizeF = System.Drawing.SizeF;
-using Matrix = System.Drawing.Drawing2D.Matrix;
 using FillMode = System.Drawing.Drawing2D.FillMode;
 using LineJoin = System.Drawing.Drawing2D.LineJoin;
 using LineCap = System.Drawing.Drawing2D.LineCap;
@@ -156,7 +155,10 @@ namespace PurplePen.MapModel
         }
 
         // Get a page that is a copy of a PDF page.
-        public IGraphicsTarget BeginCopiedPartialPage(PdfImporter pdfImporter, int pageNumber, SizeF sizeInInches, RectangleF partialSourcePageInInches, int margins)
+        // sizeInInches is the size of the new page, in inches.
+        // partialSourcePageInInches is the rectangle on the source page to copy, in inches. This maps to destinationCropInInches.
+        // destinationCropInInches in the rectangle on the destination page to draw into, in inches. If you want the whole page, use new RectangleF(0,0,sizeInInches.Width,sizeInInches.Height)
+        public IGraphicsTarget BeginCopiedPartialPage(PdfImporter pdfImporter, int pageNumber, SizeF sizeInInches, RectangleF partialSourcePageInInches, RectangleF destinationCropInInches, int margins)
         {
             XForm xformToCopy = pdfImporter.GetXForm(pageNumber);
             PdfPage pageToCopy = pdfImporter.GetPage(pageNumber);
@@ -172,10 +174,15 @@ namespace PurplePen.MapModel
 
             PointF cropBoxOriginInPoints = CropboxOriginInPoints(pageToCopy);
 
-            // Create transform that maps the source page to the destination. Destination is in hundreths of inches so must match that.
-            RectangleF destRect = new RectangleF(0, 0, sizeInInches.Width * 100F, sizeInInches.Height * 100F);
-            RectangleF srcRect = new RectangleF(partialSourcePageInInches.Left * 100F, partialSourcePageInInches.Top * 100F, partialSourcePageInInches.Width * 100F, partialSourcePageInInches.Height * 100F);
-            srcRect.Offset(cropBoxOriginInPoints.X / 72F * 100F, cropBoxOriginInPoints.Y / 72F * 100F);
+            IGraphicsTarget target = BeginPage(sizeInInches);
+
+            // Initial target is entire page. Push a clip to restrict to destinationCropInInches.
+            RectangleF destRect = new RectangleF(destinationCropInInches.Left * 100, destinationCropInInches.Top * 100, destinationCropInInches.Width * 100, destinationCropInInches.Height * 100);
+            target.PushClip(destRect);
+
+            // Create transform that maps the source page to the destination crop rect. Destination is in hundreths of inches so must match that.
+            RectangleF srcRect = new RectangleF(partialSourcePageInInches.Left * 100, partialSourcePageInInches.Top * 100, partialSourcePageInInches.Width * 100, partialSourcePageInInches.Height * 100);
+            srcRect.Offset(cropBoxOriginInPoints.X / 72 * 100, cropBoxOriginInPoints.Y / 72 * 100);
             Matrix transform = Geometry.CreateRectangleTransform(srcRect, destRect);
 
             target.PushTransform(transform);
@@ -189,6 +196,7 @@ namespace PurplePen.MapModel
             //JU: Default crop box
      //       xGraphics.PdfPage.CropBox = new PdfRectangle(new XPoint(0, 0), new XPoint(sizeInInches.Width * 72F, sizeInInches.Height * 72F)); ;
             target.PopTransform();
+            target.PopClip();
 
             xformToCopy.Dispose();
 

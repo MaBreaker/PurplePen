@@ -69,6 +69,8 @@ namespace PurplePen
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.labelColorModel = new System.Windows.Forms.Label();
             this.comboBoxColorModel = new System.Windows.Forms.ComboBox();
+            this.labelPrintBaseMap = new System.Windows.Forms.Label();
+            this.comboBoxPrintBaseMap = new System.Windows.Forms.ComboBox();
             this.comboBoxMultiPage = new System.Windows.Forms.ComboBox();
             this.labelAppearanceInfo = new System.Windows.Forms.Label();
             this.folderGroupBox = new System.Windows.Forms.GroupBox();
@@ -105,15 +107,15 @@ namespace PurplePen
             // 
             // coursesGroupBox
             // 
-            this.coursesGroupBox.Controls.Add(this.courseSelector);
             resources.ApplyResources(this.coursesGroupBox, "coursesGroupBox");
+            this.coursesGroupBox.Controls.Add(this.courseSelector);
             this.coursesGroupBox.Name = "coursesGroupBox";
             this.coursesGroupBox.TabStop = false;
             // 
             // courseSelector
             // 
-            this.courseSelector.Filter = null;
             resources.ApplyResources(this.courseSelector, "courseSelector");
+            this.courseSelector.Filter = null;
             this.courseSelector.Name = "courseSelector";
             this.courseSelector.ShowAllControls = true;
             this.courseSelector.ShowCourseParts = false;
@@ -121,11 +123,11 @@ namespace PurplePen
             // 
             // groupBoxAppearance
             // 
+            resources.ApplyResources(this.groupBoxAppearance, "groupBoxAppearance");
             this.groupBoxAppearance.Controls.Add(this.checkBoxMergeParts);
             this.groupBoxAppearance.Controls.Add(this.tableLayoutPanel4);
             this.groupBoxAppearance.Controls.Add(this.comboBoxMultiPage);
             this.groupBoxAppearance.Controls.Add(this.labelAppearanceInfo);
-            resources.ApplyResources(this.groupBoxAppearance, "groupBoxAppearance");
             this.groupBoxAppearance.Name = "groupBoxAppearance";
             this.groupBoxAppearance.TabStop = false;
             // 
@@ -138,8 +140,10 @@ namespace PurplePen
             // tableLayoutPanel4
             // 
             resources.ApplyResources(this.tableLayoutPanel4, "tableLayoutPanel4");
-            this.tableLayoutPanel4.Controls.Add(this.labelColorModel, 0, 0);
-            this.tableLayoutPanel4.Controls.Add(this.comboBoxColorModel, 1, 0);
+            this.tableLayoutPanel4.Controls.Add(this.labelColorModel, 0, 1);
+            this.tableLayoutPanel4.Controls.Add(this.comboBoxColorModel, 1, 1);
+            this.tableLayoutPanel4.Controls.Add(this.labelPrintBaseMap, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.comboBoxPrintBaseMap, 1, 0);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             // 
             // labelColorModel
@@ -156,6 +160,21 @@ namespace PurplePen
             resources.GetString("comboBoxColorModel.Items"),
             resources.GetString("comboBoxColorModel.Items1")});
             this.comboBoxColorModel.Name = "comboBoxColorModel";
+            // 
+            // labelPrintBaseMap
+            // 
+            resources.ApplyResources(this.labelPrintBaseMap, "labelPrintBaseMap");
+            this.labelPrintBaseMap.Name = "labelPrintBaseMap";
+            // 
+            // comboBoxPrintBaseMap
+            // 
+            resources.ApplyResources(this.comboBoxPrintBaseMap, "comboBoxPrintBaseMap");
+            this.comboBoxPrintBaseMap.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxPrintBaseMap.FormattingEnabled = true;
+            this.comboBoxPrintBaseMap.Items.AddRange(new object[] {
+            resources.GetString("comboBoxPrintBaseMap.Items"),
+            resources.GetString("comboBoxPrintBaseMap.Items1")});
+            this.comboBoxPrintBaseMap.Name = "comboBoxPrintBaseMap";
             // 
             // comboBoxMultiPage
             // 
@@ -174,8 +193,8 @@ namespace PurplePen
             // 
             // folderGroupBox
             // 
-            this.folderGroupBox.Controls.Add(this.tableLayoutPanel1);
             resources.ApplyResources(this.folderGroupBox, "folderGroupBox");
+            this.folderGroupBox.Controls.Add(this.tableLayoutPanel1);
             this.folderGroupBox.Name = "folderGroupBox";
             this.folderGroupBox.TabStop = false;
             // 
@@ -225,8 +244,8 @@ namespace PurplePen
             // 
             // outputGroupBox
             // 
-            this.outputGroupBox.Controls.Add(this.tableLayoutPanel2);
             resources.ApplyResources(this.outputGroupBox, "outputGroupBox");
+            this.outputGroupBox.Controls.Add(this.tableLayoutPanel2);
             this.outputGroupBox.Name = "outputGroupBox";
             this.outputGroupBox.TabStop = false;
             // 
@@ -324,5 +343,7 @@ namespace PurplePen
         private System.Windows.Forms.ComboBox comboBoxFileFormat;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Label labelPrintBaseMap;
+        private System.Windows.Forms.ComboBox comboBoxPrintBaseMap;
     }
 }

@@ -37,15 +37,17 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using TestingUtils;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using PurplePen.Graphics2D;
+using PurplePen.MapModel;
+
 namespace PurplePen.Tests
 {
     [TestClass]
-    public class MapDisplayTests: TestFixtureBase
+    public sealed class MapDisplayTests: TestFixtureBase, IDisposable
     {
         Matrix transform;
         Bitmap bitmap;
@@ -59,12 +61,30 @@ namespace PurplePen.Tests
             transform.Translate(-50F, -170F);
         }
 
+        void Dispose(bool disposing)
+        {
+            if (disposing) {
+                bitmap?.Dispose();
+                bitmap = null;
+                transform?.Dispose();
+                transform = null;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+        }
+
+
+
         void DrawToBitmap(MapDisplay mapdisplay, RectangleF clip)
         {
             Matrix inverse = transform.Clone();
             inverse.Invert();
             using (Region clipRegion = new Region(clip)) {
-                clipRegion.Transform(inverse);
+                clipRegion.Transform(inverse.ToSysDrawMatrix());
                 mapdisplay.Draw(bitmap, transform, clipRegion);
             }
         }

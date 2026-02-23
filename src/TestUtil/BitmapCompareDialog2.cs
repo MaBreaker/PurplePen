@@ -64,12 +64,22 @@ namespace TestingUtils
 
         private void BitmapCompareDialog2_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (bmNew != null)
+            if (bmNew != null) {
                 bmNew.Dispose();
-            if (bmBaseline != null)
+                bmNew = null;
+            }
+            if (bmBaseline != null) {
                 bmBaseline.Dispose();
-            if (bmDiff != null)
+                bmBaseline = null;
+            }
+            if (bmDiff != null) {
                 bmDiff.Dispose();
+                bmDiff = null;
+            }
+            if (bmWhite != null) {
+                bmWhite.Dispose();
+                bmWhite = null;
+            }
         }
 
         private void UpdateViewer()
@@ -111,8 +121,7 @@ namespace TestingUtils
 
         private void buttonFixBitness_Click(object sender, EventArgs e)
         {
-            string filenameWithoutExt = Path.GetFileNameWithoutExtension(BaselineFilename);
-            if (filenameWithoutExt.EndsWith("-64bit", StringComparison.InvariantCultureIgnoreCase) || filenameWithoutExt.EndsWith("-32bit", StringComparison.InvariantCultureIgnoreCase)) {
+            if (TestUtil.HasBitnessSuffix(BaselineFilename)) {
                 MessageBox.Show("Already bitness specific.");
                 return;
             }
@@ -123,8 +132,29 @@ namespace TestingUtils
                     bmBaseline = null;
                 }
 
-                string filenameBaselineSave = TestingUtils.TestUtil.GetBitnessSpecificFileName(BaselineFilename, !Environment.Is64BitProcess, false);
-                string filenameNewSave = TestingUtils.TestUtil.GetBitnessSpecificFileName(BaselineFilename, Environment.Is64BitProcess, false);
+                (string filenameNewSave, string filenameBaselineSave) = TestUtil.AddBitnessSuffix(BaselineFilename);
+
+                File.Move(BaselineFilename, filenameBaselineSave);
+                bmNew.Save(filenameNewSave, ImageFormat.Png);
+
+                DialogResult = DialogResult.OK;
+            }
+        }
+
+        private void buttonFixFramework_Click(object sender, EventArgs e)
+        {
+            if (TestUtil.HasFrameworkSuffix(BaselineFilename)) {
+                MessageBox.Show("Already framework specific.");
+                return;
+            }
+
+            if (bmNew != null) {
+                if (bmBaseline != null) {
+                    bmBaseline.Dispose();
+                    bmBaseline = null;
+                }
+
+                (string filenameNewSave, string filenameBaselineSave) = TestUtil.AddFrameworkSuffix(BaselineFilename);
 
                 File.Move(BaselineFilename, filenameBaselineSave);
                 bmNew.Save(filenameNewSave, ImageFormat.Png);

@@ -51,7 +51,7 @@ namespace PurplePen.Tests
     using PurplePen.Graphics2D;
     using PurplePen.MapModel;
 
-    [TestClass]
+    [TestClass, DoNotParallelize]
     public class EventDBTests: TestFixtureBase
     {
         [TestMethod]
@@ -764,9 +764,9 @@ namespace PurplePen.Tests
             EventDB eventDB = new EventDB(undomgr);
 
             Event e = eventDB.GetEvent();
-            Assert.AreEqual(e.title, "");
-            Assert.AreEqual(e.notes, null);
-            Assert.AreEqual(e.mapType, MapType.None);
+            Assert.AreEqual("", e.title);
+            Assert.IsNull(e.notes);
+            Assert.AreEqual(MapType.None, e.mapType);
 
             Event e2 = new Event();
             e2.title = "Hello";
@@ -896,7 +896,7 @@ namespace PurplePen.Tests
                 CultureInfo.CurrentCulture.ClearCachedData();
                 Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("de-DE");
 
-                Assert.IsTrue(RegionInfo.CurrentRegion.IsMetric);
+                Assert.IsTrue(Util.IsCurrentCultureMetric());
 
                 UndoMgr undomgr = new UndoMgr(5);
                 EventDB eventDB = new EventDB(undomgr);

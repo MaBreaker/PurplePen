@@ -32,29 +32,21 @@
  * OF SUCH DAMAGE.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.IO;
-using System.Diagnostics;
-using System.Windows.Forms;
+using PurplePen.Graphics2D;
 using PurplePen.MapModel;
 using PurplePen.MapView;
-using PurplePen.Graphics2D;
-using System.Runtime.InteropServices;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Text;
+using System.Globalization;
+using System.IO;
 using System.Linq;
-using static System.Windows.Forms.AxHost;
-using PdfSharp.Drawing;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using Windows.Security.Cryptography.Certificates;
-using System.Windows.Media.Media3D;
-using System.IO.Ports;
-using Windows.UI.Input.Spatial;
-using System.Xaml.Schema;
-using System.Diagnostics.Eventing.Reader;
-using System.Windows.Media.Imaging;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Windows.Forms;
+using GraphicsPath = System.Drawing.Drawing2D.GraphicsPath;
 
 namespace PurplePen
 {
@@ -372,7 +364,7 @@ namespace PurplePen
         public override string ToString()
         {
             string result = base.ToString();
-            result += string.Format("location:({0},{1})", location.X, location.Y);
+            result += string.Format("location:({0:0.##},{1:0.##})", location.X, location.Y);
             return result;
         }
 
@@ -544,7 +536,7 @@ namespace PurplePen
 
             // Draw it.
             object penKey = new object();
-            grTarget.CreatePen(penKey, brushKey, pixelThickness, LineCap.Flat, LineJoin.Miter, 5);
+            grTarget.CreatePen(penKey, brushKey, pixelThickness, LineCapMode.Flat, LineJoinMode.Miter, 5);
 
             try {
                 foreach (SymPath p in gappedPaths) {
@@ -726,7 +718,7 @@ namespace PurplePen
 
             // Draw the boundary.
             object penKey = new object();
-            grTarget.CreatePen(penKey, brushKey, 2, LineCap.Round, LineJoin.Round, 5);
+            grTarget.CreatePen(penKey, brushKey, 2, LineCapMode.Round, LineJoinMode.Round, 5);
             path.DrawTransformed(grTarget, penKey, xformWorldToPixel);
 
             // Get a brush to fill the interior with.
@@ -851,7 +843,7 @@ namespace PurplePen
         public override string ToString()
         {
             string result = base.ToString();
-            result += string.Format("rect:{0}", rect);
+            result += string.Format("rect:{{X={0:0.##},Y={1:0.##},Width={2:0.##},Height={3:0.##}}}", rect.X, rect.Y, rect.Width, rect.Height);
             return result;
         }
 
@@ -1247,7 +1239,7 @@ namespace PurplePen
         public override string ToString()
         {
             string result = base.ToString();
-            result += string.Format("text:{0}  top-left:({1:0.##},{2:0.##})\r\n                font-name:{3}  font-style:{4}  font-height:{5}", text, topLeft.X, topLeft.Y, fontName, fontStyle, emHeight);
+            result += string.Format("text:{0}  top-left:({1:0.##},{2:0.##})\r\n                font-name:{3}  font-style:{4}  font-height:{5:0.####}", text, topLeft.X, topLeft.Y, fontName, fontStyle, emHeight);
             return result;
         }
 
@@ -1433,10 +1425,25 @@ namespace PurplePen
             return symdef;
         }
 
+        // Format a gap array as text. Format is 45:180,181:185,...
+        private string FormatGaps(CircleGap[] gaps)
+        {
+            if (gaps == null || gaps.Length == 0)
+                return "";
+
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < gaps.Length; ++i) {
+                if (i != 0)
+                    builder.Append(",");
+                builder.AppendFormat(CultureInfo.InvariantCulture, "{0:0.##}:{1:0.##}", gaps[i].startAngle, gaps[i].stopAngle);
+            }
+            return builder.ToString();
+        }
+
         public override string ToString()
         {
             string result = base.ToString();
-            result += string.Format("  gaps:{0}", CircleGap.EncodeGaps(gaps));
+            result += string.Format("  gaps:{0}", FormatGaps(gaps));
             return result;
         }
 
@@ -1524,7 +1531,7 @@ namespace PurplePen
             }
 
             PointF[] triangleCorners = TriangleCorners(true);   
-            glyph.AddLine(lower_symColor, new SymPath(triangleCorners, new PointKind[] { PointKind.Normal, PointKind.Normal, PointKind.Normal, PointKind.Normal }), LineThickness, LineJoin.Round, LineCap.Flat);
+            glyph.AddLine(lower_symColor, new SymPath(triangleCorners, new PointKind[] { PointKind.Normal, PointKind.Normal, PointKind.Normal, PointKind.Normal }), LineThickness, LineJoinMode.Round, LineCapMode.Flat);
             
             glyph.ConstructionComplete();
 
@@ -1555,7 +1562,7 @@ namespace PurplePen
                 RectangleF rect = RectangleF.FromLTRB(pts[1].X, pts[2].Y, pts[2].X, pts[1].Y);
                 CircleGap[] gapsToDraw = CircleGap.SimplifyGaps(gaps);
 
-                trianglePen.LineJoin = LineJoin.Round;
+                trianglePen.LineJoin = LineJoinMode.Round.ToSysDrawLineJoin();
 
                 try {
                     if (gapsToDraw == null)
@@ -1637,11 +1644,11 @@ namespace PurplePen
                     new PointF(pts[3].X, pts[0].Y + delta / sin30)
                 };
                 SymPath pathW = new SymPath(ptsW, kinds);
-                glyph.AddLine(whiteColor, pathW, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth + outlineWidth, LineJoin.Miter, LineCap.Flat);
-                glyph.AddLine(symColor, path, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoin.Miter, LineCap.Flat);
+                glyph.AddLine(whiteColor, pathW, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth + outlineWidth, LineJoinMode.Miter, LineCapMode.Flat);
+                glyph.AddLine(symColor, path, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoinMode.Miter, LineCapMode.Flat);
             }
             else {
-                glyph.AddLine(lower_symColor, path, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoin.Miter, LineCap.Flat);
+                glyph.AddLine(lower_symColor, path, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoinMode.Miter, LineCapMode.Flat);
             }
             glyph.ConstructionComplete();
 
@@ -1727,9 +1734,9 @@ namespace PurplePen
 
             // Map issue point is in "upper purple".
             if (renderStyle != RenderStyle.Nothing) {
-                glyph.AddLine(symColor, path, NormalCourseAppearance.mapIssueWidth * courseObjRatio * appearance.controlCircleSize, LineJoin.Miter, LineCap.Flat);
+                glyph.AddLine(symColor, path, NormalCourseAppearance.mapIssueWidth * courseObjRatio * appearance.controlCircleSize, LineJoinMode.Miter, LineCapMode.Flat);
                 if (renderStyle == RenderStyle.WithTail)
-                    glyph.AddLine(symColor, pathTail, NormalCourseAppearance.lineThickness * courseObjRatio, LineJoin.Miter, LineCap.Flat);
+                    glyph.AddLine(symColor, pathTail, NormalCourseAppearance.lineThickness * courseObjRatio, LineJoinMode.Miter, LineCapMode.Flat);
             }
             glyph.ConstructionComplete();
 
@@ -2037,16 +2044,16 @@ namespace PurplePen
             float lineWidth = (appearance.mapStandard == "2000") ? NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth : thickness2017 * courseObjRatio;
 
             SymPath path = new SymPath(ScaleCoords((PointF[])coords1.Clone()), kinds1);
-            glyph.AddLine(lower_symColor, path, lineWidth, LineJoin.Round, LineCap.Round);
+            glyph.AddLine(lower_symColor, path, lineWidth, LineJoinMode.Round, LineCapMode.Round);
 
             path = new SymPath(ScaleCoords((PointF[])coords2.Clone()), kinds2);
-            glyph.AddLine(lower_symColor, path, lineWidth, LineJoin.Round, LineCap.Round);
+            glyph.AddLine(lower_symColor, path, lineWidth, LineJoinMode.Round, LineCapMode.Round);
 
             path = new SymPath(ScaleCoords((PointF[])coords3.Clone()), kinds3);
-            glyph.AddLine(lower_symColor, path, lineWidth, LineJoin.Round, LineCap.Round);
+            glyph.AddLine(lower_symColor, path, lineWidth, LineJoinMode.Round, LineCapMode.Round);
 
             path = new SymPath(ScaleCoords((PointF[])coords4.Clone()), kinds4);
-            glyph.AddLine(lower_symColor, path, lineWidth, LineJoin.Round, LineCap.Round);
+            glyph.AddLine(lower_symColor, path, lineWidth, LineJoinMode.Round, LineCapMode.Round);
 
             glyph.ConstructionComplete();
 
@@ -2083,7 +2090,7 @@ namespace PurplePen
             path4 = new SymPath(OffsetCoords(ScaleCoords((PointF[])coords4.Clone()), location.X, location.Y), kinds4);
 
             object penKey = new object();
-            grTarget.CreatePen(penKey, brushKey, thickness, LineCap.Round, LineJoin.Miter, 5);
+            grTarget.CreatePen(penKey, brushKey, thickness, LineCapMode.Round, LineJoinMode.Miter, 5);
 
             // Draw the paths
             path1.DrawTransformed(grTarget, penKey, xformWorldToPixel);
@@ -2175,8 +2182,8 @@ namespace PurplePen
             SymPath path1, path2;
 
             GetPaths(out path1, out path2);
-            glyph.AddLine(lower_symColor, path1, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoin.Miter, LineCap.Flat);
-            glyph.AddLine(lower_symColor, path2, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoin.Miter, LineCap.Flat);
+            glyph.AddLine(lower_symColor, path1, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoinMode.Miter, LineCapMode.Flat);
+            glyph.AddLine(lower_symColor, path2, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoinMode.Miter, LineCapMode.Flat);
 
             glyph.ConstructionComplete();
 
@@ -2210,7 +2217,7 @@ namespace PurplePen
             path2 = path2.Transform(moveAndRotate);
 
             object penKey = new object();
-            grTarget.CreatePen(penKey, brushKey, thickness, LineCap.Flat, LineJoin.Miter, 5);
+            grTarget.CreatePen(penKey, brushKey, thickness, LineCapMode.Flat, LineJoinMode.Miter, 5);
 
             // Draw it.
             path1.DrawTransformed(grTarget, penKey, xformWorldToPixel);
@@ -2266,10 +2273,10 @@ namespace PurplePen
             // Registration mark in "upper purple".
 
             SymPath path = new SymPath(ScaleCoords((PointF[])coords1.Clone()), kinds1);
-            glyph.AddLine(symColor, path, lineThickness * courseObjRatio * appearance.lineWidth, LineJoin.Miter, LineCap.Flat);
+            glyph.AddLine(symColor, path, lineThickness * courseObjRatio * appearance.lineWidth, LineJoinMode.Miter, LineCapMode.Flat);
 
             path = new SymPath(ScaleCoords((PointF[])coords2.Clone()), kinds2);
-            glyph.AddLine(symColor, path, lineThickness * courseObjRatio * appearance.lineWidth, LineJoin.Miter, LineCap.Flat);
+            glyph.AddLine(symColor, path, lineThickness * courseObjRatio * appearance.lineWidth, LineJoinMode.Miter, LineCapMode.Flat);
 
             glyph.ConstructionComplete();
 
@@ -2297,7 +2304,7 @@ namespace PurplePen
             path2 = new SymPath(OffsetCoords(ScaleCoords((PointF[])coords2.Clone()), location.X, location.Y), kinds2);
 
             object penKey = new object();
-            grTarget.CreatePen(penKey, brushKey, thickness, LineCap.Flat, LineJoin.Miter, 5);
+            grTarget.CreatePen(penKey, brushKey, thickness, LineCapMode.Flat, LineJoinMode.Miter, 5);
 
             // Draw the paths
             path1.DrawTransformed(grTarget, penKey, xformWorldToPixel);
@@ -2330,10 +2337,10 @@ namespace PurplePen
             // Forbidden route uses "upper purple".
 
             SymPath path = new SymPath(ScaleCoords((PointF[])coords1.Clone()), kinds1);
-            glyph.AddLine(symColor, path, 0.35F * courseObjRatio * appearance.controlCircleSize, LineJoin.Miter, LineCap.Flat);
+            glyph.AddLine(symColor, path, 0.35F * courseObjRatio * appearance.controlCircleSize, LineJoinMode.Miter, LineCapMode.Flat);
 
             path = new SymPath(ScaleCoords((PointF[])coords2.Clone()), kinds2);
-            glyph.AddLine(symColor, path, 0.35F * courseObjRatio * appearance.controlCircleSize, LineJoin.Miter, LineCap.Flat);
+            glyph.AddLine(symColor, path, 0.35F * courseObjRatio * appearance.controlCircleSize, LineJoinMode.Miter, LineCapMode.Flat);
 
             glyph.ConstructionComplete();
 
@@ -2362,7 +2369,7 @@ namespace PurplePen
 
             // Draw the paths
             object penKey = new object();
-            grTarget.CreatePen(penKey, brushKey, thickness, LineCap.Flat, LineJoin.Miter, 5);
+            grTarget.CreatePen(penKey, brushKey, thickness, LineCapMode.Flat, LineJoinMode.Miter, 5);
 
             path1.DrawTransformed(grTarget, penKey, xformWorldToPixel);
             path2.DrawTransformed(grTarget, penKey, xformWorldToPixel);
@@ -2381,7 +2388,7 @@ namespace PurplePen
 
         protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
         {
-            LineSymDef symdef = new LineSymDef("Line", "704", lower_symColor, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoin.Bevel, LineCap.Flat);
+            LineSymDef symdef = new LineSymDef("Line", "704", lower_symColor, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoinMode.Bevel, LineCapMode.Flat);
             symdef.ToolboxImage = MapUtil.CreateToolboxIcon(Properties.Resources.Line_OcadToolbox);
             map.AddSymdef(symdef);
             return symdef;
@@ -2404,7 +2411,7 @@ namespace PurplePen
         {
             // Marked route uses "upper purple".
 
-            LineSymDef symdef = new LineSymDef("Marked route", "705", symColor, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoin.Bevel, LineCap.Flat);
+            LineSymDef symdef = new LineSymDef("Marked route", "705", symColor, NormalCourseAppearance.lineThickness * courseObjRatio * appearance.lineWidth, LineJoinMode.Bevel, LineCapMode.Flat);
 
             LineSymDef.DashInfo dashes = new LineSymDef.DashInfo();
             dashes.dashLength = dashes.firstDashLength = dashes.lastDashLength = 2.0F * courseObjRatio;
@@ -2434,7 +2441,7 @@ namespace PurplePen
 
         protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
         {
-            LineSymDef symdef = new LineSymDef("Line", "704", lower_symColor, LineThickness * courseObjRatio, LineJoin.Round, LineCap.Flat);
+            LineSymDef symdef = new LineSymDef("Line", "704", lower_symColor, LineThickness * courseObjRatio, LineJoinMode.Round, LineCapMode.Flat);
             symdef.ToolboxImage = MapUtil.CreateToolboxIcon(Properties.Resources.Line_OcadToolbox);
             map.AddSymdef(symdef);
             return symdef;
@@ -2458,7 +2465,7 @@ namespace PurplePen
 
         protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
         {
-            LineSymDef symdef = new LineSymDef("Uncrossable boundary", "707", lower_symColor, (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? 1.0F : 0.7F) * courseObjRatio * appearance.lineWidth, LineJoin.Miter, LineCap.Flat);
+            LineSymDef symdef = new LineSymDef("Uncrossable boundary", "707", lower_symColor, (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? 1.0F : 0.7F) * courseObjRatio * appearance.lineWidth, LineJoinMode.Miter, LineCapMode.Flat);
             symdef.ToolboxImage = MapUtil.CreateToolboxIcon(Properties.Resources.Line_OcadToolbox);
             map.AddSymdef(symdef);
             return symdef;
@@ -2536,11 +2543,11 @@ namespace PurplePen
         {
             SymColor symbolColor = (color.Kind == SpecialColor.ColorKind.LowerPurple) ? lower_symColor : upper_symColor;
 
-            return CreateLineSpecialSymDef(map, symbolColor, lineKind, lineWidth, gapSize, dashSize, LineJoin.Bevel, LineCap.Flat);
+            return CreateLineSpecialSymDef(map, symbolColor, lineKind, lineWidth, gapSize, dashSize, LineJoinMode.Bevel, LineCapMode.Flat);
         }
 
         // This is used by both line and rectangle specials.
-        public static SymDef CreateLineSpecialSymDef(Map map, SymColor symColor, LineKind lineKind, float lineWidth, float gapSize, float dashSize, LineJoin lineJoin, LineCap lineCap)
+        public static SymDef CreateLineSpecialSymDef(Map map, SymColor symColor, LineKind lineKind, float lineWidth, float gapSize, float dashSize, LineJoinMode lineJoin, LineCapMode lineCap)
         {
             string symbolId = map.GetFreeSymbolId(901);
 
@@ -2702,7 +2709,7 @@ namespace PurplePen
 
             using (GDIPlus_GraphicsTarget graphicsTarget = new GDIPlus_GraphicsTarget(g)) {
                 graphicsTarget.CreateGdiPlusBrush(brushKey, brush, false);
-                graphicsTarget.CreatePen(penKey, brushKey, Geometry.TransformDistance(FullWidth, xformWorldToPixel), LineCap.Flat, LineJoin.Miter, 10);
+                graphicsTarget.CreatePen(penKey, brushKey, Geometry.TransformDistance(FullWidth, xformWorldToPixel), LineCapMode.Flat, LineJoinMode.Miter, 10);
                 SymPath path = CreateSymPath();
                 path = path.Transform(xformWorldToPixel);
                 path.Draw(graphicsTarget, penKey);
@@ -2713,7 +2720,7 @@ namespace PurplePen
         {
             SymColor symbolColor = (color.Kind == SpecialColor.ColorKind.LowerPurple) ? lower_symColor : upper_symColor;
 
-            return LineSpecialCourseObj.CreateLineSpecialSymDef(map, symbolColor, lineKind, lineWidth, gapSize, dashSize, LineJoin.Miter, LineCap.Flat);
+            return LineSpecialCourseObj.CreateLineSpecialSymDef(map, symbolColor, lineKind, lineWidth, gapSize, dashSize, LineJoinMode.Miter, LineCapMode.Flat);
         }
 
         protected override void AddToMap(Map map, SymDef symdef)
@@ -2832,7 +2839,7 @@ namespace PurplePen
             SymColor purple50 = GetPurple50Percent(map, symColor);
 
             // Add 0.1mm border.
-            LineSymDef symdefBorder = new LineSymDef("Temporary construction border", "714.1", symColor, 0.1F * courseObjRatio, LineJoin.Miter, LineCap.Flat);
+            LineSymDef symdefBorder = new LineSymDef("Temporary construction border", "714.1", symColor, 0.1F * courseObjRatio, LineJoinMode.Miter, LineCapMode.Flat);
             symdefBorder.ToolboxImage = MapUtil.CreateToolboxIcon(Properties.Resources.ConstructionBoundary_OcadToolbox);
             map.AddSymdef(symdefBorder);
 
@@ -3418,7 +3425,7 @@ namespace PurplePen
 
         public override string ToString()
         {
-            return base.ToString() + string.Format("  rect:({0},{1})-({2},{3})", rectBounding.Left, rectBounding.Bottom, rectBounding.Right, rectBounding.Top);
+            return base.ToString() + string.Format("  rect:({0:0.##},{1:0.##})-({2:0.##},{3:0.##})", rectBounding.Left, rectBounding.Bottom, rectBounding.Right, rectBounding.Top);
         }
     }
 
@@ -3729,6 +3736,15 @@ namespace PurplePen
                 return null;
             }
 
+            public string SearchForFile(string path)
+            {
+                if (string.Equals(path, imageName, StringComparison.InvariantCultureIgnoreCase)) {
+                    return Path.GetFullPath(path);
+                }
+                else {
+                    return null;
+                }
+            }
         }
     }
 

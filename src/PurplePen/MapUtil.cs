@@ -105,7 +105,7 @@ namespace PurplePen
                     try {
                         Bitmap bitmap = (Bitmap) Image.FromFile(mapFileName);
                         bitmapSize = bitmap.Size;
-                        dpi = bitmap.HorizontalResolution;
+                        dpi = (float) Math.Round(bitmap.HorizontalResolution, 1);  // Round to 1 decimal place, because images don't store DPI exactly, but close to a standard round number, so fix.
                         bitmap.Dispose();
                         mapType = MapType.Bitmap;
                         mapBounds = new RectangleF(0, 0, (float)bitmapSize.Width / dpi * 25.4F, (float)bitmapSize.Height / dpi * 25.4F);
@@ -174,7 +174,7 @@ namespace PurplePen
             // Make sure resulting image file can be read.
             try {
                 Bitmap bitmap = (Bitmap)Image.FromFile(mapFile.PngFileName);
-                dpi = bitmap.HorizontalResolution;
+                dpi = (float) Math.Round(bitmap.HorizontalResolution, 1); // Should be always 600, anyway, round because PNG store resolution inaccurately.
                 bitmapSize = bitmap.Size;
                 bitmap.Dispose();
                 errorMessageText = "";
@@ -201,11 +201,36 @@ namespace PurplePen
             return icon;
         }
 
+        // Given a print area rectangle, get the exact size needed to print it at the given scale ratio. Because there tend to be rounding errors
+        // around the range of about 1/100 of a inch due to quantization, we check standard paper sizes to see if one is very very close.
+        public static void GetExactPageSize(RectangleF printAreaRectangle, float printScaleRatio, out int pageWidth, out int pageHeight, out bool landscape)
+        {
+            const float standardSizeTolerance = 1F; // tolerance for matching standard paper sizes, in hundredths of an inch.
+            landscape = printAreaRectangle.Width > printAreaRectangle.Height;
+
+            // Get needed page width and height in 1/100 of inch.
+            float printAreaWidth = (landscape ? printAreaRectangle.Height : printAreaRectangle.Width) / printScaleRatio * 100 / 25.4F;
+            float printAreaHeight = (landscape ? printAreaRectangle.Width : printAreaRectangle.Height) / printScaleRatio * 100 / 25.4F;
+
+            // See if we are very close to a standard paper size.
+            foreach (PaperSize paperSize in StandardPaperSizes) {
+                if (Math.Abs(paperSize.Width - printAreaWidth) < standardSizeTolerance && Math.Abs(paperSize.Height - printAreaHeight) < standardSizeTolerance) {
+                    pageWidth = paperSize.Width;
+                    pageHeight = paperSize.Height;
+                    return;
+                }
+            }
+
+            // Not close to a standard size, use exact size.
+            pageWidth = (int) Math.Round(printAreaWidth);
+            pageHeight = (int) Math.Round(printAreaHeight);
+        }
+
         // Given a print area rectangle, find the best default page size that encloses it, using either the default
         // metric or english paper sizes. If the rectangle is empty, return default page.
         public static void GetDefaultPageSize(RectangleF printAreaRectangle, float printScaleRatio, out int pageWidth, out int pageHeight, out int pageMargin, out bool landscape)
         {
-            bool metric = RegionInfo.CurrentRegion.IsMetric;
+            bool metric = Util.IsCurrentCultureMetric();
 
             if (printAreaRectangle.IsEmpty) {
                 PaperSize paperSize = StandardPaperSizes[metric ? DefaultMetricPaperSizeindex : DefaultEnglighPaperSizeIndex];
@@ -225,9 +250,10 @@ namespace PurplePen
                 int bestIndex = -1;
 
                 // Scan through all paper indexes to find the smallest paper that fits the area.
+                // The -1 in the comparisons allows for minor (0.01 inch) rounding errors.
                 for (int i = firstIndex; i < endIndex; ++i) {
-                    if (StandardPaperSizes[i].Width > printAreaWidth && StandardPaperSizes[i].Height > printAreaHeight &&
-                        (bestIndex == -1 || StandardPaperSizes[i].Width < StandardPaperSizes[bestIndex].Width))
+                    if (StandardPaperSizes[i].Width >= printAreaWidth - 1 && StandardPaperSizes[i].Height >= printAreaHeight - 1 &&
+                                            (bestIndex == -1 || StandardPaperSizes[i].Width < StandardPaperSizes[bestIndex].Width))
                         bestIndex = i;
                 }
                 if (bestIndex < 0)

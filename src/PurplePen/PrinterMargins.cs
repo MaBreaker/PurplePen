@@ -34,6 +34,7 @@ namespace PurplePen
             InitUnits();
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public PaperSize PaperSize
         {
             get
@@ -49,6 +50,7 @@ namespace PurplePen
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Margins Margins
         {
             get
@@ -64,6 +66,7 @@ namespace PurplePen
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Landscape
         {
             get
@@ -79,6 +82,7 @@ namespace PurplePen
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool EnableOrientation
         {
             get
@@ -99,7 +103,7 @@ namespace PurplePen
             decimal increment;
             decimal maximum;
             
-            if (RegionInfo.CurrentRegion.IsMetric) {
+            if (Util.IsCurrentCultureMetric()) {
                 units = "mm";
                 decimalPlaces = 1;
                 increment = 1.0M;

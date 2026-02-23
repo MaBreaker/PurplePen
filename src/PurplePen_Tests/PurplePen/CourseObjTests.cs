@@ -36,7 +36,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
@@ -47,7 +46,7 @@ using PurplePen.Graphics2D;
 
 namespace PurplePen.Tests
 {
-    [TestClass]
+    [TestClass, DoNotParallelize]
     public class CourseObjTests: TestFixtureBase
     {
         CourseAppearance specialAppearance;
@@ -174,7 +173,7 @@ namespace PurplePen.Tests
                 options.minResolution = (float) (8.0 / bm.Width);
                 options.renderTemplates = RenderTemplateOption.MapAndTemplates;
 
-                g.MultiplyTransform(GetTransform(bm.Size));
+                g.MultiplyTransform(GetTransform(bm.Size).ToSysDrawMatrix());
 
                 g.Clear(backColor);
                 using (map.Read())
@@ -1420,14 +1419,14 @@ namespace PurplePen.Tests
         public void DescriptionDump2()
         {
             CourseObj courseobj = CreateDescriptionCourseObj(defaultCourseAppearance, 2);
-            AssertDump(courseobj, @"Description:    scale:1  rect:{X=-4,Y=2.155,Width=7.515,Height=1.845} columns:2");
+            AssertDump(courseobj, @"Description:    scale:1  rect:{X=-4,Y=2.16,Width=7.52,Height=1.85} columns:2");
         }
 
         [TestMethod]
         public void ImageBitmapDump()
         {
             CourseObj courseobj = CreateImageCourseObj();
-            AssertDump(courseobj, @"Image:          scale:1  rect:{X=-0.5,Y=-1.859,Width=2.5,Height=3.859}");
+            AssertDump(courseobj, @"Image:          scale:1  rect:{X=-0.5,Y=-1.86,Width=2.5,Height=3.86}");
         }
 	
 
