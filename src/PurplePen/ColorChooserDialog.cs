@@ -36,6 +36,8 @@ namespace PurplePen
             }
         }
 
+        // JU: Overprint
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Overprint
         {
             get
@@ -102,7 +104,7 @@ namespace PurplePen
                 }
 
                 if (index == comboBox.Items.Count - 1)
-                    comboBox.Items[index] = new ColorAndText(MiscText.CustomColor, value.CustomColor, value.Overprint);
+                    comboBox.Items[index] = new ColorAndText(MiscText.CustomColor, value.CustomColor /* JU: Overprint */ , value.Overprint);
                 comboBox.SelectedIndex = index;
             }
         }
@@ -181,7 +183,7 @@ namespace PurplePen
         {
             if (((ColorAndText)comboBox.SelectedItem).SpecialColor == null) {
                 // The "Custom Color" item was selected, but no color is in it.
-                CustomizeColor(CmykColor.FromCmyk(0, 0, 0, 0), false);
+                CustomizeColor(CmykColor.FromCmyk(0, 0, 0, 0) /* JU: Overprint */ , false);
             }
 
 
@@ -190,17 +192,18 @@ namespace PurplePen
 
         void button_Click(object sender, EventArgs e)
         {
-            CustomizeColor(Color.CustomColor ?? CmykColor.FromCmyk(0, 0, 0, 0), Color.Overprint);
+            CustomizeColor(Color.CustomColor ?? CmykColor.FromCmyk(0, 0, 0, 0) /* JU: Overprint */ , Color.Overprint);
         }
 
-        private void CustomizeColor(CmykColor color, bool overprint)
+        private void CustomizeColor(CmykColor color /* JU: Overprint */ , bool overprint)
         {
             ColorChooserDialog colorChooserDialog = new ColorChooserDialog();
             colorChooserDialog.Color = color;
+            // JU: Overprint
             colorChooserDialog.Overprint = overprint;
 
             if (colorChooserDialog.ShowDialog() == DialogResult.OK) {
-                Color = new SpecialColor(colorChooserDialog.Color, colorChooserDialog.Overprint);
+                Color = new SpecialColor(colorChooserDialog.Color /* JU: Overprint */ , colorChooserDialog.Overprint);
             }
 
             colorChooserDialog.Dispose();
@@ -222,10 +225,10 @@ namespace PurplePen
                 this.Color = color;
             }
 
-            public ColorAndText(string text, CmykColor color, bool overprint)
+            public ColorAndText(string text, CmykColor color /* JU: Overprint */ , bool overprint)
             {
                 this.Text = text;
-                this.SpecialColor = new SpecialColor(color, overprint);
+                this.SpecialColor = new SpecialColor(color /* JU: Overprint */ , overprint);
                 this.Color = color;
             }
 

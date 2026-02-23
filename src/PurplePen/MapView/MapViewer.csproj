@@ -9,6 +9,8 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MapScribe.MapViewer</RootNamespace>
     <AssemblyName>MapViewer</AssemblyName>
+    <!-- Prevent MSBuild from auto-generating TargetFrameworkAttribute (avoids duplicate attribute) -->
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

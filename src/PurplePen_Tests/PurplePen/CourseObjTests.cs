@@ -105,7 +105,7 @@ namespace PurplePen.Tests
                 Dictionary<object, SymDef> dict = new Dictionary<object, SymDef>();
 
                 // Create white color and white-out symdef.
-                SymColor white = map.AddColorBottom("White", CourseLayout.WHITEOUT_COLOR_OCADID, 0, 0, 0, 0, false);
+                SymColor white = map.AddColorBottom("White", /* JU */ CourseLayout.WHITEOUT_COLOR_OCADID, 0, 0, 0, 0, false);
                 AreaSymDef whiteArea = new AreaSymDef("White out", "890", white, null);
                 whiteArea.ToolboxImage = MapUtil.CreateToolboxIcon(Properties.Resources.WhiteOut_OcadToolbox);
                 map.AddSymdef(whiteArea);

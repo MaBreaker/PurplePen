@@ -219,7 +219,7 @@ namespace PurplePen
                 if (coursePdfSettings.DontPrintBaseMap) {
                     // Don't print the base map, just the course.
                     mapDisplay.SetMapFile(MapType.None, null);
-                    grTarget = pdfWriter.BeginPage(paperSize);
+                    grTarget = pdfWriter.BeginPage(paperSize /* JU: Margins */, pageToDraw.margins);
                 }
                 else if (IsPdfMap) {
                     // Import the base map from the PDF map file, so that it is vector, not raster.
@@ -287,7 +287,7 @@ namespace PurplePen
                 landscape = false,
                 mapRectangle = mapBounds,
                 printRectangle = pageArea,
-                paperSize = new PaperSize("", (int)Math.Round(pageArea.Width), (int)Math.Round(pageArea.Height)),
+                paperSize = new PaperSize("", (int) Math.Round(pageArea.Width), (int)Math.Round(pageArea.Height)),
                 //JU: Margins
                 margins = 0
             };
@@ -317,7 +317,7 @@ namespace PurplePen
 
             // Set the course layout into the map display
             mapDisplay.SetCourse(layout);
-            mapDisplay.SetPrintArea(null, null);
+            mapDisplay.SetPrintArea(null /* JU */ , null);
 
             // Set the transform, and the clip.
             Matrix transform = Geometry.CreateInvertedRectangleTransform(page.mapRectangle, page.printRectangle);

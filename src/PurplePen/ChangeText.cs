@@ -140,13 +140,17 @@ namespace PurplePen
         }
 
         //JU: Rotated text
-        public float TextRotation {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public float TextRotation
+        {
             get { return (float) upDownTextRotation.Value; }
             set { upDownTextRotation.Value = (decimal) value; }
         }
 
         //JU: Multiline texts
-        public bool TextMultiline {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool TextMultiline
+        {
             get { return checkBoxMultiline.Checked; }
             set { checkBoxMultiline.Checked = value; }
         }

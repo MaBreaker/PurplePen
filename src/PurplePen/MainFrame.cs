@@ -432,7 +432,7 @@ namespace PurplePen
         void UpdatePrintArea()
         {
             if (hidePrintArea || !Settings.Default.ShowPrintArea)
-                mapDisplay.SetPrintArea(null, null);
+                mapDisplay.SetPrintArea(null /* JU */ , null);
             else
                 mapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart), /* JU: Difficult to get margins value from PageLayout */ null);
         }

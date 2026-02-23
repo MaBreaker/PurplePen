@@ -55,10 +55,10 @@
             this.tableLayoutPanel1.ColumnCount = 6;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 35F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 35F));
             this.tableLayoutPanel1.Controls.Add(this.checkBoxPortrait, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this.checkBoxLandscape, 3, 3);
             this.tableLayoutPanel1.Controls.Add(this.label7, 0, 2);
@@ -79,7 +79,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(254, 149);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(273, 149);
             this.tableLayoutPanel1.TabIndex = 4;
             // 
             // checkBoxPortrait
@@ -89,7 +89,7 @@
             this.tableLayoutPanel1.SetColumnSpan(this.checkBoxPortrait, 2);
             this.checkBoxPortrait.Image = global::PurplePen.Properties.Resources.Portrait;
             this.checkBoxPortrait.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.checkBoxPortrait.Location = new System.Drawing.Point(47, 86);
+            this.checkBoxPortrait.Location = new System.Drawing.Point(52, 86);
             this.checkBoxPortrait.Name = "checkBoxPortrait";
             this.checkBoxPortrait.Size = new System.Drawing.Size(80, 60);
             this.checkBoxPortrait.TabIndex = 10;
@@ -104,7 +104,7 @@
             this.tableLayoutPanel1.SetColumnSpan(this.checkBoxLandscape, 2);
             this.checkBoxLandscape.Image = global::PurplePen.Properties.Resources.Landscape;
             this.checkBoxLandscape.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.checkBoxLandscape.Location = new System.Drawing.Point(133, 86);
+            this.checkBoxLandscape.Location = new System.Drawing.Point(138, 86);
             this.checkBoxLandscape.Name = "checkBoxLandscape";
             this.checkBoxLandscape.Size = new System.Drawing.Size(80, 60);
             this.checkBoxLandscape.TabIndex = 9;
@@ -119,7 +119,7 @@
             this.tableLayoutPanel1.SetColumnSpan(this.label7, 4);
             this.label7.Dock = System.Windows.Forms.DockStyle.Right;
             this.label7.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label7.Location = new System.Drawing.Point(54, 61);
+            this.label7.Location = new System.Drawing.Point(59, 61);
             this.label7.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(120, 22);
@@ -163,7 +163,7 @@
             // 
             this.upDownHeight.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.upDownHeight.Location = new System.Drawing.Point(180, 32);
+            this.upDownHeight.Location = new System.Drawing.Point(185, 32);
             this.upDownHeight.Margin = new System.Windows.Forms.Padding(3, 5, 3, 3);
             this.upDownHeight.Name = "upDownHeight";
             this.upDownHeight.Size = new System.Drawing.Size(50, 20);
@@ -183,7 +183,7 @@
             // 
             this.upDownMargin.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.upDownMargin.Location = new System.Drawing.Point(180, 60);
+            this.upDownMargin.Location = new System.Drawing.Point(185, 60);
             this.upDownMargin.Margin = new System.Windows.Forms.Padding(3, 5, 3, 3);
             this.upDownMargin.Minimum = new decimal(new int[] {
             5,
@@ -199,7 +199,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label3.Location = new System.Drawing.Point(133, 33);
+            this.label3.Location = new System.Drawing.Point(138, 33);
             this.label3.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(41, 13);
@@ -219,7 +219,7 @@
             // labelUnitsHeight
             // 
             this.labelUnitsHeight.AutoSize = true;
-            this.labelUnitsHeight.Location = new System.Drawing.Point(236, 33);
+            this.labelUnitsHeight.Location = new System.Drawing.Point(241, 33);
             this.labelUnitsHeight.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
             this.labelUnitsHeight.Name = "labelUnitsHeight";
             this.labelUnitsHeight.Size = new System.Drawing.Size(15, 13);
@@ -229,7 +229,7 @@
             // labelUnitsMargin
             // 
             this.labelUnitsMargin.AutoSize = true;
-            this.labelUnitsMargin.Location = new System.Drawing.Point(236, 61);
+            this.labelUnitsMargin.Location = new System.Drawing.Point(241, 61);
             this.labelUnitsMargin.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
             this.labelUnitsMargin.Name = "labelUnitsMargin";
             this.labelUnitsMargin.Size = new System.Drawing.Size(15, 13);
@@ -244,7 +244,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "PaperSizeControl";
-            this.Size = new System.Drawing.Size(260, 155);
+            this.Size = new System.Drawing.Size(279, 155);
             this.Load += new System.EventHandler(this.PaperSizeControl_Loaded);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();

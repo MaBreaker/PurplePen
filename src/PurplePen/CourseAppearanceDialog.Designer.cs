@@ -29,6 +29,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CourseAppearanceDialog));
             this.groupBoxSizes = new System.Windows.Forms.GroupBox();
+            // JU: Outline width
             this.label14 = new System.Windows.Forms.Label();
             this.upDownCOutlineWidth = new System.Windows.Forms.NumericUpDown();
             this.label13 = new System.Windows.Forms.Label();
@@ -78,6 +79,7 @@
             this.groupBoxOcadMap = new System.Windows.Forms.GroupBox();
             this.checkBoxOverprint = new System.Windows.Forms.CheckBox();
             this.groupBoxSizes.SuspendLayout();
+            // JU: Outline width
             ((System.ComponentModel.ISupportInitialize)(this.upDownCOutlineWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.upDownLegGapSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.upDownOutlineWidth)).BeginInit();
@@ -105,7 +107,8 @@
             resources.ApplyResources(this.cancelButton, "cancelButton");
             // 
             // groupBoxSizes
-            // 
+            //
+            // JU: Outline width 
             this.groupBoxSizes.Controls.Add(this.label14);
             this.groupBoxSizes.Controls.Add(this.upDownCOutlineWidth);
             this.groupBoxSizes.Controls.Add(this.label13);
@@ -135,7 +138,7 @@
             resources.ApplyResources(this.groupBoxSizes, "groupBoxSizes");
             this.groupBoxSizes.Name = "groupBoxSizes";
             this.groupBoxSizes.TabStop = false;
-            // 
+            // JU: Outline width
             // label14
             // 
             resources.ApplyResources(this.label14, "label14");
@@ -596,6 +599,7 @@
             this.Controls.SetChildIndex(this.groupBoxOcadMap, 0);
             this.groupBoxSizes.ResumeLayout(false);
             this.groupBoxSizes.PerformLayout();
+            // JU: Outline width
             ((System.ComponentModel.ISupportInitialize)(this.upDownCOutlineWidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.upDownLegGapSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.upDownOutlineWidth)).EndInit();
@@ -667,6 +671,7 @@
         private System.Windows.Forms.Label labelChooseLayer;
         private System.Windows.Forms.ComboBox comboBoxBlendPurple;
         private System.Windows.Forms.Label labelBlendPurple;
+        // JU: Outline width
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.NumericUpDown upDownCOutlineWidth;
         private System.Windows.Forms.Label label13;

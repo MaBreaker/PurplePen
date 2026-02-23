@@ -24,7 +24,7 @@ namespace Map_PDF.Tests
 
             // Create PDF at 100 pixel per inch.
             PdfWriter pdfWriter = new PdfWriter(Path.GetFileNameWithoutExtension(pdfFileName), useCmyk);
-            IGraphicsTarget graphicsTarget = pdfWriter.BeginPage(new SizeF(pixelWidth / 100F, pixelHeight / 100F), 0);
+            IGraphicsTarget graphicsTarget = pdfWriter.BeginPage(new SizeF(pixelWidth / 100F, pixelHeight / 100F) /* JU: Margin */ , 0);
             draw(graphicsTarget);
             pdfWriter.EndPage(graphicsTarget);
             pdfWriter.Save(pdfFileName);

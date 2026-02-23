@@ -855,6 +855,7 @@
   <data name="createKMLFileMenu.Text" xml:space="preserve">
     <value>Create &amp;KML File...</value>
   </data>
+  <!-- JU: LiveLox -->
   <data name="toolStripSeparator25.Size" type="System.Drawing.Size, System.Drawing">
     <value>284, 6</value>
   </data>
@@ -1407,6 +1408,7 @@
   <data name="mapStdSpr2019Menu.Text" xml:space="preserve">
     <value>ISSprOM 2019 Map Standard</value>
   </data>
+  <!-- JU: Street-O -->
   <data name="mapStdStreetOMenu.Size" type="System.Drawing.Size, System.Drawing">
     <value>240, 22</value>
   </data>
@@ -2786,6 +2788,7 @@
   <data name="&gt;&gt;createRouteGadgetFilesMenu.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <!-- JU: LiveLox -->
   <data name="&gt;&gt;publishToLiveloxMenu.Name" xml:space="preserve">
     <value>publishToLiveloxMenu</value>
   </data>
@@ -3374,6 +3377,7 @@
   <data name="&gt;&gt;mapStdSpr2019Menu.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <!-- JU: Street-O -->
   <data name="&gt;&gt;mapStdStreetOMenu.Name" xml:space="preserve">
     <value>mapStdStreetOMenu</value>
   </data>

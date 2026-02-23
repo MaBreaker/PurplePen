@@ -22,29 +22,6 @@
     <HelpCompiler>c:\program files (x86)\html help workshop\hhc.exe</HelpCompiler>
     <!-- Define the help project file -->
     <HelpProjectFile>..\..\doc\userdocs\help\Purple Pen Help.hhp</HelpProjectFile>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-  </PropertyGroup>
-  <PropertyGroup>
-    <OutputPath>output\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -68,7 +45,11 @@
     <InputFile Include="..\..\doc\userdocs\help\*.hhc" />
   </ItemGroup>
 
-  <Target Name="RunHelpCompiler" AfterTargets="Build" DependsOnTargets="PrepareOutputDirectory" Inputs="@(InputFile)" Outputs="$(OutputFile)">
+  <Target Name="RunHelpCompiler"
+          AfterTargets="Build"
+          DependsOnTargets="PrepareOutputDirectory"
+          Inputs="@(InputFile)" 
+          Outputs="$(OutputFile)">
     
     <Message Importance="high" Text="Building help file -- output file is $(OutputFile); log file is $(LogFile)" />
     <Exec Command="&quot;$(HelpCompiler)&quot; &quot;$(HelpProjectFile)&quot; &gt; &quot;$(LogFile)&quot;" IgnoreExitCode="true">

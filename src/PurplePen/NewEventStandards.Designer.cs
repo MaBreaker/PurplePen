@@ -72,6 +72,7 @@ namespace PurplePen
             this.radioButtonDescriptions2018 = new System.Windows.Forms.RadioButton();
             this.radioButtonDescriptions2004 = new System.Windows.Forms.RadioButton();
             this.labelStandardsIntro = new System.Windows.Forms.Label();
+            // JU: Street-O
             this.radioButtonMapStreetO = new System.Windows.Forms.RadioButton();
             this.groupBoxMapStandard.SuspendLayout();
             this.groupBoxDescriptionStandard.SuspendLayout();
@@ -88,7 +89,7 @@ namespace PurplePen
             this.labelTitle.Name = "labelTitle";
             // 
             // groupBoxMapStandard
-            // 
+            // JU: Street-O
             this.groupBoxMapStandard.Controls.Add(this.radioButtonMapStreetO);
             this.groupBoxMapStandard.Controls.Add(this.radioButtonMapSpr2019);
             this.groupBoxMapStandard.Controls.Add(this.radioButtonMap2017);
@@ -146,7 +147,7 @@ namespace PurplePen
             this.labelStandardsIntro.Name = "labelStandardsIntro";
             // 
             // radioButtonMapStreetO
-            // 
+            // JU: Street-O
             resources.ApplyResources(this.radioButtonMapStreetO, "radioButtonMapStreetO");
             this.radioButtonMapStreetO.Name = "radioButtonMapStreetO";
             this.radioButtonMapStreetO.TabStop = true;
@@ -182,6 +183,7 @@ namespace PurplePen
         internal System.Windows.Forms.RadioButton radioButtonDescriptions2018;
         internal System.Windows.Forms.RadioButton radioButtonDescriptions2004;
         internal System.Windows.Forms.RadioButton radioButtonMapSpr2019;
+        // JU: Street-O
         internal System.Windows.Forms.RadioButton radioButtonMapStreetO;
     }
 }

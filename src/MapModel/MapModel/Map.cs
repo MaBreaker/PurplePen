@@ -2181,7 +2181,7 @@ namespace PurplePen.MapModel
         {
             Draw(g, rect, renderOpts, throwOnCancel, 0);
         }
-
+        /* JU */
         public void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel, int templateRecursionCount)
         {
             CheckReadable();
@@ -2239,7 +2239,7 @@ namespace PurplePen.MapModel
                     }
                 }
 
-                if (currentlyDrawing && !layoutHidden && templateRecursionCount >= 0)
+                if (currentlyDrawing && !layoutHidden /* JU */ && templateRecursionCount >= 0)
                 {
                     // Draw the layout layer.
                     DrawColor(g, this.LayoutColor, rect, renderOpts, throwOnCancel);
@@ -2264,7 +2264,7 @@ namespace PurplePen.MapModel
             return s1.SortOrder.CompareTo(s2.SortOrder);
         }
 
-        // Draw a particular color layer. If curColor is ImageColor or LayoutColor, draw the Image layer or Layout layer 
+        // Draw a particular color layer. If curColor is ImageColor or LayoutColor, draw the image layer or Layout layer 
         private void DrawColor(IGraphicsTarget g, SymColor curColor, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel)
         {
             int symbolsDrawn = 0;

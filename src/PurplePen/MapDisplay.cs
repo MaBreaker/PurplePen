@@ -35,6 +35,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+//using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 using PurplePen.MapModel;
@@ -557,10 +558,11 @@ namespace PurplePen
         }
 
         // Set the print area to display, or null to not display print area.
-        public void SetPrintArea(RectangleF? printArea)
+        public void SetPrintArea(RectangleF? printArea /* JU: Margins */ , int? margins)
         {
             if (!this.printArea.Equals(printArea)) {
                 this.printArea = printArea;
+                this.margins = margins;
                 RaiseChanged(null);
             }
         }
@@ -786,7 +788,8 @@ namespace PurplePen
 
             if (courseMap != null) {
                 using (courseMap.Read())
-                    courseMap.Draw(grTargetCourses, visRect, renderOptions, null);
+                    //JU: Text over images
+                    courseMap.Draw(grTargetCourses, visRect, renderOptions, null, -1);
             }
 
             // Restore old blending setting.
@@ -819,6 +822,19 @@ namespace PurplePen
                 if (printArea.Value.Right < visRect.Right) {
                     RectangleF draw = RectangleF.FromLTRB(printArea.Value.Right, printArea.Value.Top, visRect.Right, printArea.Value.Bottom);
                     grTargetCourses.FillRectangle(printAreaOutline, draw);
+                }
+                if (margins.HasValue && margins != 0) {
+                    // Draw the actual page rectangle.
+                    RectangleF draw = RectangleF.FromLTRB(printArea.Value.Left, printArea.Value.Top, printArea.Value.Right, printArea.Value.Bottom);
+                    object penOutline = new object();
+                    if (margins > 0) {
+                        grTargetCourses.CreatePen(penOutline, CmykColor.FromCmyka(0, 0, 0, 1, 0.12F), 2.0F, LineCapMode.Flat, LineJoinMode.Miter, 5F);
+                    }
+                    else {
+                        grTargetCourses.CreatePen(penOutline, CmykColor.FromCmyka(1, 1, 1, 0, 0.12F), 2.0F, LineCapMode.Flat, LineJoinMode.Miter, 5F);
+
+                    }
+                    grTargetCourses.DrawRectangle(penOutline, draw);
                 }
             }
 

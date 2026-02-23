@@ -1,9 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-#if NET5_0_OR_GREATER
 using System.Runtime.Versioning;
-#endif
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
 using ExecutionScope = Microsoft.VisualStudio.TestTools.UnitTesting.ExecutionScope;

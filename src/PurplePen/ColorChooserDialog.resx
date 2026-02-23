@@ -414,6 +414,7 @@
   <data name="&gt;&gt;groupBoxPreview.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
+  <!-- JU: Overprint -->
   <data name="checkBoxOverprint.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>

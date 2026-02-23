@@ -47,6 +47,7 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.buttonChangeColor = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
+            this.checkBoxItalic = new System.Windows.Forms.CheckBox();
             this.comboBoxColor = new System.Windows.Forms.ComboBox();
             this.checkBoxBold = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -55,7 +56,6 @@
             this.upDownFontSize = new System.Windows.Forms.NumericUpDown();
             this.labelFontSizeMm = new System.Windows.Forms.Label();
             this.checkBoxAutoFontSize = new System.Windows.Forms.CheckBox();
-            this.checkBoxItalic = new System.Windows.Forms.CheckBox();
             this.label4 = new System.Windows.Forms.Label();
             this.upDownTextRotation = new System.Windows.Forms.NumericUpDown();
             this.checkBoxMultiline = new System.Windows.Forms.CheckBox();
@@ -64,8 +64,8 @@
             this.pictureBoxPreview = new System.Windows.Forms.PictureBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.insertSpecialButton = new System.Windows.Forms.Button();
             this.textBoxMain = new System.Windows.Forms.TextBox();
+            this.insertSpecialButton = new System.Windows.Forms.Button();
             this.specialTextMenu.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -193,6 +193,7 @@
             resources.ApplyResources(this.tableLayoutPanel1, "tableLayoutPanel1");
             this.tableLayoutPanel1.Controls.Add(this.buttonChangeColor, 3, 3);
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.checkBoxItalic, 3, 1);
             this.tableLayoutPanel1.Controls.Add(this.comboBoxColor, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this.checkBoxBold, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
@@ -201,7 +202,6 @@
             this.tableLayoutPanel1.Controls.Add(this.upDownFontSize, 1, 4);
             this.tableLayoutPanel1.Controls.Add(this.labelFontSizeMm, 2, 4);
             this.tableLayoutPanel1.Controls.Add(this.checkBoxAutoFontSize, 3, 4);
-            this.tableLayoutPanel1.Controls.Add(this.checkBoxItalic, 3, 1);
             this.tableLayoutPanel1.Controls.Add(this.label4, 0, 5);
             this.tableLayoutPanel1.Controls.Add(this.upDownTextRotation, 1, 5);
             this.tableLayoutPanel1.Controls.Add(this.checkBoxMultiline, 3, 5);
@@ -218,6 +218,13 @@
             // 
             resources.ApplyResources(this.label2, "label2");
             this.label2.Name = "label2";
+            // 
+            // checkBoxItalic
+            // 
+            resources.ApplyResources(this.checkBoxItalic, "checkBoxItalic");
+            this.checkBoxItalic.Name = "checkBoxItalic";
+            this.checkBoxItalic.UseVisualStyleBackColor = true;
+            this.checkBoxItalic.CheckedChanged += new System.EventHandler(this.checkBoxItalic_CheckedChanged);
             // 
             // comboBoxColor
             // 
@@ -288,13 +295,6 @@
             this.checkBoxAutoFontSize.UseVisualStyleBackColor = true;
             this.checkBoxAutoFontSize.CheckedChanged += new System.EventHandler(this.checkBoxAutoFontSize_CheckedChanged);
             // 
-            // checkBoxItalic
-            // 
-            resources.ApplyResources(this.checkBoxItalic, "checkBoxItalic");
-            this.checkBoxItalic.Name = "checkBoxItalic";
-            this.checkBoxItalic.UseVisualStyleBackColor = true;
-            this.checkBoxItalic.CheckedChanged += new System.EventHandler(this.checkBoxItalic_CheckedChanged);
-            // 
             // label4
             // 
             resources.ApplyResources(this.label4, "label4");
@@ -358,6 +358,12 @@
             this.tableLayoutPanel2.Controls.Add(this.textBoxMain, 0, 0);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             // 
+            // textBoxMain
+            // 
+            resources.ApplyResources(this.textBoxMain, "textBoxMain");
+            this.textBoxMain.Name = "textBoxMain";
+            this.textBoxMain.TextChanged += new System.EventHandler(this.textBoxMain_TextChanged);
+            // 
             // insertSpecialButton
             // 
             resources.ApplyResources(this.insertSpecialButton, "insertSpecialButton");
@@ -365,12 +371,6 @@
             this.insertSpecialButton.Name = "insertSpecialButton";
             this.insertSpecialButton.UseVisualStyleBackColor = true;
             this.insertSpecialButton.Click += new System.EventHandler(this.insertSpecialButton_Click);
-            // 
-            // textBoxMain
-            // 
-            resources.ApplyResources(this.textBoxMain, "textBoxMain");
-            this.textBoxMain.Name = "textBoxMain";
-            this.textBoxMain.TextChanged += new System.EventHandler(this.textBoxMain_TextChanged);
             // 
             // ChangeText
             // 

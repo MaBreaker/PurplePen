@@ -407,7 +407,7 @@ namespace PurplePen
                     // No blending with white outline
                     float outlineWidth = (float) upDownCOutlineWidth.Value;
                     object whitePen = new object(), whitePen2 = new object();
-                    grTarget.CreatePen(whitePen, CmykColor.FromCmyk(0, 0, 0, 0), outlineWidth + lineWidth, LineCap.Round, LineJoin.Round, 5F);
+                    grTarget.CreatePen(whitePen, CmykColor.FromCmyk(0, 0, 0, 0), outlineWidth + lineWidth, LineCapMode.Round, LineJoinMode.Round, 5F);
                     grTarget.DrawEllipse(whitePen, centerCircle, circleDrawRadius + outlineWidth / 2, circleDrawRadius + outlineWidth / 2); 
                 }
 

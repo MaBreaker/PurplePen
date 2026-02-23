@@ -1577,27 +1577,28 @@ namespace PurplePen
 
         public readonly ColorKind Kind;
         public readonly CmykColor CustomColor;
+        // JU: Over print
         public readonly bool Overprint;
 
         public readonly static SpecialColor Black = new SpecialColor(ColorKind.Black);
         public readonly static SpecialColor UpperPurple = new SpecialColor(ColorKind.UpperPurple);
         public readonly static SpecialColor LowerPurple = new SpecialColor(ColorKind.LowerPurple);
 
-        public SpecialColor(ColorKind colorKind, bool overprint = false)
+        public SpecialColor(ColorKind colorKind /* JU: Over print */ , bool overprint = false)
         {
             Debug.Assert(colorKind != ColorKind.Custom);
             this.Kind = colorKind;
-            this.Overprint = overprint;
+            /* JU: Over print */this.Overprint = overprint;
         }
 
-        public SpecialColor(float cyan, float magenta, float yellow, float black, bool overprint = false)
+        public SpecialColor(float cyan, float magenta, float yellow, float black /* JU: Over print */ , bool overprint = false)
         {
             this.Kind = ColorKind.Custom;
             this.CustomColor = CmykColor.FromCmyk(cyan, magenta, yellow, black);
             this.Overprint = overprint;
         }
 
-        public SpecialColor(CmykColor color, bool overprint = false)
+        public SpecialColor(CmykColor color /* JU: Over print */ , bool overprint = false)
         {
             this.Kind = ColorKind.Custom;
             this.CustomColor = color;
@@ -1615,7 +1616,7 @@ namespace PurplePen
             }
         }
 
-        public static SpecialColor Parse(string s, bool overprint)
+        public static SpecialColor Parse(string s /* JU: Over print */ , bool overprint)
         {
             if (s == "black")
                 return SpecialColor.Black;
@@ -1632,7 +1633,7 @@ namespace PurplePen
                 m = float.Parse(colors[1], CultureInfo.InvariantCulture);
                 y = float.Parse(colors[2], CultureInfo.InvariantCulture);
                 k = float.Parse(colors[3], CultureInfo.InvariantCulture);
-                return new SpecialColor(c, m, y, k, overprint);
+                return new SpecialColor(c, m, y, k /* JU: Over print */ , overprint);
             }
         }
 
@@ -1645,7 +1646,7 @@ namespace PurplePen
             if (Kind != ColorKind.Custom)
                 return Kind == other.Kind;
             else
-                return (Kind == other.Kind && CustomColor.Equals(other.CustomColor) && Overprint == other.Overprint);
+                return (Kind == other.Kind && CustomColor.Equals(other.CustomColor) /* JU: Over print */ && Overprint == other.Overprint);
         }
 
         public override int GetHashCode()
@@ -1906,6 +1907,7 @@ namespace PurplePen
 
                 default: xmlinput.BadXml("Invalid special-object kind '{0}'", kindText); break;
             }
+
             if (kind == SpecialKind.OptCrossing) {
                 orientation = xmlinput.GetAttributeFloat("orientation");
                 stretch = xmlinput.GetAttributeFloat("stretch", 0.0F);
@@ -1962,6 +1964,7 @@ namespace PurplePen
                     numColumns = xmlinput.GetAttributeInt("columns", 1);
 
                     if (kind == SpecialKind.Text || kind == SpecialKind.Line || kind == SpecialKind.Rectangle || kind == SpecialKind.Ellipse) {
+                        // JU: Over print
                         bool overprint = xmlinput.GetAttributeBool("overprint", false);
                         color = xmlinput.GetAttributeColor("color", SpecialColor.UpperPurple, overprint);
                     }
@@ -2113,6 +2116,7 @@ namespace PurplePen
                     case LineKind.Dashed: xmloutput.WriteAttributeString("line-kind", "dashed"); break;
                 }
                 xmloutput.WriteAttributeString("color", color.ToString());
+                // JU: Over print
                 xmloutput.WriteAttributeString("overprint", color.Overprint.ToString().ToLower());
                 xmloutput.WriteAttributeString("line-width", XmlConvert.ToString(lineWidth));
                 if (lineKind == LineKind.Double || lineKind == LineKind.Dashed)

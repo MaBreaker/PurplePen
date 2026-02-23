@@ -49,7 +49,6 @@ using PurplePen.Graphics2D;
 
 using PdfSharp.Pdf;
 using PdfSharp.Drawing;
-//using System.Drawing.Drawing2D;
 
 namespace PurplePen.MapModel
 {
@@ -68,7 +67,7 @@ namespace PurplePen.MapModel
         }
 
         // Get a page.
-        public IGraphicsTarget BeginPage(SizeF sizeInInches, int margin)
+        public IGraphicsTarget BeginPage(SizeF sizeInInches /* JU: Margin */, int margin)
         {
             // Create an empty page
             PdfPage page = document.AddPage();
@@ -158,7 +157,7 @@ namespace PurplePen.MapModel
         // sizeInInches is the size of the new page, in inches.
         // partialSourcePageInInches is the rectangle on the source page to copy, in inches. This maps to destinationCropInInches.
         // destinationCropInInches in the rectangle on the destination page to draw into, in inches. If you want the whole page, use new RectangleF(0,0,sizeInInches.Width,sizeInInches.Height)
-        public IGraphicsTarget BeginCopiedPartialPage(PdfImporter pdfImporter, int pageNumber, SizeF sizeInInches, RectangleF partialSourcePageInInches, RectangleF destinationCropInInches, int margins)
+        public IGraphicsTarget BeginCopiedPartialPage(PdfImporter pdfImporter, int pageNumber, SizeF sizeInInches, RectangleF partialSourcePageInInches, RectangleF destinationCropInInches /* JU: Margin */ , int margins)
         {
             XForm xformToCopy = pdfImporter.GetXForm(pageNumber);
             PdfPage pageToCopy = pdfImporter.GetPage(pageNumber);
@@ -172,7 +171,7 @@ namespace PurplePen.MapModel
 //    and finally extend page size and top left by margins to get blank margins
 
             // Get a graphics target
-            IGraphicsTarget target = BeginPage(sizeInInches, margins);
+            IGraphicsTarget target = BeginPage(sizeInInches /* JU: Margins */ , margins);
 
             // Initial target is entire page. Push a clip to restrict to destinationCropInInches.
             RectangleF destRect = new RectangleF(destinationCropInInches.Left * 100, destinationCropInInches.Top * 100, destinationCropInInches.Width * 100, destinationCropInInches.Height * 100);

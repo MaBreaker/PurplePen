@@ -46,7 +46,6 @@ using System.Threading.Tasks;
 using System.Text;
 using System.Windows.Forms;
 
-
 namespace PurplePen
 {
 #if MSSTORE
