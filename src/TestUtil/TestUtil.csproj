@@ -22,7 +22,7 @@
     <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
     <RootNamespace>TestingUtils</RootNamespace>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-    <Configurations>Debug;Release;StorePkg</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DefineConstants>TRACE;DEBUG;TEST</DefineConstants>

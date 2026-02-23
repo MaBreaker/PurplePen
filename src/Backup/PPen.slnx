@@ -30,12 +30,10 @@
   <Folder Name="/MapModel/">
     <Project Path="MapModel/GDIPlusNative/GDIPlusNative.vcxproj" Id="b87c8b00-a062-4eed-a359-437b5fbd382f">
       <Platform Project="Win32" />
-      <Build Solution="*|x64" Project="false" />
     </Project>
     <Project Path="MapModel/GDIPlusNative64/GDIPlusNative64.vcxproj" Id="9363abb8-2a6d-42c0-aed6-021d691ccb66">
       <Platform Solution="*|ARM" Project="x64" />
       <Platform Solution="*|ARM64" Project="x64" />
-      <Build Solution="*|x86" Project="false" />
     </Project>
     <Project Path="MapModel/Graphics2D.Tests/Graphics2D.Tests.csproj" Id="56e11e5d-18d0-4143-b5df-ec19add9c937" />
     <Project Path="MapModel/Graphics2D/Graphics2D.csproj" Id="ef01e0b6-d7e7-4a4c-970a-29d677d59233" />
@@ -62,15 +60,20 @@
     <Project Path="PdfiumViewer/PdfiumViewer/PdfiumViewer.csproj" Id="438914b6-5d1c-482c-b942-5c0e057eef6f" />
   </Folder>
   <Folder Name="/Purple Pen/">
-    <Project Path="CrashReporter.NET/CrashReporter.NET.csproj" Id="67912bda-1572-46b0-8623-5872d9dadbc8" />
+    <Project Path="CrashReporter.NET/CrashReporter.NET.csproj" Id="67912bda-1572-46b0-8623-5872d9dadbc8">
+      <Build Solution="Debug|x86" Project="false" />
+    </Project>
     <Project Path="Help/Help.csproj" Id="d405472a-56e1-4153-acb7-677b8e6d5171" />
     <Project Path="PdfConverter.Tests/PdfConverter.Tests.csproj" />
     <Project Path="PdfConverter/PdfConverter.csproj" Id="89318625-2f71-4c44-bfb1-8984f4d06152" />
     <Project Path="PurplePen/PurplePen.csproj" Id="c1715d94-3beb-4d86-8402-80a57c9d11c5">
       <BuildDependency Project="FontInstaller/FontInstaller.csproj" />
       <BuildDependency Project="Help/Help.csproj" />
+      <Build Solution="Debug|x86" Project="false" />
     </Project>
-    <Project Path="PurplePen_Tests/PurplePen_Tests.csproj" Id="0690d25c-7696-4b7a-9aab-fbbcafd0eef5" />
+    <Project Path="PurplePen_Tests/PurplePen_Tests.csproj" Id="0690d25c-7696-4b7a-9aab-fbbcafd0eef5">
+      <Build Solution="Debug|x86" Project="false" />
+    </Project>
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
@@ -80,8 +83,7 @@
     <File Path="ShowUi.runsettings" />
   </Folder>
   <Project Path="TestUtil/TestUtil.csproj" Id="d50b6e2b-5e20-410d-b033-debb6b695e77">
-    <Build Solution="Release|x64" Project="false" />
-    <Build Solution="Release|x86" Project="false" />
+    <Build Solution="*|x86" Project="false" />
   </Project>
   <Properties Name="TestCaseManagementSettings" Scope="PostLoad">
     <Property Name="CategoryFile" Value="PPen1.vsmdi" />

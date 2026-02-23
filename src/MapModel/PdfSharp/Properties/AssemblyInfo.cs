@@ -30,7 +30,9 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Versioning;
+#endif
 
 //[assembly:AllowPartiallyTrustedCallers]
 //[assembly:SecurityPermission(SecurityAction.RequestMinimum)]

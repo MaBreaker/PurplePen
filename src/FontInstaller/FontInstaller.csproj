@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <Configurations>Debug;Release;StorePkg</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
 
     <EnableDefaultItems>false</EnableDefaultItems>
@@ -36,11 +36,7 @@
     <InputFile Include="..\RobotoFont\*.ttf" />
   </ItemGroup>
 
-  <Target Name="RunInnoSetup"
-          AfterTargets="Build"
-          DependsOnTargets="PrepareOutputDirectory"
-          Inputs="@(InputFile)"
-          Outputs="$(OutputFile)">
+  <Target Name="RunInnoSetup" AfterTargets="Build" DependsOnTargets="PrepareOutputDirectory" Inputs="@(InputFile)" Outputs="$(OutputFile)">
 
     <Message Importance="high" Text="Running Inno Setup; log in $(LogFile)" />
     <Exec Command="&quot;$(InnoCompiler)&quot; &quot;$(InnoProjectFile)&quot; &gt; &quot;$(LogFile)&quot;" />

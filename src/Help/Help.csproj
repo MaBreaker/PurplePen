@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <Configurations>Debug;Release;StorePkg</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
 
     <EnableDefaultItems>false</EnableDefaultItems>
@@ -68,11 +68,7 @@
     <InputFile Include="..\..\doc\userdocs\help\*.hhc" />
   </ItemGroup>
 
-  <Target Name="RunHelpCompiler"
-          AfterTargets="Build"
-          DependsOnTargets="PrepareOutputDirectory"
-          Inputs="@(InputFile)" 
-          Outputs="$(OutputFile)">
+  <Target Name="RunHelpCompiler" AfterTargets="Build" DependsOnTargets="PrepareOutputDirectory" Inputs="@(InputFile)" Outputs="$(OutputFile)">
     
     <Message Importance="high" Text="Building help file -- output file is $(OutputFile); log file is $(LogFile)" />
     <Exec Command="&quot;$(HelpCompiler)&quot; &quot;$(HelpProjectFile)&quot; &gt; &quot;$(LogFile)&quot;" IgnoreExitCode="true">

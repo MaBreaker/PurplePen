@@ -49,7 +49,7 @@ using PurplePen.Graphics2D;
 
 using PdfSharp.Pdf;
 using PdfSharp.Drawing;
-using System.Drawing.Drawing2D;
+//using System.Drawing.Drawing2D;
 
 namespace PurplePen.MapModel
 {
@@ -163,6 +163,8 @@ namespace PurplePen.MapModel
             XForm xformToCopy = pdfImporter.GetXForm(pageNumber);
             PdfPage pageToCopy = pdfImporter.GetPage(pageNumber);
 
+            PointF cropBoxOriginInPoints = CropboxOriginInPoints(pageToCopy);
+
             //JU: PDF white margins
             float marginInInches = (margins > 0 ? margins / 100F : 0.0F);
 
@@ -171,10 +173,6 @@ namespace PurplePen.MapModel
 
             // Get a graphics target
             IGraphicsTarget target = BeginPage(sizeInInches, margins);
-
-            PointF cropBoxOriginInPoints = CropboxOriginInPoints(pageToCopy);
-
-            IGraphicsTarget target = BeginPage(sizeInInches);
 
             // Initial target is entire page. Push a clip to restrict to destinationCropInInches.
             RectangleF destRect = new RectangleF(destinationCropInInches.Left * 100, destinationCropInInches.Top * 100, destinationCropInInches.Width * 100, destinationCropInInches.Height * 100);

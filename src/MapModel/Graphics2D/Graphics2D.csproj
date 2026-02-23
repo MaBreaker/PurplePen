@@ -5,7 +5,7 @@
     <RootNamespace>PurplePen.Graphics2D</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitFrameworkReferences Condition="'$(TargetFramework)' == 'net48'">true</DisableImplicitFrameworkReferences>
-    <Configurations>Debug;Release;StorePkg</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <CodeAnalysisRuleSet>..\Analysis.ruleset</CodeAnalysisRuleSet>
