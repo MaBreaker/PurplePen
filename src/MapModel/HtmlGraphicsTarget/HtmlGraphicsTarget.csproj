@@ -3,7 +3,7 @@
     <TargetFramework>net48</TargetFramework>
     <DebugType>full</DebugType>
     <TypeScriptToolsVersion>4.3</TypeScriptToolsVersion>
-    <Configurations>Debug;Release</Configurations>
+    <Configurations>Debug;Release;StorePkg</Configurations>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <ItemGroup>

@@ -35,7 +35,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-//using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 using PurplePen.MapModel;
@@ -283,6 +282,18 @@ namespace PurplePen
             }
         }
 
+
+        public List<string> GetReferencedFiles()
+        {
+             if (mapType == MapType.OCAD && map != null) {
+                using (map.Read()) {
+                    return map.GetReferencedFiles(1);
+                }
+            }
+            else {
+                return new List<string>();
+            }
+        }
 
         public List<string> GetReferencedFiles()
         {
