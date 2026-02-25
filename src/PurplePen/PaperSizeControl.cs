@@ -8,6 +8,8 @@ using System.Text;
 using System.Windows.Forms;
 using System.Drawing.Printing;
 using System.Globalization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace PurplePen
 {
@@ -27,6 +29,7 @@ namespace PurplePen
             InitUnits();
         }
 
+        // JU: PaperSize itself is not serializable, workaround to serialize as JSON
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public PaperSize PaperSize
         {
@@ -39,6 +42,21 @@ namespace PurplePen
             set
             {
                 paperSize = value;
+                UpdateDialog();
+            }
+        }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public string PaperSizeStr
+        {
+            get
+            {
+                UpdateSettings();
+                return JsonConvert.SerializeObject(paperSize);
+            }
+
+            set
+            {
+                PaperSize = JsonConvert.DeserializeObject<PaperSize>(value);
                 UpdateDialog();
             }
         }
@@ -82,6 +100,8 @@ namespace PurplePen
             int decimalPlaces;
             decimal increment;
             decimal maximum;
+            // JU: Margins min
+            decimal minmargin;
 
             if (Util.IsCurrentCultureMetric())
             {
@@ -89,6 +109,7 @@ namespace PurplePen
                 decimalPlaces = 1;
                 increment = 1.0M;
                 maximum = 5000;
+                minmargin = -5.1M; // JU: Margins min
             }
             else
             {
@@ -96,12 +117,14 @@ namespace PurplePen
                 decimalPlaces = 2;
                 increment = 0.05M;
                 maximum = 100;
+                minmargin = -0.20M; // JU: Margins min
             }
 
-            upDownMargin.DecimalPlaces =  upDownWidth.DecimalPlaces = upDownHeight.DecimalPlaces = decimalPlaces;
+            upDownMargin.DecimalPlaces = upDownWidth.DecimalPlaces = upDownHeight.DecimalPlaces = decimalPlaces;
             upDownMargin.Increment = upDownWidth.Increment = upDownHeight.Increment = increment;
             upDownMargin.Increment = upDownWidth.Increment = upDownHeight.Increment = increment;
             upDownMargin.Maximum = upDownWidth.Maximum = upDownHeight.Maximum = maximum;
+            upDownMargin.Minimum = minmargin; // JU: Margins min
 
             labelUnitsHeight.Text = labelUnitsWidth.Text = labelUnitsMargin.Text = units;
         }
@@ -123,7 +146,7 @@ namespace PurplePen
             {
                 if (MapUtil.StandardPaperSizes[i].Width == paperSize.Width &&
                     MapUtil.StandardPaperSizes[i].Height == paperSize.Height)
-                {
+                    {
                     comboBoxPaperSize.SelectedIndex = i;
                     foundStandardSize = true;
                 }

@@ -170,6 +170,18 @@ namespace PurplePen
                 if (pages[nextPage] == bitmapScalePage && MapType != MapType.Bitmap && MapType != MapType.PDF)
                     nextPage += 1;
 
+                //JU: StreetO
+                if (pages[nextPage] == numberingPage && standardsPage.radioButtonMapStreetO.Checked)
+                {
+                    numberingPage.startingCodeNumericUpDown.Minimum = 11;
+                    numberingPage.startingCodeNumericUpDown.Value = 11;
+                }
+                else
+                {
+                    numberingPage.startingCodeNumericUpDown.Minimum = 31;
+                    numberingPage.startingCodeNumericUpDown.Value = 31;
+                }
+
                 ActivatePage(nextPage);
                 if (activePage == pages.Length - 1) {
                     finalPage.eventFileName.Text = GetEventFullPath();

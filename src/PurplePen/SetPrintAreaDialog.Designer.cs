@@ -109,7 +109,9 @@ namespace PurplePen
             this.paperSizeControl.Landscape = false;
             this.paperSizeControl.MarginSize = 0;
             this.paperSizeControl.Name = "paperSizeControl";
-            this.paperSizeControl.PaperSize = ((System.Drawing.Printing.PaperSize)(resources.GetObject("paperSizeControl.PaperSize")));
+            // JU: Resources json string
+            //this.paperSizeControl.PaperSize = ((System.Drawing.Printing.PaperSize)(resources.GetObject("paperSizeControl.PaperSize")));
+            this.paperSizeControl.PaperSizeStr = ((string)(resources.GetObject("paperSizeControl.PaperSizeStr")));
             this.paperSizeControl.Changed += new System.EventHandler(this.paperSizeControl_Changed);
             // 
             // checkBoxAutomatic

@@ -71,12 +71,9 @@
             this.paperSizeControl.Location = new System.Drawing.Point(25, 51);
             this.paperSizeControl.MarginSize = 0;
             this.paperSizeControl.Name = "paperSizeControl";
-#if NET10_0_OR_GREATER
-            // JU: PaperSize is not serializable; do not load from resources. It will be initialized at runtime.
-            this.paperSizeControl.PaperSize = null;
-#else
-            this.paperSizeControl.PaperSize = ((System.Drawing.Printing.PaperSize)(resources.GetObject("paperSizeControl.PaperSize")));
-#endif
+            // JU: Resources json string
+            //this.paperSizeControl.PaperSize = ((System.Drawing.Printing.PaperSize)(resources.GetObject("paperSizeControl.PaperSize")));
+            this.paperSizeControl.PaperSizeStr = ((string)(resources.GetObject("paperSizeControl.PaperSizeStr")));
             this.paperSizeControl.Size = new System.Drawing.Size(271, 161);
             this.paperSizeControl.TabIndex = 0;
             // 
