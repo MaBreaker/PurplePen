@@ -144,9 +144,6 @@
   <data name="CannotLoadMapFile" xml:space="preserve">
     <value>Karttatiedostoa '{0}' ei voida ladata seuraavasta syystä:</value>
   </data>
-  <data name="CannotReadImageFile" xml:space="preserve">
-    <value>Kuvatiedostoa '{0}' ei voida lukea.</value>
-  </data>
   <data name="CannotPrint" xml:space="preserve">
     <value>Ei voida tulostaa '{0}' seuraavasta syystä:</value>
   </data>
@@ -155,9 +152,6 @@
   </data>
   <data name="CannotCreateDirectory" xml:space="preserve">
     <value>Kansiota '{0}' ei voida luoda seuraavasta syystä:</value>
-  </data>
-  <data name="CannotReadMap" xml:space="preserve">
-    <value>Karttaa ei voi lukea seuraavasta syystä: '{0}' Tiedoston optimointi ja uudelleen tallentaminen OCADissa voi korjata ongelmia.</value>
   </data>
   <data name="CannotCreateOcadFiles" xml:space="preserve">
     <value>OCAD-tiedostoja ei voida luoda seuraavasta syystä:</value>
@@ -244,18 +238,6 @@ Käytä | -merkkiä erottamaan rivit</value>
   <data name="DeleteControlFromAllControls" xml:space="preserve">
     <value>Rasti {0} on käytössä seuraavilla radoilla: {1}. Haluatko silti poistaa tämän rastin?</value>
   </data>
-  <data name="CodeBadLength" xml:space="preserve">
-    <value>Rastikoodin pitää olla yksi, kaksi tai kolme merkkiä tai numeroa.</value>
-  </data>
-  <data name="CodeContainsSpace" xml:space="preserve">
-    <value>Rastikoodissa ei saa olla välilyöntiä.</value>
-  </data>
-  <data name="CodeBeginsWithZero" xml:space="preserve">
-    <value>Rastikoodi ei saa alkaa nollalla.</value>
-  </data>
-  <data name="CodeCouldBeUpsideDown" xml:space="preserve">
-    <value>Rastikoodi ei saisi näyttää toiselta numerolta ollessaan ylösalaisin.</value>
-  </data>
   <data name="DuplicateCode" xml:space="preserve">
     <value>Koodi "{0}" on käytössä useammin kuin kerran.</value>
   </data>
@@ -304,9 +286,6 @@ Paina OK ja yritä etsiä karttatiedoston kopio tietokoneeltasi.</value>
   <data name="NextButtonText" xml:space="preserve">
     <value>&amp;Seuraava &gt;</value>
   </data>
-  <data name="Control_Code" xml:space="preserve">
-    <value>Rasti {0}</value>
-  </data>
   <data name="Finish" xml:space="preserve">
     <value>Maali</value>
   </data>
@@ -333,15 +312,6 @@ Paina OK ja yritä etsiä karttatiedoston kopio tietokoneeltasi.</value>
   </data>
   <data name="Start_Short" xml:space="preserve">
     <value>S</value>
-  </data>
-  <data name="Version_Alpha" xml:space="preserve">
-    <value>Alfa {0}</value>
-  </data>
-  <data name="Version_Beta" xml:space="preserve">
-    <value>Beta {0}</value>
-  </data>
-  <data name="Version_RC" xml:space="preserve">
-    <value>RC {0}</value>
   </data>
   <data name="Plural" xml:space="preserve">
     <value>monikko</value>
@@ -421,15 +391,6 @@ Paina OK ja yritä etsiä karttatiedoston kopio tietokoneeltasi.</value>
   <data name="CrashSend" xml:space="preserve">
     <value>Lähetä raportti</value>
   </data>
-  <data name="PdfConverterNotFound" xml:space="preserve">
-    <value>PdfConverter.exe ei löytynyt</value>
-  </data>
-  <data name="PdfConversionFailed" xml:space="preserve">
-    <value>Pdfium PDF-muunnin epäonnistui PDF-tiedoston lukemisessa</value>
-  </data>
-  <data name="PdfResultNotReadable" xml:space="preserve">
-    <value>Ei voitu lukea PDF-muuntamisen tulosta tiedostosta '{0}'</value>
-  </data>
   <data name="CannotCreatePdfs" xml:space="preserve">
     <value>PDF-tiedostojen luominen ei onnistunut seuraavasta syystä:</value>
   </data>
@@ -499,17 +460,11 @@ Paina OK ja yritä etsiä karttatiedoston kopio tietokoneeltasi.</value>
   <data name="ChangeLineAppearanceTitle" xml:space="preserve">
     <value>Muuta viivan ulkoasua</value>
   </data>
-  <data name="GpxMustBeOcadMap" xml:space="preserve">
-    <value>Karttatiedoston pitää olla OCAD-tiedosto, jotta voit käyttää GPX-tiedostoja.</value>
-  </data>
   <data name="GpxMustHaveCoordSystem" xml:space="preserve">
     <value>OCAD-tiedoston koordinaatiston täytyy olla määritelty, jotta voit käyttää GPX-tiedostoja.</value>
   </data>
   <data name="GpxMustHaveRealWorldCoord" xml:space="preserve">
     <value>OCAD-tiedoston täytyy olla geo-viitattu, jotta GPX-tiedostoja voidaan käyttää.</value>
-  </data>
-  <data name="GpxReprojectFailure" xml:space="preserve">
-    <value>Ei voitu uudelleenprojektoida pisteitä. Joko koordinaatistossa tai maastokoordinaateissa OCAD-kartalla on virhe.</value>
   </data>
   <data name="GpxUnsupportedCoordSystem" xml:space="preserve">
     <value>Purple Pen ei tue OCAD-tiedoston käyttämää koordinaatistoa.</value>
@@ -571,18 +526,6 @@ Paina OK ja yritä etsiä karttatiedoston kopio tietokoneeltasi.</value>
   <data name="VariationNotLastControl" xml:space="preserve">
     <value>Hajontaa ei voi lisätä viimeiselle rastille. Lisää maali ensin.</value>
   </data>
-  <data name="BadLegNumber" xml:space="preserve">
-    <value>'{0}' ei ole kelvollinen osuusnumero hajonnalle '{1}'</value>
-  </data>
-  <data name="LegNotAssigned" xml:space="preserve">
-    <value>Osuus {0} on määritettävä yhdelle haaroista {1}</value>
-  </data>
-  <data name="LegUsedTwice" xml:space="preserve">
-    <value>Osuus {0} on määritetty sekä hajonnalle '{1}' että hajonnalle '{2}'</value>
-  </data>
-  <data name="CannotReadMapOOM" xml:space="preserve">
-    <value>Karttaa ei voi lukea seuraavasta syystä: '{0}' Kartan avaaminen ja tallentaminen uudelleen OpenOrienteering Mapperin viimeisimmässä versiossa voi korjata ongelmia.</value>
-  </data>
   <data name="MapIssue_Long" xml:space="preserve">
     <value>Aikalähtö</value>
   </data>
@@ -607,9 +550,6 @@ Paina OK ja yritä etsiä karttatiedoston kopio tietokoneeltasi.</value>
   <data name="PdfFilter" xml:space="preserve">
     <value>PDF-tiedosto|*.pdf</value>
   </data>
-  <data name="LegAssignedOuterBranch" xml:space="preserve">
-    <value>Osuus {0} ei koskaan saavuta hajontaa '{1}': Se on määrätty menemään eri tavalla ulommassa hajonnassa.</value>
-  </data>
   <data name="AddEllipseExplanation" xml:space="preserve">
     <value>Aseta ellipsin ulkoasu. Paina OK, minkä jälkeen paina hiiren vasen painike pohjaan ja vedä sijoittaaksesi ellipsin haluamaasi kohtaan kartalle.</value>
   </data>
@@ -624,5 +564,8 @@ Paina OK ja yritä etsiä karttatiedoston kopio tietokoneeltasi.</value>
   </data>
   <data name="GhostscriptNotInstalled" xml:space="preserve">
     <value>GPL Ghostscriptiä ei ole asennettu</value>
+  </data>
+  <data name="GpxMustBeOcadMap" xml:space="preserve">
+    <value>Karttatiedoston pitää olla OCAD-tiedosto, jotta voit käyttää GPX-tiedostoja.</value>
   </data>
 </root>

@@ -203,7 +203,7 @@ namespace PurplePen
 
         private void donationLink_Click(object sender, EventArgs e)
         {
-            Util.GoToWebPage("http://purple-pen.org/donate.htm");
+            WindowsUtil.GoToWebPage("http://purple-pen.org/donate.htm");
         }
 
         private void donationLink_Click(object sender, LinkLabelLinkClickedEventArgs e)

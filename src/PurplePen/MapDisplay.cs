@@ -519,7 +519,11 @@ namespace PurplePen
                 map = null;
                 mapVersion = new MapFileFormat(MapFileFormatKind.None, 0);
                 Size bitmapSize;
-                pdfMapFile = MapUtil.ValidatePdf(newFilename, out bitmapDpi, out bitmapSize, out errorText);
+#if PORTING
+                pdfMapFile = (PdfMapFile) CoreMapUtil.ValidatePdf(newFilename, out bitmapDpi, out bitmapSize, out errorText);
+#else
+                pdfMapFile = CoreMapUtil.ValidatePdf(newFilename, out bitmapDpi, out bitmapSize, out errorText);
+#endif
                 if (pdfMapFile == null) {
                     this.mapType = MapType.None;
                     bitmap = null;
@@ -561,7 +565,6 @@ namespace PurplePen
         {
             if (!this.printArea.Equals(printArea)) {
                 this.printArea = printArea;
-                this.margins = margins;
                 RaiseChanged(null);
             }
         }
@@ -644,7 +647,7 @@ namespace PurplePen
             dpi = this.bitmapDpi;
             Bitmap bmp = ((GDIPlus_Bitmap)bitmap).Bitmap;
             
-            BitmapUtil.SaveBitmap(bmp, fileName, format);
+            PurplePen.MapModel.BitmapUtil.SaveBitmap(bmp, fileName, format);
         }
 
         // Draw the map and course onto a bitmap of the given size. The given rectangle is mapped onto the whole bitmap, then
@@ -787,8 +790,7 @@ namespace PurplePen
 
             if (courseMap != null) {
                 using (courseMap.Read())
-                    //JU: Text over images
-                    courseMap.Draw(grTargetCourses, visRect, renderOptions, null, -1);
+                    courseMap.Draw(grTargetCourses, visRect, renderOptions, null /* JU: Text over images */, -1);
             }
 
             // Restore old blending setting.
@@ -821,19 +823,6 @@ namespace PurplePen
                 if (printArea.Value.Right < visRect.Right) {
                     RectangleF draw = RectangleF.FromLTRB(printArea.Value.Right, printArea.Value.Top, visRect.Right, printArea.Value.Bottom);
                     grTargetCourses.FillRectangle(printAreaOutline, draw);
-                }
-                if (margins.HasValue && margins != 0) {
-                    // Draw the actual page rectangle.
-                    RectangleF draw = RectangleF.FromLTRB(printArea.Value.Left, printArea.Value.Top, printArea.Value.Right, printArea.Value.Bottom);
-                    object penOutline = new object();
-                    if (margins > 0) {
-                        grTargetCourses.CreatePen(penOutline, CmykColor.FromCmyka(0, 0, 0, 1, 0.12F), 2.0F, LineCapMode.Flat, LineJoinMode.Miter, 5F);
-                    }
-                    else {
-                        grTargetCourses.CreatePen(penOutline, CmykColor.FromCmyka(1, 1, 1, 0, 0.12F), 2.0F, LineCapMode.Flat, LineJoinMode.Miter, 5F);
-
-                    }
-                    grTargetCourses.DrawRectangle(penOutline, draw);
                 }
             }
 

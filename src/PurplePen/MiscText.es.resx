@@ -144,9 +144,6 @@
   <data name="CannotLoadMapFile" xml:space="preserve">
     <value>No se puede cargar el archivo de mapa «{0}» por la siguiente razón:</value>
   </data>
-  <data name="CannotReadImageFile" xml:space="preserve">
-    <value>No se puede leer el archivo de imagen «{0}».</value>
-  </data>
   <data name="CannotPrint" xml:space="preserve">
     <value>No se puede imprimir «{0}» por la siguiente razón:</value>
   </data>
@@ -155,9 +152,6 @@
   </data>
   <data name="CannotCreateDirectory" xml:space="preserve">
     <value>No se puede crear la carpeta «{0}» por la siguiente razón:</value>
-  </data>
-  <data name="CannotReadMap" xml:space="preserve">
-    <value>No se puede leer el archivo de mapa por la siguiente razón: «{0}» Usar Optimizar/Reparar y guardando de nuevo en OCAD puede arreglar algún problema.</value>
   </data>
   <data name="CannotCreateOcadFiles" xml:space="preserve">
     <value>No se pueden crear los archivos OCAD por las siguientes razones:</value>
@@ -244,18 +238,6 @@ Use | para separar líneas</value>
   <data name="DeleteControlFromAllControls" xml:space="preserve">
     <value>Los controles {0} están en uso en alguno de los siguientes recorridos: {1}. ¿Quieres borrarlos de todas maneras?</value>
   </data>
-  <data name="CodeBadLength" xml:space="preserve">
-    <value>El código del control debe tener entre una y tres letras o números.</value>
-  </data>
-  <data name="CodeContainsSpace" xml:space="preserve">
-    <value>Un código de control no puede tener espacios.</value>
-  </data>
-  <data name="CodeBeginsWithZero" xml:space="preserve">
-    <value>Un código de control no puede empezar con cero.</value>
-  </data>
-  <data name="CodeCouldBeUpsideDown" xml:space="preserve">
-    <value>El código de control no debe confundirse con otro si se ve boca abajo.</value>
-  </data>
   <data name="DuplicateCode" xml:space="preserve">
     <value>El código «{0}» se usa más de una vez.</value>
   </data>
@@ -304,9 +286,6 @@ Presione Aceptar, e intente encontrar una copia del mapa en su ordenador.</value
   <data name="NextButtonText" xml:space="preserve">
     <value>&amp;Siguiente &gt;</value>
   </data>
-  <data name="Control_Code" xml:space="preserve">
-    <value>Control {0}</value>
-  </data>
   <data name="Finish" xml:space="preserve">
     <value>Meta</value>
   </data>
@@ -333,15 +312,6 @@ Presione Aceptar, e intente encontrar una copia del mapa en su ordenador.</value
   </data>
   <data name="Start_Short" xml:space="preserve">
     <value>I</value>
-  </data>
-  <data name="Version_Alpha" xml:space="preserve">
-    <value>Alfa {0}</value>
-  </data>
-  <data name="Version_Beta" xml:space="preserve">
-    <value>Beta {0}</value>
-  </data>
-  <data name="Version_RC" xml:space="preserve">
-    <value>RC {0}</value>
   </data>
   <data name="Plural" xml:space="preserve">
     <value>plural</value>
@@ -418,15 +388,6 @@ Presione Aceptar, e intente encontrar una copia del mapa en su ordenador.</value
   <data name="CrashSend" xml:space="preserve">
     <value>Enviar el informe</value>
   </data>
-  <data name="PdfConverterNotFound" xml:space="preserve">
-    <value>No se ha encontrado PdfConverter.exe not</value>
-  </data>
-  <data name="PdfConversionFailed" xml:space="preserve">
-    <value>Pdfium PDF converter no ha podido leer el archivo PDF correctamente</value>
-  </data>
-  <data name="PdfResultNotReadable" xml:space="preserve">
-    <value>No se ha podido leer el resultado de la conversión a PDF del archivo «{0}».</value>
-  </data>
   <data name="CannotCreatePdfs" xml:space="preserve">
     <value>No se pueden crear PDF por el siguiente motivo:</value>
   </data>
@@ -496,17 +457,11 @@ Presione Aceptar, e intente encontrar una copia del mapa en su ordenador.</value
   <data name="ChangeLineAppearanceTitle" xml:space="preserve">
     <value>Cambiar el aspecto de la línea</value>
   </data>
-  <data name="GpxMustBeOcadMap" xml:space="preserve">
-    <value>El archivo de mapa debe ser un OCAD para usar archivos GPX.</value>
-  </data>
   <data name="GpxMustHaveCoordSystem" xml:space="preserve">
     <value>El archivo OCAD debe tener un sistema de coordenadas definido para usar archivos GPX.</value>
   </data>
   <data name="GpxMustHaveRealWorldCoord" xml:space="preserve">
     <value>El archivo OCAD debe tener definidas coordenadas reales para usar archivos GPX.</value>
-  </data>
-  <data name="GpxReprojectFailure" xml:space="preserve">
-    <value>No se ha podido volver a proyectar el punto. O el sistema de coordenadas o las coordenadas reales del mapa OCAD están mal.</value>
   </data>
   <data name="GpxUnsupportedCoordSystem" xml:space="preserve">
     <value>El archivo OCAD usa un sistema de coordenadas no admitido por Purple Pen.</value>
@@ -568,18 +523,6 @@ Presione Aceptar, e intente encontrar una copia del mapa en su ordenador.</value
   <data name="VariationNotLastControl" xml:space="preserve">
     <value>No se puede añadir una variante al último control. Añada antes un control meta.</value>
   </data>
-  <data name="BadLegNumber" xml:space="preserve">
-    <value>«{0}» no es un número de tramo válido para la rama «{1}»</value>
-  </data>
-  <data name="LegNotAssigned" xml:space="preserve">
-    <value>El tramo {0} debería asignarse a una de las ramas {1}</value>
-  </data>
-  <data name="LegUsedTwice" xml:space="preserve">
-    <value>El tramo {0} está asignado a las ramas «{1}» y «{2}»</value>
-  </data>
-  <data name="CannotReadMapOOM" xml:space="preserve">
-    <value>No se ha podido leer el mapa por el siguiente motivo: «{0}» Abrir y volver a guardar el mapa con la última versión de OpenOrienteering Mapper puede corregir problemas.</value>
-  </data>
   <data name="MapIssue_Long" xml:space="preserve">
     <value>Punto de inicio cronometrado</value>
   </data>
@@ -604,7 +547,7 @@ Presione Aceptar, e intente encontrar una copia del mapa en su ordenador.</value
   <data name="PdfFilter" xml:space="preserve">
     <value>Archivo PDF|*.pdf</value>
   </data>
-  <data name="LegAssignedOuterBranch" xml:space="preserve">
-    <value>El tramo {0} no alcanza la rama «{1}»: en una bifurcación que lo contiene se le ha asignado ir por otra ruta.</value>
+  <data name="GpxMustBeOcadMap" xml:space="preserve">
+    <value>El archivo de mapa debe ser un OCAD para usar archivos GPX.</value>
   </data>
 </root>

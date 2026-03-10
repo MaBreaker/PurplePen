@@ -909,7 +909,7 @@ namespace PurplePen
 
         public object CreateFont(string fontName, float emHeight, bool bold, bool italic, StringAlignment alignment)
         {
-            TextEffects textEffects = TextEffects.None;
+            TextEffects textEffects = TextEffects.Regular;
 
             if (bold)
                 textEffects |= TextEffects.Bold;
@@ -1254,7 +1254,7 @@ namespace PurplePen
             else
                 fontAlign = TextSymDefHorizAlignment.Left;
 
-            symdef.SetFont(fontName, Geometry.TransformDistance(emHeight, currentTransform), Util.GetTextEffects(bold, italic), color, Geometry.TransformDistance(emHeight * 1.1F, currentTransform), 0, 0, 0, null, 0, 1F, fontAlign, TextSymDefVertAlignment.TopAscent);
+            symdef.SetFont(fontName, Geometry.TransformDistance(emHeight, currentTransform), WindowsUtil.GetTextEffects(bold, italic), color, Geometry.TransformDistance(emHeight * 1.1F, currentTransform), 0, 0, 0, null, 0, 1F, fontAlign, TextSymDefVertAlignment.TopAscent);
             symdef.ToolboxImage = MapUtil.CreateToolboxIcon(Properties.Resources.DescText_OcadToolbox);
             map.AddSymdef(symdef);
             return symdef;

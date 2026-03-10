@@ -68,7 +68,7 @@ namespace PurplePen
 
         private void creditsButton_Click(object sender, EventArgs e)
         {
-            Util.ShowHelpTopic(this, "Credits.htm");
+            WindowsUtil.ShowHelpTopic(this, "Credits.htm");
         }
 
         private void copyrightLabel_Click(object sender, EventArgs e)

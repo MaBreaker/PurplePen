@@ -144,9 +144,6 @@
   <data name="CannotLoadMapFile" xml:space="preserve">
     <value>Kann die Karte '{0}' aus folgendem Grund nicht laden:</value>
   </data>
-  <data name="CannotReadImageFile" xml:space="preserve">
-    <value>Bilddatei '{0}' kann nicht gelesen werden.</value>
-  </data>
   <data name="CannotPrint" xml:space="preserve">
     <value>Kann '{0}' aus folgendem Grund nicht drucken:</value>
   </data>
@@ -155,9 +152,6 @@
   </data>
   <data name="CannotCreateDirectory" xml:space="preserve">
     <value>Kann den Ordner '{0}' aus folgendem Grund nicht erstellen:</value>
-  </data>
-  <data name="CannotReadMap" xml:space="preserve">
-    <value>Die Karte kann wegen folgendem Problem nicht geladen werden '{0}' Durch Benützen der Optimieren/Reparieren Funktion könnte das Problem behoben werden.</value>
   </data>
   <data name="CannotCreateOcadFiles" xml:space="preserve">
     <value>Die OCAD-Dateien können aus folgendem Grund nicht erstellt werden:</value>
@@ -244,18 +238,6 @@
   <data name="DeleteControlFromAllControls" xml:space="preserve">
     <value>Posten {0} wird noch in folgenden Bahnen verwendet: {1}. Soll dieser Posten trotzdem gelöscht werden?</value>
   </data>
-  <data name="CodeBadLength" xml:space="preserve">
-    <value>Ein Kontrollcode muss aus 1, 2 oder 3 Buchstaben oder Zahlen bestehen.</value>
-  </data>
-  <data name="CodeContainsSpace" xml:space="preserve">
-    <value>Der Kontrollcode darf keine Leerzeichen enthalten.</value>
-  </data>
-  <data name="CodeBeginsWithZero" xml:space="preserve">
-    <value>Ein Kontrollcode darf nicht mit einer Null beginnen.</value>
-  </data>
-  <data name="CodeCouldBeUpsideDown" xml:space="preserve">
-    <value>Ein Kontrollcode darf auf den Kopf gestellt keine andere Zahl darstellen.</value>
-  </data>
   <data name="DuplicateCode" xml:space="preserve">
     <value>Der Code "{0}" wird mehr, als einmal verwendet.</value>
   </data>
@@ -304,9 +286,6 @@ Suchen Sie, nach Klicken auf "OK", nach der Kartendatei auf Ihrem Computer.</val
   <data name="NextButtonText" xml:space="preserve">
     <value>&amp;Weiter &gt;</value>
   </data>
-  <data name="Control_Code" xml:space="preserve">
-    <value>Posten {0}</value>
-  </data>
   <data name="Finish" xml:space="preserve">
     <value>Ziel</value>
   </data>
@@ -333,15 +312,6 @@ Suchen Sie, nach Klicken auf "OK", nach der Kartendatei auf Ihrem Computer.</val
   </data>
   <data name="Start_Short" xml:space="preserve">
     <value>S</value>
-  </data>
-  <data name="Version_Alpha" xml:space="preserve">
-    <value>Alpha {0}</value>
-  </data>
-  <data name="Version_Beta" xml:space="preserve">
-    <value>Beta {0}</value>
-  </data>
-  <data name="Version_RC" xml:space="preserve">
-    <value>RC {0}</value>
   </data>
   <data name="Plural" xml:space="preserve">
     <value>Mehrzahl</value>
@@ -421,15 +391,6 @@ Suchen Sie, nach Klicken auf "OK", nach der Kartendatei auf Ihrem Computer.</val
   <data name="CrashSend" xml:space="preserve">
     <value>Bericht senden</value>
   </data>
-  <data name="PdfConverterNotFound" xml:space="preserve">
-    <value>PdfConverter.exe nicht gefunden</value>
-  </data>
-  <data name="PdfConversionFailed" xml:space="preserve">
-    <value>PDF-Konverter "PDFium" konnte die PDF-Datei nicht lesen</value>
-  </data>
-  <data name="PdfResultNotReadable" xml:space="preserve">
-    <value>Das Ergebnis der PDF-Konvertierung aus Datei '{0}' konnte nicht gelesen werden</value>
-  </data>
   <data name="CannotCreatePdfs" xml:space="preserve">
     <value>PDFs können aus folgendem Grund nicht erzeugt werden:</value>
   </data>
@@ -499,17 +460,11 @@ Suchen Sie, nach Klicken auf "OK", nach der Kartendatei auf Ihrem Computer.</val
   <data name="ChangeLineAppearanceTitle" xml:space="preserve">
     <value>Aussehen der Linie / Rechteck ändern</value>
   </data>
-  <data name="GpxMustBeOcadMap" xml:space="preserve">
-    <value>Um GPX-Dateien zu nutzen, muss eine OCAD-Kartendatei verwendet werden.</value>
-  </data>
   <data name="GpxMustHaveCoordSystem" xml:space="preserve">
     <value>Um GPX-Dateien nutzen zu können, muss für die OCAD-Datei ein Koordinatensystem definiert sein.</value>
   </data>
   <data name="GpxMustHaveRealWorldCoord" xml:space="preserve">
     <value>Um GPX-Dateien nutzen zu können, müssen für die OCAD-Datei Weltkoordinaten definiert sein.</value>
-  </data>
-  <data name="GpxReprojectFailure" xml:space="preserve">
-    <value>Punkte können nicht umprojiziert werden; in der OCAD-Datei sind entweder das Koordinatensystem oder die Weltkoordinaten nicht richtig.</value>
   </data>
   <data name="GpxUnsupportedCoordSystem" xml:space="preserve">
     <value>Die OCAD-Datei verwendet ein Koordinatensystem, das von Purple Pen nicht unterstützt wird.</value>
@@ -571,18 +526,6 @@ Suchen Sie, nach Klicken auf "OK", nach der Kartendatei auf Ihrem Computer.</val
   <data name="VariationNotLastControl" xml:space="preserve">
     <value>Beim letzten Posten kann keine Variante hinzugefügt werden. Zuerst muss ein Zielposten hinzugefügt werden.</value>
   </data>
-  <data name="BadLegNumber" xml:space="preserve">
-    <value>'{0}' ist keine gültige Teilstreckennummer für die Verzweigung '{1}'</value>
-  </data>
-  <data name="LegNotAssigned" xml:space="preserve">
-    <value>Teilstrecke {0} sollte einer Verzweigung {1} zugewiesen sein.</value>
-  </data>
-  <data name="LegUsedTwice" xml:space="preserve">
-    <value>Teilstrecke {0} ist Verzweigung '{1}' und Verzweigung '{2}' zugewiesen</value>
-  </data>
-  <data name="CannotReadMapOOM" xml:space="preserve">
-    <value>Die Karte kann wegen folgendem Prpblem nicht geladen werden: '{0}' Die Karte in der neusten Version von OpenOrienteering Mapper öffnen und neu speichern, könnte das Problem beheben.</value>
-  </data>
   <data name="MapIssue_Long" xml:space="preserve">
     <value>Zeitgesteuerter Start</value>
   </data>
@@ -607,9 +550,6 @@ Suchen Sie, nach Klicken auf "OK", nach der Kartendatei auf Ihrem Computer.</val
   <data name="PdfFilter" xml:space="preserve">
     <value>PDF-Datei|*.pdf</value>
   </data>
-  <data name="LegAssignedOuterBranch" xml:space="preserve">
-    <value>Teilstrecke {0} erreicht nie Verzweigung '{1}': Der Teilstrecke wurde an einer Gabelung eine andere Richtung zugewiesen.</value>
-  </data>
   <data name="AddEllipseExplanation" xml:space="preserve">
     <value>Das Aussehen der Ellipse festlegen. Nach Klicken  auf "OK" die Ellipse an die gewünschte Position ziehen.</value>
   </data>
@@ -630,5 +570,8 @@ Suchen Sie, nach Klicken auf "OK", nach der Kartendatei auf Ihrem Computer.</val
   </data>
   <data name="GhostscriptNotInstalled" xml:space="preserve">
     <value>GPL Ghostscript ist nicht installiert</value>
+  </data>
+  <data name="GpxMustBeOcadMap" xml:space="preserve">
+    <value>Um GPX-Dateien zu nutzen, muss eine OCAD-Kartendatei verwendet werden.</value>
   </data>
 </root>

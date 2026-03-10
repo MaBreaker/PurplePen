@@ -207,19 +207,11 @@ namespace PurplePen.MapModel
             if (fontMap.ContainsKey(fontKey))
                 throw new InvalidOperationException("Key already has a font created for it");
 
-            FontStyle fontStyle = FontStyle.Regular;
-            if ((effects & TextEffects.Bold) != 0)
-                fontStyle |= FontStyle.Bold;
-            if ((effects & TextEffects.Italic) != 0)
-                fontStyle |= FontStyle.Italic;
-            if ((effects & TextEffects.Underline) != 0)
-                fontStyle |= FontStyle.Underline;
-
             if (!GDIPlus_TextMetrics.FontFamilyIsInstalled(familyName))
                 familyName = "Arial";
 
             emHeight = Math.Max(emHeight, 0.01F);            // 0 size fonts cause exception!
-            Font font = GdiplusFontLoader.CreateFont(familyName, emHeight, fontStyle);
+            Font font = GdiplusFontLoader.Instance.CreateFont(familyName, emHeight, effects);
 
             fontMap.Add(fontKey, font);
         }
@@ -969,7 +961,7 @@ namespace PurplePen.MapModel
 
         public static bool FontFamilyIsInstalled(string familyName)
         {
-            return GdiplusFontLoader.FontFamilyIsInstalled(familyName);
+            return GdiplusFontLoader.Instance.FontFamilyIsInstalled(familyName);
         }
 
         public void Dispose()
@@ -981,24 +973,17 @@ namespace PurplePen.MapModel
     {
         private Font font;
         private FontFamily fontFamily;
-        private FontStyle fontStyle;
+        private TextEffects textEffects;
         private StringFormat stringFormat;
         private float emHeight;
 
         public GDIPlus_TextFaceMetrics(string familyName, float emHeight, TextEffects effects)
         {
-            fontStyle = FontStyle.Regular;
-            if ((effects & TextEffects.Bold) != 0)
-                fontStyle |= FontStyle.Bold;
-            if ((effects & TextEffects.Italic) != 0)
-                fontStyle |= FontStyle.Italic;
-            if ((effects & TextEffects.Underline) != 0)
-                fontStyle |= FontStyle.Underline;
-
             float nominalFontSize = Math.Max(emHeight, 0.01F);            // 0 size fonts cause exception!
             this.emHeight = nominalFontSize;
+            this.textEffects = effects;
 
-            font = GdiplusFontLoader.CreateFont(familyName, nominalFontSize, fontStyle);
+            font = GdiplusFontLoader.Instance.CreateFont(familyName, nominalFontSize, effects);
             fontFamily = font.FontFamily;
 
             stringFormat = new StringFormat(StringFormat.GenericTypographic);
@@ -1020,8 +1005,8 @@ namespace PurplePen.MapModel
             get
             {
                 if (recommendedLineSpacing < 0) {
-                    int nominalEmHeight = fontFamily.GetEmHeight(fontStyle);
-                    int nominalLineSpacing = fontFamily.GetLineSpacing(fontStyle);
+                    int nominalEmHeight = fontFamily.GetEmHeight(GdiplusFontLoader.FontStyleFromTextEffects(textEffects));
+                    int nominalLineSpacing = fontFamily.GetLineSpacing(GdiplusFontLoader.FontStyleFromTextEffects(textEffects));
                     recommendedLineSpacing = (nominalLineSpacing * emHeight) / nominalEmHeight;
                 }
 
@@ -1035,8 +1020,8 @@ namespace PurplePen.MapModel
         {
             get {
                 if (ascent < 0) {
-                    int nominalEmHeight = fontFamily.GetEmHeight(fontStyle);
-                    int nominalAscent = fontFamily.GetCellAscent(fontStyle);
+                    int nominalEmHeight = fontFamily.GetEmHeight(GdiplusFontLoader.FontStyleFromTextEffects(textEffects));
+                    int nominalAscent = fontFamily.GetCellAscent(GdiplusFontLoader.FontStyleFromTextEffects(textEffects));
                     ascent = (nominalAscent * emHeight) / nominalEmHeight;
                 }
                 return ascent;
@@ -1048,8 +1033,8 @@ namespace PurplePen.MapModel
         {
             get {
                 if (descent < 0) {
-                    int nominalEmHeight = fontFamily.GetEmHeight(fontStyle);
-                    int nominalDescent = fontFamily.GetCellDescent(fontStyle);
+                    int nominalEmHeight = fontFamily.GetEmHeight(GdiplusFontLoader.FontStyleFromTextEffects(textEffects));
+                    int nominalDescent = fontFamily.GetCellDescent(GdiplusFontLoader.FontStyleFromTextEffects(textEffects));
                     descent = (nominalDescent * emHeight) / nominalEmHeight;
                 }
                 return descent;
@@ -1062,7 +1047,7 @@ namespace PurplePen.MapModel
             get {
                 if (capHeight < 0) {
                     GraphicsPath path = new GraphicsPath();
-                    path.AddString("W", fontFamily, (int)fontStyle, font.Size, new PointF(0, 0), stringFormat);
+                    path.AddString("W", fontFamily, (int)GdiplusFontLoader.FontStyleFromTextEffects(textEffects), font.Size, new PointF(0, 0), stringFormat);
                     capHeight = path.GetBounds().Height;
                 }
                 return capHeight;
@@ -1144,30 +1129,45 @@ namespace PurplePen.MapModel
             get { return bitmap != null ? bitmap.Height : 0; }
         }
 
-        public bool WritePngToStream(int x, int y, int width, int height, Stream stream)
+        public GraphicsBitmapFormat GetOriginalFormat()
         {
-            // Get the actual boundaries of the original bitmap
-            Rectangle imageBounds = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+            ImageFormat format = bitmap.RawFormat;
 
-            // Safely intersect to ensure the crop stays within the image bounds
-            Rectangle cropRect = Rectangle.Intersect(imageBounds, new Rectangle(x, y, width, height));
+            if (format == null)
+                return GraphicsBitmapFormat.None;
+            else if (format.Equals(ImageFormat.Bmp))
+                return GraphicsBitmapFormat.BMP;
+            else if (format.Equals(ImageFormat.Gif))
+                return GraphicsBitmapFormat.GIF;
+            else if (format.Equals(ImageFormat.Jpeg))
+                return GraphicsBitmapFormat.JPEG;
+            else if (format.Equals(ImageFormat.Png))
+                return GraphicsBitmapFormat.PNG;
+            else if (format.Equals(ImageFormat.Tiff))
+                return GraphicsBitmapFormat.TIFF;
+            else if (format.Equals(ImageFormat.MemoryBmp))
+                return GraphicsBitmapFormat.None;
+            else
+                return GraphicsBitmapFormat.Unknown;
+        }
 
-            if (cropRect.IsEmpty) {
+        public IGraphicsBitmap Crop(int x, int y, int width, int height)
+        {
+            Bitmap croppedBitmap = bitmap.Clone(new Rectangle(x, y, width, height), bitmap.PixelFormat);
+            return new GDIPlus_Bitmap(croppedBitmap);
+        }
+
+        public bool WriteToStream(GraphicsBitmapFormat format, Stream stream)
+        {
+            ImageFormat targetFormat = ImageFormatFromGraphicsBitmapFormat(format);
+            if (bitmap == null || targetFormat == null)
                 return false;
-            }
 
-            if (cropRect.Equals(imageBounds)) {
-                // No need to crop.
-                bitmap.Save(stream, ImageFormat.Png);
+            try {
+                BitmapUtil.SaveBitmap(bitmap, stream, targetFormat);
             }
-            else {
-                // Create a new Bitmap containing only the cropped area.
-                // Note: This DOES allocate memory and copy pixels, but it is the fastest 
-                // native way GDI+ can do it. We reuse the original PixelFormat.
-                using (Bitmap croppedBitmap = bitmap.Clone(cropRect, bitmap.PixelFormat)) {
-                    // 4. Save the new bitmap directly to the file path as a PNG
-                    croppedBitmap.Save(stream, ImageFormat.Png);
-                }
+            catch (Exception) {
+                return false;
             }
 
             return true;
@@ -1222,6 +1222,24 @@ namespace PurplePen.MapModel
         public bool Disposed
         {
             get { return bitmap == null; }
+        }
+
+        private ImageFormat ImageFormatFromGraphicsBitmapFormat(GraphicsBitmapFormat format)
+        {
+            switch (format) {
+            case GraphicsBitmapFormat.GIF:
+                return ImageFormat.Gif;
+            case GraphicsBitmapFormat.PNG:
+                return ImageFormat.Png;
+            case GraphicsBitmapFormat.JPEG:
+                return ImageFormat.Jpeg;
+            case GraphicsBitmapFormat.TIFF:
+                return ImageFormat.Tiff;
+            case GraphicsBitmapFormat.BMP:
+                return ImageFormat.Bmp;
+            }
+
+            return null;
         }
 
         public GDIPlus_Bitmap(Bitmap bitmap)
@@ -1337,11 +1355,32 @@ namespace PurplePen.MapModel
         }
     }
 
-    public class GDIPlus_ColorConverter
+    public class GDIPlus_ColorConverter: IColorConverter
     {
         public virtual Color ToColor(CmykColor cmykColor)
         {
             return ColorConverter.ToColor(cmykColor);
+        }
+    }
+
+    public class GDIPlus_GraphicsBitmapLoader : IGraphicsBitmapLoader
+    {
+        public IGraphicsBitmap ReadBitmapFromStream(Stream stream)
+        {
+            // Create a new memory stream to hold the data, because the stream
+            // might close after this method returns, and Image.FromStream requires the stream to stay open for the
+            // lifetime of the image. By copying to a memory stream, we can avoid locking the original stream and allow
+            // it to be closed.
+            MemoryStream memStream = new MemoryStream();
+            stream.CopyTo(memStream);
+
+            // Seek back to the beginning before creating the image
+            memStream.Position = 0;
+            return new GDIPlus_Bitmap((Bitmap)Image.FromStream(memStream));
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

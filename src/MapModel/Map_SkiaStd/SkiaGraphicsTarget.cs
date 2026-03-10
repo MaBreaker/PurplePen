@@ -51,6 +51,8 @@ namespace PurplePen.MapModel
     using SkiaSharp.HarfBuzz;
     using System.Collections.Concurrent;
     using System.Drawing;
+    using System.Drawing.Imaging;
+    using System.Runtime.InteropServices.ComTypes;
     using static SkiaSharp.SKImageFilter;
     using static System.Net.Mime.MediaTypeNames;
 
@@ -58,7 +60,7 @@ namespace PurplePen.MapModel
     public class Skia_GraphicsTarget: IGraphicsTarget
     {
         protected SKCanvas canvas;
-        private SkiaColorConverter colorConverter;
+        private IColorConverter colorConverter;
         private float intensity;    // color intensity level, 1.0F is full intensity (no lightening)
         private int pushLevel;      // How many pushes have we done?
         private Dictionary<object, SKPaint> penMap = new Dictionary<object, SKPaint>(new IdentityComparer<object>());
@@ -68,7 +70,7 @@ namespace PurplePen.MapModel
         private Stack<bool> antiAliasStack = new Stack<bool>();
         private bool antiAlias;
 
-        public Skia_GraphicsTarget(SKCanvas canvas, SkiaColorConverter colorConverter, float intensity = 1.0F)
+        public Skia_GraphicsTarget(SKCanvas canvas, IColorConverter colorConverter, float intensity = 1.0F)
         {
             this.canvas = canvas;
             pushLevel = 0;
@@ -92,7 +94,8 @@ namespace PurplePen.MapModel
                 cmykColor = CmykColor.FromCmyka(cmykColor.Cyan * intensity, cmykColor.Magenta * intensity, cmykColor.Yellow * intensity, cmykColor.Black * intensity, cmykColor.Alpha);
             }
 
-            return colorConverter.ToColor(cmykColor);
+            Color sysColor = colorConverter.ToColor(cmykColor);
+            return new SKColor(sysColor.R, sysColor.G, sysColor.B, sysColor.A);
         }
 
 
@@ -514,6 +517,14 @@ namespace PurplePen.MapModel
                 else if (bm is Skia_Bitmap) {
                     SKBitmap bitmap = ((Skia_Bitmap)bm).Bitmap;
                     canvas.DrawBitmap(bitmap, GetSKRect(new RectangleF(x, y, width, height)), GetSKRect(rectangle), paint);
+                }
+                else if (bm is Skia_Pixmap) {
+                    using (SKImage image = SKImage.FromPixels(((Skia_Pixmap)bm).Pixmap)) {
+                        canvas.DrawImage(image, GetSKRect(new RectangleF(x, y, width, height)), GetSKRect(rectangle), paint);
+                    }
+                }
+                else {
+                    Debug.Fail("Unexpected IGraphicsBitmap implementation");
                 }
             }
         }
@@ -951,7 +962,8 @@ namespace PurplePen.MapModel
 
             if (initialColor != null) {
                 colorConverter = colorConverter ?? new SkiaColorConverter();
-                canvas.Clear(colorConverter.ToColor(initialColor));
+                Color sysColor = colorConverter.ToColor(initialColor);
+                canvas.Clear(new SKColor(sysColor.R, sysColor.G, sysColor.B, sysColor.A));
             }
 
             return canvas;
@@ -1085,6 +1097,8 @@ namespace PurplePen.MapModel
     public class Skia_Image: IGraphicsBitmap
     {
         SKImage image;
+        GraphicsBitmapFormat originalFormat = GraphicsBitmapFormat.None;
+
 
         public SKImage Image
         {
@@ -1101,34 +1115,50 @@ namespace PurplePen.MapModel
             get { return image != null ? image.Height : 0; }
         }
 
-        public bool WritePngToStream(int x, int y, int width, int height, Stream stream)
+        public GraphicsBitmapFormat GetOriginalFormat()
         {
-            // Get the actual boundaries of the bitmap (0, 0, Width, Height)
-            SKRectI imageBounds = image.Info.Rect;
+            return originalFormat;
+        }
 
-            // Intersect the desired crop with the actual bounds.
-            // This returns a new rectangle representing only the overlapping area.
-            SKRectI cropRect = SKRectI.Intersect(imageBounds, new SKRectI(x, y, x + width, y + height));
-            if (cropRect.IsEmpty) 
-                return false;
-
+        public IGraphicsBitmap Crop(int x, int y, int width, int height)
+        {
+            SKRectI cropRect = new SKRectI(x, y, x + width, y + height);
             SKPixmap pixmap = image.PeekPixels();
 
             if (pixmap != null) {
-                using (SKPixmap subsetPixmap = pixmap.ExtractSubset(cropRect)) {
-                     subsetPixmap.Encode(stream, SKEncodedImageFormat.Png, 100);
-                }
+                SKPixmap subsetPixmap = pixmap.ExtractSubset(cropRect);
+                return new Skia_Pixmap(subsetPixmap);
             }
             else {
-                using (SKImage croppedImage = image.Subset(cropRect)) {
-                    using (SKData data = croppedImage.Encode(SKEncodedImageFormat.Png, 100)) {
-                        data.SaveTo(stream);
-                    }
-                }
+                SKImage croppedImage = image.Subset(cropRect);
+                return new Skia_Image(croppedImage);
             }
-
-            return true;
         }
+
+        public bool WriteToStream(GraphicsBitmapFormat format, Stream stream)
+        {
+            SKEncodedImageFormat? targetFormat = Skia_Bitmap.ImageFormatFromGraphicsBitmapFormat(format);
+            if (!targetFormat.HasValue)
+                return false;
+
+            SKPixmap pixmap = image.PeekPixels();
+            if (pixmap != null) {
+                bool success = pixmap.Encode(stream, targetFormat.Value, 100);
+                pixmap.Dispose();
+                return success;
+            }
+            else {
+                using (SKData data = image.Encode(targetFormat.Value, 100)) {
+                    if (data == null)
+                        return false;
+                    data.SaveTo(stream);
+                }
+
+                return true;
+            }
+        }
+
+
 
         public void Dispose()
         {
@@ -1153,6 +1183,7 @@ namespace PurplePen.MapModel
     public class Skia_Bitmap: IGraphicsBitmap
     {
         SKBitmap bitmap;
+        GraphicsBitmapFormat originalFormat = GraphicsBitmapFormat.None;
 
         public SKBitmap Bitmap
         {
@@ -1169,24 +1200,33 @@ namespace PurplePen.MapModel
             get { return bitmap != null ? bitmap.Height : 0; }
         }
 
-        public bool WritePngToStream(int x, int y, int width, int height, Stream stream)
+        public GraphicsBitmapFormat GetOriginalFormat()
         {
-            // Get the actual boundaries of the bitmap (0, 0, Width, Height)
-            SKRectI imageBounds = bitmap.Info.Rect;
+            return originalFormat;
+        }
 
-            // Intersect the desired crop with the actual bounds.
-            // This returns a new rectangle representing only the overlapping area.
-            SKRectI cropRect = SKRectI.Intersect(imageBounds, new SKRectI(x, y, x + width, y + height));
-            if (cropRect.IsEmpty)
+        public IGraphicsBitmap Crop(int x, int y, int width, int height)
+        {
+            SKRectI cropRect = new SKRectI(x, y, x + width, y + height);
+            SKPixmap pixmap = bitmap.PeekPixels();
+            SKPixmap subsetPixmap = pixmap.ExtractSubset(cropRect);
+            return new Skia_Pixmap(subsetPixmap);
+        }
+
+
+        public bool WriteToStream(GraphicsBitmapFormat format, Stream stream)
+        {
+            SKEncodedImageFormat? targetFormat = ImageFormatFromGraphicsBitmapFormat(format);
+            if (!targetFormat.HasValue)
                 return false;
 
-            SKPixmap pixmap = bitmap.PeekPixels();
-            using (SKPixmap subsetPixmap = pixmap.ExtractSubset(cropRect)) {
-                subsetPixmap.Encode(stream, SKEncodedImageFormat.Png, 100);
+            using (SKPixmap pixmap = bitmap.PeekPixels()) {
+                bool success = pixmap.Encode(stream, targetFormat.Value, 100);
+                return success;
             }
-
-            return true;
         }
+
+
 
         public void Dispose()
         {
@@ -1202,19 +1242,142 @@ namespace PurplePen.MapModel
             get { return bitmap == null; }
         }
 
+        internal static SKEncodedImageFormat? ImageFormatFromGraphicsBitmapFormat(GraphicsBitmapFormat format)
+        {
+            switch (format) {
+            case GraphicsBitmapFormat.GIF:
+                return SKEncodedImageFormat.Gif;
+            case GraphicsBitmapFormat.PNG:
+                return SKEncodedImageFormat.Png;
+            case GraphicsBitmapFormat.JPEG:
+                return SKEncodedImageFormat.Jpeg;
+            case GraphicsBitmapFormat.WebP:
+                return SKEncodedImageFormat.Webp;
+            case GraphicsBitmapFormat.BMP:
+                return SKEncodedImageFormat.Bmp;
+            }
+
+            return null;
+        }
+
+        internal static GraphicsBitmapFormat GraphicsBitmapFormatFromImageFormat(SKEncodedImageFormat skFormat)
+        {
+            switch (skFormat) {
+            case SKEncodedImageFormat.Gif:
+                return GraphicsBitmapFormat.GIF;
+            case SKEncodedImageFormat.Png:
+                return GraphicsBitmapFormat.PNG;
+            case SKEncodedImageFormat.Jpeg:
+                return GraphicsBitmapFormat.JPEG;
+            case SKEncodedImageFormat.Webp:
+                return GraphicsBitmapFormat.WebP;
+            case SKEncodedImageFormat.Bmp:
+                return GraphicsBitmapFormat.BMP;
+            }
+
+            return GraphicsBitmapFormat.Other;
+        }
+
+
         public Skia_Bitmap(SKBitmap bitmap)
         {
             this.bitmap = bitmap;
+            this.originalFormat = GraphicsBitmapFormat.Unknown;
+        }
+
+        public Skia_Bitmap(SKBitmap bitmap, GraphicsBitmapFormat originalFormat)
+        {
+            this.bitmap = bitmap;
+            this.originalFormat = originalFormat;
+        }
+    }
+
+    public class Skia_Pixmap : IGraphicsBitmap
+    {
+        SKPixmap pixmap;
+        GraphicsBitmapFormat originalFormat = GraphicsBitmapFormat.None;
+
+
+        public SKPixmap Pixmap {
+            get { return pixmap; }
+        }
+
+        public int PixelWidth {
+            get { return pixmap != null ? pixmap.Width : 0; }
+        }
+
+        public int PixelHeight {
+            get { return pixmap != null ? pixmap.Height : 0; }
+        }
+
+        public GraphicsBitmapFormat GetOriginalFormat()
+        {
+            return originalFormat;
+        }
+
+        public IGraphicsBitmap Crop(int x, int y, int width, int height)
+        {
+            SKRectI cropRect = new SKRectI(x, y, x + width, y + height);
+            SKPixmap subsetPixmap = pixmap.ExtractSubset(cropRect);
+            return new Skia_Pixmap(subsetPixmap);
+        }
+
+
+        public bool WriteToStream(GraphicsBitmapFormat format, Stream stream)
+        {
+            SKEncodedImageFormat? targetFormat = Skia_Bitmap.ImageFormatFromGraphicsBitmapFormat(format);
+            if (!targetFormat.HasValue)
+                return false;
+
+            bool success = pixmap.Encode(stream, targetFormat.Value, 100);
+            return success;
+        }
+
+        public void Dispose()
+        {
+            lock (this) {
+                if (pixmap != null)
+                    pixmap.Dispose();
+                pixmap = null;
+            }
+        }
+
+        public bool Disposed {
+            get { return pixmap == null; }
+        }
+
+        public Skia_Pixmap(SKPixmap pixmap)
+        {
+            this.pixmap = pixmap;
         }
     }
 
 
-    public class SkiaColorConverter
+
+    public class SkiaColorConverter: IColorConverter
     {
-        public virtual SKColor ToColor(CmykColor cmykColor)
+        public virtual Color ToColor(CmykColor cmykColor)
         {
-            Color sysColor = PurplePen.Graphics2D.ColorConverter.ToColor(cmykColor);
-            return new SKColor(sysColor.R, sysColor.G, sysColor.B, sysColor.A);
+            return PurplePen.Graphics2D.ColorConverter.ToColor(cmykColor);
+        }    
+    }
+
+    public class SkiaBitmapGraphicsLoader : IGraphicsBitmapLoader
+    {
+        public void Dispose()
+        {
+        }
+
+        public IGraphicsBitmap ReadBitmapFromStream(Stream stream)
+        {
+            // 1. Load the data from the file
+            using (SKData data = SKData.Create(stream))
+            using (SKCodec codec = SKCodec.Create(data)) {
+                SKEncodedImageFormat skFormat = codec.EncodedFormat;
+                GraphicsBitmapFormat format = Skia_Bitmap.GraphicsBitmapFormatFromImageFormat(skFormat);
+                SKBitmap bitmap = SKBitmap.Decode(codec);
+                return new Skia_Bitmap(bitmap, format);
+            }
         }
     }
 }

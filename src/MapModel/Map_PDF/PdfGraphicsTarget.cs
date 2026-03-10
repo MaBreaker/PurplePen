@@ -326,17 +326,14 @@ namespace PurplePen.MapModel
             // not supported
         }
 
-        Stack<string> blendModeStack = new Stack<string>();
+        Stack<XBlendMode> blendModeStack = new Stack<XBlendMode>();
         // Set blending mode.
         public virtual bool PushBlending(BlendMode blendMode)
         {
-            // NYI: Need to modify PdfSharp to support blend modes. 
-            throw new NotSupportedException("Blending modes not supported in PDF output yet");
-#if false
             bool supported = false;
-            string newBlendMode = "Normal";
+            XBlendMode newBlendMode = XBlendMode.Normal;
             if (blendMode == BlendMode.Darken) {
-                newBlendMode = "Darken";
+                newBlendMode = XBlendMode.Darken;
                 supported = true;
             }
 
@@ -344,15 +341,11 @@ namespace PurplePen.MapModel
             gfx.BlendMode = newBlendMode;
 
             return supported;
-#endif
         }
         
         public virtual void PopBlending()
         {
-            throw new NotSupportedException("Blending modes not supported in PDF output yet");
-#if false
             gfx.BlendMode = blendModeStack.Pop();
-#endif
         }
 
         // Draw an line with a pen.
@@ -569,7 +562,7 @@ namespace PurplePen.MapModel
         public void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
         {
             using (MemoryStream memStream = new MemoryStream()) {
-                if (bm.WritePngToStream(0, 0, bm.PixelWidth, bm.PixelHeight, memStream)) {
+                if (bm.WriteToStream(GraphicsBitmapFormat.PNG, memStream)) {
                     using (XImage image = XImage.FromStream(memStream)) {
                         if (scalingMode == BitmapScaling.NearestNeighbor)
                             image.Interpolate = false;
@@ -586,7 +579,8 @@ namespace PurplePen.MapModel
         public void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
         {
             using (MemoryStream memStream = new MemoryStream()) {
-                if (bm.WritePngToStream(x, y, width, height, memStream)) {
+                IGraphicsBitmap croppedBitmap = bm.Crop(x, y, width, height);
+                if (croppedBitmap.WriteToStream(GraphicsBitmapFormat.PNG, memStream)) {
                     using (XImage image = XImage.FromStream(memStream)) {
                         if (scalingMode == BitmapScaling.NearestNeighbor)
                             image.Interpolate = false;

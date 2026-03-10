@@ -144,9 +144,6 @@
   <data name="CannotLoadMapFile" xml:space="preserve">
     <value>Не вдалося відкрити файл карти '{0}' з наступних причин:</value>
   </data>
-  <data name="CannotReadImageFile" xml:space="preserve">
-    <value>Не вдалося зчитати файл зображення '{0}'.</value>
-  </data>
   <data name="CannotPrint" xml:space="preserve">
     <value>Не вдалося роздрукувати '{0}' з наступних причин:</value>
   </data>
@@ -155,9 +152,6 @@
   </data>
   <data name="CannotCreateDirectory" xml:space="preserve">
     <value>Не вдалося створити '{0}' з наступних причин:</value>
-  </data>
-  <data name="CannotReadMap" xml:space="preserve">
-    <value>Не вдалося зчитати файл карти з наступних причин: '{0}' Скористайтеся функцією Optimize/Repair у OCAD і збережіть файл. Це може усунути проблему.</value>
   </data>
   <data name="CannotCreateOcadFiles" xml:space="preserve">
     <value>Не вдалося створити файли OCAD з наступних причин:</value>
@@ -244,18 +238,6 @@
   <data name="DeleteControlFromAllControls" xml:space="preserve">
     <value>КП {0} використовується у наступних дистанціях: {1}. Ви все одно бажаєте його видалити?</value>
   </data>
-  <data name="CodeBadLength" xml:space="preserve">
-    <value>Код КП має складатись із однієї, двох чи трьох букв або цифр.</value>
-  </data>
-  <data name="CodeContainsSpace" xml:space="preserve">
-    <value>Код КП не може містити пробілів</value>
-  </data>
-  <data name="CodeBeginsWithZero" xml:space="preserve">
-    <value>Не слід використовувати нуль у якості кода КП.</value>
-  </data>
-  <data name="CodeCouldBeUpsideDown" xml:space="preserve">
-    <value>Не слід використовувати у якості кода КП цифру, що виглядає як інша перевернута цифра.</value>
-  </data>
   <data name="DuplicateCode" xml:space="preserve">
     <value>Код КП "{0}" використовується понад один раз.</value>
   </data>
@@ -304,9 +286,6 @@
   <data name="NextButtonText" xml:space="preserve">
     <value>&amp;Далі &gt;</value>
   </data>
-  <data name="Control_Code" xml:space="preserve">
-    <value>КП {0}</value>
-  </data>
   <data name="Finish" xml:space="preserve">
     <value>Фініш</value>
   </data>
@@ -333,15 +312,6 @@
   </data>
   <data name="Start_Short" xml:space="preserve">
     <value>S</value>
-  </data>
-  <data name="Version_Alpha" xml:space="preserve">
-    <value>Alpha {0}</value>
-  </data>
-  <data name="Version_Beta" xml:space="preserve">
-    <value>Beta {0}</value>
-  </data>
-  <data name="Version_RC" xml:space="preserve">
-    <value>RC {0}</value>
   </data>
   <data name="Plural" xml:space="preserve">
     <value>множина</value>
@@ -418,15 +388,6 @@
   <data name="CrashSend" xml:space="preserve">
     <value>Надіслати звіт</value>
   </data>
-  <data name="PdfConverterNotFound" xml:space="preserve">
-    <value>PdfConverter.exe не знайдено</value>
-  </data>
-  <data name="PdfConversionFailed" xml:space="preserve">
-    <value>Pdfium PDF converter не вдалося успішно зчитати PDF файл</value>
-  </data>
-  <data name="PdfResultNotReadable" xml:space="preserve">
-    <value>Не вдалося зчитати результат конвертації у PDF файла '{0}'</value>
-  </data>
   <data name="CannotCreatePdfs" xml:space="preserve">
     <value>Не вдалося створити PDF через наступні причини:</value>
   </data>
@@ -496,17 +457,11 @@
   <data name="ChangeLineAppearanceTitle" xml:space="preserve">
     <value>Змінити вигляд лінії</value>
   </data>
-  <data name="GpxMustBeOcadMap" xml:space="preserve">
-    <value>Файл кари має бути у форматі OCAD для використання GPX файлів.</value>
-  </data>
   <data name="GpxMustHaveCoordSystem" xml:space="preserve">
     <value>Файл OCAD повинен мати визначену систему координат для використання GPX файлів.</value>
   </data>
   <data name="GpxMustHaveRealWorldCoord" xml:space="preserve">
     <value>Файл OCAD повинен мати визначені глобальні координати для використання GPX файлів.</value>
-  </data>
-  <data name="GpxReprojectFailure" xml:space="preserve">
-    <value>Не вдалося спроектувати точки; або система координат, чи глобальні координати на карті OCAD неправильні.</value>
   </data>
   <data name="GpxUnsupportedCoordSystem" xml:space="preserve">
     <value>Файл OCAD використовує систему координат, що не підтримується Purple Pen.</value>
@@ -568,18 +523,6 @@
   <data name="VariationNotLastControl" xml:space="preserve">
     <value>Розсіювання не може бути застосовано на останньому КП. Спершу додайте фінішний КП.</value>
   </data>
-  <data name="BadLegNumber" xml:space="preserve">
-    <value>'{0}' не є правильною кількістю етапів для гілки '{1}'</value>
-  </data>
-  <data name="LegNotAssigned" xml:space="preserve">
-    <value>Етап {0} має бути призначений для однієї з гілок {1}</value>
-  </data>
-  <data name="LegUsedTwice" xml:space="preserve">
-    <value>Етап {0} призначено як на гілку '{1}' так і на гілку '{2}'</value>
-  </data>
-  <data name="CannotReadMapOOM" xml:space="preserve">
-    <value>Не вдалося зчитати карту через наступні причини: '{0}' Відкриття і збереження карти у останній версії OpenOrienteering Mapper може виправити проблему.</value>
-  </data>
   <data name="MapIssue_Long" xml:space="preserve">
     <value>Виносний старт</value>
   </data>
@@ -604,13 +547,13 @@
   <data name="PdfFilter" xml:space="preserve">
     <value>PDF файл|*.pdf</value>
   </data>
-  <data name="LegAssignedOuterBranch" xml:space="preserve">
-    <value>Етап {0} ніколи не потрапить на гілку '{1}': для нього був призначений інший шлях у попередній розвилці.</value>
-  </data>
   <data name="AddEllipseExplanation" xml:space="preserve">
     <value>Налаштуйте вигляд еліпса. Після натискання на OK потягніть мишкою щоб розмістити еліпс у бажаному місці.</value>
   </data>
   <data name="AddEllipseTitle" xml:space="preserve">
     <value>Додати еліпс</value>
+  </data>
+  <data name="GpxMustBeOcadMap" xml:space="preserve">
+    <value>Файл кари має бути у форматі OCAD для використання GPX файлів.</value>
   </data>
 </root>

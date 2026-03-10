@@ -28,7 +28,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>TRACE;DEBUG;TEST</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TEST;PORTING</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <CodeAnalysisRuleSet>..\Tools\PurplePenRules.ruleset</CodeAnalysisRuleSet>
@@ -219,6 +219,7 @@
     <EmbeddedResource Include="Images\MoveHandle.cur" />
     <EmbeddedResource Include="Images\logobkgd.png" />
     <EmbeddedResource Include="MapView\DragCursor.cur" />
+    <EmbeddedResource Include="swopsamples.dat" />
     <None Include="MapView\MapViewer.csproj" />
     <Content Include="symbols.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -233,6 +234,7 @@
     <ProjectReference Include="..\MapModel\Map_GDIPlus\Map_GDIPlus.csproj" />
     <ProjectReference Include="..\MapModel\Map_PDF\Map_PDF.csproj" />
     <ProjectReference Include="..\PdfConverter\PdfConverter.csproj" />
+    <ProjectReference Include="..\PurplePenCore\PurplePenCore.csproj" />
   </ItemGroup>
   <ItemGroup Label="Compile items now included by globbing that were not in the original project file">
     <Compile Remove="MapView\Properties\AssemblyInfo.cs" />
@@ -997,4 +999,7 @@
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
   -->
+  <ItemGroup>
+    <None Remove="swopsamples.dat" />
+  </ItemGroup>
 </Project>

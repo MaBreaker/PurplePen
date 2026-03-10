@@ -99,9 +99,9 @@ namespace PurplePen
             // Output section.
             printerName.Text = printerSettings.PrinterName;
             if (printerSettings.IsValid) {
-                paperSize.Text = Util.GetPaperSizeText(pageSettings.PaperSize);
+                paperSize.Text = WindowsUtil.GetPaperSizeText(pageSettings.PaperSize);
                 orientation.Text = (pageSettings.Landscape) ? MiscText.Landscape : MiscText.Portrait;
-                margins.Text = Util.GetMarginsText(pageSettings.Margins);
+                margins.Text = WindowsUtil.GetMarginsText(pageSettings.Margins);
             }
             else {
                 paperSize.Text = orientation.Text = margins.Text = "";

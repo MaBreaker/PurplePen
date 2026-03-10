@@ -32,18 +32,18 @@
  * OF SUCH DAMAGE.
  */
 
+using PurplePen.MapModel;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-
-using PurplePen.MapModel;
+using System.Text;
 
 namespace PurplePen
 {
     using PurplePen.Graphics2D;
+    using System.Windows;
 
     // Macros used in text specials
     static class TextMacros
@@ -401,8 +401,8 @@ namespace PurplePen
 #endif
         static SizeF GetTextSize(string text, FontDesc font, float fontScaling)
         {
-            Graphics g = Util.GetHiresGraphics();
-            using (Font f = font.GetScaledFont(fontScaling)) {
+            Graphics g = WindowsUtil.GetHiresGraphics();
+            using (Font f = GdiplusFontLoader.Instance.CreateFont(font.Name, font.EmHeight * fontScaling, font.TextEffects)) {
                 SizeF size = g.MeasureString(text, f, new PointF(0, 0), StringFormat.GenericTypographic);
 
                 // We really want the size of just the digits/capital letters. So, reduce by the descender size from 
@@ -592,7 +592,7 @@ namespace PurplePen
 
             case SpecialKind.Text:
                 string text = ExpandText(eventDB, courseView, special.text);
-                FontStyle fontStyle = Util.GetFontStyle(special.fontBold, special.fontItalic);
+                TextEffects textEffects = WindowsUtil.GetTextEffects(special.fontBold, special.fontItalic);
                 RectangleF boundingRect = RectangleF.FromLTRB((float)Math.Min(special.locations[0].X, special.locations[1].X), (float)Math.Min(special.locations[0].Y, special.locations[1].Y),
                                                                                               (float)Math.Max(special.locations[0].X, special.locations[1].X), (float)Math.Max(special.locations[0].Y, special.locations[1].Y));
                 courseObj = new BasicTextCourseObj(specialId, text, boundingRect, special.fontName, fontStyle, special.color, special.fontHeight /* JU: Rotated and Multile texts */, special.orientation, special.multiline);

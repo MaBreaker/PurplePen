@@ -144,9 +144,6 @@
   <data name="CannotLoadMapFile" xml:space="preserve">
     <value>Não é possível carregar o ficheiro do mapa '{0}' pelo seguinte motivo:</value>
   </data>
-  <data name="CannotReadImageFile" xml:space="preserve">
-    <value>Não é possível ler o ficheiro imagem '{0}'.</value>
-  </data>
   <data name="CannotPrint" xml:space="preserve">
     <value>Não é possível imprimir '{0}' pelo seguinte motivo:</value>
   </data>
@@ -155,9 +152,6 @@
   </data>
   <data name="CannotCreateDirectory" xml:space="preserve">
     <value>Não é possível criar a pasta '{0}' pelo seguinte motivo:</value>
-  </data>
-  <data name="CannotReadMap" xml:space="preserve">
-    <value>Não é possível ler o mapa pelo seguinte motivo: '{0}' Usar Otimizar/Reparar e salvar novamente no OCAD pode resolver o problema.</value>
   </data>
   <data name="CannotCreateOcadFiles" xml:space="preserve">
     <value>Não é possível criar o ficheiro OCAD pelo seguinte motivo:</value>
@@ -247,18 +241,6 @@ Deseja excluir este controle da coleção de pontos de controlo?</value>
     <value>O ponto de controlo {0} é usado atualmente pelos seguintes percursos: {1}.
 Deseja excluir este ponto de controlo mesmo assim?</value>
   </data>
-  <data name="CodeBadLength" xml:space="preserve">
-    <value>Um código de ponto de controlo deve ter uma, duas ou três letras ou dígitos.</value>
-  </data>
-  <data name="CodeContainsSpace" xml:space="preserve">
-    <value>Um código de ponto de controlo não deve conter um espaço.</value>
-  </data>
-  <data name="CodeBeginsWithZero" xml:space="preserve">
-    <value>Um código de ponto de controlo não deve começar com zero.</value>
-  </data>
-  <data name="CodeCouldBeUpsideDown" xml:space="preserve">
-    <value>Um código de ponto de controlo não deve se parecer com outro número quando está de cabeça para baixo.</value>
-  </data>
   <data name="DuplicateCode" xml:space="preserve">
     <value>O código "{0}" é usado mais de uma vez.</value>
   </data>
@@ -308,9 +290,6 @@ Após pressionar OK, tente encontrar uma cópia do ficheiro de mapa em seu compu
   <data name="NextButtonText" xml:space="preserve">
     <value>Segui&amp;nte &gt;</value>
   </data>
-  <data name="Control_Code" xml:space="preserve">
-    <value>Ponto de Controlo {0}</value>
-  </data>
   <data name="Finish" xml:space="preserve">
     <value>Chegada</value>
   </data>
@@ -337,15 +316,6 @@ Após pressionar OK, tente encontrar uma cópia do ficheiro de mapa em seu compu
   </data>
   <data name="Start_Short" xml:space="preserve">
     <value>S</value>
-  </data>
-  <data name="Version_Alpha" xml:space="preserve">
-    <value>Alpha {0}</value>
-  </data>
-  <data name="Version_Beta" xml:space="preserve">
-    <value>Beta {0}</value>
-  </data>
-  <data name="Version_RC" xml:space="preserve">
-    <value>RC {0}</value>
   </data>
   <data name="Plural" xml:space="preserve">
     <value>plural</value>
@@ -427,15 +397,6 @@ Deseja alterar o idioma da sinalética para {1}?</value>
   <data name="CrashSend" xml:space="preserve">
     <value>Enviar Relatório</value>
   </data>
-  <data name="PdfConverterNotFound" xml:space="preserve">
-    <value>PdfConverter.exe não encontrado</value>
-  </data>
-  <data name="PdfConversionFailed" xml:space="preserve">
-    <value>O conversor de PDF Pdfium falhou ao ler o ficheiro PDF</value>
-  </data>
-  <data name="PdfResultNotReadable" xml:space="preserve">
-    <value>Não foi possível ler o resultado da conversão de PDF do ficheiro '{0}'</value>
-  </data>
   <data name="CannotCreatePdfs" xml:space="preserve">
     <value>Não é possível criar PDFs pelo seguinte motivo:</value>
   </data>
@@ -507,17 +468,11 @@ Visite http://microsoft.com/net e instale a versão mais recente do framework .N
   <data name="ChangeLineAppearanceTitle" xml:space="preserve">
     <value>Alterar aparência da linha</value>
   </data>
-  <data name="GpxMustBeOcadMap" xml:space="preserve">
-    <value>O ficheiro de mapa deve ser um ficheiro OCAD para usar ficheiros GPX.</value>
-  </data>
   <data name="GpxMustHaveCoordSystem" xml:space="preserve">
     <value>O ficheiro OCAD deve ter um sistema de coordenadas definido para usar ficheiros GPX.</value>
   </data>
   <data name="GpxMustHaveRealWorldCoord" xml:space="preserve">
     <value>O ficeiro OCAD deve ter coordenadas do mundo real definidas para usar ficheiros GPX.</value>
-  </data>
-  <data name="GpxReprojectFailure" xml:space="preserve">
-    <value>Não foi possível reprojetar pontos; ou o sistema de coordenadas ou as coordenadas do mundo real no mapa OCAD estão erradas.</value>
   </data>
   <data name="GpxUnsupportedCoordSystem" xml:space="preserve">
     <value>O ficheiro OCAD usa um sistema de coordenadas que não é suportado por Purple Pen.</value>
@@ -584,19 +539,6 @@ O número de variações distintas é limitado a {0}.</value>
 
 Adicione um ponto de controlo de chegada primeiro.</value>
   </data>
-  <data name="BadLegNumber" xml:space="preserve">
-    <value>'{0}' não é um número de pernada válido para a variante {1}'</value>
-  </data>
-  <data name="LegNotAssigned" xml:space="preserve">
-    <value>A pernada {0} deve ser atribuída a uma das variantes {1}</value>
-  </data>
-  <data name="LegUsedTwice" xml:space="preserve">
-    <value>A pernada {0} é atribuída tanto à variante '{1}' quanto à variante '{2}'</value>
-  </data>
-  <data name="CannotReadMapOOM" xml:space="preserve">
-    <value>Não é possível ler o mapa pelo seguinte motivo: '{0}' 
-Abrir e salvar novamente o mapa na versão mais recente do OpenOrienteering Mapper pode corrigir problemas.</value>
-  </data>
   <data name="MapIssue_Long" xml:space="preserve">
     <value>Início cronometrado</value>
   </data>
@@ -621,13 +563,13 @@ Abrir e salvar novamente o mapa na versão mais recente do OpenOrienteering Mapp
   <data name="PdfFilter" xml:space="preserve">
     <value>Ficheiro PDF |*.pdf</value>
   </data>
-  <data name="LegAssignedOuterBranch" xml:space="preserve">
-    <value>A pernada {0} nunca alcança a variante '{1}': ela foi atribuída para seguir um caminho diferente em uma dispersão de contenção.</value>
-  </data>
   <data name="AddEllipseExplanation" xml:space="preserve">
     <value>Defina a aparência da elipse. Após pressionar OK, arraste o mouse para posicionar a elipse no local desejado.</value>
   </data>
   <data name="AddEllipseTitle" xml:space="preserve">
     <value>Adicionar Elipse</value>
+  </data>
+  <data name="GpxMustBeOcadMap" xml:space="preserve">
+    <value>O ficheiro de mapa deve ser um ficheiro OCAD para usar ficheiros GPX.</value>
   </data>
 </root>

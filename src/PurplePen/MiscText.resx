@@ -144,9 +144,6 @@
   <data name="CannotLoadMapFile" xml:space="preserve">
     <value>Cannot load map file '{0}' for the following reason:</value>
   </data>
-  <data name="CannotReadImageFile" xml:space="preserve">
-    <value>Cannot read image file '{0}'.</value>
-  </data>
   <data name="CannotPrint" xml:space="preserve">
     <value>Cannot print '{0}' for the following reason:</value>
   </data>
@@ -155,9 +152,6 @@
   </data>
   <data name="CannotCreateDirectory" xml:space="preserve">
     <value>Cannot create folder '{0}' for the following reason:</value>
-  </data>
-  <data name="CannotReadMap" xml:space="preserve">
-    <value>Cannot read map for the following reason: '{0}' Using Optimize/Repair and re-saving in OCAD may fix problems.</value>
   </data>
   <data name="CannotCreateOcadFiles" xml:space="preserve">
     <value>Cannot create OCAD files for the following reason:</value>
@@ -244,18 +238,6 @@ Use | to separate lines</value>
   <data name="DeleteControlFromAllControls" xml:space="preserve">
     <value>Control {0} is currently used by the following courses: {1}. Do you want to delete this control anyway?</value>
   </data>
-  <data name="CodeBadLength" xml:space="preserve">
-    <value>A control code must be one, two, or three letters or digits.</value>
-  </data>
-  <data name="CodeContainsSpace" xml:space="preserve">
-    <value>A control code must not contain a space.</value>
-  </data>
-  <data name="CodeBeginsWithZero" xml:space="preserve">
-    <value>A control code should not begin with zero.</value>
-  </data>
-  <data name="CodeCouldBeUpsideDown" xml:space="preserve">
-    <value>A control code should not look like another number when upside-down.</value>
-  </data>
   <data name="DuplicateCode" xml:space="preserve">
     <value>The code "{0}" is used more than once.</value>
   </data>
@@ -304,10 +286,6 @@ After pressing OK, try to find a copy of the map file on your computer.</value>
   <data name="NextButtonText" xml:space="preserve">
     <value>&amp;Next &gt;</value>
   </data>
-  <data name="Control_Code" xml:space="preserve">
-    <value>Control {0}</value>
-    <comment>{0} is the control code</comment>
-  </data>
   <data name="Finish" xml:space="preserve">
     <value>Finish</value>
   </data>
@@ -337,15 +315,6 @@ After pressing OK, try to find a copy of the map file on your computer.</value>
   <data name="Start_Short" xml:space="preserve">
     <value>S</value>
     <comment>Abbreviation for "Start"</comment>
-  </data>
-  <data name="Version_Alpha" xml:space="preserve">
-    <value>Alpha {0}</value>
-  </data>
-  <data name="Version_Beta" xml:space="preserve">
-    <value>Beta {0}</value>
-  </data>
-  <data name="Version_RC" xml:space="preserve">
-    <value>RC {0}</value>
   </data>
   <data name="Plural" xml:space="preserve">
     <value>plural</value>
@@ -426,15 +395,6 @@ After pressing OK, try to find a copy of the map file on your computer.</value>
   <data name="CrashSend" xml:space="preserve">
     <value>Send Report</value>
   </data>
-  <data name="PdfConverterNotFound" xml:space="preserve">
-    <value>PdfConverter.exe not found</value>
-  </data>
-  <data name="PdfConversionFailed" xml:space="preserve">
-    <value>Pdfium PDF converter failed to read PDF file successfully</value>
-  </data>
-  <data name="PdfResultNotReadable" xml:space="preserve">
-    <value>Could not read result of PDF conversion from file '{0}'</value>
-  </data>
   <data name="CannotCreatePdfs" xml:space="preserve">
     <value>Cannot create PDFs for the following reason:</value>
   </data>
@@ -504,17 +464,11 @@ After pressing OK, try to find a copy of the map file on your computer.</value>
   <data name="ChangeLineAppearanceTitle" xml:space="preserve">
     <value>Change Line Appearance</value>
   </data>
-  <data name="GpxMustBeOcadMap" xml:space="preserve">
-    <value>The map file must be an OCAD file to use GPX files.</value>
-  </data>
   <data name="GpxMustHaveCoordSystem" xml:space="preserve">
     <value>The OCAD file must have a coordinate system defined to use GPX files.</value>
   </data>
   <data name="GpxMustHaveRealWorldCoord" xml:space="preserve">
     <value>The OCAD file must have real world coordinates defined to use GPX files.</value>
-  </data>
-  <data name="GpxReprojectFailure" xml:space="preserve">
-    <value>Could not reproject points; either the coordinate system or the real world coordinates in the OCAD map are wrong.</value>
   </data>
   <data name="GpxUnsupportedCoordSystem" xml:space="preserve">
     <value>The OCAD file uses a coordinate system that is not supported by Purple Pen.</value>
@@ -576,18 +530,6 @@ After pressing OK, try to find a copy of the map file on your computer.</value>
   <data name="VariationNotLastControl" xml:space="preserve">
     <value>A variation cannot be added to the last control. Add a finish control first.</value>
   </data>
-  <data name="BadLegNumber" xml:space="preserve">
-    <value>'{0}' is not a valid leg number for branch '{1}'</value>
-  </data>
-  <data name="LegNotAssigned" xml:space="preserve">
-    <value>Leg {0} should be assigned to one of branches {1}</value>
-  </data>
-  <data name="LegUsedTwice" xml:space="preserve">
-    <value>Leg {0} is assigned to both branch '{1}' and branch '{2}'</value>
-  </data>
-  <data name="CannotReadMapOOM" xml:space="preserve">
-    <value>Cannot read map for the following reason: '{0}' Opening and re-saving the map in the latest version of OpenOrienteering Mapper may fix problems.</value>
-  </data>
   <data name="MapIssue_Long" xml:space="preserve">
     <value>Timed Start</value>
   </data>
@@ -613,9 +555,6 @@ After pressing OK, try to find a copy of the map file on your computer.</value>
   <data name="PdfFilter" xml:space="preserve">
     <value>PDF File|*.pdf</value>
   </data>
-  <data name="LegAssignedOuterBranch" xml:space="preserve">
-    <value>Leg {0} never reaches branch '{1}': it was assigned to go a different way in a containing fork.</value>
-  </data>
   <data name="AddEllipseExplanation" xml:space="preserve">
     <value>Set the appearance of the ellipse. After pressing OK, drag the mouse to place the ellipse in the desired location.</value>
   </data>
@@ -637,5 +576,8 @@ After pressing OK, try to find a copy of the map file on your computer.</value>
   <!-- JU: Overlay -->
   <data name="Orange" xml:space="preserve">
     <value>Orange</value>
+  </data>
+  <data name="GpxMustBeOcadMap" xml:space="preserve">
+    <value>The map file must be an OCAD file to use GPX files.</value>
   </data>
 </root>

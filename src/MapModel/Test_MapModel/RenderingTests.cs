@@ -58,14 +58,14 @@ namespace PurplePen.MapModel.Tests
             string executablePath = Path.GetDirectoryName(uri.LocalPath);
             string fontPath = Path.Combine(executablePath, "fonts");
 
-            GdiplusFontLoader.AddFontFile("Roboto", FontStyle.Regular, Path.Combine(fontPath, "Roboto-Regular.ttf"));
-            GdiplusFontLoader.AddFontFile("Roboto", FontStyle.Bold, Path.Combine(fontPath, "Roboto-Bold.ttf"));
-            GdiplusFontLoader.AddFontFile("Roboto", FontStyle.Italic, Path.Combine(fontPath, "Roboto-Italic.ttf"));
-            GdiplusFontLoader.AddFontFile("Roboto", FontStyle.Bold | FontStyle.Italic, Path.Combine(fontPath, "Roboto-BoldItalic.ttf"));
-            GdiplusFontLoader.AddFontFile("Roboto Condensed", FontStyle.Regular, Path.Combine(fontPath, "RobotoCondensed-Regular.ttf"));
-            GdiplusFontLoader.AddFontFile("Roboto Condensed", FontStyle.Bold, Path.Combine(fontPath, "RobotoCondensed-Bold.ttf"));
-            GdiplusFontLoader.AddFontFile("Roboto Condensed", FontStyle.Italic, Path.Combine(fontPath, "RobotoCondensed-Italic.ttf"));
-            GdiplusFontLoader.AddFontFile("Roboto Condensed", FontStyle.Bold | FontStyle.Italic, Path.Combine(fontPath, "RobotoCondensed-BoldItalic.ttf"));
+            GdiplusFontLoader.Instance.AddFontFile("Roboto", TextEffects.Regular, Path.Combine(fontPath, "Roboto-Regular.ttf"));
+            GdiplusFontLoader.Instance.AddFontFile("Roboto", TextEffects.Bold, Path.Combine(fontPath, "Roboto-Bold.ttf"));
+            GdiplusFontLoader.Instance.AddFontFile("Roboto", TextEffects.Italic, Path.Combine(fontPath, "Roboto-Italic.ttf"));
+            GdiplusFontLoader.Instance.AddFontFile("Roboto", TextEffects.Bold | TextEffects.Italic, Path.Combine(fontPath, "Roboto-BoldItalic.ttf"));
+            GdiplusFontLoader.Instance.AddFontFile("Roboto Condensed", TextEffects.Regular, Path.Combine(fontPath, "RobotoCondensed-Regular.ttf"));
+            GdiplusFontLoader.Instance.AddFontFile("Roboto Condensed", TextEffects.Bold, Path.Combine(fontPath, "RobotoCondensed-Bold.ttf"));
+            GdiplusFontLoader.Instance.AddFontFile("Roboto Condensed", TextEffects.Italic, Path.Combine(fontPath, "RobotoCondensed-Italic.ttf"));
+            GdiplusFontLoader.Instance.AddFontFile("Roboto Condensed", TextEffects.Bold | TextEffects.Italic, Path.Combine(fontPath, "RobotoCondensed-BoldItalic.ttf"));
         }
 
         // Write a bitmap to a PNG.
@@ -221,7 +221,7 @@ namespace PurplePen.MapModel.Tests
             Assert.IsTrue(textMetrics.TextFaceIsInstalled("Trebuchet MS"));
             Assert.IsFalse(textMetrics.TextFaceIsInstalled("Banana"));
 
-            ITextFaceMetrics tnrMetrics = textMetrics.GetTextFaceMetrics("Times New Roman", 25, TextEffects.None);
+            ITextFaceMetrics tnrMetrics = textMetrics.GetTextFaceMetrics("Times New Roman", 25, TextEffects.Regular);
             Assert.AreEqual(25.0F, tnrMetrics.EmHeight, 0.1F);
             Assert.AreEqual(22.28F, tnrMetrics.Ascent, 0.1F);
             Assert.AreEqual(5.41F, tnrMetrics.Descent, 0.1F);
@@ -231,7 +231,7 @@ namespace PurplePen.MapModel.Tests
             Assert.AreEqual(27.69F, tnrMetrics.GetTextSize("Hello, world").Height, 0.1F);
 
 
-            tnrMetrics = textMetrics.GetTextFaceMetrics("Trebuchet MS", 50, TextEffects.None);
+            tnrMetrics = textMetrics.GetTextFaceMetrics("Trebuchet MS", 50, TextEffects.Regular);
             Assert.AreEqual(50.0F, tnrMetrics.EmHeight, 0.1F);
             Assert.AreEqual(46.95F, tnrMetrics.Ascent, 0.1F);
             Assert.AreEqual(11.11F, tnrMetrics.Descent, 0.1F);

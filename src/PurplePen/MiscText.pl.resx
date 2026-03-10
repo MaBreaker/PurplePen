@@ -144,9 +144,6 @@
   <data name="CannotLoadMapFile" xml:space="preserve">
     <value>Nie mogę załadować pliku mapy '{0}' z następującego powodu:</value>
   </data>
-  <data name="CannotReadImageFile" xml:space="preserve">
-    <value>Nie mogę przeczytać obrazu '{0}'.</value>
-  </data>
   <data name="CannotPrint" xml:space="preserve">
     <value>Nie mogę wydrukować '{0}' z następującego powodu:</value>
   </data>
@@ -238,18 +235,6 @@ Użyj | aby rozdzielić linie
   <data name="DeleteControlFromAllControls" xml:space="preserve">
     <value>PK {0} jest obecnie używany przez następujące trasy: {1}. Czy mimo wszystko chcesz usunąć ten PK?</value>
   </data>
-  <data name="CodeBadLength" xml:space="preserve">
-    <value>Kod PK musi składać się z jednej, dwóch lub trzech liter i/lub cyfr.</value>
-  </data>
-  <data name="CodeContainsSpace" xml:space="preserve">
-    <value>Kod PK nie może zawierać spacji.</value>
-  </data>
-  <data name="CodeBeginsWithZero" xml:space="preserve">
-    <value>Kod PK nie może zaczynać się wiodącym zerem.</value>
-  </data>
-  <data name="CodeCouldBeUpsideDown" xml:space="preserve">
-    <value>Kod PK nie powinien wyglądać jak inna liczba odczytywana do góry nogami.</value>
-  </data>
   <data name="DuplicateCode" xml:space="preserve">
     <value>Kod PK "{0}" jest użyty więcej niż raz.</value>
   </data>
@@ -292,9 +277,6 @@ Użyj | aby rozdzielić linie
   <data name="NextButtonText" xml:space="preserve">
     <value>&amp;Dalej &gt;</value>
   </data>
-  <data name="Control_Code" xml:space="preserve">
-    <value>PK {0}</value>
-  </data>
   <data name="Finish" xml:space="preserve">
     <value>Meta</value>
   </data>
@@ -321,15 +303,6 @@ Użyj | aby rozdzielić linie
   </data>
   <data name="Start_Short" xml:space="preserve">
     <value>S</value>
-  </data>
-  <data name="Version_Alpha" xml:space="preserve">
-    <value>Alfa {0}</value>
-  </data>
-  <data name="Version_Beta" xml:space="preserve">
-    <value>Beta {0}</value>
-  </data>
-  <data name="Version_RC" xml:space="preserve">
-    <value>RC {0}</value>
   </data>
   <data name="Plural" xml:space="preserve">
     <value>liczba mnoga</value>
@@ -409,9 +382,6 @@ Użyj | aby rozdzielić linie
   <data name="CrashSend" xml:space="preserve">
     <value>Wyślij raport</value>
   </data>
-  <data name="PdfResultNotReadable" xml:space="preserve">
-    <value>Nie można przeczytać rezultatu konwersji do PDF z pliku '{0}'</value>
-  </data>
   <data name="CannotCreatePdfs" xml:space="preserve">
     <value>Nie udało się utworzyć plików PDF z następującego powodu:</value>
   </data>
@@ -481,9 +451,6 @@ Użyj | aby rozdzielić linie
   <data name="ChangeLineAppearanceTitle" xml:space="preserve">
     <value>Zmień wygląd linii</value>
   </data>
-  <data name="GpxMustBeOcadMap" xml:space="preserve">
-    <value>Plik mapy musi być plikiem OCAD aby można było używać plików GPX.</value>
-  </data>
   <data name="GpxMustHaveCoordSystem" xml:space="preserve">
     <value>Plik OCAD musi mieć zdefiniowany układ współrzędnych geograficznych (odniesienia) aby możliwe było użycie plików GPX.</value>
   </data>
@@ -513,5 +480,8 @@ Użyj | aby rozdzielić linie
   </data>
   <data name="GhostscriptNotInstalled" xml:space="preserve">
     <value>GPL Ghostscript nie jest zainstalowany</value>
+  </data>
+  <data name="GpxMustBeOcadMap" xml:space="preserve">
+    <value>Plik mapy musi być plikiem OCAD aby można było używać plików GPX.</value>
   </data>
 </root>

@@ -39,6 +39,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Globalization;
 using System.IO;
@@ -47,6 +48,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using GraphicsPath = System.Drawing.Drawing2D.GraphicsPath;
+using Matrix = PurplePen.Graphics2D.Matrix;
+using MatrixOrder = PurplePen.Graphics2D.MatrixOrder;
 
 namespace PurplePen
 {
@@ -188,7 +191,7 @@ namespace PurplePen
         // Get the cursor that should be used for a given handle.
         public virtual Cursor GetHandleCursor(PointF handlePoint)
         {
-            return Util.MoveHandleCursor;
+            return WindowsUtil.MoveHandleCursor;
         }
 
         // Draw a highlight for this course object.    
@@ -728,7 +731,8 @@ namespace PurplePen
                 fillBrushKey = brushKey;
             else {
                 fillBrushKey = new object();
-                grTarget.CreateGdiPlusBrush(fillBrushKey, NormalCourseAppearance.areaHighlight, false);
+                HatchBrush hatchBrush = new HatchBrush(HatchStyle.Percent25, NormalCourseAppearance.highlightColor, Color.Transparent);
+                grTarget.CreateGdiPlusBrush(fillBrushKey, hatchBrush, false);
             }
 
             // Draw the interior
@@ -822,7 +826,7 @@ namespace PurplePen
                 case 1: case 6: return Cursors.SizeNS;
                 case 2: case 5: return Cursors.SizeNWSE;
                 case 3: case 4: return Cursors.SizeWE;
-                default: return Util.MoveHandleCursor;
+                default: return WindowsUtil.MoveHandleCursor;
             }
         }
 
@@ -854,10 +858,12 @@ namespace PurplePen
             // Get a brush to fill the interior with.
             Brush fillBrush;
 
-            if (erasing)
+            if (erasing) {
                 fillBrush = brush;
-            else
-                fillBrush = NormalCourseAppearance.areaHighlight;
+            }
+            else {
+                fillBrush = new HatchBrush(HatchStyle.Percent25, NormalCourseAppearance.highlightColor, Color.Transparent);
+            }
 
             // Draw the interior
             g.FillRectangle(fillBrush, xformedRect);
@@ -1054,9 +1060,9 @@ namespace PurplePen
         // NOTE: if new fields are added, update Equals implementation.
         public string text;                         // text for a Text object
         public PointF topLeft;                      // top-left of the text.
-        public string fontName;                     // font name
-        public FontStyle fontStyle;                 // font style
-        public SpecialColor fontColor;              // font color
+        public string fontName;                  // font name
+        public TextEffects textEffects;              // font style
+        public SpecialColor fontColor;           // font color
         private float emHeight;                     // em height of the font.
         private float outlineWidth;                 // width of white outline (0 for none)
         
@@ -1074,7 +1080,7 @@ namespace PurplePen
             this.text = text;
             this.topLeft = topLeft;
             this.fontName = fontName;
-            this.fontStyle = fontStyle;
+            this.textEffects = textEffects;
             this.fontColor = fontColor;
             this.emHeight = emHeight;
             this.outlineWidth = outlineWidth;
@@ -1119,7 +1125,7 @@ namespace PurplePen
         struct MySymdefKey
         {
             public string fontName;
-            public FontStyle fontStyle;
+            public TextEffects textEffects;
             public SpecialColor fontColor;
             public float emHeight;
             public float outlineWidth;
@@ -1132,7 +1138,7 @@ namespace PurplePen
         {
             MySymdefKey key = new MySymdefKey();
             key.fontName = fontName;
-            key.fontStyle = fontStyle;
+            key.textEffects = textEffects;
             key.fontColor = fontColor;
             key.emHeight = emHeight;
             key.outlineWidth = outlineWidth;
@@ -1158,7 +1164,7 @@ namespace PurplePen
 
             //JU: Changed to match line spacing of standard DrawString in HighLight
             float pixelEmHight = emHeight * 1.2F; //TODO: use font height instead of static 1.2
-            symdef.SetFont(fontName, emHeight, Util.GetTextEffects(fontStyle), symbolColor, pixelEmHight, 0, 0, 0, null, 0, 1F, TextSymDefHorizAlignment.Left, TextSymDefVertAlignment.TopAscent);
+            symdef.SetFont(fontName, emHeight, textEffects, symbolColor, pixelEmHight, 0, 0, 0, null, 0, 1F, TextSymDefHorizAlignment.Left, TextSymDefVertAlignment.TopAscent);
             if (outlineWidth > 0) {
                 TextSymDef.Framing framing = new TextSymDef.Framing() {
                     framingColor = whiteColor,
@@ -1231,15 +1237,15 @@ namespace PurplePen
             if (emHeight == 0)
                 return new SizeF(0, 0);
 
-            Graphics g = Util.GetHiresGraphics();
-            using (Font f = GdiplusFontLoader.CreateFont(SafeFontName, emHeight, fontStyle))
+            Graphics g = WindowsUtil.GetHiresGraphics();
+            using (Font f = ((GdiplusFontLoader)Services.FontLoader).CreateFont(SafeFontName, emHeight, textEffects))
                 return g.MeasureString(text, f, topLeft, StringFormat.GenericTypographic);
         }
 
         public override string ToString()
         {
             string result = base.ToString();
-            result += string.Format("text:{0}  top-left:({1:0.##},{2:0.##})\r\n                font-name:{3}  font-style:{4}  font-height:{5:0.####}", text, topLeft.X, topLeft.Y, fontName, fontStyle, emHeight);
+            result += string.Format("text:{0}  top-left:({1:0.##},{2:0.##})\r\n                font-name:{3}  font-style:{4}  font-height:{5:0.####}", text, topLeft.X, topLeft.Y, fontName, textEffects, emHeight);
             return result;
         }
 
@@ -1254,7 +1260,7 @@ namespace PurplePen
             xformWorldToPixel.TransformPoints(topLeftPixel);
 
             // Draw it.
-            using (FontFamily fontFam = GdiplusFontLoader.CreateFontFamily(SafeFontName)) {
+            using (FontFamily fontFam = ((GdiplusFontLoader)Services.FontLoader).CreateFontFamily(SafeFontName)) {
                 StringFormat format = new StringFormat(StringFormat.GenericTypographic);
                 format.Alignment = StringAlignment.Near;
                 format.LineAlignment = StringAlignment.Near;
@@ -1269,7 +1275,7 @@ namespace PurplePen
 
                 if (erasing) {
                     // Erase a rectangle that encloses the text.
-                    using (Font font = GdiplusFontLoader.CreateFont(SafeFontName, pixelEmHight, fontStyle)) {
+                    using (Font font = ((GdiplusFontLoader)Services.FontLoader).CreateFont(SafeFontName, pixelEmHight, textEffects)) {
                         SizeF textSize = g.MeasureString(text, font, topLeftPixel[0], format);
                         Size expandedSize = new Size((int)Math.Ceiling(textSize.Width) + 4, (int)Math.Ceiling(textSize.Height) + 4);
                         try {
@@ -1290,10 +1296,10 @@ namespace PurplePen
                 else {
                     TextRenderingHint saveTextRenderingHint = g.TextRenderingHint;
                     g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-                    using (Font font = GdiplusFontLoader.CreateFont(SafeFontName, pixelEmHight, fontStyle)) {
+                    using (Font font = ((GdiplusFontLoader)Services.FontLoader).CreateFont(SafeFontName, pixelEmHight, textEffects)) {
                         // Outline in white, makes the red text pop much better.
                         GraphicsPath path = new GraphicsPath();
-                        path.AddString(text, fontFam, (int)fontStyle, pixelEmHight, /* JU: Rotated text: topLeftPixel[0] */ new PointF(0, 0), format);
+                        path.AddString(text, fontFam, (int)GdiplusFontLoader.FontStyleFromTextEffects(textEffects), pixelEmHight, /* JU: Rotated text: topLeftPixel[0] */ new PointF(0, 0), format);
                         path.CloseAllFigures();
                         using (Pen pen = new Pen(Color.White, 2)) {
                             try {
@@ -1360,7 +1366,7 @@ namespace PurplePen
 
             TextCourseObj other = (TextCourseObj)obj;
 
-            if (text != other.text || topLeft != other.topLeft || fontName != other.fontName || fontStyle != other.fontStyle || !fontColor.Equals(other.fontColor) || emHeight != other.emHeight /* JU: Rotated and Multiline texts */ || orientation != other.orientation || multiline != other.multiline)
+            if (text != other.text || topLeft != other.topLeft || fontName != other.fontName || textEffects != other.textEffects || !fontColor.Equals(other.fontColor) || emHeight != other.emHeight /* JU: Rotated and Multiline texts */ || orientation != other.orientation || multiline != other.multiline)
                 return false;
 
             return base.Equals(obj);
@@ -2917,7 +2923,7 @@ namespace PurplePen
         public ControlNumberCourseObj(Id<ControlPoint> controlId, Id<CourseControl> courseControlId, float courseObjRatio, CourseAppearance appearance, string text, PointF centerPoint)
             : base(controlId, courseControlId, Id<Special>.None, text, centerPoint, 
                    appearance.numberRoboto ? NormalCourseAppearance.controlNumberFontRoboto.Name : NormalCourseAppearance.controlNumberFontArial.Name,
-                   appearance.numberBold ? NormalCourseAppearance.controlNumberFontRobotoBold.Style : NormalCourseAppearance.controlNumberFontRoboto.Style, 
+                   appearance.numberBold ? NormalCourseAppearance.controlNumberFontRobotoBold.TextEffects : NormalCourseAppearance.controlNumberFontRoboto.TextEffects, 
                    ColorOfControlNumber(appearance),
                    NormalCourseAppearance.controlNumberFontRoboto.EmHeight * courseObjRatio * appearance.numberHeight, courseObjRatio * appearance.numberOutlineWidth /* JU: Rotated, Multiline */, 0.0F, false)
         {
@@ -2957,7 +2963,7 @@ namespace PurplePen
         public PointF centerPoint;
 
         public CodeCourseObj(Id<ControlPoint> controlId, Id<CourseControl> courseControlId, float courseObjRatio, CourseAppearance appearance, string text, PointF centerPoint)
-            : base(controlId, courseControlId, Id<Special>.None, text, centerPoint, NormalCourseAppearance.controlCodeFont.Name, NormalCourseAppearance.controlCodeFont.Style, 
+            : base(controlId, courseControlId, Id<Special>.None, text, centerPoint, NormalCourseAppearance.controlCodeFont.Name, NormalCourseAppearance.controlCodeFont.TextEffects, 
                   ControlNumberCourseObj.ColorOfControlNumber(appearance),
                   NormalCourseAppearance.controlCodeFont.EmHeight * courseObjRatio * appearance.numberHeight, courseObjRatio * appearance.numberOutlineWidth /* JU: Rotated, Multiline */, 0.0F, false)
         {
@@ -2981,8 +2987,8 @@ namespace PurplePen
         public PointF centerPoint;
 
         public VariationCodeCourseObj(Id<ControlPoint> controlId, Id<CourseControl> courseControlId, float courseObjRatio, CourseAppearance appearance, string text, PointF centerPoint)
-            : base(controlId, courseControlId, Id<Special>.None, text, centerPoint, NormalCourseAppearance.variationCodeFont.Name, NormalCourseAppearance.variationCodeFont.Style, SpecialColor.LowerPurple,
-            NormalCourseAppearance.variationCodeFont.EmHeight * courseObjRatio /* JU: Rotated, Multiline */, 0, 0.0F, false)
+            : base(controlId, courseControlId, Id<Special>.None, text, centerPoint, NormalCourseAppearance.variationCodeFont.Name, NormalCourseAppearance.variationCodeFont.TextEffects, SpecialColor.LowerPurple,
+            NormalCourseAppearance.variationCodeFont.EmHeight * courseObjRatio, 0 /* JU: Rotated, Multiline */, 0.0F, false)
         {
             // Update the top left coord so the text is centered on centerPoint.
             this.centerPoint = centerPoint;
@@ -3013,8 +3019,8 @@ namespace PurplePen
         private RectangleF rectBounding;
         public readonly float fontDigitHeight; // -1 for automatic.
 
-        public BasicTextCourseObj(Id<Special> specialId, string text, RectangleF rect, string fontName, FontStyle fontStyle, SpecialColor color, float fontDigitHeight /* JU: Rotated, Multiline */ , float rotation, bool multiline)
-            : base(Id<ControlPoint>.None, Id<CourseControl>.None, specialId, text, new PointF(rect.Left, rect.Bottom), fontName, fontStyle, color, 0.0F, 0.0F /* JU: Rotated, Multiline */, rotation, multiline)
+        public BasicTextCourseObj(Id<Special> specialId, string text, RectangleF rectBounding, string fontName, TextEffects textEffects, SpecialColor color, float fontDigitHeight /* JU: Rotated, Multiline */ , float rotation, bool multiline)
+            : base(Id<ControlPoint>.None, Id<CourseControl>.None, specialId, text, new PointF(rectBounding.Left, rectBounding.Bottom), fontName, textEffects, color, CalculateEmHeight(text, fontName, textEffects, fontDigitHeight, rectBounding.Size), 0.0F /* JU: Rotated, Multiline */, rotation, multiline)
         {
             //JU: Multiline
             if (multiline) {
@@ -3029,23 +3035,23 @@ namespace PurplePen
         }
 
         // Get the ratio (emHeight / digitHeight) for the given font.
-        public static float EmHeightToDigitHeightRatio(string fontName, FontStyle fontStyle)
+        public static float EmHeightToDigitHeightRatio(string fontName, TextEffects textEffects)
         {
             float emHeight = 100;
-            using (FontFamily family = GdiplusFontLoader.CreateFontFamily(FontNameSafe(fontName))) {
+            using (FontFamily family = ((GdiplusFontLoader)Services.FontLoader).CreateFontFamily(FontNameSafe(fontName))) {
                 GraphicsPath path = new GraphicsPath();
-                path.AddString("8", family, (int)fontStyle, emHeight, new PointF(0, 0), StringFormat.GenericTypographic);
+                path.AddString("8", family, (int)GdiplusFontLoader.FontStyleFromTextEffects(textEffects), emHeight, new PointF(0, 0), StringFormat.GenericTypographic);
                 float digitHeight = path.GetBounds().Height;
                 return emHeight / digitHeight;
             }
         }
 
         // Given some text in a font and a bounding rectangle, figure out the correct em-height so that the text fits in the rectangle.
-        private float CalculateEmHeight(string text, string fontName, FontStyle fontStyle, float fontDigitHeight, SizeF desiredSize)
+        static private float CalculateEmHeight(string text, string fontName, TextEffects textEffects, float fontDigitHeight, SizeF desiredSize)
         {
             if (fontDigitHeight > 0) {
                 // Specific height, but as the height of a digit. Convert to EmHeight for the given font.
-                return EmHeightToDigitHeightRatio(fontName, fontStyle) * fontDigitHeight;
+                return EmHeightToDigitHeightRatio(fontName, textEffects) * fontDigitHeight;
             }
             else {
                 // Automatically calculate height from bounding rectangle.
@@ -3055,9 +3061,9 @@ namespace PurplePen
                     return 0;
 
                 // Measure with a font size of 1, then scale appropriately.
-                Graphics g = Util.GetHiresGraphics();
+                Graphics g = WindowsUtil.GetHiresGraphics();
                 SizeF size;
-                using (Font f = GdiplusFontLoader.CreateFont(FontNameSafe(fontName), 1F, fontStyle))
+                using (Font f = ((GdiplusFontLoader)Services.FontLoader).CreateFont(FontNameSafe(fontName), 1F, textEffects))
                     size = g.MeasureString(text, f, new PointF(0, 0), StringFormat.GenericTypographic);
 
                 if (size.Width * desiredSize.Height > size.Height * desiredSize.Width) {
@@ -3255,9 +3261,9 @@ namespace PurplePen
             else {
                 // Fit rectangle around the text. Use the same top left corner, but that's actually bottom left
                 // in terms of RectangleF because of inverted coordinate system.
-                Graphics g = Util.GetHiresGraphics();
+                Graphics g = WindowsUtil.GetHiresGraphics();
                 SizeF size;
-                using (Font f = GdiplusFontLoader.CreateFont(SafeFontName, CalculateEmHeight(text, SafeFontName, fontStyle, fontDigitHeight, new SizeF()), fontStyle))
+                using (Font f = ((GdiplusFontLoader)Services.FontLoader).CreateFont(SafeFontName, CalculateEmHeight(text, SafeFontName, textEffects, fontDigitHeight, new SizeF()), textEffects))
                     size = g.MeasureString(text, f, new PointF(0, 0), StringFormat.GenericTypographic);
 
                 // return RectangleF.FromLTRB(boundingRect.Left, boundingRect.Bottom - size.Height, boundingRect.Left + size.Width, boundingRect.Bottom);
@@ -3307,7 +3313,7 @@ namespace PurplePen
                 case 5: return Cursors.SizeNWSE;
                 case 3:
                 case 4: return Cursors.SizeWE;
-                default: return Util.MoveHandleCursor;
+                default: return WindowsUtil.MoveHandleCursor;
             }
         }
 
@@ -3380,7 +3386,8 @@ namespace PurplePen
             }
 
             // Update the rectangle.
-            RectangleUpdating(ref newRect, false, changeLeft, changeTop, changeRight, changeBottom);
+            base.EmHeight = CalculateEmHeight(text, SafeFontName, textEffects, fontDigitHeight, newRect.Size);
+            base.topLeft = new PointF(newRect.Left, newRect.Bottom);
             rectBounding = newRect;
         }
 
@@ -3621,10 +3628,10 @@ namespace PurplePen
     class ImageCourseObj : AspectPreservingRectCourseObj
     {
         public readonly string imageName;
-        public readonly Bitmap imageBitmap;
+        public readonly IGraphicsBitmap imageBitmap;
         private ImageLoader imageLoader;
 
-        public ImageCourseObj(Id<Special> specialId, float courseObjRatio, CourseAppearance appearance, PointF[] locations, string imageName, Bitmap imageBitmap)
+        public ImageCourseObj(Id<Special> specialId, float courseObjRatio, CourseAppearance appearance, PointF[] locations, string imageName, IGraphicsBitmap imageBitmap)
             : base(Id<ControlPoint>.None, Id<CourseControl>.None, specialId, courseObjRatio, appearance, Geometry.RectFromPoints(locations[0].X, locations[0].Y, locations[1].X, locations[1].Y))
         {
             this.imageName = imageName;
@@ -3638,7 +3645,7 @@ namespace PurplePen
                 IList<TemplateInfo> currentTemplates = map.Templates;
 
                 PointF center = Geometry.RectCenter(rect);
-                float dpi = (25.4F * imageBitmap.Width) / rect.Width;
+                float dpi = (25.4F * imageBitmap.PixelWidth) / rect.Width;
                 TemplateInfo newTemplate = new TemplateInfo(imageName, center, dpi, 0, 1.0F, 1.0F, 0, true, null, true);
 
                 List<TemplateInfo> newTemplates = new List<TemplateInfo>(currentTemplates.Count + 1);
@@ -3657,7 +3664,7 @@ namespace PurplePen
                 ImageSymDef layoutSymDef = (ImageSymDef)dict[CourseLayout.KeyLayout];
 
                 PointF center = Geometry.RectCenter(rect);
-                ImageBitmapSymbol symbol = new ImageBitmapSymbol(layoutSymDef, imageName, center, rect.Width / imageBitmap.Width, rect.Height / imageBitmap.Height, null, true, specialId.id, imageLoader);
+                ImageBitmapSymbol symbol = new ImageBitmapSymbol(layoutSymDef, imageName, center, rect.Width / imageBitmap.PixelWidth, rect.Height / imageBitmap.PixelHeight, null, true, specialId.id, imageLoader);
                 map.AddSymbol(symbol);
             }
         }
@@ -3701,9 +3708,9 @@ namespace PurplePen
         private class ImageLoader : IFileLoader
         {
             private string imageName;
-            private Bitmap imageBitmap;
+            private IGraphicsBitmap imageBitmap;
 
-            public ImageLoader(string imageName, Bitmap imageBitmap)
+            public ImageLoader(string imageName, IGraphicsBitmap imageBitmap)
             {
                 this.imageName = imageName;
                 this.imageBitmap = imageBitmap;
@@ -3720,7 +3727,7 @@ namespace PurplePen
             public IGraphicsBitmap LoadBitmap(string path, bool isTemplate)
             {
                 if (string.Equals(path, imageName, StringComparison.InvariantCultureIgnoreCase))
-                    return new GDIPlus_Bitmap(imageBitmap);
+                    return imageBitmap;
                 else
                     return null;
             }

@@ -2928,8 +2928,8 @@ namespace PurplePen
             else {
                 // No text specials. Use defaults.
                 fontName = NormalCourseAppearance.fontNameTextSpecial;
-                fontBold = (NormalCourseAppearance.fontStyleTextSpecial & FontStyle.Bold) != 0;
-                fontItalic = (NormalCourseAppearance.fontStyleTextSpecial & FontStyle.Italic) != 0;
+                fontBold = (NormalCourseAppearance.fontEffectsTextSpecial & TextEffects.Bold) != 0;
+                fontItalic = (NormalCourseAppearance.fontEffectsTextSpecial & TextEffects.Italic) != 0;
                 fontColor = NormalCourseAppearance.fontColorTextSpecial;
                 fontAutoSize = true;
                 fontHeight = 5.0F;
@@ -3525,7 +3525,7 @@ namespace PurplePen
                         newClimb = -1F;
                     }
                     else {
-                        if (!float.TryParse(Util.RemoveMeterSuffix(newStringValue), out newClimb) || newClimb < 0 || newClimb >= 10000) {
+                        if (!float.TryParse(WindowsUtil.RemoveMeterSuffix(newStringValue), out newClimb) || newClimb < 0 || newClimb >= 10000) {
                             // Invalid climb value.
                             ui.ErrorMessage(string.Format(MiscText.BadClimb, newStringValue));
                             break;
@@ -3544,7 +3544,7 @@ namespace PurplePen
                         newLength = -1;
                     }
                     else {
-                        if (!float.TryParse(Util.RemoveSuffix(newStringValue, "km"), out newLength) || newLength <= 0 || newLength >= 100) {
+                        if (!float.TryParse(WindowsUtil.RemoveSuffix(newStringValue, "km"), out newLength) || newLength <= 0 || newLength >= 100) {
                             // Invalid length value.
                             ui.ErrorMessage(string.Format(MiscText.BadLength, newStringValue));
                             break;
@@ -3897,11 +3897,13 @@ namespace PurplePen
 
             if (success) {
                 string imageName = QueryEvent.UniqueImageName(eventDB, Path.GetFileName(fileName));
+                IGraphicsBitmap graphicsBitmap = new GDIPlus_Bitmap(imageBitmap);
+
                 SetCommandMode(new AddRectangleMode(this, undoMgr, selectionMgr, eventDB, (float) imageBitmap.Height / (float) imageBitmap.Width,
                     rect => new ImageCourseObj(Id<Special>.None, 1.0F, GetCourseAppearance(),
                                              new PointF[] { rect.Location, new PointF(rect.Right, rect.Bottom) },
-                                             imageName, imageBitmap),
-                    rect => ChangeEvent.AddImageSpecial(eventDB, rect, imageBitmap, imageName)
+                                             imageName, graphicsBitmap),
+                    rect => ChangeEvent.AddImageSpecial(eventDB, rect, graphicsBitmap, imageName)
                     ));
             }
         }
@@ -4421,18 +4423,6 @@ namespace PurplePen
             }
         }
 
-    }
-
-    class VariationReportData
-    {
-        public readonly string CourseName;
-        public readonly RelayVariations RelayVariations;
-
-        public VariationReportData(string courseName, RelayVariations relayVariations)
-        {
-            CourseName = courseName;
-            RelayVariations = relayVariations;
-        }
     }
 
 

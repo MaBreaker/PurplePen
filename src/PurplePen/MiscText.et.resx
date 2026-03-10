@@ -144,9 +144,6 @@
   <data name="CannotLoadMapFile" xml:space="preserve">
     <value>Ei saa lugeda kaardi faili '{0}' põhjusel:</value>
   </data>
-  <data name="CannotReadImageFile" xml:space="preserve">
-    <value>Ei saa lugeda pildi faili '{0}'.</value>
-  </data>
   <data name="CannotPrint" xml:space="preserve">
     <value>Ei saa trükkida '{0}' , põhjusel:</value>
   </data>
@@ -155,9 +152,6 @@
   </data>
   <data name="CannotCreateDirectory" xml:space="preserve">
     <value>Ei saa luua kausta '{0}' põhjusel:</value>
-  </data>
-  <data name="CannotReadMap" xml:space="preserve">
-    <value>Kaardi faili ei saanud avada järgmisel põhjusel: '{0}' Kasuta Optimeeri/paranda funktsiooni ja OCADi uuesti salvestamine võib vea parandada.</value>
   </data>
   <data name="CannotCreateOcadFiles" xml:space="preserve">
     <value>Ei saa luua OCAD faili põhjusel:</value>
@@ -244,18 +238,6 @@ Kasuta | ridade eraldamiseks</value>
   <data name="DeleteControlFromAllControls" xml:space="preserve">
     <value>KP {0} on kasutusel rajal: {1}. Kas soovid selle eemaldada sellegi poolest?</value>
   </data>
-  <data name="CodeBadLength" xml:space="preserve">
-    <value>Tunnusnumber peab oleama üks, kaks või kolm tähte või numbrit pikk.</value>
-  </data>
-  <data name="CodeContainsSpace" xml:space="preserve">
-    <value>Tunnusnumber ei tohi sisaldada tühikuid.</value>
-  </data>
-  <data name="CodeBeginsWithZero" xml:space="preserve">
-    <value>Tunnusnumber ei tohi alata nulliga.</value>
-  </data>
-  <data name="CodeCouldBeUpsideDown" xml:space="preserve">
-    <value>Tunnusnumber ei tohi olla loetav tagurpidi teise numbrina.</value>
-  </data>
   <data name="DuplicateCode" xml:space="preserve">
     <value>Tunnusnumber "{0}" on kasutusel rohkem kui üks kord.</value>
   </data>
@@ -302,9 +284,6 @@ Peale OK vajutamist, otsi kaardi fail arvutist..</value>
   <data name="NextButtonText" xml:space="preserve">
     <value>&amp;Edasi &gt;</value>
   </data>
-  <data name="Control_Code" xml:space="preserve">
-    <value>KP {0}</value>
-  </data>
   <data name="Finish" xml:space="preserve">
     <value>Finiš</value>
   </data>
@@ -331,15 +310,6 @@ Peale OK vajutamist, otsi kaardi fail arvutist..</value>
   </data>
   <data name="Start_Short" xml:space="preserve">
     <value>S</value>
-  </data>
-  <data name="Version_Alpha" xml:space="preserve">
-    <value>Alfa {0}</value>
-  </data>
-  <data name="Version_Beta" xml:space="preserve">
-    <value>Beeta {0}</value>
-  </data>
-  <data name="Version_RC" xml:space="preserve">
-    <value>RC {0}</value>
   </data>
   <data name="Plural" xml:space="preserve">
     <value>mitmuses</value>
@@ -419,15 +389,6 @@ Peale OK vajutamist, otsi kaardi fail arvutist..</value>
   <data name="CrashSend" xml:space="preserve">
     <value>Saada aruanne</value>
   </data>
-  <data name="PdfConverterNotFound" xml:space="preserve">
-    <value>PdfConverter.exe ei leitud</value>
-  </data>
-  <data name="PdfConversionFailed" xml:space="preserve">
-    <value>Pdfium PDF konverteril ebaõnnestus PDFi lugemisel</value>
-  </data>
-  <data name="PdfResultNotReadable" xml:space="preserve">
-    <value>Ei saanud konverteerida PDFi failist '{0}'</value>
-  </data>
   <data name="CannotCreatePdfs" xml:space="preserve">
     <value>Ei saanud salvestada PDFe järgmise põhjuse pärast:</value>
   </data>
@@ -497,17 +458,11 @@ Peale OK vajutamist, otsi kaardi fail arvutist..</value>
   <data name="ChangeLineAppearanceTitle" xml:space="preserve">
     <value>Muuda joone väljanägemist</value>
   </data>
-  <data name="GpxMustBeOcadMap" xml:space="preserve">
-    <value>GPX faili tegemiseks, peab kaardi fail olema OCADi fail</value>
-  </data>
   <data name="GpxMustHaveCoordSystem" xml:space="preserve">
     <value>GPXi jaoks on vaja OCADi faili, kus koorinaatsüsteem on määratud.</value>
   </data>
   <data name="GpxMustHaveRealWorldCoord" xml:space="preserve">
     <value>GPX faili loomiseks on vaja, et OCADi kaardifaili oleks õiges koordinaatsüsteemis.</value>
-  </data>
-  <data name="GpxReprojectFailure" xml:space="preserve">
-    <value>Ei suutnud määrate punkte; võimalik, et koordinaatsüsteem OCAD kaardifailis on vale või määramata.</value>
   </data>
   <data name="GpxUnsupportedCoordSystem" xml:space="preserve">
     <value>OCAD kaardifailis on kasutusel koordinaadid, mis ei ole toetatud Purpe Peni poolt.</value>
@@ -569,18 +524,6 @@ Peale OK vajutamist, otsi kaardi fail arvutist..</value>
   <data name="VariationNotLastControl" xml:space="preserve">
     <value>Varinati ei saa lisada viimasele KP'le. Lisa enne finiš.</value>
   </data>
-  <data name="BadLegNumber" xml:space="preserve">
-    <value>'{0}' ei ole sobiv vahetuse number harule '{1}'</value>
-  </data>
-  <data name="LegNotAssigned" xml:space="preserve">
-    <value>Vahetuse {0} peab lisama vähemalt ühele harule {1}</value>
-  </data>
-  <data name="LegUsedTwice" xml:space="preserve">
-    <value>Vahetus {0} on määratud harule  '{1}' ja harule  '{2}'</value>
-  </data>
-  <data name="CannotReadMapOOM" xml:space="preserve">
-    <value>Ei õnnestu avada faili järgmisel põhjusel: '{0}'. Faili avamine ja uuesti salvestamine viimase versiooni OpenOrienteering Mapper'iga võib probleemi lahendada.</value>
-  </data>
   <data name="MapIssue_Long" xml:space="preserve">
     <value>Stardijoon</value>
   </data>
@@ -605,9 +548,6 @@ Peale OK vajutamist, otsi kaardi fail arvutist..</value>
   <data name="PdfFilter" xml:space="preserve">
     <value>PDF Fail|*.pdf</value>
   </data>
-  <data name="LegAssignedOuterBranch" xml:space="preserve">
-    <value>Vahetus {0} ei jõua kunagi harusse '{1}': see on määratud teisele teele valitud hajutuses.</value>
-  </data>
   <data name="AddEllipseExplanation" xml:space="preserve">
     <value>Seadista ellipsi visuaal. Peale OK nupule vajutamist lohista hiirega ellips soovitud kohale.</value>
   </data>
@@ -619,5 +559,8 @@ Peale OK vajutamist, otsi kaardi fail arvutist..</value>
   </data>
   <data name="GhostscriptNotInstalled" xml:space="preserve">
     <value>GPL Ghostscript on installeeritud</value>
+  </data>
+  <data name="GpxMustBeOcadMap" xml:space="preserve">
+    <value>GPX faili tegemiseks, peab kaardi fail olema OCADi fail</value>
   </data>
 </root>
