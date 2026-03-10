@@ -40,21 +40,26 @@ using SysDraw = System.Drawing;
 using PointF = System.Drawing.PointF;
 using RectangleF = System.Drawing.RectangleF;
 using SizeF = System.Drawing.SizeF;
-using FillMode = System.Drawing.Drawing2D.FillMode;
-using LineJoin = System.Drawing.Drawing2D.LineJoin;
-using LineCap = System.Drawing.Drawing2D.LineCap;
 
 using PurplePen.MapModel;
 using PurplePen.Graphics2D;
 
 using PdfSharp.Pdf;
 using PdfSharp.Drawing;
+using PdfSharp.Fonts;
 
 namespace PurplePen.MapModel
 {
     public class PdfWriter
     {
         private PdfDocument document;
+
+        static PdfWriter()
+        {
+            // Set our font resolver so we can use our fonts in PDF output. This is tightly
+            // coupled with PdfGraphicsTarget because it relies on the same font resolver to get the font data for measuring text.
+           GlobalFontSettings.FontResolver = new PdfFontResolver();
+        }
 
         // Create a PdfWriter with the given title.
         public PdfWriter(string title, bool cmykMode)
@@ -187,11 +192,11 @@ namespace PurplePen.MapModel
             // Get an XGraphics object for drawing
             XGraphics xGraphics = ((Pdf_GraphicsTarget)target).XGraphics;
             //JU: Set crop box for white margins
-     //       xGraphics.PdfPage.CropBox = new PdfRectangle(new XPoint(marginInInches * 72F, marginInInches * 72F), new XPoint(sizeInInches.Width * 72F - marginInInches * 72F, sizeInInches.Height * 72F - marginInInches * 72F)); ;
+            //       xGraphics.PdfPage.CropBox = new PdfRectangle(new XPoint(marginInInches * 72F, marginInInches * 72F), new XPoint(sizeInInches.Width * 72F - marginInInches * 72F, sizeInInches.Height * 72F - marginInInches * 72F)); ;
             //JU: PDF white margins, draws whole source PDF always, no matter what size rect bounds are set
-            xGraphics.DrawImage(xformToCopy, new RectangleF(0, 0, (float) xformToCopy.PointWidth / 72F * 100F, (float) xformToCopy.PointHeight / 72F * 100F));
+            xGraphics.DrawImage(xformToCopy, new XRect(0, 0, xformToCopy.PointWidth / 72F * 100F, xformToCopy.PointHeight / 72F * 100F));
             //JU: Default crop box
-     //       xGraphics.PdfPage.CropBox = new PdfRectangle(new XPoint(0, 0), new XPoint(sizeInInches.Width * 72F, sizeInInches.Height * 72F)); ;
+            //       xGraphics.PdfPage.CropBox = new PdfRectangle(new XPoint(0, 0), new XPoint(sizeInInches.Width * 72F, sizeInInches.Height * 72F)); ;
             target.PopTransform();
             target.PopClip();
 
@@ -203,9 +208,9 @@ namespace PurplePen.MapModel
         PointF CropboxOriginInPoints(PdfPage pageToCopy)
         {
             PdfRectangle cropRect = pageToCopy.CropBox;
-            if (!cropRect.IsEmpty) {
+            if (!cropRect.IsZero) {
                 double translateX = cropRect.Location.X;
-                double translateY = pageToCopy.Height - (cropRect.Location.Y + cropRect.Size.Height);
+                double translateY = pageToCopy.Height.Point - (cropRect.Location.Y + cropRect.Size.Height);
                 return new PointF((float)translateX, (float)translateY);
             }
             else {

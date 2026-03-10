@@ -3702,6 +3702,9 @@ for the symbols.
     <name lang="en">Trench</name>
     <text lang="en">trench</text>
     <text lang="en" plural="true">trenches</text>
+    <name lang="fi">Kaivanto</name>
+    <text lang="fi">kaivanto</text>
+    <text lang="fi" plural="true">kaivantojen</text>
     <name lang="it">Trincea</name>
     <text lang="it" gender="femminile">trincea</text>
     <text lang="it" plural="true" gender="femminile">trincee</text>
@@ -7785,6 +7788,9 @@ for the symbols.
     <name lang="en">Flower bed / Out of bounds area</name>
     <text lang="en">flower bed</text>
     <text lang="en" plural="true">flower beds</text>
+    <name lang="fi">Kukkapenkki / Kielletty alue</name>
+    <text lang="fi">kukkapenkki</text>
+    <text lang="fi" plural="true">kukkapenkit</text>
     <name lang="it">Aiuola</name>
     <text lang="it" gender="femminile">aiuola</text>
     <text lang="it" plural="true" gender="femminile">aiuole</text>
@@ -7849,6 +7855,9 @@ for the symbols.
     <name lang="en">Railway</name>
     <text lang="en">railroad tracks</text>
     <text lang="en" plural="true">railroad tracks</text>
+    <name lang="fi">Rautatie</name>
+    <text lang="fi">rata kiskot</text>
+    <text lang="fi" plural="true">rata kiskot</text>
     <text lang="en-GB">railway track</text>
     <text lang="en-GB" plural="true">railway tracks</text>
     <text lang="en-AU">railway track</text>

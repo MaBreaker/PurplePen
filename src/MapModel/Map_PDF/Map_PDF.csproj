@@ -15,7 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Graphics2D\Graphics2D.csproj" />
     <ProjectReference Include="..\MapModel\MapModel.csproj" />
-    <ProjectReference Include="..\Map_GDIPlus\Map_GDIPlus.csproj" />
-    <ProjectReference Include="..\PdfSharp\PdfSharp.csproj" />
+    <ProjectReference Include="..\Map_SkiaStd\Map_SkiaStd.csproj" />
+    <ProjectReference Include="..\PDFsharp\src\foundation\src\PDFsharp\src\PdfSharp\PdfSharp.csproj" />
   </ItemGroup>
 </Project>

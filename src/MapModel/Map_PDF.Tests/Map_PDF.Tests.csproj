@@ -30,7 +30,7 @@
     <ProjectReference Include="..\MapModel\MapModel.csproj" />
     <ProjectReference Include="..\Map_GDIPlus\Map_GDIPlus.csproj" />
     <ProjectReference Include="..\Map_PDF\Map_PDF.csproj" />
-    <ProjectReference Include="..\PdfSharp\PdfSharp.csproj" />
+    <ProjectReference Include="..\PDFsharp\src\foundation\src\PDFsharp\src\PdfSharp\PdfSharp.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net48'">
