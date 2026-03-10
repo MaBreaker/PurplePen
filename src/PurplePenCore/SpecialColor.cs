@@ -21,22 +21,25 @@ namespace PurplePen
         public readonly static SpecialColor UpperPurple = new SpecialColor(ColorKind.UpperPurple);
         public readonly static SpecialColor LowerPurple = new SpecialColor(ColorKind.LowerPurple);
 
-        public SpecialColor(ColorKind colorKind)
+        public SpecialColor(ColorKind colorKind /* JU: Over print */ , bool overprint = false)
         {
             Debug.Assert(colorKind != ColorKind.Custom);
             this.Kind = colorKind;
+            this.Overprint = overprint; /* JU: Over print */
         }
 
-        public SpecialColor(float cyan, float magenta, float yellow, float black)
+        public SpecialColor(float cyan, float magenta, float yellow, float black /* JU: Over print */ , bool overprint = false)
         {
             this.Kind = ColorKind.Custom;
             this.CustomColor = CmykColor.FromCmyk(cyan, magenta, yellow, black);
+            this.Overprint = overprint; /* JU: Over print */
         }
 
-        public SpecialColor(CmykColor color)
+        public SpecialColor(CmykColor color /* JU: Over print */ , bool overprint = false)
         {
             this.Kind = ColorKind.Custom;
             this.CustomColor = color;
+            this.Overprint = overprint; /* JU: Over print */
         }
 
         public override string ToString()
@@ -50,7 +53,7 @@ namespace PurplePen
             }
         }
 
-        public static SpecialColor Parse(string s)
+        public static SpecialColor Parse(string s /* JU: Over print */ , bool overprint)
         {
             if (s == "black")
                 return SpecialColor.Black;
@@ -67,7 +70,7 @@ namespace PurplePen
                 m = float.Parse(colors[1], CultureInfo.InvariantCulture);
                 y = float.Parse(colors[2], CultureInfo.InvariantCulture);
                 k = float.Parse(colors[3], CultureInfo.InvariantCulture);
-                return new SpecialColor(c, m, y, k);
+                return new SpecialColor(c, m, y, k /* JU: Over print */ , overprint);
             }
         }
 
@@ -80,7 +83,7 @@ namespace PurplePen
             if (Kind != ColorKind.Custom)
                 return Kind == other.Kind;
             else
-                return (Kind == other.Kind && CustomColor.Equals(other.CustomColor));
+                return (Kind == other.Kind && CustomColor.Equals(other.CustomColor) /* JU: Over print */ && Overprint == other.Overprint);
         }
 
         public override int GetHashCode()
