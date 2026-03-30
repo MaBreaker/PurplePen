@@ -131,7 +131,7 @@ namespace PurplePen
 
             // Begin dragging out the description block.
             startLocation = location;
-            startingObj = new BasicTextCourseObj(Id<Special>.None, displayText, new RectangleF(location, new SizeF(0.001F, 0.001F)), fontName, WindowsUtil.GetTextEffects(fontBold, fontItalic), fontColor, fontHeight);
+            startingObj = new BasicTextCourseObj(Id<Special>.None, displayText, new RectangleF(location, new SizeF(0.001F, 0.001F)), fontName, WindowsUtil.GetTextEffects(fontBold, fontItalic), fontColor, fontHeight /* JU: Rotated and Multiline texts */, orientation, multiline);
             handleDragging = location;
             DragTo(location);
             displayUpdateNeeded = true;
@@ -188,7 +188,7 @@ namespace PurplePen
         {
             undoMgr.BeginCommand(1551, CommandNameText.AddObject);
 
-            Id<Special> specialId = ChangeEvent.AddTextSpecial(eventDB, boundingRect, text, currentObj.fontName, (currentObj.textEffects & TextEffects.Bold) != 0, (currentObj.textEffects & TextEffects.Italic) != 0, currentObj.fontColor, currentObj.fontDigitHeight);
+            Id<Special> specialId = ChangeEvent.AddTextSpecial(eventDB, boundingRect, text, currentObj.fontName, (currentObj.textEffects & TextEffects.Bold) != 0, (currentObj.textEffects & TextEffects.Italic) != 0, currentObj.fontColor, currentObj.fontDigitHeight /* JU: Rotated and Multiline texts */, currentObj.orientation, currentObj.multiline);
             undoMgr.EndCommand(1551);
 
             selectionMgr.SelectSpecial(specialId);

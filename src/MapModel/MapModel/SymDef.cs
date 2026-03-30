@@ -2702,7 +2702,7 @@ namespace PurplePen.MapModel
 
     public class TextSymDef: SymDef
     {
-        public enum FramingStyle { None, Line, Shadow, Rectangle };
+        public enum FramingStyle {None, Line, Shadow, Rectangle };
 
         public enum PreferredSymbolKind { NormalText, LineText, None }
 

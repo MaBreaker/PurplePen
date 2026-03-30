@@ -1444,7 +1444,7 @@ namespace PurplePen.MapModel
             }
         }
 
-        // Create a image object -- an object created from an image import operations
+        // Create a iamge object -- an object created  from an image import operations
         void CreateImageObject(OcadIndex index, OcadObject obj, SymLayer layer)
         {
             Debug.Assert(layer == SymLayer.Image || layer == SymLayer.Layout);

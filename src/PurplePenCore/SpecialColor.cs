@@ -16,6 +16,7 @@ namespace PurplePen
 
         public readonly ColorKind Kind;
         public readonly CmykColor CustomColor;
+        public readonly bool Overprint; /* JU: Over print */
 
         public readonly static SpecialColor Black = new SpecialColor(ColorKind.Black);
         public readonly static SpecialColor UpperPurple = new SpecialColor(ColorKind.UpperPurple);

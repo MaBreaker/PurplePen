@@ -595,7 +595,7 @@ namespace PurplePen
                 TextEffects textEffects = WindowsUtil.GetTextEffects(special.fontBold, special.fontItalic);
                 RectangleF boundingRect = RectangleF.FromLTRB((float)Math.Min(special.locations[0].X, special.locations[1].X), (float)Math.Min(special.locations[0].Y, special.locations[1].Y),
                                                                                               (float)Math.Max(special.locations[0].X, special.locations[1].X), (float)Math.Max(special.locations[0].Y, special.locations[1].Y));
-                courseObj = new BasicTextCourseObj(specialId, text, boundingRect, special.fontName, fontStyle, special.color, special.fontHeight /* JU: Rotated and Multile texts */, special.orientation, special.multiline);
+                courseObj = new BasicTextCourseObj(specialId, text, boundingRect, special.fontName, textEffects, special.color, special.fontHeight /* JU: Rotated and Multile texts */, special.orientation, special.multiline);
                 break;
             case SpecialKind.Descriptions:
                 Debug.Fail("description specials should not be passed to this function");

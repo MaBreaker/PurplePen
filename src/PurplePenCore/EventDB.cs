@@ -47,7 +47,6 @@ using System.Globalization;
 namespace PurplePen
 {
     using System.Linq;
-    using System.Windows.Forms;
     using PurplePen.Graphics2D;
     using PurplePen.MapModel;
 

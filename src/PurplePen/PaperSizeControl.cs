@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Data;
+using System.Drawing;
+using System.Drawing.Printing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.Drawing.Printing;
-using System.Globalization;
+using Newtonsoft.Json; // JU: Json serialization
 
 namespace PurplePen
 {
@@ -49,11 +50,13 @@ namespace PurplePen
             get
             {
                 UpdateSettings();
+                //return System.Text.Json.JsonSerializer.Serialize(paperSize);
                 return JsonConvert.SerializeObject(paperSize);
             }
 
             set
             {
+                //PaperSize = System.Text.Json.JsonSerializer.Deserialize<PaperSize>(value);
                 PaperSize = JsonConvert.DeserializeObject<PaperSize>(value);
                 UpdateDialog();
             }

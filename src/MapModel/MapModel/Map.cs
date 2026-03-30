@@ -2181,7 +2181,7 @@ namespace PurplePen.MapModel
         {
             Draw(g, rect, renderOpts, throwOnCancel, 0);
         }
-        /* JU */
+        /* JU: public */
         public void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel, int templateRecursionCount)
         {
             CheckReadable();

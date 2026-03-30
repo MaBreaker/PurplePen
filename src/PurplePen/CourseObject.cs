@@ -1073,7 +1073,7 @@ namespace PurplePen
         public bool multiline;
 
         // NOTE: scale ratio is not used for this type of object!
-        public TextCourseObj(Id<ControlPoint> controlId, Id<CourseControl> courseControlId, Id<Special> specialId, string text, PointF topLeft, string fontName, FontStyle fontStyle, SpecialColor fontColor, float emHeight, float outlineWidth, /* JU: Rotated and Multiline texts */ float orientation, bool multiline)
+        public TextCourseObj(Id<ControlPoint> controlId, Id<CourseControl> courseControlId, Id<Special> specialId, string text, PointF topLeft, string fontName, TextEffects textEffects, SpecialColor fontColor, float emHeight, float outlineWidth, /* JU: Rotated and Multiline texts */ float orientation, bool multiline)
             :
            base(controlId, courseControlId, specialId, 1.0F, new CourseAppearance())
         {
@@ -3031,7 +3031,7 @@ namespace PurplePen
             this.rectBounding = AdjustBoundingRect(rect);
 
             //JU: Calculate text size for original bounding box size before rotation
-            this.EmHeight = CalculateEmHeight(this.text, fontName, fontStyle, fontDigitHeight, rect.Size);
+            this.EmHeight = CalculateEmHeight(this.text, fontName, textEffects, fontDigitHeight, rect.Size);
         }
 
         // Get the ratio (emHeight / digitHeight) for the given font.
@@ -3403,7 +3403,7 @@ namespace PurplePen
             //base.topLeft = RotatedContentTopLeft(newRect, orientation);
             
             base.topLeft = textRect.BottomLeft();
-            base.EmHeight = CalculateEmHeight(text, SafeFontName, fontStyle, fontDigitHeight, textRect.Size);
+            base.EmHeight = CalculateEmHeight(text, SafeFontName, textEffects, fontDigitHeight, textRect.Size);
 
             //JU: TODO Dragging HiLight - Relocate topleft properly while dragging
             /*
