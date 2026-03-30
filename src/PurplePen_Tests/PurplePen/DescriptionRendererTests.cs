@@ -94,11 +94,14 @@ namespace PurplePen.Tests
 
             g.Clear(Color.White);
 
-            for (int x = 0; x < size.Width; ++x) {
-                for (int y = 0; y < size.Height; ++y) {
-                    Rectangle clip = new Rectangle(x, y, 1, 1);
-                    g.SetClip(clip);
-                    descriptionRenderer.RenderToGraphics(g, clip);
+            using (GDIPlus_GraphicsTarget graphicsTarget = new GDIPlus_GraphicsTarget(g)) {
+                for (int x = 0; x < size.Width; ++x) {
+                    for (int y = 0; y < size.Height; ++y) {
+                        Rectangle clip = new Rectangle(x, y, 1, 1);
+                        graphicsTarget.PushClip(clip);
+                        descriptionRenderer.RenderToGraphics(graphicsTarget, clip);
+                        graphicsTarget.PopClip();   
+                    }
                 }
             }
 
@@ -314,7 +317,7 @@ namespace PurplePen.Tests
                 // Create white color and white-out symdef.
                 SymColor white = map.AddColorBottom("White", 44, 0, 0, 0, 0, false);
                 AreaSymDef whiteArea = new AreaSymDef("White out", "890", white, null);
-                whiteArea.ToolboxImage = MapUtil.CreateToolboxIcon(Properties.Resources.WhiteOut_OcadToolbox);
+                whiteArea.ToolboxImage = CoreMapUtil.CreateToolboxIcon(ImageResources.WhiteOut_OcadToolbox);
                 map.AddSymdef(whiteArea);
                 dict[CourseLayout.KeyWhiteOut] = whiteArea;
 

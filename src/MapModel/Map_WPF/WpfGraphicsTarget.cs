@@ -80,6 +80,15 @@ namespace PurplePen.MapModel
         {
         }
 
+        public float Intensity {
+            get { return 1.0F; }
+            set {
+                if (value != 1.0F) {
+                    throw new ArgumentException("Only intensities of 1.0 are supported", "value");
+                }
+            }
+        }
+
         public WPF_ColorConverter ColorConverter
         {
             get { return colorConverter; }
@@ -427,13 +436,13 @@ namespace PurplePen.MapModel
         private static extern bool DeleteObject(IntPtr hObject);
 
         // Draw a bitmap
-        public void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
+        public void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode)
         {
-            DrawBitmapPart(bm, 0, 0, bm.PixelWidth, bm.PixelHeight, rectangle, scalingMode, minResolution);
+            DrawBitmapPart(bm, 0, 0, bm.PixelWidth, bm.PixelHeight, rectangle, scalingMode);
         }
 
         // Draw part of a bitmap
-        public void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
+        public void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectangle, BitmapScaling scalingMode)
         {
             GDIPlus_Bitmap gdiBitmap = (GDIPlus_Bitmap)bm;
             var hBitmap = gdiBitmap.Bitmap.GetHbitmap();
@@ -734,6 +743,15 @@ namespace PurplePen.MapModel
         {
             FormattedText formattedText = new FormattedText(text, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, typeface, emHeight, Brushes.Black, null, 1.0);
             return new SizeF((float)formattedText.WidthIncludingTrailingWhitespace, (float)formattedText.Height);
+        }
+
+        // The following code has never been tested.
+        public RectangleF GetTightBoundingBox(PointF startpoint, string text)
+        {
+            FormattedText formattedText = new FormattedText(text, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, typeface, emHeight, Brushes.Black, null, 1.0);
+            Geometry geometry = formattedText.BuildGeometry(new Point(startpoint.X, startpoint.Y + VerticalDisplacement));
+            Rect bounds = geometry.Bounds;
+            return new RectangleF((float)bounds.X, (float)bounds.Y, (float)bounds.Width, (float)bounds.Height);
         }
 
         public void Dispose()

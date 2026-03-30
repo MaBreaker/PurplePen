@@ -54,7 +54,7 @@ namespace PurplePen.MapModel
     public class GDIPlus_GraphicsTarget: IGraphicsTarget
     {
         public Graphics Graphics;
-        private GDIPlus_ColorConverter colorConverter;
+        private IColorConverter colorConverter;
         private float intensity;
         private ImageAttributes imageAttributes;
         private Stack<GraphicsState> stateStack;
@@ -80,10 +80,10 @@ namespace PurplePen.MapModel
         public const PixelFormat NonAlphaPixelFormat = PixelFormat.Format32bppPArgb;
 #endif
 
-        public GDIPlus_GraphicsTarget(Graphics g, GDIPlus_ColorConverter colorConverter, float intensity)
+        public GDIPlus_GraphicsTarget(Graphics g, IColorConverter colorConverter, float intensity)
         {
             this.Graphics = g;
-            this.colorConverter = colorConverter ?? new GDIPlus_ColorConverter();
+            this.colorConverter = colorConverter ?? DefaultColorConverter.Instance;
             this.intensity = intensity;
             if (intensity < 1.0F) {
                 imageAttributes = new ImageAttributes();
@@ -100,7 +100,7 @@ namespace PurplePen.MapModel
             stringFormat.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
         }
 
-        public GDIPlus_GraphicsTarget(Graphics g, GDIPlus_ColorConverter colorConverter): this(g, colorConverter, 1.0F)
+        public GDIPlus_GraphicsTarget(Graphics g, IColorConverter colorConverter): this(g, colorConverter, 1.0F)
         {
         }
 
@@ -117,7 +117,7 @@ namespace PurplePen.MapModel
             this.Graphics = newGraphics;
         }
 
-        public GDIPlus_ColorConverter ColorConverter
+        public IColorConverter ColorConverter
         {
             get { return colorConverter; }
         }
@@ -125,6 +125,26 @@ namespace PurplePen.MapModel
         public float Intensity
         {
             get { return intensity; }
+            set {
+                // Pens and brushes have colors that were based on the intensity, so
+                // they must be destroyed.
+                foreach (Pen pen in penMap.Values)
+                    pen.Dispose();
+                penMap.Clear();
+
+                foreach (Brush brush in brushMap.Values)
+                    brush.Dispose();
+                brushMap.Clear();
+
+                intensity = value;
+                if (intensity < 1.0F) {
+                    imageAttributes = new ImageAttributes();
+                    imageAttributes.SetColorMatrix(ComputeColorMatrix(intensity).ToSysDrawColorMatrix());
+                }
+                else {
+                    imageAttributes = null;
+                }
+            }
         }
 
         private Color ConvertColor(CmykColor cmykColor)
@@ -347,7 +367,6 @@ namespace PurplePen.MapModel
             // Blending not supported.
         }
 
-
         // Draw an line with a pen.
         public void DrawLine(object penKey, PointF start, PointF finish)
         {
@@ -541,7 +560,7 @@ namespace PurplePen.MapModel
         }
 
         // Draw a bitmap
-        public void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
+        public void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode)
         {
             // If the transformed rectangle is too large, we can run out of memory.
             RectangleF transformedBounds = Geometry.BoundsOfTransformedRectangle(rectangle, Graphics.Transform.ToGraphics2DMatrix());
@@ -550,7 +569,7 @@ namespace PurplePen.MapModel
 
             if (bm.PixelHeight * bm.PixelWidth > BITMAP_DRAW_LIMIT) {
                 // Very large bitmaps can't be drawn in one piece.
-                DrawBitmapPartSplit(bm, 0, 0, bm.PixelWidth, bm.PixelHeight, rectangle, scalingMode, minResolution);
+                DrawBitmapPartSplit(bm, 0, 0, bm.PixelWidth, bm.PixelHeight, rectangle, scalingMode);
                 return;
             }
 
@@ -559,7 +578,7 @@ namespace PurplePen.MapModel
 
             Graphics.InterpolationMode = GetInterpolationMode(scalingMode);
             try {
-                if (imageAttributes != null) {
+              if (imageAttributes != null) {
                     Graphics.DrawImage(gdiBitmap,
                         new PointF[3] { new PointF(rectangle.Left, rectangle.Top), new PointF(rectangle.Right, rectangle.Top), new PointF(rectangle.Left, rectangle.Bottom) },
                         new RectangleF(0, 0, gdiBitmap.Width, gdiBitmap.Height),
@@ -578,7 +597,7 @@ namespace PurplePen.MapModel
         }
 
         // Draw part of a bitmap
-        public void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
+        public void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectangle, BitmapScaling scalingMode)
         {
             // If the transformed rectangle is too large, we can run out of memory.
             RectangleF transformedBounds = Geometry.BoundsOfTransformedRectangle(rectangle, Graphics.Transform.ToGraphics2DMatrix());
@@ -587,7 +606,7 @@ namespace PurplePen.MapModel
 
             if (width * height > BITMAP_DRAW_LIMIT) {
                 // Very large bitmaps can't be drawn in one piece.
-                DrawBitmapPartSplit(bm, x, y, width, height, rectangle, scalingMode, minResolution);
+                DrawBitmapPartSplit(bm, x, y, width, height, rectangle, scalingMode);
                 return;
             }
 
@@ -614,17 +633,17 @@ namespace PurplePen.MapModel
             Graphics.InterpolationMode = oldMode;
         }
 
-        private void DrawBitmapPartSplit(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
+        private void DrawBitmapPartSplit(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectangle, BitmapScaling scalingMode)
         {
             int xSrcSplit = x + width / 2, ySrcSplit = y + height / 2;
 
             float xDestSplit = rectangle.X + rectangle.Width * (xSrcSplit - x) / width;
             float yDestSplit = rectangle.Y + rectangle.Height * (ySrcSplit - y) / height;
 
-            DrawBitmapPart(bm, x, y, xSrcSplit - x, ySrcSplit - y,                                  RectangleF.FromLTRB(rectangle.X, rectangle.Y, xDestSplit, yDestSplit), scalingMode, minResolution);
-            DrawBitmapPart(bm, xSrcSplit, y, x + width - xSrcSplit, ySrcSplit - y,                  RectangleF.FromLTRB(xDestSplit, rectangle.Y, rectangle.Right, yDestSplit), scalingMode, minResolution);
-            DrawBitmapPart(bm, x, ySrcSplit, xSrcSplit - x, y + height - ySrcSplit,                 RectangleF.FromLTRB(rectangle.X, yDestSplit, xDestSplit, rectangle.Bottom), scalingMode, minResolution);
-            DrawBitmapPart(bm, xSrcSplit, ySrcSplit, x + width - xSrcSplit, y + height - ySrcSplit, RectangleF.FromLTRB(xDestSplit, yDestSplit, rectangle.Right, rectangle.Bottom), scalingMode, minResolution);
+            DrawBitmapPart(bm, x, y, xSrcSplit - x, ySrcSplit - y,                                  RectangleF.FromLTRB(rectangle.X, rectangle.Y, xDestSplit, yDestSplit), scalingMode);
+            DrawBitmapPart(bm, xSrcSplit, y, x + width - xSrcSplit, ySrcSplit - y,                  RectangleF.FromLTRB(xDestSplit, rectangle.Y, rectangle.Right, yDestSplit), scalingMode);
+            DrawBitmapPart(bm, x, ySrcSplit, xSrcSplit - x, y + height - ySrcSplit,                 RectangleF.FromLTRB(rectangle.X, yDestSplit, xDestSplit, rectangle.Bottom), scalingMode);
+            DrawBitmapPart(bm, xSrcSplit, ySrcSplit, x + width - xSrcSplit, y + height - ySrcSplit, RectangleF.FromLTRB(xDestSplit, yDestSplit, rectangle.Right, rectangle.Bottom), scalingMode);
         }
 
         private InterpolationMode GetInterpolationMode(BitmapScaling scalingMode)
@@ -773,17 +792,17 @@ namespace PurplePen.MapModel
         Stack<BlendMode> blendStack = new Stack<BlendMode>();
         int width, height;
 
-        public GDIPlus_BitmapGraphicsTarget(int pixelWidth, int pixelHeight, bool alpha, CmykColor initialColor, RectangleF rectangle, bool inverted, GDIPlus_ColorConverter colorConverter = null, float intensity = 1.0F)
+        public GDIPlus_BitmapGraphicsTarget(int pixelWidth, int pixelHeight, bool alpha, CmykColor initialColor, RectangleF rectangle, bool inverted, IColorConverter colorConverter = null, float intensity = 1.0F)
             :this(GetBitmap(pixelWidth, pixelHeight, alpha), initialColor, rectangle, inverted, colorConverter, intensity)
         {
         }
 
-        public GDIPlus_BitmapGraphicsTarget(Bitmap bitmap, CmykColor initialColor, RectangleF rectangle, bool inverted, GDIPlus_ColorConverter colorConverter = null, float intensity = 1.0F)
+        public GDIPlus_BitmapGraphicsTarget(Bitmap bitmap, CmykColor initialColor, RectangleF rectangle, bool inverted, IColorConverter colorConverter = null, float intensity = 1.0F)
             :this(bitmap, initialColor, GetTransform(bitmap, rectangle, inverted), colorConverter, intensity)
         {
         }
 
-        public GDIPlus_BitmapGraphicsTarget(Bitmap bitmap, CmykColor initialColor, Matrix transform, GDIPlus_ColorConverter colorConverter = null, float intensity = 1.0F, Region clipRegion = null)
+        public GDIPlus_BitmapGraphicsTarget(Bitmap bitmap, CmykColor initialColor, Matrix transform, IColorConverter colorConverter = null, float intensity = 1.0F, Region clipRegion = null)
             : base(GetGraphics(bitmap, initialColor, transform, colorConverter, clipRegion), colorConverter, intensity)
         {
             width = bitmap.Width;
@@ -795,7 +814,7 @@ namespace PurplePen.MapModel
         public int PixelWidth { get { return width; } }
         public int PixelHeight { get { return height; } }
 
-        static Graphics GetGraphics(Bitmap bitmap, CmykColor initialColor, Matrix transform, GDIPlus_ColorConverter colorConverter, Region clipRegion)
+        static Graphics GetGraphics(Bitmap bitmap, CmykColor initialColor, Matrix transform, IColorConverter colorConverter, Region clipRegion)
         {
             Graphics graphics = Graphics.FromImage(bitmap);
             graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
@@ -807,7 +826,7 @@ namespace PurplePen.MapModel
             graphics.Transform = transform.ToSysDrawMatrix();
 
             if (initialColor != null) {
-                colorConverter = colorConverter ?? new GDIPlus_ColorConverter();
+                colorConverter = colorConverter ?? DefaultColorConverter.Instance;
                 graphics.Clear(colorConverter.ToColor(initialColor));
             }
 
@@ -1084,6 +1103,13 @@ namespace PurplePen.MapModel
             return GetHiresGraphics().MeasureString(text, font, new PointF(0, 0), stringFormat);
         }
 
+        public RectangleF GetTightBoundingBox(PointF startpoint, string text)
+        {
+            GraphicsPath path = new GraphicsPath();
+            path.AddString(text, fontFamily, (int)GdiplusFontLoader.FontStyleFromTextEffects(textEffects), font.Size, startpoint, stringFormat);
+            return path.GetBounds();
+        }
+
         private static ThreadLocal<Graphics> hiresGraphics = new ThreadLocal<Graphics>(() => {
             Graphics g = Graphics.FromImage(new Bitmap(1, 1));
             g.ScaleTransform(10F, -10F);
@@ -1119,6 +1145,19 @@ namespace PurplePen.MapModel
             get { return bitmap; }
         }
 
+        // Resolution in DPI, delegated to the underlying System.Drawing.Bitmap.
+        public double HorizontalResolution
+        {
+            get { return bitmap != null ? bitmap.HorizontalResolution : 96; }
+            set { bitmap.SetResolution((float)value, bitmap.VerticalResolution); }
+        }
+
+        public double VerticalResolution
+        {
+            get { return bitmap != null ? bitmap.VerticalResolution : 96; }
+            set { bitmap.SetResolution(bitmap.HorizontalResolution, (float)value); }
+        }
+
         public int PixelWidth
         {
             get { return bitmap != null ? bitmap.Width : 0; }
@@ -1128,6 +1167,8 @@ namespace PurplePen.MapModel
         {
             get { return bitmap != null ? bitmap.Height : 0; }
         }
+
+        public bool MustCopyBitsForGraphicsTarget => false;
 
         public GraphicsBitmapFormat GetOriginalFormat()
         {
@@ -1151,6 +1192,14 @@ namespace PurplePen.MapModel
                 return GraphicsBitmapFormat.Unknown;
         }
 
+        public Color GetPixel(int x, int y)
+        {
+            lock (bitmap) {
+                return bitmap.GetPixel(x, y);
+            }
+        }
+
+
         public IGraphicsBitmap Crop(int x, int y, int width, int height)
         {
             Bitmap croppedBitmap = bitmap.Clone(new Rectangle(x, y, width, height), bitmap.PixelFormat);
@@ -1173,6 +1222,18 @@ namespace PurplePen.MapModel
             return true;
         }
 
+        public IBitmapGraphicsTarget GetGraphicsTarget(bool copyBits, IColorConverter colorConverter = null)
+        {
+            Bitmap newBitmap;
+            if (copyBits) {
+                newBitmap = new Bitmap(bitmap);
+            }
+            else {
+                newBitmap = bitmap;
+            }
+
+            return new GDIPlus_BitmapGraphicsTarget(newBitmap, null, RectangleF.FromLTRB(0, 0, bitmap.Width, bitmap.Height), false, colorConverter);
+        }
 
 
         // Very large bitmaps can cause exceptions when drawing. This property 
@@ -1246,6 +1307,14 @@ namespace PurplePen.MapModel
         {
             this.bitmap = bitmap;
             this.shrunkBitmap = null;
+        }
+    }
+
+    public class GdiPlus_FileLoaderProvider : IFileLoaderProvider
+    {
+        public IFileLoader GetFileLoaderForDirectory(string path)
+        {
+            return new GDIPlus_FileLoader(path);
         }
     }
 
@@ -1355,16 +1424,13 @@ namespace PurplePen.MapModel
         }
     }
 
-    public class GDIPlus_ColorConverter: IColorConverter
-    {
-        public virtual Color ToColor(CmykColor cmykColor)
-        {
-            return ColorConverter.ToColor(cmykColor);
-        }
-    }
-
     public class GDIPlus_GraphicsBitmapLoader : IGraphicsBitmapLoader
     {
+        public IGraphicsBitmap CreateEmptyBitmap(int width, int height, Color? initialColor = null)
+        {
+            return new GDIPlus_Bitmap(new Bitmap(width, height, GDIPlus_GraphicsTarget.AlphaPixelFormat));
+        }
+
         public IGraphicsBitmap ReadBitmapFromStream(Stream stream)
         {
             // Create a new memory stream to hold the data, because the stream
@@ -1377,6 +1443,18 @@ namespace PurplePen.MapModel
             // Seek back to the beginning before creating the image
             memStream.Position = 0;
             return new GDIPlus_Bitmap((Bitmap)Image.FromStream(memStream));
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+    public class GDIPlus_BitmapGraphicsTargetProvider : IBitmapGraphicsTargetProvider
+    {
+        public IBitmapGraphicsTarget CreateBitmapGraphicsTarget(int width, int height, IColorConverter colorConverter)
+        {
+            return new GDIPlus_BitmapGraphicsTarget(width, height, true, CmykColor.FromCmyk(0, 0, 0, 0), RectangleF.FromLTRB(0, 0, width, height), false, colorConverter);
         }
 
         public void Dispose()

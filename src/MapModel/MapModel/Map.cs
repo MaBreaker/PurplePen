@@ -331,7 +331,7 @@ namespace PurplePen.MapModel
         public bool DrawAboveMap { get { return drawAboveMap; } }
 
         public abstract RectangleF GetBounds(int templateRecursionCount);
-        public abstract void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel, int templateRecursionCount);
+        public abstract void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Action throwOnCancel, int templateRecursionCount);
         public abstract void Dispose();
         public abstract TemplateLoadInfo GetTemplateLoadInfo();
         public virtual List<string> GetReferencedFiles(int templateRecursionCount)
@@ -379,7 +379,7 @@ namespace PurplePen.MapModel
             return new TemplateLoadInfo(loadingError);
         }
 
-        public override void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel, int templateRecursionCount)
+        public override void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Action throwOnCancel, int templateRecursionCount)
         {}
 
         public override void Dispose()
@@ -427,7 +427,7 @@ namespace PurplePen.MapModel
             return Geometry.BoundsOfTransformedRectangle(new RectangleF(- size.Width / 2, -size.Height / 2, size.Width, size.Height), transform);
         }
 
-        public override void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel, int templateRecursionCount)
+        public override void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Action throwOnCancel, int templateRecursionCount)
         {
             RectangleF clippedBitmap, clippedRect;
 
@@ -439,16 +439,15 @@ namespace PurplePen.MapModel
                 return; // Nothing to draw.
 
             g.PushTransform(transform);
-            float transformedMinResolution = Geometry.TransformDistance(renderOpts.minResolution, inverseTransform);
 
             try {
                 if (canClip) {
                     g.DrawBitmapPart(bitmap, (int)clippedBitmap.Left, (int)clippedBitmap.Top, (int)clippedBitmap.Width, (int)clippedBitmap.Height,
-                        clippedRect, BitmapScaling.MediumQuality, transformedMinResolution);
+                        clippedRect, BitmapScaling.MediumQuality);
                 }
                 else {
                     RectangleF rectangle = new RectangleF(- size.Width / 2, -size.Height / 2, size.Width, size.Height);
-                    g.DrawBitmap(bitmap, rectangle, BitmapScaling.MediumQuality, transformedMinResolution); 
+                    g.DrawBitmap(bitmap, rectangle, BitmapScaling.MediumQuality); 
                 }
             }
             finally {
@@ -576,7 +575,7 @@ namespace PurplePen.MapModel
             }
         }
 
-        public override void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel, int templateRecursionCount)
+        public override void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Action throwOnCancel, int templateRecursionCount)
         {
             // Don't recurse more than 15 levels. Prevents unbounded recursion when template directly or indirectly has itself as a template.
             if (templateRecursionCount > 15)
@@ -818,6 +817,11 @@ namespace PurplePen.MapModel
     }
 
     public enum FileKind { DoesntExist, NotReadable, OcadFile, OtherFile };
+
+    public interface IFileLoaderProvider
+    {
+        IFileLoader GetFileLoaderForDirectory(string path);
+    }
 
     public interface IFileLoader
     {
@@ -2177,12 +2181,12 @@ namespace PurplePen.MapModel
             return holeHighlightDimBrush;
         }
 
-        public void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel)
+        public void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Action throwOnCancel)
         {
             Draw(g, rect, renderOpts, throwOnCancel, 0);
         }
-        /* JU: public */
-        public void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel, int templateRecursionCount)
+
+        public /* JU: public */ void Draw(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Action throwOnCancel, int templateRecursionCount)
         {
             CheckReadable();
 
@@ -2265,7 +2269,7 @@ namespace PurplePen.MapModel
         }
 
         // Draw a particular color layer. If curColor is ImageColor or LayoutColor, draw the image layer or Layout layer 
-        private void DrawColor(IGraphicsTarget g, SymColor curColor, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel)
+        private void DrawColor(IGraphicsTarget g, SymColor curColor, RectangleF rect, RenderOptions renderOpts, Action throwOnCancel)
         {
             int symbolsDrawn = 0;
             bool anySymbolsDrawn = false;
@@ -2323,7 +2327,7 @@ namespace PurplePen.MapModel
         }
 
         // Draw all the templates; either the aboveMap ones or the below map ones.
-        private void DrawTemplates(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Operation throwOnCancel, bool aboveMap, int templateRecursionCount)
+        private void DrawTemplates(IGraphicsTarget g, RectangleF rect, RenderOptions renderOpts, Action throwOnCancel, bool aboveMap, int templateRecursionCount)
         {
             LoadTemplates();
 

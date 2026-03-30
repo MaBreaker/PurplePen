@@ -348,10 +348,10 @@ namespace PurplePen
                     }
                 }
 #else
-                if (results.CurrentVersion != null && WindowsUtil.CompareVersionStrings(VersionNumber.Current, results.CurrentVersion) < 0) {
+                if (results.CurrentVersion != null && Util.CompareVersionStrings(VersionNumber.Current, results.CurrentVersion) < 0) {
                     AskToDownload(results.CurrentVersion, results.CurrentFileName);
                 }
-                else if (results.PrereleaseVersion != null && WindowsUtil.CompareVersionStrings(VersionNumber.Current, results.PrereleaseVersion) < 0 && WindowsUtil.SameExceptRevision(VersionNumber.Current, results.PrereleaseVersion)) {
+                else if (results.PrereleaseVersion != null && Util.CompareVersionStrings(VersionNumber.Current, results.PrereleaseVersion) < 0 && Util.SameExceptRevision(VersionNumber.Current, results.PrereleaseVersion)) {
                     AskToDownload(results.PrereleaseVersion, results.PrereleaseFileName);
                 }
 #endif
@@ -427,7 +427,7 @@ namespace PurplePen
             }
 
             // Only check latest prerelease if this is a pre-release.
-            if (WindowsUtil.IsPrerelease(VersionNumber.Current)) {
+            if (Util.IsPrerelease(VersionNumber.Current)) {
                 try {
                     latestPrerelease = client.GetStringAsync(downloadLocation + latestPreleaseName).GetAwaiter().GetResult();
                 }
@@ -464,7 +464,7 @@ namespace PurplePen
 #endif
 
             // Collect anonymous statistics, so we can know number of time the program is invoked, and from where, which version and language people are using.
-            string uiLanguage = Settings.Default.UILanguage;
+            string uiLanguage = UserSettings.Current.UILanguage;
             if (string.IsNullOrEmpty(uiLanguage))
                 uiLanguage = CultureInfo.CurrentUICulture.Name;
 
@@ -478,7 +478,7 @@ namespace PurplePen
                 JsonEncode(CultureInfo.CurrentCulture.Name),
                 JsonEncode(TimeZoneInfo.Local.StandardName),
                 JsonEncode(uiLanguage),
-                JsonEncode(Settings.Default.ClientId.ToString()),
+                JsonEncode(UserSettings.Current.ClientId.ToString()),
                 JsonEncode(CrashReporterDotNET.HelperMethods.GetWindowsVersion()));
             try {
                 StringContent content = new StringContent(status, Encoding.UTF8, "application/json");

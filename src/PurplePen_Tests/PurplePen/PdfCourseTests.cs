@@ -23,12 +23,6 @@ namespace PurplePen.Tests
 
         private const int MAX_PIXEL_DIFF = 30;
 
-        [ClassInitialize]
-        public static void Setup(TestContext context)
-        {
-            Services.BitmapLoader = new GDIPlus_GraphicsBitmapLoader();
-        }
-
 
         [TestInitialize]
         public void Setup()
@@ -345,8 +339,6 @@ namespace PurplePen.Tests
         [TestMethod]
         public void PdfCreation1()
         {
-            FontDesc.InitializeFonts();
-
             CoursePdfSettings settings = new CoursePdfSettings();
             settings.mapDirectory = settings.fileDirectory = false;
             settings.outputDirectory = TestUtil.GetTestFile("controller\\pdf_create1");

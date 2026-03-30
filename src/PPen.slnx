@@ -86,6 +86,9 @@
     <Project Path="PdfiumViewer/PdfiumViewer/PdfiumViewer.csproj" Id="438914b6-5d1c-482c-b942-5c0e057eef6f" />
   </Folder>
   <Folder Name="/Purple Pen/">
+    <Project Path="AvPurplePen/AvPurplePen.csproj" Id="e36ee026-b338-4927-8e6b-8cfca9007148">
+      <BuildType Solution="StorePkg|*" Project="Release" />
+    </Project>
     <Project Path="CrashReporter.NET/CrashReporter.NET.csproj" Id="67912bda-1572-46b0-8623-5872d9dadbc8">
       <Build Solution="Debug|x86" Project="false" />
     </Project>
@@ -102,6 +105,12 @@
     <Project Path="PurplePenCore/PurplePenCore.csproj" Id="130fb09c-b6f6-45ab-b374-1f0457cfffb0">
       <BuildType Solution="StorePkg|*" Project="Release" />
     </Project>
+    <Project Path="PurplePenViewModels/PurplePenViewModels.csproj" Id="689dd20f-9b33-49ec-b92e-5c8ab79ad765">
+      <BuildType Solution="StorePkg|*" Project="Release" />
+    </Project>
+    <Project Path="PurplePenViewModels.Tests/PurplePenViewModels.Tests.csproj">
+      <BuildType Solution="StorePkg|*" Project="Release" />
+    </Project>
     <Project Path="PurplePen_Tests/PurplePen_Tests.csproj" Id="0690d25c-7696-4b7a-9aab-fbbcafd0eef5">
       <Build Solution="Debug|x86" Project="false" />
     </Project>
@@ -113,7 +122,10 @@
     </Project>
   </Folder>
   <Folder Name="/Solution Items/">
+    <File Path="../.gitattributes" />
+    <File Path="../.gitignore" />
     <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
     <File Path="LocalTestRun.testrunconfig" />
     <File Path="PPen1.vsmdi" />

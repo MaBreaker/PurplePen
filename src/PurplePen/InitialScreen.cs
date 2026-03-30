@@ -32,14 +32,15 @@
  * OF SUCH DAMAGE.
  */
 
+using PurplePen.MapModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
-using System.Diagnostics;
-using System.IO;
 
 namespace PurplePen
 {
@@ -53,8 +54,8 @@ namespace PurplePen
             openSampleRadioButton.Enabled = File.Exists(SampleEventFileName());
 
             // Only enable last event if it exists.
-            if (File.Exists(Settings.Default.LastLoadedFile)) {
-                openLastRadioButton.Text = string.Format(MiscText.OpenLastEvent, Path.GetFileNameWithoutExtension(Settings.Default.LastLoadedFile));
+            if (File.Exists(UserSettings.Current.LastLoadedFile)) {
+                openLastRadioButton.Text = string.Format(MiscText.OpenLastEvent, Path.GetFileNameWithoutExtension(UserSettings.Current.LastLoadedFile));
             }
             else {
                 openLastRadioButton.Enabled = false;
@@ -129,7 +130,7 @@ namespace PurplePen
             MainFrame mainFrame = new MainFrame();
             Controller controller = new Controller(mainFrame);
 
-            if (!controller.LoadInitialFile(Settings.Default.LastLoadedFile, true)) {
+            if (!controller.LoadInitialFile(UserSettings.Current.LastLoadedFile, true)) {
                 // User cancelled or the file didn't load. 
                 // Go back and show the initial screen again.
                 mainFrame.Dispose();
@@ -227,7 +228,7 @@ namespace PurplePen
 
         private void backgroundPanel_Paint(object sender, PaintEventArgs e)
         {
-            GraphicsHelper.DrawPurplePenLogo(e.Graphics, backgroundPanel);
+            LogoDrawing.DrawPurplePenLogo(new GDIPlus_GraphicsTarget(e.Graphics), backgroundPanel.ClientRectangle);
         }
 
         private void InitialScreen_Shown(object sender, EventArgs e)

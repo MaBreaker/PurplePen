@@ -23,11 +23,12 @@ namespace Map_PDF.Tests
             File.Delete(pngFileName);
 
             // Create PDF at 100 pixel per inch.
-            PdfWriter pdfWriter = new PdfWriter(Path.GetFileNameWithoutExtension(pdfFileName), useCmyk);
-            IGraphicsTarget graphicsTarget = pdfWriter.BeginPage(new SizeF(pixelWidth / 100F, pixelHeight / 100F) /* JU: Margin */ , 0);
+            IPdfWriter pdfWriter = new PdfWriter();
+            IPdfDocumentWriter pdfDocumentWriter = pdfWriter.CreateDocument(pdfFileName, Path.GetFileNameWithoutExtension(pdfFileName), useCmyk);
+            IGraphicsTarget graphicsTarget = pdfDocumentWriter.BeginPage(new SizeF(pixelWidth / 100F, pixelHeight / 100F) /* JU: Margin */ , 0);
             draw(graphicsTarget);
-            pdfWriter.EndPage(graphicsTarget);
-            pdfWriter.Save(pdfFileName);
+            pdfDocumentWriter.EndPage(graphicsTarget);
+            pdfDocumentWriter.Save();
 
             // Start PDF viewer
             //Process.Start(pdfFileName);
@@ -42,16 +43,13 @@ namespace Map_PDF.Tests
             File.Delete(pdfFileName);
             File.Delete(pngFileName);
 
-            // Get imported page.
-            PdfImporter importer = new PdfImporter(pdfImport);
-
             // Create PDF at 100 pixel per inch.
-            PdfWriter pdfWriter = new PdfWriter(Path.GetFileNameWithoutExtension(pdfFileName), false);
-            IGraphicsTarget graphicsTarget = pdfWriter.BeginCopiedPage(importer, pageImport);
+            IPdfWriter pdfWriter = new PdfWriter();
+            IPdfDocumentWriter pdfDocumentWriter = pdfWriter.CreateDocument(pdfFileName, Path.GetFileNameWithoutExtension(pdfFileName), false);
+            IGraphicsTarget graphicsTarget = pdfDocumentWriter.BeginCopiedPage(pdfImport, pageImport);
             draw(graphicsTarget);
-            pdfWriter.EndPage(graphicsTarget);
-            pdfWriter.Save(pdfFileName);
-            importer.Dispose();
+            pdfDocumentWriter.EndPage(graphicsTarget);
+            pdfDocumentWriter.Save();
 
             // Start PDF viewer
             //Process.Start(pdfFileName);
@@ -67,17 +65,13 @@ namespace Map_PDF.Tests
             File.Delete(pdfFileName);
             File.Delete(pngFileName);
 
-            // Get imported page.
-            PdfImporter importer = new PdfImporter(pdfImport);
-
             // Create PDF at 100 pixel per inch.
-            PdfWriter pdfWriter = new PdfWriter(Path.GetFileNameWithoutExtension(pdfFileName), false);
-            //JU: Margin at the end
-            IGraphicsTarget graphicsTarget = pdfWriter.BeginCopiedPartialPage(importer, pageImport, sizeInInches, partialPageInInches, destRectangleInInches, 0);
+            IPdfWriter pdfWriter = new PdfWriter();
+            IPdfDocumentWriter pdfDocumentWriter = pdfWriter.CreateDocument(pdfFileName, Path.GetFileNameWithoutExtension(pdfFileName), false);
+            IGraphicsTarget graphicsTarget = pdfDocumentWriter.BeginCopiedPartialPage(pdfImport, pageImport, sizeInInches, partialPageInInches, destRectangleInInches /* JU: Margin */, 0);
             draw(graphicsTarget);
-            pdfWriter.EndPage(graphicsTarget);
-            pdfWriter.Save(pdfFileName);
-            importer.Dispose();
+            pdfDocumentWriter.EndPage(graphicsTarget);
+            pdfDocumentWriter.Save();
 
             // Start PDF viewer
             //Process.Start(pdfFileName);

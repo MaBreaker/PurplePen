@@ -32,14 +32,16 @@
  * OF SUCH DAMAGE.
  */
 
+using CrashReporterDotNET;
+using Microsoft.Extensions.DependencyInjection;
+using PurplePen.Graphics2D;
+using PurplePen.MapModel;
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
-using System.Globalization;
-using CrashReporterDotNET;
 using System.Configuration;
+using System.Globalization;
 using System.IO;
-using PurplePen.MapModel;
+using System.Windows.Forms;
 
 namespace PurplePen
 {
@@ -53,14 +55,32 @@ namespace PurplePen
         [STAThread]
         static void Main(string[] args)
         {
+            ServiceProvider serviceProvider;
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            Services.BitmapLoader = new GDIPlus_GraphicsBitmapLoader();
+
+            // Register all the services that PurplePenCore requires.
+            ServiceCollection services = new ServiceCollection();
+            services.AddSingleton<IGraphicsBitmapLoader, GDIPlus_GraphicsBitmapLoader>();
+            services.AddSingleton<IBitmapGraphicsTargetProvider, GDIPlus_BitmapGraphicsTargetProvider>();
+            services.AddSingleton<IFontLoader>(GdiplusFontLoader.Instance);
+            services.AddSingleton<ITextMetrics, GDIPlus_TextMetrics>();
+            services.AddSingleton<IFileLoaderProvider, GdiPlus_FileLoaderProvider>();
+            services.AddSingleton<IPdfWriter, PdfWriter>();
+            services.AddSingleton<IPdfLoadingStatus, PdfLoadingUI>();
+
+            serviceProvider = services.BuildServiceProvider();
+            Services.RegisterServiceProvider(serviceProvider);
+
+            string userSettingsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PurplePen", "PurplePenSettings.json");
+            UserSettings.Initialize(userSettingsPath);
+
 
             // Make sure that settings aren't corrupted, and fix them.
             try {
-                string uiLanguage = Settings.Default.UILanguage;
+                string uiLanguage = UserSettings.Current.UILanguage;
             }
             catch (ConfigurationErrorsException ex) { //(requires System.Configuration)
                 // Once the configuration system is corrupt, there doesn't appear a way to 
@@ -101,12 +121,14 @@ namespace PurplePen
             }
 
             Application.Run();
+
+            serviceProvider.Dispose();
         }
 
         // Initialize the UI language. If there is no language set, keep with the default language.
         static void InitUILanguage()
         {
-            string uiLanguage = Settings.Default.UILanguage;
+            string uiLanguage = UserSettings.Current.UILanguage;
 
             if (!string.IsNullOrEmpty(uiLanguage)) {
                 try {
@@ -119,10 +141,10 @@ namespace PurplePen
         // Initialize the client id if we don't have one.
         static void InitClientId()
         {
-            Guid clientId = Settings.Default.ClientId;
+            Guid clientId = UserSettings.Current.ClientId;
             if (clientId == new Guid()) {
-                Settings.Default.ClientId = Guid.NewGuid();
-                Settings.Default.Save();
+                UserSettings.Current.ClientId = Guid.NewGuid();
+                UserSettings.Current.Save();
             }
         }
 

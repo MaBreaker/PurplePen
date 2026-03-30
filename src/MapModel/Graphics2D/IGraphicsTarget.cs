@@ -10,6 +10,9 @@ using SizeF = System.Drawing.SizeF;
 
 namespace PurplePen.Graphics2D
 {
+    public enum TextAlignment { Left, Center, Right }
+    public enum VerticalTextAlignment { Top, Center, Bottom }
+
     public enum BlendMode { Darken }
 
     [Flags]
@@ -44,6 +47,7 @@ namespace PurplePen.Graphics2D
         float RecommendedLineSpacing { get; }
         float GetTextWidth(string text);
         SizeF GetTextSize(string text);
+        RectangleF GetTightBoundingBox(PointF startPoint, string text); // Gets a tight bounding box for the text; based on the actual character shapes. So if there are no descenders, the bounding box won't include any space for descenders. 
     }
 
     public interface ITextMetrics : IDisposable
@@ -71,6 +75,7 @@ namespace PurplePen.Graphics2D
     public interface IGraphicsBitmapLoader : IDisposable
     {
         IGraphicsBitmap ReadBitmapFromStream(Stream stream);
+        IGraphicsBitmap CreateEmptyBitmap(int width, int height, System.Drawing.Color? initialColor = null);
     }
 
     // If an IGraphicsBitmap is locked, it won't be disposed by another thread while locked.
@@ -81,21 +86,44 @@ namespace PurplePen.Graphics2D
         int PixelWidth { get; }
         int PixelHeight { get; }
 
+        // If true, you must pass true to the copyBits arguement on 
+        // GetGraphicsTarget.
+        bool MustCopyBitsForGraphicsTarget { get; }
+
+        // Resolution in dots per inch. Defaults to 96 if unknown.
+        double HorizontalResolution { get; set; }
+        double VerticalResolution { get; set; }
+
         // Get the format this bitmap was loaded from, if read from stream/file.
         // Otherwise, return None. Return Other if format not in the enum, or Unknown
         // if it was read from file but no way to know the format.
         GraphicsBitmapFormat GetOriginalFormat();
+
+        // Get a single pixel. This is probably not that fast, so don't use repeatedly
+        // too much in performance critical code.
+        System.Drawing.Color GetPixel(int x, int y);
+
         IGraphicsBitmap Crop(int x, int y, int width, int height);
         bool WriteToStream(GraphicsBitmapFormat format, Stream stream);
+
+        // If copyBits is false, the graphics target will draw directly to the existing bitmap. If copyBits is true,
+        // the existing bitmap will be copied and the graphics target will draw to the copy. The existing bitmap will
+        // not be changed, and the only way to get access to the copy is by calling FinishBitmap() on the graphics target. 
+        // If MustCopyBitsForGraphicsTarget is true, then copyBits must be true (otherwise an ArgumentException is thrown).
+        IBitmapGraphicsTarget GetGraphicsTarget(bool copyBits, IColorConverter colorConverter = null);
     }
 
     public interface IBitmapGraphicsTargetProvider: IDisposable
     {
-        IBitmapGraphicsTarget CreateBitmapGraphicsTarget(int width, int height);
+        IBitmapGraphicsTarget CreateBitmapGraphicsTarget(int width, int height, IColorConverter colorConverter);
     }
 
     public interface IGraphicsTarget : IDisposable
     {
+        // Get/set the intensity. Note that setting the intensity will cause
+        // all brushes and pens to be destroyed.
+        float Intensity { get; set; }
+
         // Prepend a transform to the graphics drawing target.
         void PushTransform(Matrix matrix);
         void PopTransform();
@@ -177,11 +205,11 @@ namespace PurplePen.Graphics2D
         void DrawTextOutline(string text, object fontKey, object penKey, PointF upperLeft);
 
         // Draw a bitmap. minResolution how big in paper coords a pixel in the destination is. Used to set scaling for large bitmaps.
-        void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode, float minResolution);
+        void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode);
 
         // Draw part of a bitmap
         // minResolution how big in paper coords a pixel in the destination is. Used to set scaling for large bitmaps.
-        void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectange, BitmapScaling scalingMode, float minResolution);
+        void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectange, BitmapScaling scalingMode);
     }
 
     public enum BitmapScaling { NearestNeighbor, MediumQuality, HighQuality }

@@ -45,18 +45,6 @@ using PurplePen.Graphics2D;
 using PurplePen.MapModel;
 
 namespace PurplePen.MapView {
-    public delegate void MapDisplayChanged(Region changedRegion);
-
-    // This interface encapsulates something that can be cached for drawing in the ViewCache. It
-    // needs to be able to draw itself, and also notify when it has changed. The graphics is always
-    // set up in world coordinates, as it the visible rectangle and the changedRegion.
-    public interface IMapDisplay
-    {
-        RectangleF Bounds { get; }
-        void Draw(Bitmap bitmap, Matrix transform, Region clipRegion = null);
-
-        event MapDisplayChanged Changed;
-    }
 
 	// The ViewCache class caches a bitmap of a particular view of the map, so that
 	// it can be quickly redrawn.
@@ -200,10 +188,11 @@ namespace PurplePen.MapView {
 				bitmapBrush = null;
 
 				if (allInvalid) {
-                    mapDisplay.Draw(bitmap, transform, null);
+                    mapDisplay.Draw(new GDIPlus_Bitmap(bitmap), transform, null);
 				}
 				else {
-                    mapDisplay.Draw(bitmap, transform, invalidRegion);
+					Graphics g = WindowsUtil.GetHiresGraphics();
+                    mapDisplay.Draw(new GDIPlus_Bitmap(bitmap), transform, invalidRegion.GetBounds(g));
 				}
 			}
 
@@ -319,26 +308,8 @@ namespace PurplePen.MapView {
 
 
 		// Called whenever the map display changes.
-		void MapChanged(Region regionChanged) {
-			if (regionChanged == null) {
-				// null region means everything.
-				MarkAllInvalid();
-			}
-
-			if (allInvalid)
-				return;     // nothing more to do.
-
-			// Copy the region and transform to bitmap coords.
-			Region copy = regionChanged.Clone();
-			copy.Transform(matTransform.ToSysDrawMatrix());
-
-			// Union with the invalid region.
-			if (allValid) {
-				allValid = false;
-				invalidRegion = regionChanged;
-			}
-			else
-				invalidRegion.Union(regionChanged);
+		void MapChanged() {
+			MarkAllInvalid();
 		}
 	}
 }

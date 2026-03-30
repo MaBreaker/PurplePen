@@ -139,6 +139,20 @@ namespace PurplePen
             return result;
         }
 
+        // Remove a suffix from a string. If none, return the string itself.
+        public static string RemoveSuffix(string s, string suffix)
+        {
+            if (s == null)
+                return s;
+
+            string sTrim = s.Trim();
+
+            if (sTrim.EndsWith(suffix, StringComparison.InvariantCulture))
+                return sTrim.Substring(0, sTrim.Length - suffix.Length).Trim();
+            else
+                return s;
+        }
+
 
         public static long Factorial(int n)
         {
@@ -256,6 +270,15 @@ namespace PurplePen
                 return minStr + "\u2013" + maxStr + suffix;
         }
 
+
+        // Remove a "m" or " m" suffix from a string. If none, return the string itself.
+        public static string RemoveMeterSuffix(string s)
+        {
+            return RemoveSuffix(s, "m");
+        }
+
+
+
         public static string RangeIfNeeded(int n1, int n2)
         {
             if (n1 == n2)
@@ -263,6 +286,17 @@ namespace PurplePen
             else
                 return n1.ToString() + "\u2013" + n2.ToString();
         }
+
+        // Get text describing a paper size.
+        public static string GetPaperSizeText(PrintingPaperSize paperSize)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append(paperSize.Name);
+            builder.AppendFormat(" ({0} x {1})", Util.GetDistanceText((int)Math.Round(paperSize.SizeInHundreths.Width)), Util.GetDistanceText((int)Math.Round(paperSize.SizeInHundreths.Height)));
+            return builder.ToString();
+        }
+
 
         public static string CurrentLangName()
         {
@@ -391,6 +425,45 @@ namespace PurplePen
             return list.FindAll(delegate (PointF pt) { return pt != pointToRemove; }).ToArray();
         }
 
+        public static TextEffects GetTextEffects(bool bold, bool italic)
+        {
+            TextEffects effects = TextEffects.Regular;
+            if (bold)
+                effects |= TextEffects.Bold;
+            if (italic)
+                effects |= TextEffects.Italic;
+            return effects;
+        }
+
+        public static bool IsPrerelease(string version)
+        {
+            Version v = new Version(version);
+            return (v.Revision < VersionNumber.Stable);
+        }
+
+        // Compare version strings. If s1 < s2, return -1; if s1 > s2, return 1, else return 0.
+        // Returns 0 if one or both didn't parse.
+        public static int CompareVersionStrings(string s1, string s2)
+        {
+            Version v1, v2;
+            if (Version.TryParse(s1, out v1) && Version.TryParse(s2, out v2))
+                return v1.CompareTo(v2);
+            else
+                return 0;
+        }
+
+        // Compare version strings. Return true if all exception last component is same.
+        // Return false if one or both didn't parse.
+        public static bool SameExceptRevision(string s1, string s2)
+        {
+            Version v1, v2;
+            if (Version.TryParse(s1, out v1) && Version.TryParse(s2, out v2))
+                return (v1.Major == v2.Major && v1.Minor == v2.Minor && v1.Build == v2.Build);
+            else
+                return false;
+        }
+
+
         // Pretty-ize the version string. 
         public static string PrettyVersionString(string verString)
         {
@@ -402,11 +475,11 @@ namespace PurplePen
                 if (v.Revision >= VersionNumber.Stable)
                     modifier = "";
                 else if (v.Revision >= VersionNumber.RC)
-                    modifier = " " + string.Format(CoreMiscText.Version_RC, (v.Revision - VersionNumber.RC) / 10.0);
+                    modifier = " " + string.Format(MiscText.Version_RC, (v.Revision - VersionNumber.RC) / 10.0);
                 else if (v.Revision >= VersionNumber.Beta)
-                    modifier = " " + string.Format(CoreMiscText.Version_Beta, (v.Revision - VersionNumber.Beta) / 10.0);
+                    modifier = " " + string.Format(MiscText.Version_Beta, (v.Revision - VersionNumber.Beta) / 10.0);
                 else if (v.Revision >= VersionNumber.Alpha)
-                    modifier = " " + string.Format(CoreMiscText.Version_Alpha, (v.Revision - VersionNumber.Alpha) / 10.0);
+                    modifier = " " + string.Format(MiscText.Version_Alpha, (v.Revision - VersionNumber.Alpha) / 10.0);
                 else
                     modifier = string.Format(" ({0})", v.Revision);
 
@@ -431,45 +504,45 @@ namespace PurplePen
             switch (control.kind) {
             case ControlPointKind.Normal:
                 if (style == NameStyle.Long)
-                    return string.Format(CoreMiscText.Control_Code, control.code);
+                    return string.Format(MiscText.Control_Code, control.code);
                 else
                     return string.Format("{0}", control.code);
 
             case ControlPointKind.Start:
                 if (style == NameStyle.Short)
-                    return CoreMiscText.Start_Short;
+                    return MiscText.Start_Short;
                 else
-                    return CoreMiscText.Start;
+                    return MiscText.Start;
 
             case ControlPointKind.Finish:
                 if (style == NameStyle.Short)
-                    return CoreMiscText.Finish_Short;
+                    return MiscText.Finish_Short;
                 else
-                    return CoreMiscText.Finish;
+                    return MiscText.Finish;
 
             case ControlPointKind.CrossingPoint:
                 if (style == NameStyle.Long)
-                    return CoreMiscText.MandCrossing_Long;
+                    return MiscText.MandCrossing_Long;
                 else if (style == NameStyle.Medium)
-                    return CoreMiscText.MandCrossing_Medium;
+                    return MiscText.MandCrossing_Medium;
                 else
-                    return CoreMiscText.MandCrossing_Short;
+                    return MiscText.MandCrossing_Short;
 
             case ControlPointKind.MapExchange:
                 if (style == NameStyle.Long)
-                    return CoreMiscText.MapExchange_Long;
+                    return MiscText.MapExchange_Long;
                 else if (style == NameStyle.Medium)
-                    return CoreMiscText.MapExchange_Medium;
+                    return MiscText.MapExchange_Medium;
                 else
-                    return CoreMiscText.MapExchange_Short;
+                    return MiscText.MapExchange_Short;
 
             case ControlPointKind.MapIssue:
                 if (style == NameStyle.Long)
-                    return CoreMiscText.MapIssue_Long;
+                    return MiscText.MapIssue_Long;
                 else if (style == NameStyle.Medium)
-                    return CoreMiscText.MapIssue_Medium;
+                    return MiscText.MapIssue_Medium;
                 else
-                    return CoreMiscText.MapIssue_Short;
+                    return MiscText.MapIssue_Short;
 
             default:
                 Debug.Fail("bad control kind");

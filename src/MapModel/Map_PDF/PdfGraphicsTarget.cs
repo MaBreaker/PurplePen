@@ -76,6 +76,16 @@ namespace PurplePen.MapModel
             stringFormat.LineAlignment = XLineAlignment.Near;
         }
 
+        public float Intensity {
+            get { return 1.0F; }
+            set {
+                if (value != 1.0F) {
+                    throw new ArgumentException("Only intensities of 1.0 are supported", "value");
+                }
+            }
+        }
+
+
         public XGraphics XGraphics
         {
             get { return gfx; }
@@ -571,7 +581,7 @@ namespace PurplePen.MapModel
         }
 
         // Draw a bitmap
-        public void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
+        public void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode)
         {
             using (MemoryStream memStream = new MemoryStream()) {
                 if (bm.WriteToStream(GraphicsBitmapFormat.PNG, memStream)) {
@@ -588,7 +598,7 @@ namespace PurplePen.MapModel
         }
 
         // Draw part of a bitmap
-        public void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
+        public void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectangle, BitmapScaling scalingMode)
         {
             using (MemoryStream memStream = new MemoryStream()) {
                 IGraphicsBitmap croppedBitmap = bm.Crop(x, y, width, height);

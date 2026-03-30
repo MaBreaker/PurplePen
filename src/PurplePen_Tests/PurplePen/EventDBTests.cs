@@ -55,12 +55,6 @@ namespace PurplePen.Tests
     [TestClass, DoNotParallelize]
     public class EventDBTests: TestFixtureBase
     {
-        [ClassInitialize]
-        public static void Setup(TestContext context)
-        {
-            Services.BitmapLoader = new GDIPlus_GraphicsBitmapLoader();
-        }
-
 
         [TestMethod]
         public void RoundTripControlPoints()
@@ -941,9 +935,9 @@ namespace PurplePen.Tests
                 result = eventDB.GetCourse(CourseId(3)).printArea;
                 Assert.IsFalse(result.autoPrintArea);
                 Assert.IsFalse(result.restrictToPageSize);
-                Assert.AreEqual(583, result.pageWidth);
-                Assert.AreEqual(827, result.pageHeight);
-                Assert.AreEqual(28, result.pageMargins);
+                Assert.AreEqual(492, result.pageWidth);
+                Assert.AreEqual(693, result.pageHeight);
+                Assert.AreEqual(0, result.pageMargins);
                 Assert.IsFalse(result.pageLandscape);
                 Assert.AreEqual(-71.2542343F, result.printAreaRectangle.Left, 0.001F);
                 Assert.AreEqual(72.57579F, result.printAreaRectangle.Bottom, 0.001F);

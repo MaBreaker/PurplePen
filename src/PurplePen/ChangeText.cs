@@ -116,7 +116,7 @@ namespace PurplePen
         {
             get
             {
-                return WindowsUtil.GetTextEffects(FontBold, FontItalic);
+                return Util.GetTextEffects(FontBold, FontItalic);
             }
         }
 
@@ -245,7 +245,7 @@ namespace PurplePen
                 expandedText = expandedText.Replace("|", "\n");
             }
             float emHeight = pictureBoxPreview.Height * 0.7F;
-            Color textColor = SwopColorConverter.CmykToRgbColor(colorChooser.CmykColor);
+            Color textColor = SwopColorConverter.Instance.ToColor(colorChooser.CmykColor);
 
             if (!checkBoxAutoFontSize.Checked) {
                 emHeight = GetEmHeight(e.Graphics, this.FontName, this.TextEffects, (float)upDownFontSize.Value);

@@ -32,22 +32,23 @@
  * OF SUCH DAMAGE.
  */
 
+using PurplePen.Graphics2D;
+using PurplePen.MapModel;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using System.Xml;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Drawing.Printing;
 using System.Globalization;
-using System.Windows.Forms;
-using PurplePen.MapModel;
-using PurplePen.Graphics2D;
-using System.Drawing.Imaging;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
+using System.Windows.Forms;
+using System.Xml;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace PurplePen
 {
@@ -64,45 +65,6 @@ namespace PurplePen
             return s.Replace("&", "");
         }
         
-        // Remove a suffix from a string. If none, return the string itself.
-        public static string RemoveSuffix(string s, string suffix)
-        {
-            if (s == null)
-                return s;
-
-            string sTrim = s.Trim();
-
-            if (sTrim.EndsWith(suffix, StringComparison.InvariantCulture))
-                return sTrim.Substring(0, sTrim.Length - suffix.Length).Trim();
-            else
-                return s;
-        }
-
-
-        // Remove a "m" or " m" suffix from a string. If none, return the string itself.
-        public static string RemoveMeterSuffix(string s)
-        {
-            return RemoveSuffix(s, "m");
-        }
-
-        // Get a list of print scales from a map scale.
-        // Current algorithm: use 4000, 5000, 7500, 10000, 15000, plus the map scale itself.
-        public static float[] PrintScaleList(float mapScale)
-        {
-            List<float> result = new List<float>(new float[] { 4000, 5000, 7500, 10000, 15000 });
-            if (!result.Contains(mapScale))
-                result.Add(mapScale);
-            result.Sort();
-            return result.ToArray();
-        }
-
-
-        // Round a rectangle. Returns a sane hittest of rounding each coordinate. Rectangle.Round doesn't do that!
-        public static Rectangle Round(RectangleF rect)
-        {
-            return Rectangle.FromLTRB((int)Math.Round(rect.Left), (int)Math.Round(rect.Top), (int)Math.Round(rect.Right), (int)Math.Round(rect.Bottom));
-        }
-
         private static ThreadLocal<Graphics> hiresGraphics = new ThreadLocal<Graphics>(() => {
             Graphics g = Graphics.FromHwnd(IntPtr.Zero);
             g.ScaleTransform(50F, -50F);
@@ -202,32 +164,43 @@ namespace PurplePen
             }
         }
 
-        public static bool IsPrerelease(string version)
+        public static Cursor CursorFromMousePointerShape(MousePointerShape shape)
         {
-            Version v = new Version(version);
-            return (v.Revision < VersionNumber.Stable);
-        }
-
-        // Compare version strings. If s1 < s2, return -1; if s1 > s2, return 1, else return 0.
-        // Returns 0 if one or both didn't parse.
-        public static int CompareVersionStrings(string s1, string s2)
-        {
-            Version v1, v2;
-            if (Version.TryParse(s1, out v1) && Version.TryParse(s2, out v2))
-                return v1.CompareTo(v2);
-            else
-                return 0;
-        }
-
-        // Compare version strings. Return true if all exception last component is same.
-        // Return false if one or both didn't parse.
-        public static bool SameExceptRevision(string s1, string s2)
-        {
-            Version v1, v2;
-            if (Version.TryParse(s1, out v1) && Version.TryParse(s2, out v2))
-                return (v1.Major == v2.Major && v1.Minor == v2.Minor && v1.Build == v2.Build);
-            else
-                return false;
+            switch (shape.PredefinedShape) {
+            case PredefinedMousePointerShape.Arrow:
+                return Cursors.Arrow;
+            case PredefinedMousePointerShape.Cross:
+                return Cursors.Cross;
+            case PredefinedMousePointerShape.Hand:
+                return Cursors.Hand;
+            case PredefinedMousePointerShape.Help:
+                return Cursors.Help;
+            case PredefinedMousePointerShape.IBeam:
+                return Cursors.IBeam;
+            case PredefinedMousePointerShape.No:
+                return Cursors.No;
+            case PredefinedMousePointerShape.SizeAll:
+                return Cursors.SizeAll;
+            case PredefinedMousePointerShape.SizeNESW:
+                return Cursors.SizeNESW;
+            case PredefinedMousePointerShape.SizeNS:
+                return Cursors.SizeNS;
+            case PredefinedMousePointerShape.SizeNWSE:
+                return Cursors.SizeNWSE;
+            case PredefinedMousePointerShape.SizeWE:
+                return Cursors.SizeWE;
+            case PredefinedMousePointerShape.UpArrow:
+                return Cursors.UpArrow;
+            case PredefinedMousePointerShape.Wait:
+                return Cursors.WaitCursor;
+            case PredefinedMousePointerShape.MoveHandle:
+                return WindowsUtil.MoveHandleCursor;
+            case PredefinedMousePointerShape.DeleteHandle:
+                return WindowsUtil.DeleteHandleCursor;
+            default:
+                Debug.Fail("Unexpected mouse pointer shape");
+                return Cursors.Default;
+            }
         }
 
 
@@ -237,16 +210,6 @@ namespace PurplePen
             StringBuilder builder = new StringBuilder();
 
             builder.Append(paperSize.PaperName);
-            builder.AppendFormat(" ({0} x {1})", Util.GetDistanceText(paperSize.Width), Util.GetDistanceText(paperSize.Height));
-            return builder.ToString();
-        }
-
-        // Get text describing a paper size.
-        public static string GetPaperSizeText(CoreMapUtil.StandardPaperSize paperSize)
-        {
-            StringBuilder builder = new StringBuilder();
-
-            builder.Append(paperSize.Name);
             builder.AppendFormat(" ({0} x {1})", Util.GetDistanceText(paperSize.Width), Util.GetDistanceText(paperSize.Height));
             return builder.ToString();
         }
@@ -263,48 +226,59 @@ namespace PurplePen
             }
         }
 
-
-        public static Point PointFromPointF(PointF pointf)
+        // Convert the paper size from the PageSettings to a PrintingPaperSize. 
+        public static PrintingPaperSize PrintingPaperSizeFromPageSettings(PageSettings pageSettings)
         {
-            return new Point((int)Math.Round(pointf.X), (int)Math.Round(pointf.Y));
+            if (pageSettings.PrinterSettings.IsValid) {
+                return new PrintingPaperSize(pageSettings.PaperSize.Kind.ToString(), pageSettings.Bounds.Width, pageSettings.Bounds.Height);
+            }
+            else {
+                // Prevent exception if the printer settings are not valid. Just return the default paper size for the current culture.
+                // Probably will get an exception later on when we try to print, but we have a try-catch there.
+                bool metric = Util.IsCurrentCultureMetric();
+                return PrintingStandards.StandardPaperSizes[metric ? PrintingStandards.DefaultMetricPaperSizeindex : PrintingStandards.DefaultEnglighPaperSizeIndex];
+            }
         }
 
-        public static string ImageFormatText(ImageFormat imageFormat)
+        public static PrintingMarginSize PrintingMarginSizeFromPageSettings(PageSettings pageSettings)
         {
-            if (imageFormat.Guid == ImageFormat.Bmp.Guid) return "bmp";
-            if (imageFormat.Guid == ImageFormat.Gif.Guid) return "gif";
-            if (imageFormat.Guid == ImageFormat.Jpeg.Guid) return "jpeg";
-            if (imageFormat.Guid == ImageFormat.Png.Guid) return "png";
-            if (imageFormat.Guid == ImageFormat.Tiff.Guid) return "tiff";
-            return "unknown";
+
+            return new PrintingMarginSize(pageSettings.Margins.Left, pageSettings.Margins.Top, pageSettings.Margins.Right, pageSettings.Margins.Bottom);
         }
 
-        public static FontStyle GetFontStyle(bool bold, bool italic)
+
+        public static PrintingPaperSizeWithMargins PrintingPaperSizeWithMarginsFromPageSettings(PageSettings pageSettings)
         {
-            FontStyle fontStyle = FontStyle.Regular;
-            if (bold)
-                fontStyle |= FontStyle.Bold;
-            if (italic)
-                fontStyle |= FontStyle.Italic;
-            return fontStyle;
+            return new PrintingPaperSizeWithMargins(PrintingPaperSizeFromPageSettings(pageSettings), PrintingMarginSizeFromPageSettings(pageSettings));
         }
 
-        public static TextEffects GetTextEffects(bool bold, bool italic)
+        // Returns an IPrintingTarget for printing to the Windows Forms printing subsystem, or to print
+        // preview.
+        public static IPrintingTarget GetWinFormsPrintTarget(PageSettings pageSettings, Form mainWindow, bool preview) 
         {
-            TextEffects effects = TextEffects.Regular;
-            if (bold)
-                effects |= TextEffects.Bold;
-            if (italic)
-                effects |= TextEffects.Italic;
-            return effects;
+            Size previewDialogSize = new Size();
+
+            if (preview) {
+                Size scaledSize = mainWindow.Size;
+                int scaled1000 = mainWindow.LogicalToDeviceUnits(1000);
+
+                // Size is 0.8 times size of main window.
+                previewDialogSize = new Size((int)(scaledSize.Width * 0.8 * 1000 / scaled1000), (int)(scaledSize.Height * 0.8 * 1000 / scaled1000));
+            }
+
+            WinFormsPrinter winFormsPrintTarget = new WinFormsPrinter(new WinFormsPrinter.WinFormsPrinterOptions() {
+                PageSettings = pageSettings,
+                ColorModel = ColorModel.RGB,
+                StopAfterEachPage = false,
+                PrintPreview = preview,
+                PreviewDialogSize = previewDialogSize
+            });
+
+            return winFormsPrintTarget;
         }
 
-        public static TextEffects GetTextEffects(FontStyle fontStyle)
-        {
-            return GetTextEffects((fontStyle & FontStyle.Bold) != 0, (fontStyle & FontStyle.Italic) != 0);
-        }
 
-        static class NativeMethods
+        class NativeMethods
         {
             // Windows API for loading a cursor from file. The Cursor constructor does not work
             // correctly with .cur files that have 32-bit color with alpha transparency.

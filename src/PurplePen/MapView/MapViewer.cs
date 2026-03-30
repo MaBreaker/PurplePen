@@ -94,7 +94,6 @@ namespace PurplePen.MapView
         Point lastDragScrollPoint;								// last point we dragged to
 
         // Events that we raise
-        public enum DragAction { None, SuppressClick, MapDrag, ImmediateDrag, DelayedDrag };
         public delegate void PointerEventHandler(object sender, bool inViewport, PointF location);
         public delegate DragAction MouseEventHandler(object sender, MouseAction action, int buttonNumber, bool[] whichButtonsDown, PointF location, PointF locationStart);
         public event EventHandler OnViewportChange;
@@ -576,16 +575,8 @@ namespace PurplePen.MapView
         #endregion Property Accessors
 
         #region Change handling
-        void MapChanged(Region regionChanged) {
-            if (regionChanged != null) {
-                // Transform the changed region into pixel coordinates and invalidate it.
-                Region copy = regionChanged.Clone();
-                copy.Transform(xformWorldToPixel.ToSysDrawMatrix());
-                Invalidate(copy); 
-            }
-            else {
-                Invalidate();
-            }
+        void MapChanged() {
+            Invalidate();
 
             // Check if we need to scroll things to be within bounds again.
             PointF constrainedCenter = ConstrainCenterPoint(centerPoint, viewport.Size, GetScrollBounds());
@@ -619,22 +610,10 @@ namespace PurplePen.MapView
             g.RenderingOrigin = Util.PointFromPointF(origin);
             g.PixelOffsetMode = Draw2D.PixelOffsetMode.HighQuality;
 
-            foreach (IMapViewerHighlight h in highlights) {
-                h.DrawHighlight(g, xformWorldToPixel);
-            }
-        }
-
-        void EraseHighlights(Graphics g, Rectangle visRect, IMapViewerHighlight[] highlights) {
-            if (highlights == null)
-                return;
-
-            // Get brush that erases.
-            Brush eraseBrush = viewcache.GetCacheBrush(ClientSize, viewport, xformWorldToPixel);
-
-            g.PixelOffsetMode = Draw2D.PixelOffsetMode.HighQuality;
-
-            foreach (IMapViewerHighlight h in highlights) {
-                h.EraseHighlight(g, xformWorldToPixel, eraseBrush);
+            using (GDIPlus_GraphicsTarget grTarget = new GDIPlus_GraphicsTarget(g)) {
+                foreach (IMapViewerHighlight h in highlights) {
+                    h.DrawHighlight(grTarget, xformWorldToPixel);
+                }
             }
         }
 

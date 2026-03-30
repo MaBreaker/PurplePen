@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="CsvHelper" Version="2.7.1" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
     <PackageVersion Include="PDFsharp" Version="6.2.4" />
     <PackageVersion Include="SharpZipLib" Version="1.4.2" />
     <PackageVersion Include="Microsoft.AspNetCore" Version="2.3.9" />
@@ -15,6 +16,8 @@
     <PackageVersion Include="Microsoft.AspNetCore.StaticFiles" Version="2.3.9" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
     <PackageVersion Include="Microsoft.Windows.SDK.Contracts" Version="10.0.26100.7463" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
     <PackageVersion Include="MSTest.TestAdapter" Version="4.1.0" />
     <PackageVersion Include="MSTest.TestFramework" Version="4.1.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
@@ -26,6 +29,7 @@
     <PackageVersion Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7463" />
     <PackageVersion Include="System.Drawing.Primitives" Version="4.3.0" />
     <PackageVersion Include="System.Drawing.Common" Version="10.0.3" />
+    <PackageVersion Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
     <PackageVersion Include="System.Text.Encoding.CodePages" Version="10.0.3" />
     <PackageVersion Include="PDFiumCore" Version="134.0.6982" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="10.0.3" />
@@ -35,5 +39,25 @@
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="11.3.11" />
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.11" />
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+    <!-- 
+    Do not upgrade ImageSharp past 2.1.3! Later versions have a stricter license. We want the Apache 2.0 license. 
+    There are security vulnerabilities in ImageSharp, but only if you are decoding untrusted images. We assuming people 
+    won't load untrusted images with Purple Pen. If we are truly worried about untrusted images, we could move to 
+    ImageSharp 2.1.11 and check out the gross revenue exception in the license. But for now, just stay with 2.1.3, 
+    which is the last version with the Apache 2.0 license.
+    -->
+    <PackageVersion Include="SixLabors.ImageSharp" Version="[2.1.3]" NoWarn="NU1901;NU1902;NU1903;NU1904" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.5" />
+  </ItemGroup>
+  <!-- Suppress NuGet audit vulnerability warnings for SixLabors.ImageSharp in all projects (including transitive references).
+       See comment above for why we stay on version 2.1.3. -->
+  <ItemGroup>
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-2cmq-823j-5qj8" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-5x7m-6737-26cr" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-63p8-c4ww-9cg7" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-65x7-c272-7g7r" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-g85r-6x2q-45w7" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-qxrv-gp6x-rc23" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rxmq-m78w-7wmc" />
   </ItemGroup>
 </Project>

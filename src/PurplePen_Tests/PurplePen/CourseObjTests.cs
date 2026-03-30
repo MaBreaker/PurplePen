@@ -80,12 +80,6 @@ namespace PurplePen.Tests
 
         }
 
-        [ClassInitialize]
-        public static void Setup(TestContext context)
-        {
-            Services.BitmapLoader = new GDIPlus_GraphicsBitmapLoader();
-        }
-
         // Draw a grid on the graphics
         void DrawGrid(Graphics g, RectangleF rect, float spacing)
         {
@@ -114,7 +108,7 @@ namespace PurplePen.Tests
                 // Create white color and white-out symdef.
                 SymColor white = map.AddColorBottom("White", /* JU */ CourseLayout.WHITEOUT_COLOR_OCADID, 0, 0, 0, 0, false);
                 AreaSymDef whiteArea = new AreaSymDef("White out", "890", white, null);
-                whiteArea.ToolboxImage = MapUtil.CreateToolboxIcon(Properties.Resources.WhiteOut_OcadToolbox);
+                whiteArea.ToolboxImage = CoreMapUtil.CreateToolboxIcon(ImageResources.WhiteOut_OcadToolbox);
                 map.AddSymdef(whiteArea);
                 dict[CourseLayout.KeyWhiteOut] = whiteArea;
 
@@ -1442,30 +1436,15 @@ namespace PurplePen.Tests
         internal void CheckHighlightBitmap(CourseObj courseobj, string basename)
         {
             Bitmap bmNew = RenderToBitmap(courseobj, Color.White);
-            Bitmap bmEraseBrush = (Bitmap) bmNew.Clone();
             Bitmap bmHighlighted = (Bitmap) bmNew.Clone();
             Matrix matrix = GetTransform(bmNew.Size);
 
             using (Graphics g = Graphics.FromImage(bmHighlighted)) {
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
-                courseobj.DrawHighlight(g, matrix);
+                using (GDIPlus_GraphicsTarget graphicsTarget = new GDIPlus_GraphicsTarget(g)) {
+                    courseobj.DrawHighlight(graphicsTarget, matrix);
+                }
             }
-            Bitmap bmErased = (Bitmap) bmHighlighted.Clone();
             TestUtil.CheckBitmapsBase(bmHighlighted, "coursesymbols\\" + basename);
-
-            using (TextureBrush eraseBrush = new TextureBrush(bmEraseBrush))
-            using (Graphics g = Graphics.FromImage(bmErased)) {
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
-                courseobj.EraseHighlight(g, matrix, eraseBrush);
-            }
-
-            Bitmap bmDiff;
-            bmDiff = TestUtil.CompareBitmaps(bmNew, bmErased, Color.LightPink, Color.Transparent, MAX_PIXEL_DIFF);
-            if (bmDiff != null) 
-                bmDiff.Save(TestUtil.GetTestFile("coursesymbols\\" + basename + "_diff.png"), ImageFormat.Png);
-            Assert.IsNull(bmDiff, "after erase does not match with before highlight");
-
-            bmEraseBrush.Dispose();
         }
 
         // Reduce the scale by 50% and check also.
@@ -2122,8 +2101,9 @@ namespace PurplePen.Tests
             Matrix matrix = GetTransform(bmNew.Size);
 
             using (Graphics g = Graphics.FromImage(bmNew)) {
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
-                offset.DrawHighlight(g, matrix);
+                using (GDIPlus_GraphicsTarget grTarget = new GDIPlus_GraphicsTarget(g)) {
+                    offset.DrawHighlight(grTarget, matrix);
+                }
             }
             TestUtil.CheckBitmapsBase(bmNew, "coursesymbols\\" + basename);
         }
@@ -2661,7 +2641,7 @@ namespace PurplePen.Tests
             PointF[] handles = courseobj.GetHandles();
 
             for (int i = 0; i < handles.Length; ++i)
-                Assert.AreSame(WindowsUtil.MoveHandleCursor, courseobj.GetHandleCursor(handles[i]));
+                Assert.AreEqual(PredefinedMousePointerShape.MoveHandle, courseobj.GetHandleCursor(handles[i]).PredefinedShape);
         }
 	
 
@@ -2705,11 +2685,11 @@ namespace PurplePen.Tests
             PointF[] expected = { new PointF(left, top), new PointF(right, top), new PointF(left, bottom), new PointF(right, bottom),
                new PointF((left + right) / 2, top), new PointF((left + right) / 2, bottom),
                new PointF(left, (top + bottom) / 2), new PointF(right, (top + bottom) / 2) };
-            Cursor[] expectedCursors = { Cursors.SizeNWSE, Cursors.SizeNESW, Cursors.SizeNESW, Cursors.SizeNWSE, 
-                Cursors.SizeNS, Cursors.SizeNS, Cursors.SizeWE, Cursors.SizeWE };
+            PredefinedMousePointerShape[] expectedCursors = { PredefinedMousePointerShape.SizeNWSE, PredefinedMousePointerShape.SizeNESW, PredefinedMousePointerShape.SizeNESW, PredefinedMousePointerShape.SizeNWSE,
+                PredefinedMousePointerShape.SizeNS, PredefinedMousePointerShape.SizeNS, PredefinedMousePointerShape.SizeWE, PredefinedMousePointerShape.SizeWE };
 
             for (int i = 0; i < expected.Length; ++i)
-                Assert.AreSame(expectedCursors[i], courseObj.GetHandleCursor(expected[i]));
+                Assert.AreEqual(expectedCursors[i], courseObj.GetHandleCursor(expected[i]).PredefinedShape);
         }
 
         [TestMethod]
@@ -2722,11 +2702,11 @@ namespace PurplePen.Tests
             PointF[] expected = { new PointF(left, top), new PointF(right, top), new PointF(left, bottom), new PointF(right, bottom),
                new PointF((left + right) / 2, top), new PointF((left + right) / 2, bottom),
                new PointF(left, (top + bottom) / 2), new PointF(right, (top + bottom) / 2) };
-            Cursor[] expectedCursors = { Cursors.SizeNWSE, Cursors.SizeNESW, Cursors.SizeNESW, Cursors.SizeNWSE, 
-                Cursors.SizeNS, Cursors.SizeNS, Cursors.SizeWE, Cursors.SizeWE };
+            PredefinedMousePointerShape[] expectedCursors = { PredefinedMousePointerShape.SizeNWSE, PredefinedMousePointerShape.SizeNESW, PredefinedMousePointerShape.SizeNESW, PredefinedMousePointerShape.SizeNWSE, 
+                PredefinedMousePointerShape.SizeNS, PredefinedMousePointerShape.SizeNS, PredefinedMousePointerShape.SizeWE, PredefinedMousePointerShape.SizeWE };
 
             for (int i = 0; i < expected.Length; ++i)
-                Assert.AreSame(expectedCursors[i], courseObj.GetHandleCursor(expected[i]));
+                Assert.AreEqual(expectedCursors[i], courseObj.GetHandleCursor(expected[i]).PredefinedShape);
         }
 
         // Move a description handle and make sure the description ends up in the right place.

@@ -92,6 +92,16 @@ namespace CanvasTest2.Drawing
             return outputWriter.ToString();
         }
 
+        public float Intensity {
+            get { return 1.0F; }
+            set {
+                if (value != 1.0F) {
+                    throw new ArgumentException("Only intensities of 1.0 are supported", "value");
+                }
+            }
+        }
+
+
         public bool SupportsPatternBrushes => false;
 
         public void CreateFont(object key, string familyName, float emHeight, TextEffects effects)
@@ -159,12 +169,12 @@ namespace CanvasTest2.Drawing
 
         }
 
-        public void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
+        public void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode)
         {
             //throw new NotImplementedException();
         }
 
-        public void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectange, BitmapScaling scalingMode, float minResolution)
+        public void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectange, BitmapScaling scalingMode)
         {
             //throw new NotImplementedException();
         }

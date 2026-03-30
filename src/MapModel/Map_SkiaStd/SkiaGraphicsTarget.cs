@@ -48,13 +48,9 @@ namespace PurplePen.MapModel
     using Map_SkiaStd;
     using PurplePen.Graphics2D;
     using SkiaSharp;
-    using SkiaSharp.HarfBuzz;
     using System.Collections.Concurrent;
     using System.Drawing;
     using System.Drawing.Imaging;
-    using System.Runtime.InteropServices.ComTypes;
-    using static SkiaSharp.SKImageFilter;
-    using static System.Net.Mime.MediaTypeNames;
 
     // A GraphicsTarget encapsulates an SKCanvas
     public class Skia_GraphicsTarget: IGraphicsTarget
@@ -83,10 +79,29 @@ namespace PurplePen.MapModel
         {
         }
 
+        public float Intensity {
+            get { return intensity; }
+            set {
+                // Pens and brushes have colors that were based on the intensity, so
+                // they must be destroyed.
+                foreach (SKPaint paint in penMap.Values)
+                    paint.Dispose();
+                penMap.Clear();
+
+                foreach (SKPaint paint in brushMap.Values)
+                    paint.Dispose();
+                brushMap.Clear();
+
+                intensity = value;
+            }
+        }
+
+
         public SKCanvas Canvas
         {
             get { return canvas; }
         }
+
 
         private SKColor ConvertColor(CmykColor cmykColor)
         {
@@ -487,13 +502,13 @@ namespace PurplePen.MapModel
         }
 
         // Draw a bitmap
-        public void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
+        public void DrawBitmap(IGraphicsBitmap bm, RectangleF rectangle, BitmapScaling scalingMode)
         {
-            DrawBitmapPart(bm, 0, 0, bm.PixelWidth, bm.PixelHeight, rectangle, scalingMode, minResolution);
+            DrawBitmapPart(bm, 0, 0, bm.PixelWidth, bm.PixelHeight, rectangle, scalingMode);
         }
 
         // Draw part of a bitmap
-        public void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectangle, BitmapScaling scalingMode, float minResolution)
+        public void DrawBitmapPart(IGraphicsBitmap bm, int x, int y, int width, int height, RectangleF rectangle, BitmapScaling scalingMode)
         {
             using (SKPaint paint = new SKPaint()) {
                 SKFilterQuality filterQuality;
@@ -879,6 +894,13 @@ namespace PurplePen.MapModel
             return new SizeF(width / 100, Math.Max((bounds.Bottom - bounds.Top) / 100, Ascent + Descent));
         }
 
+        public RectangleF GetTightBoundingBox(PointF startpoint, string text)
+        {
+            SKPath path = enhancedTypeface.GetTextPath(text, new SKPoint(startpoint.X, startpoint.Y), emHeight);
+            SKRect bounds = path.TightBounds;
+            return new RectangleF(bounds.Left, bounds.Top, bounds.Width, bounds.Height);
+        }
+
         void LoadFontMetrics()
         {
             if (!fontMetricsObtained) {
@@ -911,6 +933,25 @@ namespace PurplePen.MapModel
         }
     }
 
+    public class SkiaFontLoader : IFontLoader
+    {
+        public static SkiaFontLoader Instance { get { return instance; } }
+        private static SkiaFontLoader instance = new SkiaFontLoader();
+
+        public void AddFontFile(string familyName, TextEffects textEffects, string fontFilePath)
+        {
+            SKFontStyleWeight weight = SkiaFont.GetSKFontStyleWeight(textEffects);
+            SKFontStyleSlant slant = SkiaFont.GetSKFontStyleSlant(textEffects);
+            SKFontStyleWidth width = SKFontStyleWidth.Normal;
+            SkiaFontManager.AddFontFile(familyName, weight, width, slant, fontFilePath);
+        }
+
+        public bool FontFamilyIsInstalled(string familyName)
+        {
+            return SkiaFontManager.FontFamilyIsInstalled(familyName);
+        }
+    }
+
     // A graphics target that draw onto a bitmap. Also adds support for blending mode Darken.
     public class Skia_BitmapGraphicsTarget: Skia_GraphicsTarget, IBitmapGraphicsTarget
     {
@@ -923,22 +964,22 @@ namespace PurplePen.MapModel
         Stack<SKCanvas> canvasStack = new Stack<SKCanvas>();
         Stack<BlendMode> blendStack = new Stack<BlendMode>();
 
-        public Skia_BitmapGraphicsTarget(int pixelWidth, int pixelHeight, bool alpha, CmykColor initialColor, RectangleF rectangle, bool inverted, SkiaColorConverter colorConverter = null, float intensity = 1.0F)
+        public Skia_BitmapGraphicsTarget(int pixelWidth, int pixelHeight, bool alpha, CmykColor initialColor, RectangleF rectangle, bool inverted, IColorConverter colorConverter = null, float intensity = 1.0F)
             : this(GetBitmap(pixelWidth, pixelHeight, alpha), initialColor, rectangle, inverted, colorConverter, intensity)
         {
         }
 
-        public Skia_BitmapGraphicsTarget(SKBitmap bitmap, CmykColor initialColor, RectangleF rectangle, bool inverted, SkiaColorConverter colorConverter = null, float intensity = 1.0F)
+        public Skia_BitmapGraphicsTarget(SKBitmap bitmap, CmykColor initialColor, RectangleF rectangle, bool inverted, IColorConverter colorConverter = null, float intensity = 1.0F)
             : this(bitmap, initialColor, GetTransform(bitmap, rectangle, inverted), colorConverter, intensity)
         {
         }
 
-        public Skia_BitmapGraphicsTarget(SKBitmap bitmap, CmykColor initialColor, Matrix transform, SkiaColorConverter colorConverter = null, float intensity = 1.0F, SKPath clipPath = null)
+        public Skia_BitmapGraphicsTarget(SKBitmap bitmap, CmykColor initialColor, Matrix transform, IColorConverter colorConverter = null, float intensity = 1.0F, SKPath clipPath = null)
             : this(GetSurface(bitmap), bitmap, initialColor, transform, colorConverter, intensity, clipPath)
         {
         }
 
-        private Skia_BitmapGraphicsTarget(SKSurface surface, SKBitmap bitmap, CmykColor initialColor, Matrix transform, SkiaColorConverter colorConverter = null, float intensity = 1.0F, SKPath clipPath = null)
+        private Skia_BitmapGraphicsTarget(SKSurface surface, SKBitmap bitmap, CmykColor initialColor, Matrix transform, IColorConverter colorConverter = null, float intensity = 1.0F, SKPath clipPath = null)
             : base(GetCanvas(surface, initialColor, transform, colorConverter, clipPath), colorConverter, intensity)
         {
             this.surface = surface;
@@ -949,7 +990,7 @@ namespace PurplePen.MapModel
         public int PixelWidth { get { return width; } }
         public int PixelHeight { get { return height; } }
 
-        static SKCanvas GetCanvas(SKSurface surface, CmykColor initialColor, Matrix transform, SkiaColorConverter colorConverter, SKPath clipPath)
+        static SKCanvas GetCanvas(SKSurface surface, CmykColor initialColor, Matrix transform, IColorConverter colorConverter, SKPath clipPath)
         {
             SKCanvas canvas = surface.Canvas;
 
@@ -1098,11 +1139,27 @@ namespace PurplePen.MapModel
     {
         SKImage image;
         GraphicsBitmapFormat originalFormat = GraphicsBitmapFormat.None;
+        double horizontalResolution = 96;
+        double verticalResolution = 96;
 
 
         public SKImage Image
         {
             get { return image; }
+        }
+
+        /// <summary>Horizontal resolution in dots per inch.</summary>
+        public double HorizontalResolution
+        {
+            get { return horizontalResolution; }
+            set { horizontalResolution = value; }
+        }
+
+        /// <summary>Vertical resolution in dots per inch.</summary>
+        public double VerticalResolution
+        {
+            get { return verticalResolution; }
+            set { verticalResolution = value; }
         }
 
         public int PixelWidth
@@ -1115,10 +1172,47 @@ namespace PurplePen.MapModel
             get { return image != null ? image.Height : 0; }
         }
 
+        public bool MustCopyBitsForGraphicsTarget => true;
+
+
         public GraphicsBitmapFormat GetOriginalFormat()
         {
             return originalFormat;
         }
+
+        public Color GetPixel(int x, int y)
+        {
+            SKPixmap pixmap = image.PeekPixels();
+            SKColor color;
+
+            if (pixmap != null) {
+
+                color = pixmap.GetPixelColor(x, y);
+            }
+            else {
+                // Can't get a pixmap from the image.
+                // Crop the image to a single pixel to reduce copying, then create a 
+                // bitmap if needed.
+                using (SKImage crop = image.Subset(new SKRectI(x, y, x + 1, y + 1))) {
+                    pixmap = crop.PeekPixels();
+                    if (pixmap != null) {
+                        color = pixmap.GetPixelColor(0, 0);
+                    }
+                    else {
+                        using (SKBitmap bitmap = SKBitmap.FromImage(crop)) {
+                            color = bitmap.GetPixel(0, 0);
+                        }
+                    }
+                }
+            }
+
+            if (pixmap != null)
+                pixmap.Dispose();
+
+            return Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
+        }
+
+
 
         public IGraphicsBitmap Crop(int x, int y, int width, int height)
         {
@@ -1127,37 +1221,46 @@ namespace PurplePen.MapModel
 
             if (pixmap != null) {
                 SKPixmap subsetPixmap = pixmap.ExtractSubset(cropRect);
-                return new Skia_Pixmap(subsetPixmap);
+                return new Skia_Pixmap(subsetPixmap, horizontalResolution, verticalResolution);
             }
             else {
                 SKImage croppedImage = image.Subset(cropRect);
-                return new Skia_Image(croppedImage);
+                return new Skia_Image(croppedImage, horizontalResolution, verticalResolution);
             }
         }
 
         public bool WriteToStream(GraphicsBitmapFormat format, Stream stream)
         {
-            SKEncodedImageFormat? targetFormat = Skia_Bitmap.ImageFormatFromGraphicsBitmapFormat(format);
-            if (!targetFormat.HasValue)
-                return false;
-
             SKPixmap pixmap = image.PeekPixels();
             if (pixmap != null) {
-                bool success = pixmap.Encode(stream, targetFormat.Value, 100);
+                // PeekPixels available: write directly from the pixmap.
+                PixmapWithResolution pwr = new PixmapWithResolution(pixmap, format, horizontalResolution, verticalResolution);
+                BitmapIO.WritePixmapToStream(pwr, stream, 100);
                 pixmap.Dispose();
-                return success;
+                return true;
             }
             else {
-                using (SKData data = image.Encode(targetFormat.Value, 100)) {
-                    if (data == null)
-                        return false;
-                    data.SaveTo(stream);
+                // PeekPixels not available (e.g. GPU-backed image): convert to bitmap first.
+                using (SKBitmap bmp = SKBitmap.FromImage(image)) {
+                    BitmapWithResolution bwr = new BitmapWithResolution(bmp, format, horizontalResolution, verticalResolution);
+                    BitmapIO.WriteBitmapToStream(bwr, stream, 100);
+                    return true;
                 }
-
-                return true;
             }
         }
 
+        public IBitmapGraphicsTarget GetGraphicsTarget(bool copyBits, IColorConverter colorConverter = null)
+        {
+            if (!copyBits) {
+                throw new ArgumentException("Pixmap must be copied for graphics target", "copyBits");
+            }
+
+            SKBitmap newBitmap = SKBitmap.FromImage(image);
+
+            // Return the new Skia_Bitmap that wraps it.
+            Skia_Bitmap skia_bitmap = new Skia_Bitmap(newBitmap, originalFormat, horizontalResolution, verticalResolution);
+            return new Skia_BitmapGraphicsTarget(newBitmap, null, new RectangleF(0, 0, newBitmap.Width, newBitmap.Height), false, colorConverter);
+        }
 
 
         public void Dispose()
@@ -1178,16 +1281,39 @@ namespace PurplePen.MapModel
         {
             this.image = image;
         }
+
+        public Skia_Image(SKImage image, double horizontalResolution, double verticalResolution)
+        {
+            this.image = image;
+            this.horizontalResolution = horizontalResolution;
+            this.verticalResolution = verticalResolution;
+        }
     }
 
     public class Skia_Bitmap: IGraphicsBitmap
     {
         SKBitmap bitmap;
         GraphicsBitmapFormat originalFormat = GraphicsBitmapFormat.None;
+        double horizontalResolution = 96;
+        double verticalResolution = 96;
 
         public SKBitmap Bitmap
         {
             get { return bitmap; }
+        }
+
+        /// <summary>Horizontal resolution in dots per inch.</summary>
+        public double HorizontalResolution
+        {
+            get { return horizontalResolution; }
+            set { horizontalResolution = value; }
+        }
+
+        /// <summary>Vertical resolution in dots per inch.</summary>
+        public double VerticalResolution
+        {
+            get { return verticalResolution; }
+            set { verticalResolution = value; }
         }
 
         public int PixelWidth
@@ -1200,32 +1326,53 @@ namespace PurplePen.MapModel
             get { return bitmap != null ? bitmap.Height : 0; }
         }
 
+        public bool MustCopyBitsForGraphicsTarget => false;
+
         public GraphicsBitmapFormat GetOriginalFormat()
         {
             return originalFormat;
         }
+
+        public Color GetPixel(int x, int y)
+        {
+            SKColor color = bitmap.GetPixel(x, y);
+            return Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
+        }
+
 
         public IGraphicsBitmap Crop(int x, int y, int width, int height)
         {
             SKRectI cropRect = new SKRectI(x, y, x + width, y + height);
             SKPixmap pixmap = bitmap.PeekPixels();
             SKPixmap subsetPixmap = pixmap.ExtractSubset(cropRect);
-            return new Skia_Pixmap(subsetPixmap);
+            return new Skia_Pixmap(subsetPixmap, horizontalResolution, verticalResolution);
         }
 
 
         public bool WriteToStream(GraphicsBitmapFormat format, Stream stream)
         {
-            SKEncodedImageFormat? targetFormat = ImageFormatFromGraphicsBitmapFormat(format);
-            if (!targetFormat.HasValue)
-                return false;
-
-            using (SKPixmap pixmap = bitmap.PeekPixels()) {
-                bool success = pixmap.Encode(stream, targetFormat.Value, 100);
-                return success;
-            }
+            BitmapWithResolution bwr = new BitmapWithResolution(bitmap, format, horizontalResolution, verticalResolution);
+            BitmapIO.WriteBitmapToStream(bwr, stream, 100);
+            return true;
         }
 
+        public IBitmapGraphicsTarget GetGraphicsTarget(bool copyBits, IColorConverter colorConverter = null)
+        {
+            SKBitmap newBitmap;
+            if (copyBits) {
+                // Create a new bitmap to draw on, and copy the pixmap content to it.
+                newBitmap = new SKBitmap(bitmap.Info);
+                SKPixmap pixmap = bitmap.PeekPixels();
+                pixmap.ReadPixels(newBitmap.Info, newBitmap.GetPixels(), newBitmap.RowBytes, 0, 0);
+            }
+            else {
+                newBitmap = bitmap;
+            }
+
+            // Return the new Skia_Bitmap that wraps it.
+            Skia_Bitmap skia_bitmap = new Skia_Bitmap(bitmap, originalFormat, horizontalResolution, verticalResolution);
+            return new Skia_BitmapGraphicsTarget(bitmap, null, new RectangleF(0, 0, bitmap.Width, bitmap.Height), false, colorConverter);
+        }
 
 
         public void Dispose()
@@ -1290,16 +1437,38 @@ namespace PurplePen.MapModel
             this.bitmap = bitmap;
             this.originalFormat = originalFormat;
         }
+
+        public Skia_Bitmap(SKBitmap bitmap, GraphicsBitmapFormat originalFormat, double horizontalResolution, double verticalResolution)
+        {
+            this.bitmap = bitmap;
+            this.originalFormat = originalFormat;
+            this.horizontalResolution = horizontalResolution;
+            this.verticalResolution = verticalResolution;
+        }
     }
 
     public class Skia_Pixmap : IGraphicsBitmap
     {
         SKPixmap pixmap;
         GraphicsBitmapFormat originalFormat = GraphicsBitmapFormat.None;
+        double horizontalResolution = 96;
+        double verticalResolution = 96;
 
 
         public SKPixmap Pixmap {
             get { return pixmap; }
+        }
+
+        /// <summary>Horizontal resolution in dots per inch.</summary>
+        public double HorizontalResolution {
+            get { return horizontalResolution; }
+            set {  horizontalResolution = value; }
+        }
+
+        /// <summary>Vertical resolution in dots per inch.</summary>
+        public double VerticalResolution {
+            get { return verticalResolution; }
+            set { verticalResolution = value; }
         }
 
         public int PixelWidth {
@@ -1310,27 +1479,49 @@ namespace PurplePen.MapModel
             get { return pixmap != null ? pixmap.Height : 0; }
         }
 
+        public bool MustCopyBitsForGraphicsTarget => true;
+
         public GraphicsBitmapFormat GetOriginalFormat()
         {
             return originalFormat;
+        }
+
+        public Color GetPixel(int x, int y)
+        {
+            SKColor color = pixmap.GetPixelColor(x, y);
+            return Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
         }
 
         public IGraphicsBitmap Crop(int x, int y, int width, int height)
         {
             SKRectI cropRect = new SKRectI(x, y, x + width, y + height);
             SKPixmap subsetPixmap = pixmap.ExtractSubset(cropRect);
-            return new Skia_Pixmap(subsetPixmap);
+            return new Skia_Pixmap(subsetPixmap, horizontalResolution, verticalResolution);
         }
 
 
         public bool WriteToStream(GraphicsBitmapFormat format, Stream stream)
         {
-            SKEncodedImageFormat? targetFormat = Skia_Bitmap.ImageFormatFromGraphicsBitmapFormat(format);
-            if (!targetFormat.HasValue)
-                return false;
+            PixmapWithResolution pwr = new PixmapWithResolution(pixmap, format, horizontalResolution, verticalResolution);
+            BitmapIO.WritePixmapToStream(pwr, stream, 100);
+            return true;
+        }
 
-            bool success = pixmap.Encode(stream, targetFormat.Value, 100);
-            return success;
+        public IBitmapGraphicsTarget GetGraphicsTarget(bool copyBits, IColorConverter colorConverter = null)
+        {
+            if (!copyBits) {
+                throw new ArgumentException("Pixmap must be copied for graphics target", "copyBits");
+            }
+
+            // Create a new bitmap to draw on, and copy the pixmap content to it.
+            SKBitmap bitmap = new SKBitmap(pixmap.Info);
+            pixmap.ReadPixels(bitmap.Info, bitmap.GetPixels(), bitmap.RowBytes, 0, 0);
+
+
+            // Return the new Skia_Bitmap that wraps it.
+            Skia_Bitmap skia_bitmap = new Skia_Bitmap(bitmap, originalFormat, horizontalResolution, verticalResolution);
+            return new Skia_BitmapGraphicsTarget(bitmap, null, new RectangleF(0, 0, bitmap.Width, bitmap.Height), false, colorConverter);
+
         }
 
         public void Dispose()
@@ -1350,6 +1541,13 @@ namespace PurplePen.MapModel
         {
             this.pixmap = pixmap;
         }
+
+        public Skia_Pixmap(SKPixmap pixmap, double horizontalResolution, double verticalResolution)
+        {
+            this.pixmap = pixmap;
+            this.horizontalResolution = horizontalResolution;
+            this.verticalResolution = verticalResolution;
+        }
     }
 
 
@@ -1368,16 +1566,45 @@ namespace PurplePen.MapModel
         {
         }
 
+        public IGraphicsBitmap CreateEmptyBitmap(int width, int height, System.Drawing.Color? color)
+        {
+            SKBitmap bitmap = new SKBitmap(width, height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+
+            if (color.HasValue) {
+                SKColor skColor = new SKColor(color.Value.R, color.Value.G, color.Value.B, color.Value.A);
+                using (SKCanvas canvas = new SKCanvas(bitmap)) {
+                    canvas.Clear(skColor);
+                }
+            }
+
+            return new Skia_Bitmap(bitmap);
+        }
+
         public IGraphicsBitmap ReadBitmapFromStream(Stream stream)
         {
-            // 1. Load the data from the file
-            using (SKData data = SKData.Create(stream))
-            using (SKCodec codec = SKCodec.Create(data)) {
-                SKEncodedImageFormat skFormat = codec.EncodedFormat;
-                GraphicsBitmapFormat format = Skia_Bitmap.GraphicsBitmapFormatFromImageFormat(skFormat);
-                SKBitmap bitmap = SKBitmap.Decode(codec);
-                return new Skia_Bitmap(bitmap, format);
-            }
+            BitmapWithResolution bwr = BitmapIO.ReadBitmapFromStream(stream);
+            return new Skia_Bitmap(bwr.Bitmap, bwr.Format, bwr.HorizontalResolution, bwr.VerticalResolution);
         }
     }
+
+    public class SkiaBitmapGraphicsTargetProvider : IBitmapGraphicsTargetProvider
+    {
+        public IBitmapGraphicsTarget CreateBitmapGraphicsTarget(int width, int height, IColorConverter colorConverter)
+        {
+            return new Skia_BitmapGraphicsTarget(width, height, true, CmykColor.FromCmyk(0, 0, 0, 0), RectangleF.FromLTRB(0, 0, width, height), false, colorConverter);
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+    public class SkiaFileLoaderProvider : IFileLoaderProvider
+    {
+        public IFileLoader GetFileLoaderForDirectory(string path)
+        {
+            return new Skia_FileLoader(path);
+        }
+    }
+
 }
