@@ -15,8 +15,10 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
 
@@ -27,7 +29,7 @@ namespace PurplePen.ViewModels
     /// </summary>
     public partial class MainWindowViewModel : ViewModelBase, IUserInterface
     {
-        Controller controller = null!;
+        Controller? controller = null;
         SymbolDB symbolDB = null!;
         long changeNum = 0;         // When this changes, state information needs to be updated in the UI.
         bool updatingTabs = false;  // Guard to prevent re-entrant controller calls during UpdateTabs.
@@ -35,6 +37,9 @@ namespace PurplePen.ViewModels
 
         [ObservableProperty]
         private IMapDisplay? mapDisplay;
+
+        [ObservableProperty]
+        private IMapViewerHighlight[]? mapHighlights;
 
         [ObservableProperty]
         private DescriptionViewerViewModel descriptionViewerViewModel = new DescriptionViewerViewModel();
@@ -51,16 +56,26 @@ namespace PurplePen.ViewModels
         [ObservableProperty]
         private int selectedTabIndex;
 
+        [ObservableProperty]
+        private TextPart[] selectedObjectDescription = new TextPart[0];
+
+#region IUserInterface implementation
+
         public void Initialize(Controller controller, SymbolDB symbolDB)
         {
             this.controller = controller;
             this.symbolDB = symbolDB;
 
             DescriptionViewerViewModel.SymbolDB = symbolDB;
+            DescriptionViewerViewModel.Controller = controller;
         }
 
         public Size Size => throw new NotImplementedException();
 
+        public void QueueIdleEvent()
+        {
+            Services.ServiceProvider.GetRequiredService<IApplicationIdleService>().QueueIdleEvent();
+        }
 
         public void InfoMessage(string message)
         {
@@ -109,7 +124,7 @@ namespace PurplePen.ViewModels
 
         public void InitiateMapDragging(PointF initialPos, PointerButton buttonEnd)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public int LogicalToDeviceUnits(int value)
@@ -142,11 +157,17 @@ namespace PurplePen.ViewModels
             throw new NotImplementedException();
         }
 
+        #endregion // IUserInterface implementation
+
+        #region State updating on idle
 
         // This is called when the application becomes idle after processing input.
         // We can use this to update the UI in response to changes that may have occurred.
         public void UpdateStateOnIdle()
         {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
 #if !PORTING
             UpdateMenusToolbarButtons();   // This needs updating even if other things haven't changed.
             UpdateStatusText();
@@ -158,14 +179,14 @@ namespace PurplePen.ViewModels
                 UpdateTabs();
                 UpdateCourse();
                 UpdateDescription();
+                UpdateSelection();
+                UpdateSelectionPanel();
+                UpdateHighlight();
 #if !PORTING
                 UpdateTopology();
                 UpdatePrintArea();
                 UpdatePartBanner();
-                UpdateSelection();
-                UpdateHighlight();
                 UpdateTopologyHighlight();
-                UpdateSelectionPanel();
                 UpdateCustomSymbolText();
                 CheckForMissingFonts();
                 CheckForNonRenderableObjects(true, false);
@@ -190,6 +211,9 @@ namespace PurplePen.ViewModels
         // Update the map file on Display.
         private void UpdateMapFile()
         {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
             if (MapDisplay != controller.MapDisplay) {
                 // The mapDisplay object is new. This currently o`nly happens on startup.
                 MapDisplay = controller.MapDisplay;
@@ -237,6 +261,9 @@ namespace PurplePen.ViewModels
 
         private void UpdateTabsCore()
         {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
             string[] tabNames = controller.GetTabNames();
 
             // Update or add tab names.
@@ -264,7 +291,10 @@ namespace PurplePen.ViewModels
         /// </summary>
         partial void OnSelectedTabIndexChanged(int value)
         {
-            if (!updatingTabs && controller != null && value >= 0 && value < TabNames.Count) {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
+            if (!updatingTabs && value >= 0 && value < TabNames.Count) {
                 controller.SelectTab(value);
             }
         }
@@ -274,6 +304,9 @@ namespace PurplePen.ViewModels
         // Update the course in the map pane.
         void UpdateCourse()
         {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
             controller.MapDisplay.SetCourse(controller.GetCourseLayout());
         }
 
@@ -281,6 +314,9 @@ namespace PurplePen.ViewModels
         // Update the description with data from the controller.
         void UpdateDescription()
         {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
             CourseView.CourseViewKind kind;
             DescriptionLine[] description;
             bool isCoursePart, hasCustomLength;
@@ -298,6 +334,78 @@ namespace PurplePen.ViewModels
             DescriptionViewerViewModel.DescriptionData = descriptionData;
         }
 
+        // Update the selected line.
+        void UpdateSelection()
+        {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
+            int firstLine, lastLine;
+            controller.GetHighlightedDescriptionLines(out firstLine, out lastLine);
+            this.DescriptionViewerViewModel.Selection = new SelectedLines(firstLine, lastLine);
+        }
+
+        // Update the selection panel with a description of the selection.
+        void UpdateSelectionPanel()
+        {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
+            this.SelectedObjectDescription = controller.GetSelectionDescription();
+        }
+
+        // Update the highlights
+        void UpdateHighlight()
+        {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
+            this.MapHighlights = controller.GetHighlights(Pane.Map);
+        }
+
+        #endregion // State updating on idle.
+
+
+        #region Mouse events
+
+        public DragAction MapViewerLeftButtonDown(PointF location, float pixelSize)
+        { return controller?.LeftButtonDown(Pane.Map, location, pixelSize) ?? DragAction.None; }
+
+        public DragAction MapViewerRightButtonDown(PointF location, float pixelSize)
+        { return controller?.RightButtonDown(Pane.Map, location, pixelSize) ?? DragAction.None; }
+
+        public void MapViewerLeftButtonUp(PointF location, float pixelSize)
+        { controller?.LeftButtonUp(Pane.Map, location, pixelSize); }
+
+        public void MapViewerRightButtonUp(PointF location, float pixelSize)
+        { controller?.RightButtonUp(Pane.Map, location, pixelSize); }
+
+        public void MapViewerLeftButtonClick(PointF location, float pixelSize)
+        { controller?.LeftButtonClick(Pane.Map, location, pixelSize); }
+
+        public void MapViewerRightButtonClick(PointF location, float pixelSize)
+        { controller?.RightButtonClick(Pane.Map, location, pixelSize); }
+
+        public void MapViewerLeftButtonDrag(PointF location, PointF locationStart, float pixelSize)
+        { controller?.LeftButtonDrag(Pane.Map, location, locationStart, pixelSize); }
+
+        public void MapViewerRightButtonDrag(PointF location, PointF locationStart, float pixelSize)
+        { controller?.RightButtonDrag(Pane.Map, location, locationStart, pixelSize); }
+
+        public void MapViewerLeftButtonEndDrag(PointF location, PointF locationStart, float pixelSize)
+        { controller?.LeftButtonEndDrag(Pane.Map, location, locationStart, pixelSize); }
+
+        public void MapViewerRightButtonEndDrag(PointF location, PointF locationStart, float pixelSize)
+        { controller?.RightButtonEndDrag(Pane.Map, location, locationStart, pixelSize); }
+        public void MapViewerLeftButtonCancelDrag()
+        { controller?.LeftButtonCancelDrag(Pane.Map); }
+
+        public void MapViewerRightButtonCancelDrag()
+        { controller?.RightButtonCancelDrag(Pane.Map); }
+
+        #endregion
+
+        #region Commands for menu items and toolbar buttons.
 
         /// <summary>
         /// Shows the Open File dialog filtered to Purple Pen files (.ppen),
@@ -306,6 +414,8 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task FileOpenPurplePenFile()
         {
+            if (controller == null) return;
+
 #if PORTING
             // Not all functionality ported from MainFrame.openMenu_Click.
 #endif
@@ -328,6 +438,8 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task ShowAddCourseDialog()
         {
+            if (controller == null) return;
+
 #if PORTING
             // TODO: Initialize ViewModel from current event data (map scale, etc.)
             // and process the result to actually add the course.
@@ -420,5 +532,7 @@ namespace PurplePen.ViewModels
                 Services.UILanguage.LanguageCode = vm.SelectedLanguage.Code;
             }
         }
+
+        #endregion //Commands
     }
 }

@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using AvUtil;
@@ -35,6 +36,16 @@ namespace AvMapViewer
                 CacheableMapDrawing cacheableMapDrawing = new CacheableMapDrawing();
                 cacheableMapDrawing.Map = map;
                 panAndZoom.Drawing = new CachedDrawing(cacheableMapDrawing);
+            }
+        }
+
+        private void panAndZoom_MouseActivity(object? sender, PanAndZoom.BasicMouseEventArgs e)
+        {
+            if (e.BasicAction == PanAndZoom.BasicMouseAction.Down &&
+               (e.Button == MouseButton.Right || e.Button == MouseButton.Middle)) 
+            {                    
+                // Middle and right mouse buttons always pan the map.
+                panAndZoom.BeginPanning(e.LogicalPixelLocation, e.Button);
             }
         }
     }

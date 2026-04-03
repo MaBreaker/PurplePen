@@ -177,6 +177,15 @@ namespace PurplePen
             descriptionControl.SymbolDB = symbolDB;
         }
 
+        public void QueueIdleEvent()
+        {
+            // Schedule a dummy method to run as soon as possible.
+            // This forces the message loop to cycle and return to Idle state.
+            if (this.IsHandleCreated) {
+                this.BeginInvoke(new Action(() => { }));
+            }
+        }
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool HidePrintArea
         {
@@ -184,7 +193,7 @@ namespace PurplePen
             set
             {
                 hidePrintArea = value;
-                controller.ForceChangeUpdate();
+                controller.ForceChangeUpdate(true);
             }
         }
 
@@ -1261,7 +1270,7 @@ namespace PurplePen
         {
             UserSettings.Current.ShowPrintArea = !UserSettings.Current.ShowPrintArea;
             UserSettings.Current.Save();
-            controller.ForceChangeUpdate();
+            controller.ForceChangeUpdate(true);
         }
 
         private void courseTabs_Selected(object sender, TabControlEventArgs e)
@@ -3174,7 +3183,7 @@ namespace PurplePen
                 UserSettings.Current.UILanguage = dialog.Culture.Name;
                 UserSettings.Current.Save();
 
-                controller.ForceChangeUpdate();     // make the controller update state.
+                controller.ForceChangeUpdate(true);     // make the controller update state.
 
                 ReloadMainFrameStrings();
                 UpdateLabelsAndScrollBars();

@@ -47,7 +47,7 @@ namespace AvUtil
         /// </summary>
         public event EventHandler<PaintEventArgs>? Paint;
 
-        private WriteableBitmap? _writeableBitmap = null;
+        private WriteableBitmapTracker? _writeableBitmapTracker = null;
         private int _pixelWidth;
         private int _pixelHeight;
         private Size _logicalSize;
@@ -152,6 +152,14 @@ namespace AvUtil
             }
         }
 
+        public PointerPoint GetPointerPoint(PointerEventArgs pointerEventArgs)
+        {
+            PointerPoint pointerPoint = pointerEventArgs.GetCurrentPoint(this);
+            Point position = pointerPoint.Position;
+            Point scrolledPosition = new Point(position.X + _offset.X, position.Y + _offset.Y);
+            return new PointerPoint(pointerPoint.Pointer, scrolledPosition, pointerPoint.Properties);
+        }
+
         /// <summary>
         /// Repaints the Skia surface and canvas.
         /// </summary>
@@ -165,23 +173,21 @@ namespace AvUtil
                 // WriteableBitmap does not support zero-size dimensions
                 // Therefore, to avoid a crash, exit here if size is zero
                 if (!this.IsVisible || _pixelWidth == 0 || _pixelHeight == 0) {
-                    _writeableBitmap?.Dispose();
-                    _writeableBitmap = null;
+                    if (_writeableBitmapTracker != null) {
+                        WriteableBitmapPool.Instance.Return(_writeableBitmapTracker);
+                    }
+                    _writeableBitmapTracker = null;
                     return;
                 }
 
-                if (_writeableBitmap != null && (_writeableBitmap.PixelSize.Width != _pixelWidth || _writeableBitmap.PixelSize.Height != _pixelHeight)) {
-                    _writeableBitmap?.Dispose();
-                    _writeableBitmap = null;
+                if (_writeableBitmapTracker != null && (_writeableBitmapTracker.PixelSize.Width != _pixelWidth || _writeableBitmapTracker.PixelSize.Height != _pixelHeight)) {
+                    WriteableBitmapPool.Instance.Return(_writeableBitmapTracker);
+                    _writeableBitmapTracker = null;
                 }
 
-                _writeableBitmap ??= new WriteableBitmap(
-                    new PixelSize(_pixelWidth, _pixelHeight),
-                    new Vector(96, 96),
-                    PixelFormat.Bgra8888,
-                    AlphaFormat.Premul);
+                _writeableBitmapTracker ??= WriteableBitmapPool.Instance.Rent(new PixelSize(_pixelWidth, _pixelHeight), longLived: true);
 
-                SkiaWritableBitmap.DrawToBitmap(_writeableBitmap,
+                SkiaWritableBitmap.DrawToBitmap(_writeableBitmapTracker,
                     (SKCanvas canvas, CancellationToken cancelToken) => {
                         canvas.SetMatrix(SKMatrix.CreateScaleTranslation(Convert.ToSingle(_scale), Convert.ToSingle(_scale), Convert.ToSingle(-_offset.X * _scale), Convert.ToSingle(-_offset.Y * _scale)));
                         this.OnPaint(new PaintEventArgs(canvas, new Rect(new Point(_offset.X, _offset.Y), Viewport), new SKSizeI(_pixelWidth, _pixelHeight), _scale, cancelToken));
@@ -245,18 +251,20 @@ namespace AvUtil
         protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
         {
             base.OnDetachedFromVisualTree(e);
-            _writeableBitmap?.Dispose();
-            _writeableBitmap = null;
+            if (_writeableBitmapTracker != null) {
+                WriteableBitmapPool.Instance.Return(_writeableBitmapTracker);
+            }
+            _writeableBitmapTracker = null;
         }
 
         public sealed override void Render(DrawingContext context)
         {
-            if (_writeableBitmap != null) {
+            if (_writeableBitmapTracker != null) {
                 Rect bounds = Bounds;
                 int currentPixelWidth = Convert.ToInt32(bounds.Width * _scale);
                 int currentPixelHeight = Convert.ToInt32(bounds.Height * _scale);
 
-                context.DrawImage(_writeableBitmap, new Rect(0, 0, currentPixelWidth, currentPixelHeight), new Rect(Bounds.Size));
+                context.DrawImage(_writeableBitmapTracker.Bitmap, new Rect(0, 0, currentPixelWidth, currentPixelHeight), new Rect(Bounds.Size));
             }
         }
 

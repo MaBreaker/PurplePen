@@ -139,11 +139,19 @@ namespace PurplePen
             return changed;
         }
 
-        // Update changenum.
-        public void ForceChangeUpdate()
+        // Update changenum
+        public void ForceChangeUpdate(bool includeSelectionMgr = false)
         {
             ++changeNum;
-            selectionMgr.ForceChangeUpdate();
+            if (includeSelectionMgr)
+                selectionMgr.ForceChangeUpdate();
+        }
+
+        
+
+        public void QueueIdleEvent()
+        {
+            ui.QueueIdleEvent();
         }
 
         // Should the highlight be scrolled into view?
@@ -232,6 +240,8 @@ namespace PurplePen
         // Bookkeeping that needs to be done when a new map file is loaded. If "tryToFindMissingMap" is true, then attempt to recover from a missing map, possibly asking the user.
         private void NewMapFileLoaded(bool tryToFindMissingMap)
         {
+            ForceChangeUpdate(true);
+
             if (tryToFindMissingMap) {
                 // If the map file can't be found, try to recover.
                 if (MapType != MapType.None && !File.Exists(MapFileName) && FindMissingMapFile(MapFileName))
@@ -467,7 +477,7 @@ namespace PurplePen
 
             currentMode.EndMode();
             currentMode = newCommandMode;
-            ++changeNum;
+            ForceChangeUpdate();
 
             currentMode.BeginMode();
         }
@@ -1150,7 +1160,7 @@ namespace PurplePen
             set {
                 extraCourses[selectionMgr.Selection.ActiveCourseDesignator.CourseId] = value;
                 UpdateExtraControlsDisplay();
-                ++changeNum;
+                ForceChangeUpdate();
             }
         }
 
@@ -1179,7 +1189,7 @@ namespace PurplePen
                 if (showAllControls != value) {
                     showAllControls = value;
                     UpdateExtraControlsDisplay();
-                    ++changeNum;
+                    ForceChangeUpdate();
                 }
             }
         }
@@ -1195,7 +1205,7 @@ namespace PurplePen
             this.temporaryControlView = temporaryControlView;
             this.temporaryControlViewKind = temporaryControlViewKind;
             UpdateExtraControlsDisplay();
-            ++changeNum;
+            ForceChangeUpdate();
         }
 
         // Save the file in its current file. Returns true if succeeded.
@@ -1217,7 +1227,7 @@ namespace PurplePen
                 this.fileName = Path.GetFullPath(newFileName);
                 UserSettings.Current.LastLoadedFile = this.fileName;
                 UserSettings.Current.Save();
-                ++changeNum;
+                ForceChangeUpdate();
                 undoMgr.MarkClean();        // we saved, so the file isn't dirty any more.
             }
 
@@ -2057,7 +2067,7 @@ namespace PurplePen
                 rectSelectMode.AllowDragging = true;
                 rectSelectMode.AllowResize = !printArea.restrictToPageSize;
 
-                ++changeNum;
+                ForceChangeUpdate();
             }
         }
 
@@ -4176,7 +4186,7 @@ namespace PurplePen
 
             currentMode.MouseMoved(pane, location, pixelSize, ref displayUpdateNeeded);
             if (displayUpdateNeeded)
-                ++changeNum;
+                ForceChangeUpdate();
         }
 
         public DragAction LeftButtonDown(Pane pane, PointF location, float pixelSize)
@@ -4185,7 +4195,7 @@ namespace PurplePen
 
             DragAction dragAction = currentMode.LeftButtonDown(pane, location, pixelSize, ref displayUpdateNeeded);
             if (displayUpdateNeeded)
-                ++changeNum;
+                ForceChangeUpdate();
             return dragAction;
         }
 
@@ -4195,7 +4205,7 @@ namespace PurplePen
 
             DragAction dragAction = currentMode.RightButtonDown(pane, location, pixelSize, ref displayUpdateNeeded);
             if (displayUpdateNeeded)
-                ++changeNum;
+                ForceChangeUpdate();
             return dragAction;
         }
 
@@ -4205,7 +4215,7 @@ namespace PurplePen
 
             currentMode.LeftButtonUp(pane, location, pixelSize, ref displayUpdateNeeded);
             if (displayUpdateNeeded)
-                ++changeNum;
+                ForceChangeUpdate();
         }
 
         public void RightButtonUp(Pane pane, PointF location, float pixelSize)
@@ -4214,7 +4224,7 @@ namespace PurplePen
 
             currentMode.RightButtonUp(pane, location, pixelSize, ref displayUpdateNeeded);
             if (displayUpdateNeeded)
-                ++changeNum;
+                ForceChangeUpdate();
         }
 
         public void LeftButtonClick(Pane pane, PointF location, float pixelSize)
@@ -4223,7 +4233,7 @@ namespace PurplePen
 
             currentMode.LeftButtonClick(pane, location, pixelSize, ref displayUpdateNeeded);
             if (displayUpdateNeeded)
-                ++changeNum;
+                ForceChangeUpdate();
         }
 
         public void RightButtonClick(Pane pane, PointF location, float pixelSize)
@@ -4232,7 +4242,7 @@ namespace PurplePen
 
             currentMode.RightButtonClick(pane, location, pixelSize, ref displayUpdateNeeded);
             if (displayUpdateNeeded)
-                ++changeNum;
+                ForceChangeUpdate();
         }
 
         public void LeftButtonDrag(Pane pane, PointF location, PointF locationStart, float pixelSize)
@@ -4241,7 +4251,7 @@ namespace PurplePen
 
             currentMode.LeftButtonDrag(pane, location, locationStart, pixelSize, ref displayUpdateNeeded);
             if (displayUpdateNeeded)
-                ++changeNum;
+                ForceChangeUpdate();
         }
 
         public void RightButtonDrag(Pane pane, PointF location, PointF locationStart, float pixelSize)
@@ -4250,7 +4260,7 @@ namespace PurplePen
 
             currentMode.RightButtonDrag(pane, location, locationStart, pixelSize, ref displayUpdateNeeded);
             if (displayUpdateNeeded)
-                ++changeNum;
+                ForceChangeUpdate();
         }
 
         public void LeftButtonEndDrag(Pane pane, PointF location, PointF locationStart, float pixelSize)
@@ -4259,7 +4269,7 @@ namespace PurplePen
 
             currentMode.LeftButtonEndDrag(pane, location, locationStart, pixelSize, ref displayUpdateNeeded);
             if (displayUpdateNeeded)
-                ++changeNum;
+                ForceChangeUpdate();
         }
 
         public void RightButtonEndDrag(Pane pane, PointF location, PointF locationStart, float pixelSize)
@@ -4268,7 +4278,7 @@ namespace PurplePen
 
             currentMode.RightButtonEndDrag(pane, location, locationStart, pixelSize, ref displayUpdateNeeded);
             if (displayUpdateNeeded)
-                ++changeNum;
+                ForceChangeUpdate();
         }
 
         public void LeftButtonCancelDrag(Pane pane)
@@ -4277,7 +4287,7 @@ namespace PurplePen
 
             currentMode.LeftButtonCancelDrag(pane, ref displayUpdateNeeded);
             if (displayUpdateNeeded)
-                ++changeNum;
+                ForceChangeUpdate();
         }
 
         public void RightButtonCancelDrag(Pane pane)
@@ -4286,7 +4296,7 @@ namespace PurplePen
 
             currentMode.RightButtonCancelDrag(pane, ref displayUpdateNeeded);
             if (displayUpdateNeeded)
-                ++changeNum;
+                ForceChangeUpdate();
         }
 
         public void InitiateMapDragging(PointF initialPos, PointerButton buttonEnd)
@@ -4487,6 +4497,10 @@ namespace PurplePen
         // Called to initialize the user interface with the controller and the symbol database.
         void Initialize(Controller controller, SymbolDB symbolDB);
 
+        // Indicates that enough state may be changing that an idle event should be queued
+        // to check state.
+        void QueueIdleEvent();
+
         // Get the pointer location (return false if mouse not over the map)
         bool GetCurrentLocation(out PointF location, out float pixelSize);
 
@@ -4535,6 +4549,25 @@ namespace PurplePen
     public enum DragAction { None, SuppressClick, MapDrag, ImmediateDrag, DelayedDrag };
 
     public enum PointerButton { Left, Right, Middle }
+
+    // Types of mouse actions.
+    public enum PointerAction
+    {
+        Down,	   // mouse button pressed down
+        Move,      // mouse was moved
+        Drag,      // mouse was dragged with a button down, occurs together with (and after) MouseMove if dragging enabled
+
+        // When mouse button is released, exactly one of the follow three occurs.
+        Up,        // mouse button released (dragging disabled) 
+        DragEnd,   // mouse button released (if dragging enabled)
+        Click,     // mouse button release after no/little movement 
+
+        // If a drag is started, but the mouse is taken away before finishing, a DragCancel event occurs
+        DragCancel,
+
+        // Mouse hovers a certain length of time without moving
+        Hover,
+    }
 
     public enum VariationExportFileType { Xml, Csv };
 

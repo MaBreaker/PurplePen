@@ -369,6 +369,11 @@ namespace PurplePen
             return result;
         }
 
+        private float RoundToNearestHalfPixel(float f)
+        {
+            return (float)Math.Floor(f) + 0.5f;
+        }
+
         // Draw a cross-hair at the location.
         protected void HighlightCrossHair(IGraphicsTarget g, Matrix xformWorldToPixel, object brush)
         {
@@ -384,8 +389,11 @@ namespace PurplePen
             if (! g.HasPen(highlightPen))
                 g.CreatePen(highlightPen, brush, 1, LineCapMode.Flat, LineJoinMode.Miter, 5);
 
-                g.DrawLine(highlightPen, new PointF((float)Math.Round(pts[0].X), (float)Math.Round(pts[0].Y)), new PointF((float)Math.Round(pts[1].X), (float)Math.Round(pts[1].Y)));
-                g.DrawLine(highlightPen, new PointF((float)Math.Round(pts[2].X), (float)Math.Round(pts[2].Y)), new PointF((float)Math.Round(pts[3].X), (float)Math.Round(pts[3].Y)));
+            // We want the cross-hair to always be exactly crisp, so we turn off anti-aliasing here.
+            g.PushAntiAliasing(false);
+            g.DrawLine(highlightPen, new PointF((float)Math.Round(pts[0].X), RoundToNearestHalfPixel(pts[0].Y)), new PointF((float)Math.Round(pts[1].X), RoundToNearestHalfPixel(pts[1].Y)));
+            g.DrawLine(highlightPen, new PointF(RoundToNearestHalfPixel(pts[2].X), (float)Math.Round(pts[2].Y)), new PointF(RoundToNearestHalfPixel(pts[3].X), (float)Math.Round(pts[3].Y)));
+            g.PopAntiAliasing();
         }
 
         // Get the bounds of the highlight.
@@ -545,8 +553,6 @@ namespace PurplePen
                 // Do nothing. Very occasionally, GDI+ given an overflow exception or ExternalException or OutOfMemory exception. 
                 // Just ignore it; there's nothing else to do. See bug #1997301.
             }
-
-            grTarget.Dispose();
         }
 
         // Get the bounds of the highlight.
@@ -728,8 +734,6 @@ namespace PurplePen
 
             // Draw the interior
             path.FillTransformed(grTarget, fillBrushKey, xformWorldToPixel);
-
-            grTarget.Dispose();
         }
 
         // Get the bounds of the highlight.
@@ -2060,8 +2064,6 @@ namespace PurplePen
             path2.DrawTransformed(grTarget, penKey, xformWorldToPixel);
             path3.DrawTransformed(grTarget, penKey, xformWorldToPixel);
             path4.DrawTransformed(grTarget, penKey, xformWorldToPixel);
-
-            grTarget.Dispose();
         }
 
     }
@@ -2180,8 +2182,6 @@ namespace PurplePen
             // Draw it.
             path1.DrawTransformed(grTarget, penKey, xformWorldToPixel);
             path2.DrawTransformed(grTarget, penKey, xformWorldToPixel);
-
-            grTarget.Dispose();
         }
 
         // A struct synthesizes Equals/GetHashCode automatically.
@@ -2262,8 +2262,6 @@ namespace PurplePen
             // Draw the paths
             path1.DrawTransformed(grTarget, penKey, xformWorldToPixel);
             path2.DrawTransformed(grTarget, penKey, xformWorldToPixel);
-
-            grTarget.Dispose();
         }
     }
 
@@ -2321,8 +2319,6 @@ namespace PurplePen
 
             path1.DrawTransformed(grTarget, penKey, xformWorldToPixel);
             path2.DrawTransformed(grTarget, penKey, xformWorldToPixel);
-
-            grTarget.Dispose();
         }
     }
 
