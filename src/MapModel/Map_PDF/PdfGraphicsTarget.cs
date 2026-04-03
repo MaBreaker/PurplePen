@@ -336,18 +336,6 @@ namespace PurplePen.MapModel
             // not supported
         }
 
-        //JU: New PDFSharp does not seem to have BlendMode, so ignoring these for now
-        /*
-        public virtual bool PushBlending(BlendMode blendMode)
-        {
-            // not supported
-            return false;
-        }
-        public virtual void PopBlending()
-        {
-            // not supported
-        }
-        */
         Stack<XBlendMode> blendModeStack = new Stack<XBlendMode>();
         // Set blending mode.
         public virtual bool PushBlending(BlendMode blendMode)
