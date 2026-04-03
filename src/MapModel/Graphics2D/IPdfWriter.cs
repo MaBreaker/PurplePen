@@ -23,7 +23,7 @@ namespace PurplePen.Graphics2D
     public interface IPdfDocumentWriter
     {
         // Begin writing to a blank page.
-        IGraphicsTarget BeginPage(SizeF pageSizeInInches);
+        IGraphicsTarget BeginPage(SizeF pageSizeInInches /* JU: Margins */, int margins);
 
         // Begin writing a page that is initialized with the contents of an existing PDF page.
         // The pdfImport is the file name of the PDF to import from, and pageImport is the page number (0-based) to import from that file.
@@ -34,7 +34,7 @@ namespace PurplePen.Graphics2D
         // The pdfImport is the file name of the PDF to import from, and pageImport is the page number (0-based) to import from that file.
         // partialSourcePageInInches is a rectangle in the coordinate space of the imported PDF page that specifies the portion of the page to import,
         // and destinationInInches is a rectangle in the coordinate space of the new PDF page that specifies where to place the imported portion.
-        IGraphicsTarget BeginCopiedPartialPage(string pdfImport, int pageImport, SizeF pageSizeInInches, RectangleF partialSourcePageInInches, RectangleF destinationInInches);
+        IGraphicsTarget BeginCopiedPartialPage(string pdfImport, int pageImport, SizeF pageSizeInInches, RectangleF partialSourcePageInInches, RectangleF destinationInInches /* JU: Margins */, int margins);
 
         // Finish writing to the current page. After calling EndPage, the caller should dispose the IGraphicsTarget returned by BeginPage or BeginCopiedPage.
         void EndPage(IGraphicsTarget graphicsTarget);

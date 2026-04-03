@@ -1264,16 +1264,22 @@ namespace PurplePen
             }
             ITextFaceMetrics metrics = Services.TextMetricsProvider.GetTextFaceMetrics(SafeFontName, pixelEmHight, textEffects);
 
+            //JU: Rotated text highlight
+            Matrix matrix = new Matrix();
+            matrix.Translate(topLeftPixel[0].X, topLeftPixel[0].Y);
+            matrix.RotateAt(-orientation, new PointF(0, 0));
+            g.PushTransform(matrix);
+
             if (erasing) {
                 // Erase a rectangle that encloses the text.
                 SizeF textSize = metrics.GetTextSize(text);
                 Size expandedSize = new Size((int)Math.Ceiling(textSize.Width) + 4, (int)Math.Ceiling(textSize.Height) + 4);
-                //JU: Rotated text highlight
-                g.TranslateTransform(topLeftPixel[0].X, topLeftPixel[0].Y);
-                g.RotateTransform(-orientation); 
+                //JU: Rotated text highlight - TODO  how to handle this with IGraphicsTraget
+                //old - g.TranslateTransform(topLeftPixel[0].X, topLeftPixel[0].Y);
+                //old - g.RotateTransform(-orientation);
                 g.FillRectangle(brush, new RectangleF(topLeftPixel[0].X - 2, topLeftPixel[0].Y - 2, expandedSize.Width, expandedSize.Height));
                 g.DrawText(text, fontKey, brush,  /* topLeftPixel[0] */ new PointF(0, 0));
-                g.ResetTransform();
+                //old - g.ResetTransform();
             }
             else {
                 g.PushAntiAliasing(true);
@@ -1281,16 +1287,17 @@ namespace PurplePen
                 // Outline in white, makes the red text pop much better.
                 object whitePenKey = new object();
                 g.CreatePen(whitePenKey, CmykColor.FromCmyk(0, 0, 0, 0), 2, LineCapMode.Round, LineJoinMode.Round, 5);
-                //JU: Rotated text highlight
-                g.TranslateTransform(topLeftPixel[0].X, topLeftPixel[0].Y);
-                g.RotateTransform(-orientation);
+                //JU: Rotated text highlight - TODO how to handle this with IGraphicsTraget
+                //old - g.TranslateTransform(topLeftPixel[0].X, topLeftPixel[0].Y);
+                //old - g.RotateTransform(-orientation);
                 g.DrawTextOutline(text, fontKey, whitePenKey,  /* topLeftPixel[0] */ new PointF(0, 0));
                 g.DrawText(text, fontKey, brush,  /* topLeftPixel[0] */ new PointF(0, 0));
-                g.ResetTransform();
+                //old - g.ResetTransform();
 
                 g.PopAntiAliasing();
             }
-
+            //JU: Rotated text highlight
+            g.PopTransform();
         }
 
         // Get the bounds of the highlight
@@ -1648,6 +1655,7 @@ namespace PurplePen
         }
     }
 
+
     // Map Issue Point.
     // Optionally show a "tail", which is useful if we aren't drawing a line from it.
     public class MapIssueCourseObj : PointCourseObj
@@ -1814,6 +1822,7 @@ namespace PurplePen
             map.AddSymdef(symdef);
             return symdef;
         }
+
         public override string ToString()
         {
             string result = base.ToString();
@@ -2951,7 +2960,7 @@ namespace PurplePen
         private object penKey = new object();
 
         public BasicTextCourseObj(Id<Special> specialId, string text, RectangleF rectBounding, string fontName, TextEffects textEffects, SpecialColor color, float fontDigitHeight /* JU: Rotated, Multiline */ , float rotation, bool multiline)
-            : base(Id<ControlPoint>.None, Id<CourseControl>.None, specialId, text, new PointF(rectBounding.Left, rectBounding.Bottom), fontName, textEffects, color, CalculateEmHeight(text, fontName, textEffects, fontDigitHeight, rectBounding.Size), 0.0F /* JU: Rotated, Multiline */, rotation, multiline)
+            : base(Id<ControlPoint>.None, Id<CourseControl>.None, specialId, text, new PointF(rectBounding.Left, rectBounding.Bottom), fontName, textEffects, color, /* JU: Do not calculate EM height here */ 0.0F, 0.0F /* JU: Rotated, Multiline */, rotation, multiline)
         {
             //JU: Multiline
             if (multiline) {
@@ -2959,10 +2968,10 @@ namespace PurplePen
             }
 
             this.fontDigitHeight = fontDigitHeight;
-            this.rectBounding = AdjustBoundingRect(rect);
+            this.rectBounding = AdjustBoundingRect(rectBounding);
 
             //JU: Calculate text size for original bounding box size before rotation
-            this.EmHeight = CalculateEmHeight(this.text, fontName, textEffects, fontDigitHeight, rect.Size);
+            this.EmHeight = CalculateEmHeight(this.text, fontName, textEffects, fontDigitHeight, rectBounding.Size);
         }
 
         // Get the ratio (emHeight / digitHeight) for the given font.
@@ -3017,7 +3026,9 @@ namespace PurplePen
             //Trace.WriteLine(string.Format("Base TopLeft is {0,6:F2}X, {1,6:F2}Y", base.topLeft.X, base.topLeft.Y));
 
             if (rotation > 0.0F) {
-
+                
+                //JU: TODO  replace complex sin+cos logic with simplified atan2
+                
                 //     Xa   Xb  
                 //   TL---E---TR
                 // Y |  /   \  |
@@ -3202,10 +3213,7 @@ namespace PurplePen
 
                 //JU: Rotated rectangle selection
                 RectangleF rect = new RectangleF(new PointF(this.topLeft.X, this.topLeft.Y - size.Height), size);
-                //RectangleF rect = new RectangleF(new PointF(boundingRect.Left, boundingRect.Bottom - size.Height), size);
-                //rect.Location = new PointF(boundingRect.Left, boundingRect.Bottom - size.Height);
-                if (orientation > 0.0F)
-                {
+                if (orientation > 0.0F) {
                     rect = Geometry.BoundsOfRotatedRectangle(rect, rect.BottomLeft(), orientation);
                 }
                 return rect;
@@ -3320,8 +3328,10 @@ namespace PurplePen
             }
 
             // Update the rectangle.
-            base.EmHeight = CalculateEmHeight(text, SafeFontName, textEffects, fontDigitHeight, newRect.Size);
-            base.topLeft = new PointF(newRect.Left, newRect.Bottom);
+            //JU: Call RectangleUpdating
+            RectangleUpdating(ref newRect, false, changeLeft, changeTop, changeRight, changeBottom);
+            //base.EmHeight = CalculateEmHeight(text, SafeFontName, textEffects, fontDigitHeight, newRect.Size);
+            //base.topLeft = new PointF(newRect.Left, newRect.Bottom);
             rectBounding = newRect;
         }
 
@@ -3331,10 +3341,6 @@ namespace PurplePen
         {
             //JU: Dragging HiLight - Get topleft and maximum rotated content size for autosize font
             RectangleF textRect = RotatedContentRect(newRect, orientation);
-            
-            //SizeF newSize = MaximumContentSize(newRect, orientation);
-            //base.EmHeight = CalculateEmHeight(text, SafeFontName, fontStyle, fontDigitHeight, newSize);
-            //base.topLeft = RotatedContentTopLeft(newRect, orientation);
             
             base.topLeft = textRect.BottomLeft();
             base.EmHeight = CalculateEmHeight(text, SafeFontName, textEffects, fontDigitHeight, textRect.Size);
@@ -3787,3 +3793,4 @@ namespace PurplePen
     }
 
 }
+    

@@ -40,7 +40,7 @@ namespace PurplePen
 
         public void PrintPage(int pageNumber, PrintingPaperSize paperSize, Action<IGraphicsTarget> drawPage)
         {
-            using (IGraphicsTarget grTarget = pdfWriter.BeginPage(paperSize.SizeInInches)) {
+            using (IGraphicsTarget grTarget = pdfWriter.BeginPage(paperSize.SizeInInches /* JU: Margin */, 0)) {
                 drawPage(grTarget);
             }
         }

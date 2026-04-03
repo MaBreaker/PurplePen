@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Newtonsoft.Json; // JU: Json serialization
+using Newtonsoft.Json; //JU: Json serialization
 
 namespace PurplePen
 {
@@ -28,7 +28,7 @@ namespace PurplePen
             InitUnits();
         }
 
-        // JU: PaperSize itself is not serializable, workaround to serialize as JSON
+        //JU: PaperSize itself is not serializable, workaround to serialize as JSON
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public PaperSize PaperSize
         {
@@ -101,7 +101,7 @@ namespace PurplePen
             int decimalPlaces;
             decimal increment;
             decimal maximum;
-            // JU: Margins min
+            //JU: Margins min
             decimal minmargin;
 
             if (Util.IsCurrentCultureMetric())
@@ -110,7 +110,7 @@ namespace PurplePen
                 decimalPlaces = 1;
                 increment = 1.0M;
                 maximum = 5000;
-                minmargin = -5.1M; // JU: Margins min
+                minmargin = -5.1M; //JU: Margins min
             }
             else
             {
@@ -118,14 +118,14 @@ namespace PurplePen
                 decimalPlaces = 2;
                 increment = 0.05M;
                 maximum = 100;
-                minmargin = -0.20M; // JU: Margins min
+                minmargin = -0.20M; //JU: Margins min
             }
 
             upDownMargin.DecimalPlaces =  upDownWidth.DecimalPlaces = upDownHeight.DecimalPlaces = decimalPlaces;
             upDownMargin.Increment = upDownWidth.Increment = upDownHeight.Increment = increment;
             upDownMargin.Increment = upDownWidth.Increment = upDownHeight.Increment = increment;
             upDownMargin.Maximum = upDownWidth.Maximum = upDownHeight.Maximum = maximum;
-            upDownMargin.Minimum = minmargin; // JU: Margins min
+            upDownMargin.Minimum = minmargin; //JU: Margins min
 
             labelUnitsHeight.Text = labelUnitsWidth.Text = labelUnitsMargin.Text = units;
         }

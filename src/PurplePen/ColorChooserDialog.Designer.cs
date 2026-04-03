@@ -38,7 +38,7 @@
             this.upDownCyan = new System.Windows.Forms.NumericUpDown();
             this.groupBoxPreview = new System.Windows.Forms.GroupBox();
             this.pictureBoxPreview = new System.Windows.Forms.PictureBox();
-            // JU: Overprint
+            //JU: Overprint
             this.checkBoxOverprint = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.upDownBlack)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.upDownYellow)).BeginInit();
@@ -118,7 +118,7 @@
             this.pictureBoxPreview.Name = "pictureBoxPreview";
             this.pictureBoxPreview.TabStop = false;
             this.pictureBoxPreview.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBoxPreview_Paint);
-            // JU: Overprint
+            //JU: Overprint
             // checkBoxOverprint
             // 
             resources.ApplyResources(this.checkBoxOverprint, "checkBoxOverprint");
@@ -129,7 +129,7 @@
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            // JU: Overprint
+            //JU: Overprint
             this.Controls.Add(this.checkBoxOverprint);
             this.Controls.Add(this.groupBoxPreview);
             this.Controls.Add(this.label5);
@@ -152,7 +152,7 @@
             this.Controls.SetChildIndex(this.upDownBlack, 0);
             this.Controls.SetChildIndex(this.label5, 0);
             this.Controls.SetChildIndex(this.groupBoxPreview, 0);
-            // JU: Overprint
+            //JU: Overprint
             this.Controls.SetChildIndex(this.checkBoxOverprint, 0);
             ((System.ComponentModel.ISupportInitialize)(this.upDownBlack)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.upDownYellow)).EndInit();
@@ -177,7 +177,7 @@
         private System.Windows.Forms.NumericUpDown upDownCyan;
         private System.Windows.Forms.GroupBox groupBoxPreview;
         private System.Windows.Forms.PictureBox pictureBoxPreview;
-        // JU: Overprint
+        //JU: Overprint
         private System.Windows.Forms.CheckBox checkBoxOverprint;
     }
 }

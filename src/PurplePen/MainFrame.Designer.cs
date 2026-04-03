@@ -102,7 +102,7 @@ namespace PurplePen
             this.createCoursePdfMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createRouteReviewFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createRouteGadgetFilesMenu = new System.Windows.Forms.ToolStripMenuItem();
-            // JU: LiveLox
+            //JU: LiveLox
             this.publishToLiveloxMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createXmlMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createGPXFileMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -201,7 +201,7 @@ namespace PurplePen
             this.mapStd2000Menu = new System.Windows.Forms.ToolStripMenuItem();
             this.mapStd2017Menu = new System.Windows.Forms.ToolStripMenuItem();
             this.mapStdSpr2019Menu = new System.Windows.Forms.ToolStripMenuItem();
-            // JU: Street-O
+            //JU: Street-O
             this.mapStdStreetOMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.customizeDescriptionsMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.customizeCourseAppearanceMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -566,7 +566,7 @@ namespace PurplePen
             this.createXmlMenu,
             this.createGPXFileMenu,
             this.createKMLFileMenu,
-            // JU: LiveLox
+            //JU: LiveLox
             this.toolStripSeparator25,
             this.publishToLiveloxMenu,
             this.toolStripMenuItem1,
@@ -666,7 +666,7 @@ namespace PurplePen
             this.createRouteGadgetFilesMenu.Name = "createRouteGadgetFilesMenu";
             resources.ApplyResources(this.createRouteGadgetFilesMenu, "createRouteGadgetFilesMenu");
             this.createRouteGadgetFilesMenu.Click += new System.EventHandler(this.createRouteGadgetFilesMenu_Click);
-            // JU: LiveLox
+            //JU: LiveLox
             // publishToLiveloxMenu
             // 
             this.publishToLiveloxMenu.Name = "publishToLiveloxMenu";
@@ -1298,7 +1298,7 @@ namespace PurplePen
             this.mapStd2000Menu,
             this.mapStd2017Menu,
             this.mapStdSpr2019Menu,
-            // JU: Street-O
+            //JU: Street-O
             this.mapStdStreetOMenu});
             this.iOFStandardsToolStripMenuItem.Name = "iOFStandardsToolStripMenuItem";
             resources.ApplyResources(this.iOFStandardsToolStripMenuItem, "iOFStandardsToolStripMenuItem");
@@ -1337,7 +1337,7 @@ namespace PurplePen
             this.mapStdSpr2019Menu.Name = "mapStdSpr2019Menu";
             resources.ApplyResources(this.mapStdSpr2019Menu, "mapStdSpr2019Menu");
             this.mapStdSpr2019Menu.Click += new System.EventHandler(this.mapStdSpr2019Menu_Click);
-            // JU: Street-O
+            //JU: Street-O
             // mapStdStreetOMenu
             // 
             this.mapStdStreetOMenu.Name = "mapStdStreetOMenu";

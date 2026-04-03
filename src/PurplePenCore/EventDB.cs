@@ -2222,7 +2222,7 @@ namespace PurplePen
                     numColumns = xmlinput.GetAttributeInt("columns", 1);
 
                     if (kind == SpecialKind.Text || kind == SpecialKind.Line || kind == SpecialKind.Rectangle || kind == SpecialKind.Ellipse) {
-                        // JU: Over print
+                        //JU: Over print
                         bool overprint = xmlinput.GetAttributeBool("overprint", false);
                         color = xmlinput.GetAttributeColor("color", SpecialColor.UpperPurple, overprint);
                     }
@@ -2378,7 +2378,7 @@ namespace PurplePen
                     case LineKind.Dashed: xmloutput.WriteAttributeString("line-kind", "dashed"); break;
                 }
                 xmloutput.WriteAttributeString("color", color.ToString());
-                // JU: Over print
+                //JU: Over print
                 xmloutput.WriteAttributeString("overprint", color.Overprint.ToString().ToLower());
                 xmloutput.WriteAttributeString("line-width", XmlConvert.ToString(lineWidth));
                 if (lineKind == LineKind.Double || lineKind == LineKind.Dashed)

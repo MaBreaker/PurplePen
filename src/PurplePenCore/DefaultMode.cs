@@ -702,9 +702,9 @@ namespace PurplePen
                     // Moving text handles is sort of special too.
                     BasicTextCourseObj textObj = (BasicTextCourseObj)courseObjectStart.Clone();
                     textObj.MoveHandle(handleLocation, location);
-                    //RectangleF rect = textObj.GetHighlightBounds();
+                    //JU: RectangleF rect = textObj.GetHighlightBounds();
                     RectangleF rect = textObj.rect;
-                    //rect = textObj.AdjustBoundingRect(rect);
+                    //JU: rect = textObj.AdjustBoundingRect(rect);
                     rect = textObj.ReverseBoundingRect(rect);
                     controller.MoveSpecial(specialId, new PointF[2] { new PointF(rect.Left, rect.Bottom), new PointF(rect.Right, rect.Top) });
                 }

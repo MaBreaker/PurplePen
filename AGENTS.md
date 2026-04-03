@@ -139,7 +139,8 @@ PurplePen is being ported from WinForms (PurplePen/) to Avalonia (AvPurplePen/) 
 - Namespace: `AvPurplePen`
 - Views/: AXAML views with code-behind (e.g., MainWindow.axaml)
 - ViewLocator.cs: Convention-based IDataTemplate that maps ViewModels to Views automatically. Maps `PurplePen.ViewModels.FooViewModel` → `AvPurplePen.Views.FooView`. Used when a ViewModel appears as Content of a ContentControl; not used for MainWindow (created directly in App.axaml.cs).
-- UIText.resx: Localized UI strings. Referenced directly from AXAML via `x:Static` (not through ViewModels). Uses `PublicResXFileCodeGenerator` so the generated class is public and accessible from XAML.
+- UIText.resx: Localized UI strings (English). Translated variants: UIText.fr.resx, UIText.de.resx, etc.
+- LocalizeExtension.cs: Custom XAML markup extension for localization with live language switching (see Localization section below).
 - App.axaml.cs: Application startup, creates MainWindow, registers ViewLocator as a DataTemplate.
 - Program.cs: Entry point. DI container is set up before the Avalonia builder line (safe because DI is plain .NET, not Avalonia-dependent).
 
@@ -148,16 +149,56 @@ PurplePen is being ported from WinForms (PurplePen/) to Avalonia (AvPurplePen/) 
 - Uses CommunityToolkit.Mvvm source generators: `[ObservableProperty]` for properties, `[RelayCommand]` for commands. Classes must be `partial`.
 - ViewModelBase.cs: Abstract base class inheriting `ObservableObject`.
 - ViewModels do NOT contain localized strings or UI text — that belongs in the View layer (UIText.resx).
+- ViewModels must have a parameterless constructor (or a parameterless constructor in addition to others) so the Avalonia designer can instantiate them in `<Design.DataContext>`.
 - References PurplePenCore but NOT AvPurplePen (ViewModels must not depend on Views).
+- **Only allowed dependencies**: PurplePenCore (project) and CommunityToolkit.Mvvm (package). Do NOT add Avalonia or any other package/project references. Platform-specific types (e.g., Avalonia.Platform.Storage) must not be used in ViewModels.
 
 **PurplePenViewModels.Tests/** - NUnit tests for ViewModels
 - Uses NUnit framework (`[TestFixture]`, `[Test]`, `[SetUp]`)
 - Tests command execution via `ICommand.Execute(null)` and verifies PropertyChanged notifications.
 
 #### Key MVVM Conventions
-- **Localized strings**: Stored in `AvPurplePen/UIText.resx`, accessed in XAML via `{x:Static resx:UIText.PropertyName}`. For formatted strings (e.g., "Counter: {0}"), use element-syntax `<Binding StringFormat="{x:Static resx:UIText.FormatString}" />`.
 - **Compiled bindings**: All AXAML files use `x:DataType` for compile-time checked bindings.
-- **Namespace mapping in XAML**: `xmlns:vm="using:PurplePen.ViewModels"` for ViewModels, `xmlns:resx="using:AvPurplePen"` for resource classes.
+- **Namespace mapping in XAML**: `xmlns:vm="using:PurplePen.ViewModels"` for ViewModels, `xmlns:resx="using:AvPurplePen"` for resource/localization classes.
+- **DataContext is set by the caller**, not by the View itself. The View's code-behind constructor only calls `InitializeComponent()`. The parent that opens the dialog creates the ViewModel and assigns it to `DataContext` before showing.
+- **Design-time DataContext**: Every View should have `<Design.DataContext><vm:FooViewModel/></Design.DataContext>` so the designer previewer can show bindings. This requires ViewModels to have a parameterless constructor.
+
+#### Localization System
+
+The localization system supports **live language switching** — all controls update instantly when the user changes languages, without restarting the application.
+
+**Key classes** (all in `AvPurplePen/LocalizeExtension.cs`):
+- `LocalizeExtension`: XAML markup extension. At design time, returns the English string from `UIText.ResourceManager` so the VS previewer shows real text. At runtime, returns a `Binding` to a `LocalizedString.Value` property that updates on language change.
+- `LocalizedString`: Wraps a single resource key. Its `Value` property reads from `ResourceManager` using `CultureInfo.CurrentUICulture`. Raises `PropertyChanged` when `Refresh()` is called.
+- `LocalizedStringManager`: Singleton that manages `LocalizedString` instances (one per unique key, stored in a dictionary). Call `NotifyLanguageChanged()` after changing `CurrentUICulture` to refresh all bindings.
+
+**XAML usage for localized strings**:
+```xml
+<!-- Simple text — use {resx:Localize} for live language switching -->
+<Button Content="{resx:Localize AboutForm_okButton_Text}"/>
+<TextBlock Text="{resx:Localize AboutForm_copyrightLabel_Text}"/>
+<Window Title="{resx:Localize AboutForm_Text}"/>
+
+<!-- Formatted strings (e.g. "Version {0}") — use {x:Static} for StringFormat -->
+<!-- NOTE: {resx:Localize} CANNOT be used in StringFormat because it returns a Binding, not a string -->
+<TextBlock.Text>
+    <Binding Path="PrettyVersion"
+             StringFormat="{x:Static resx:UIText.MiscText_VersionLabel}" />
+</TextBlock.Text>
+```
+
+**Resource key naming convention**:
+- Form/dialog properties: `FormName_Text` (e.g. `AboutForm_Text` for the window title)
+- Control text: `FormName_controlName_Text` (e.g. `AboutForm_okButton_Text`)
+- Shared strings: descriptive name without form prefix (e.g. `OKButton`, `CancelButton`)
+
+**Changing language at runtime**:
+```csharp
+CultureInfo newCulture = new CultureInfo(languageCode);
+Thread.CurrentThread.CurrentUICulture = newCulture;
+CultureInfo.DefaultThreadCurrentUICulture = newCulture;
+LocalizedStringManager.Instance.NotifyLanguageChanged();
+```
 
 ### Legacy WinForms Application
 **PurplePen/** - WinForms desktop application (being ported to AvPurplePen)
@@ -257,6 +298,216 @@ The solution uses custom ruleset files:
 - `Tools/PurplePenRules.ruleset`: Main application rules
 - `MapModel/Analysis.ruleset`: MapModel subsystem rules
 - `MapModel/ExternalCode.ruleset`: External/third-party code
+
+## Porting WinForms Dialogs to Avalonia
+
+PurplePen forms are being migrated one-by-one from `PurplePen/` (WinForms) to `AvPurplePen/Views/` (Avalonia AXAML) + `PurplePenViewModels/` (ViewModels). The goal is to produce Avalonia AXAML with correctly named controls, localized strings, and the same visual layout — then wire up data binding and logic afterward.
+
+### Source Files to Read
+
+Each WinForms form consists of two key files:
+- **`FormName.Designer.cs`**: Control types, names, parent-child hierarchy, event handlers. Uses `resources.ApplyResources(control, "name")` — actual property values are NOT here.
+- **`FormName.resx`**: The actual property values (Location, Size, Text, Anchor, Dock) and critically, `TableLayoutSettings` XML that defines Grid rows/columns/placement.
+- **`FormName.cs`**: Business logic, event handlers, constructor code.
+
+### Control Mapping (WinForms → Avalonia)
+
+| WinForms | Avalonia | Notes |
+|---|---|---|
+| `Label` | `TextBlock` | |
+| `Button` | `Button` | `Text` → `Content`; add `HorizontalContentAlignment="Center"` for fixed-width buttons |
+| `TextBox` | `TextBox` | |
+| `CheckBox` | `CheckBox` | |
+| `RadioButton` | `RadioButton` | |
+| `ComboBox` | `ComboBox` | Items need different handling |
+| `NumericUpDown` | `NumericUpDown` | |
+| `GroupBox` | `HeaderedContentControl` | Or a styled `Border` with header |
+| `TableLayoutPanel` | `Grid` | Column/Row definitions from LayoutSettings (see below) |
+| `FlowLayoutPanel` | `WrapPanel` or `StackPanel` | Depends on flow direction |
+| `Panel` | `Panel` or `Border` | |
+| `PictureBox` | `Image` | |
+| `TreeView` | `TreeView` | |
+| `ListBox` | `ListBox` | |
+| `DataGridView` | `DataGrid` | Most complex mapping |
+| `LinkLabel` | `HyperlinkButton` or styled `Button` | |
+| `ToolStrip/MenuStrip` | `Menu` | Different structure |
+| `DockStyle.Top/Bottom` | `DockPanel.Dock="Top/Bottom"` | Use `DockPanel` as parent container |
+
+### TableLayoutPanel → Grid Conversion
+
+The `.resx` files store TableLayoutPanel configuration as embedded XML:
+```xml
+<TableLayoutSettings>
+  <Controls>
+    <Control Name="okButton" Row="0" Column="3" RowSpan="1" ColumnSpan="1" />
+  </Controls>
+  <Columns Styles="AutoSize,0,Percent,100,AutoSize,0" />
+  <Rows Styles="AutoSize,0" />
+</TableLayoutSettings>
+```
+
+Map column/row styles as follows:
+- `AutoSize,0` → `Auto`
+- `Percent,100` → `*`
+- `Percent,50` → `0.5*`
+- `Absolute,150` → `150`
+
+Resulting Avalonia Grid:
+```xml
+<Grid ColumnDefinitions="Auto,*,Auto">
+    <Button x:Name="okButton" Grid.Row="0" Grid.Column="2" />
+</Grid>
+```
+
+### Hiding Controls Without Layout Shift (Opacity Pattern)
+
+In Avalonia, `IsVisible="False"` collapses the element entirely — a Grid row with `Auto` height shrinks to zero when all its children are invisible. This causes the dialog to visually jump when toggling visibility.
+
+**Use Opacity instead of IsVisible** when you want to hide controls but keep their layout space:
+
+1. Add computed `double` opacity properties in the ViewModel (compiled bindings require the correct type — `bool` cannot bind to `Opacity`):
+   ```csharp
+   public double NormalCourseOpacity => IsNormalCourse ? 1.0 : 0.0;
+   public double ScoreCourseOpacity => IsScoreCourse ? 1.0 : 0.0;
+   ```
+   Remember to add `[NotifyPropertyChangedFor(nameof(NormalCourseOpacity))]` on the source field.
+
+2. In AXAML, use `Opacity` + `IsHitTestVisible` (to block mouse interaction):
+   ```xml
+   <TextBlock Opacity="{Binding NormalCourseOpacity}" .../>
+   <StackPanel Opacity="{Binding NormalCourseOpacity}"
+               IsHitTestVisible="{Binding IsNormalCourse}" ...>
+       <TextBox Text="{Binding MyField, Mode=TwoWay}" .../>
+   </StackPanel>
+   ```
+
+**When to use which:**
+- `IsVisible` — for ComboBox dropdown items or elements where collapsing is desired
+- `Opacity` + `IsHitTestVisible` — for Grid rows that should keep stable height when hidden
+
+### Localization Mapping
+
+WinForms forms use `resources.ApplyResources(this.controlName, "controlName")` which loads properties from `.resx`. In Avalonia, all localizable strings go into `AvPurplePen/UIText.resx` (English) and satellite files (UIText.fr.resx, etc.), referenced via `{resx:Localize}`.
+
+**Mapping resource keys from WinForms .resx to Avalonia UIText.resx:**
+- `controlName.Text` in FormName.resx → key `FormName_controlName_Text` in UIText.resx → `{resx:Localize FormName_controlName_Text}` in AXAML
+- `$this.Text` in FormName.resx → key `FormName_Text` in UIText.resx → `{resx:Localize FormName_Text}` for window Title
+- ComboBox items (`controlName.Items`, `controlName.Items1`, etc.) need different handling since they're often bound to ViewModel collections
+
+### AXAML File Structure
+
+Every ported dialog AXAML should follow this template:
+```xml
+<!--
+    FormNameDialog.axaml
+    Brief description of the dialog.
+    Migrated from WinForms PurplePen/FormName.cs.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="..." d:DesignHeight="..."
+        x:Class="AvPurplePen.Views.FormNameDialog"
+        x:DataType="vm:FormNameDialogViewModel"
+        Title="{resx:Localize FormName_Text}"
+        Icon="/Assets/transparent.ico"
+        Width="..." Height="..."
+        CanResize="False"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:FormNameDialogViewModel/>
+    </Design.DataContext>
+
+    <!-- Layout here -->
+</Window>
+```
+
+### Code-Behind Conventions
+
+- Constructor only calls `InitializeComponent()`. No data initialization.
+- DataContext is set by the caller, not the dialog itself.
+- Set initial focus in an `Opened` event handler (not the constructor — too early):
+  ```csharp
+  public MyDialog()
+  {
+      InitializeComponent();
+      Opened += (s, e) => myTextBox.Focus();
+  }
+  ```
+- OK/Cancel button handlers call `Close(true)` / `Close(false)`.
+- Use `#if PORTING` blocks for functionality not yet migrated (e.g. sub-dialogs, help system).
+- Event handlers that need logic beyond simple Close() are fine in code-behind; move complex business logic to the ViewModel.
+
+### ViewModel Conventions
+
+- Lives in `PurplePenViewModels/` project, namespace `PurplePen.ViewModels`.
+- Must have a parameterless constructor for the designer.
+- Does NOT contain localized strings — all UI text is in UIText.resx.
+- Use `[ObservableProperty]` for bindable properties, `[RelayCommand]` for commands.
+- Use `[NotifyPropertyChangedFor(nameof(ComputedProp))]` on a field to auto-raise `PropertyChanged` for dependent computed properties when that field changes. Prefer this over writing `partial void OnXChanged` methods just to call `OnPropertyChanged`.
+- Class must be `partial` for source generators to work.
+
+### Validation in ViewModels
+
+ViewModelBase inherits from `ObservableValidator`, which provides `INotifyDataErrorInfo` support. Avalonia's `TextBox` displays validation errors as a red border with the error message in a tooltip (customized in App.axaml — the default Fluent theme shows inline error text below the control, which disrupts layout).
+
+**How to add validation to a field:**
+```csharp
+// Custom validation (e.g. range checks):
+[ObservableProperty]
+[NotifyDataErrorInfo]                    // REQUIRED: makes source generator emit ValidateProperty() in setter
+[CustomValidation(typeof(MyViewModel), nameof(ValidateMyField))]
+private string myField = "";
+
+public static ValidationResult? ValidateMyField(string value, ValidationContext context)
+{
+    if (string.IsNullOrEmpty(value))
+        return ValidationResult.Success;
+    if (!float.TryParse(value, out float v) || v < 0 || v > 100)
+        return new ValidationResult(MiscText.BadMyField);
+    return ValidationResult.Success;
+}
+
+// Required field validation (using [Required] attribute):
+[ObservableProperty]
+[NotifyDataErrorInfo]
+[Required(ErrorMessageResourceName = "MyFieldRequired", ErrorMessageResourceType = typeof(MiscText))]
+private string myRequiredField = "";
+```
+
+**Validation error display:**
+App.axaml overrides the default `DataValidationErrors` template to suppress inline error text. Instead, a `TextBox:error` style shows the error message as a tooltip on hover. This keeps dialog layout stable. The red border comes from the Fluent theme's built-in `:error` pseudo-class on TextBox.
+
+**Key rules:**
+- `[NotifyDataErrorInfo]` must be on each field that has validation attributes. It is NOT inherited and cannot be placed on the base class. Without it, the source generator does not emit `ValidateProperty()` calls, so validation never fires.
+- `[NotifyDataErrorInfo]` must NOT be placed on fields without validation attributes (causes MVVMTK0026 error).
+- `[Required]` on a field that starts empty will NOT show an error on dialog open — CommunityToolkit only validates when the setter fires (i.e., when the value changes). So a field starting as `""` won't show an error until the user types and then clears it.
+- Only `TextBox.Text` supports inline validation display. `ComboBox.Text` (editable ComboBox) does NOT — its `TextProperty` lacks `enableDataValidation` in metadata. Validate editable ComboBox values in the OK button click handler instead.
+- To make an OK button depend on validation state, subscribe to `ErrorsChanged` in the constructor:
+  ```csharp
+  public bool IsOkEnabled => !string.IsNullOrEmpty(SomeRequiredField) && !HasErrors;
+
+  // In constructor:
+  ErrorsChanged += (s, e) => OnPropertyChanged(nameof(IsOkEnabled));
+  ```
+  `ObservableValidator` does not raise `PropertyChanged` for `HasErrors` automatically, so the manual subscription is needed.
+
+### Porting Workflow
+
+1. Read `FormName.Designer.cs` + `FormName.resx` + `FormName.cs` from the WinForms project.
+2. Create `Views/FormNameDialog.axaml` + `.axaml.cs` in AvPurplePen.
+3. Create `FormNameDialogViewModel.cs` in PurplePenViewModels (if the dialog needs data binding).
+4. Add all localizable strings to `UIText.resx` (and translated variants) using the `FormName_controlName_Text` naming convention.
+5. Preserve `x:Name` on controls that will need code-behind or test access.
+6. Add a button/menu item in the parent window to launch the dialog, creating and assigning the ViewModel.
 
 ## Current Development Focus
 

@@ -54,7 +54,7 @@ namespace PurplePen
         public bool landscape;                       // true if page should be printed in landscape orientation
         public PrintingPaperSize paperSize;            // the paper size for that page.
         public bool lastPageOfCourseOrPart;    // true if last page of a course or part of course (used for pausing printing)
-        public int margins;                         // JU: Margin or Bleed
+        public int margins;                         //JU: Margin or Bleed
     }
 
     // Class to layout the printing onto pages. Used for both printing and PDF creation.

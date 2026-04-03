@@ -168,6 +168,9 @@
   <data name="BadClimb" xml:space="preserve">
     <value>The climb for a course must be a number 0-9999, or blank.</value>
   </data>
+  <data name="CourseNameRequired" xml:space="preserve">
+    <value>A course name is required.</value>
+  </data>
   <data name="BadLoad" xml:space="preserve">
     <value>The load for a course must be an integer 0-999999, or blank.</value>
   </data>
@@ -567,10 +570,6 @@ After pressing OK, try to find a copy of the map file on your computer.</value>
   <data name="LowerPurple" xml:space="preserve">
     <value>Lower Purple</value>
   </data>
-  <!-- JU: Overlay -->
-  <data name="Orange" xml:space="preserve">
-    <value>Orange</value>
-  </data>
   <data name="GpxMustBeOcadMap" xml:space="preserve">
     <value>The map file must be an OCAD file to use GPX files.</value>
   </data>
@@ -637,5 +636,24 @@ After pressing OK, try to find a copy of the map file on your computer.</value>
   </data>
   <data name="Version_RC" xml:space="preserve">
     <value>RC {0}</value>
+  </data>
+  <data name="SixtyfourBit" xml:space="preserve">
+    <value>64-bit</value>
+  </data>
+  <data name="ThirtytwoBit" xml:space="preserve">
+    <value>32-bit</value>
+  </data>
+  <data name="StandaloneSetup" xml:space="preserve">
+    <value>Standalone Setup</value>
+  </data>
+  <data name="WindowsStore" xml:space="preserve">
+    <value>Windows Store</value>
+  </data>
+  <data name="OpenFileDialog_PurplePenFilter" xml:space="preserve">
+    <value>Purple Pen files|*.ppen|All files|*.*</value>
+  </data>
+  <!-- JU: Overlay -->
+  <data name="Orange" xml:space="preserve">
+    <value>Orange</value>
   </data>
 </root>

@@ -182,7 +182,7 @@ Invalid control point kind 'norfmal''
             Assert.AreEqual(MapType.OCAD, e.mapType);
             Assert.AreEqual(10000, e.mapScale);
             Assert.AreEqual(7500, e.allControlsPrintScale);
-            // JU: Object scaling
+            //JU: Object scaling
             Assert.AreEqual(ItemScaling.RelativeTo15000, e.courseAppearance.itemScaling);
             Assert.AreEqual(DescriptionKind.Symbols, e.allControlsDescKind);
             Assert.AreEqual(100, e.firstControlCode);

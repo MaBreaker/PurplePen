@@ -189,7 +189,7 @@ namespace PurplePen
                     if (courseObject.CustomColor != null && courseObject.CustomColor.Kind == SpecialColor.ColorKind.Custom) {
                         if (!customColors.ContainsKey(courseObject.CustomColor)) {
                             CmykColor cmyk = courseObject.CustomColor.CustomColor;
-                            // JU: Overprint
+                            //JU: Overprint
                             bool overprint = courseObject.CustomColor.Overprint;
                             customColors.Add(courseObject.CustomColor, map.AddColor(string.Format("Color {0}", customColorId), customColorId,
                                                                                     cmyk.Cyan, cmyk.Magenta, cmyk.Yellow, cmyk.Black, /* JU: Overprint */ overprint));

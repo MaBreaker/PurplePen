@@ -6,7 +6,11 @@
 
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using PurplePen;
 using PurplePen.ViewModels;
+using System.Globalization;
+using System.Linq;
+using System.Threading;
 
 namespace AvPurplePen.Views
 {
@@ -21,24 +25,19 @@ namespace AvPurplePen.Views
         public MainWindow()
         {
             InitializeComponent();
+            ApplicationIdleService.ApplicationIdle += ApplicationIdle;
         }
 
-        /// <summary>
-        /// Opens the Switch Language dialog modally with test data.
-        /// </summary>
-        private async void SwitchLanguageButton_Click(object? sender, RoutedEventArgs e)
+        // This is called when the application becomes idle after processing input. We can use this to update
+        // the UI in response to changes that may have occurred.
+        private void ApplicationIdle(object? sender, System.EventArgs e)
         {
-            SwitchLanguageViewModel viewModel = SwitchLanguageViewModel.CreateTestData();
-
-            SwitchLanguageDialog dialog = new SwitchLanguageDialog {
-                DataContext = viewModel,
-            };
-
-            bool? result = await dialog.ShowDialog<bool?>(this);
-
-            if (result == true && viewModel.SelectedLanguage != null) {
-                // For now, just update the window title to show the selection worked.
-                Title = $"Selected: {viewModel.SelectedLanguage.DisplayName} ({viewModel.SelectedLanguage.Code})";
+            if (this.IsVisible) {
+                // The application is idle. If the application state has changed, update the
+                // user interface to match.
+                if (this.DataContext is MainWindowViewModel viewModel) {
+                    viewModel.UpdateStateOnIdle();
+                }
             }
         }
     }

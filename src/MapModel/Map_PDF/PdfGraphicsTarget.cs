@@ -336,7 +336,8 @@ namespace PurplePen.MapModel
             // not supported
         }
 
-        // JU: New PDFSharp does not seem to have BlendMode, so we will just ignore this for now
+        //JU: New PDFSharp does not seem to have BlendMode, so ignoring these for now
+        /*
         public virtual bool PushBlending(BlendMode blendMode)
         {
             // not supported
@@ -346,7 +347,7 @@ namespace PurplePen.MapModel
         {
             // not supported
         }
-        /*
+        */
         Stack<XBlendMode> blendModeStack = new Stack<XBlendMode>();
         // Set blending mode.
         public virtual bool PushBlending(BlendMode blendMode)
@@ -368,7 +369,6 @@ namespace PurplePen.MapModel
         {
             gfx.BlendMode = blendModeStack.Pop();
         }
-        */
 
         // Draw an line with a pen.
         public void DrawLine(object penKey, PointF start, PointF finish)

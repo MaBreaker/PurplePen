@@ -597,7 +597,7 @@ namespace PurplePen
                 ev.courseAppearance.itemScaling = ItemScaling.RelativeTo15000;
             }
             else {
-                // JU: Object scaling
+                //JU: Object scaling
                 if (info.allControlsPrintScale >= 7500 && info.allControlsPrintScale <= 15500) {
                     ev.courseAppearance.itemScaling = ItemScaling.RelativeTo15000;
                 }
@@ -3998,9 +3998,9 @@ namespace PurplePen
 
 #if DEBUG
             eventDB.Validate();
+#endif
             return true;
 
-#endif
         }
 
 

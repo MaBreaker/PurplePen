@@ -71,7 +71,7 @@
             this.paperSizeControl.Location = new System.Drawing.Point(25, 51);
             this.paperSizeControl.MarginSize = 0;
             this.paperSizeControl.Name = "paperSizeControl";
-            // JU: Resources json string
+            //JU: Resources json string
             //this.paperSizeControl.PaperSize = ((System.Drawing.Printing.PaperSize)(resources.GetObject("paperSizeControl.PaperSize")));
             this.paperSizeControl.PaperSizeStr = ((string)(resources.GetObject("paperSizeControl.PaperSizeStr")));
             this.paperSizeControl.Size = new System.Drawing.Size(271, 161);

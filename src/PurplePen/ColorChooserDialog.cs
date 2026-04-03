@@ -36,7 +36,7 @@ namespace PurplePen
             }
         }
 
-        // JU: Overprint
+        //JU: Overprint
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Overprint
         {
@@ -199,7 +199,7 @@ namespace PurplePen
         {
             ColorChooserDialog colorChooserDialog = new ColorChooserDialog();
             colorChooserDialog.Color = color;
-            // JU: Overprint
+            //JU: Overprint
             colorChooserDialog.Overprint = overprint;
 
             if (colorChooserDialog.ShowDialog() == DialogResult.OK) {

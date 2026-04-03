@@ -19,7 +19,7 @@ namespace PurplePen
             else if (UserSettings.Current.NewEventMapStandard == "Spr2019")
                 radioButtonMapSpr2019.Checked = true;
             //JU: StreetO
-            else if (Settings.Default.NewEventMapStandard == "StreetO")
+            else if (UserSettings.Current.NewEventMapStandard == "StreetO")
                 radioButtonMapStreetO.Checked = true;
             else
                 radioButtonMap2000.Checked = true;

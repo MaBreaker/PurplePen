@@ -6,6 +6,12 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);PORTING</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>$(DefineConstants);PORTING</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="Models\" />
@@ -29,6 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Avalonia\AvUtil\AvUtil.csproj" />
     <ProjectReference Include="..\MapModel\Graphics2D\Graphics2D.csproj" />
     <ProjectReference Include="..\MapModel\MapModel\MapModel.csproj" />
     <ProjectReference Include="..\MapModel\Map_PDF\Map_PDF.csproj" />
@@ -44,12 +51,21 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>UIText.resx</DependentUpon>
     </Compile>
+    <Compile Update="Views\Dialogs\SwitchLanguageDialog.axaml.cs">
+      <DependentUpon>SwitchLanguageDialog.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="UIText.*.Designer.cs">
+      <DependentUpon>UIText.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Update="UIText.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>UIText.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="UIText.*.resx">
+      <DependentUpon>UIText.resx</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
 </Project>
