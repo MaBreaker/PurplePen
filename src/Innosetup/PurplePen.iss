@@ -727,18 +727,54 @@ Source: "{#BuildDir}\DotSpatial.Projections.dll"; DestDir: "{app}"; Flags: ignor
 Source: "{#BuildDir}\GDIPlusNative.dll"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\GDIPlusNative64.dll"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\Graphics2D.dll"; DestDir: "{app}"; Flags: ignoreversion 
+;JU: Sharp
+Source: "{#BuildDir}\HarfBuzzSharp.dll"; DestDir: "{app}"; Flags: ignoreversion
+;--
 Source: "{#BuildDir}\ICSharpCode.SharpZipLib.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BuildDir}\Map_GDIPlus.dll"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\Map_PDF.dll"; DestDir: "{app}"; Flags: ignoreversion
+;JU: Skia
+Source: "{#BuildDir}\Map_SkiaStd.dll"; DestDir: "{app}"; Flags: ignoreversion
+;--
 Source: "{#BuildDir}\MapModel.dll"; DestDir: "{app}"; Flags: ignoreversion
+;JU: Microsoft
+Source: "{#BuildDir}\Microsoft.Bcl.AsyncInterfaces.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\Microsoft.Extensions.DependencyInjection.Abstractions.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\Microsoft.Extensions.DependencyInjection.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\Microsoft.Extensions.Logging.Abstractions.dll"; DestDir: "{app}"; Flags: ignoreversion
+;--
 Source: "{#BuildDir}\Newtonsoft.Json.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BuildDir}\PdfConverter.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BuildDir}\PdfConverter.exe.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BuildDir}\PdfiumViewer.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BuildDir}\PdfSharp.dll"; DestDir: "{app}"; Flags: ignoreversion
+;JU: PDF Sharp
+Source: "{#BuildDir}\PdfSharp.Shared.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\PdfSharp.System.dll"; DestDir: "{app}"; Flags: ignoreversion
+;--
 Source: "{#BuildDir}\Purple Pen Help.chm"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BuildDir}\PurplePen.exe.config"; DestDir: "{app}"; Flags: ignoreversion
+;JU: PurplePen Core
+Source: "{#BuildDir}\PurplePenCore.dll"; DestDir: "{app}"; Flags: ignoreversion
+;--
+;JU: SkiaSharp
+Source: "{#BuildDir}\SixLabors.ImageSharp.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\SkiaSharp.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\SkiaSharp.HarfBuzz.dll"; DestDir: "{app}"; Flags: ignoreversion
+;--
 Source: "{#BuildDir}\symbols.xml"; DestDir: "{app}"; Flags: ignoreversion
+;JU: Microsoft
+Source: "{#BuildDir}\System.Buffers.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\System.Configuration.ConfigurationManager.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\System.IO.Pipelines.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\System.Memory.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\System.Numerics.Vectors.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\System.Runtime.CompilerServices.Unsafe.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\System.Text.Encoding.CodePages.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\System.Text.Encodings.Web.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\System.Text.Json.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\System.Threading.Tasks.Extensions.dll"; DestDir: "{app}"; Flags: ignoreversion
+;--
 Source: "{#BuildDir}\USWebCoatedSWOP.icc"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BuildDir}\Samples\*"; DestDir: "{app}\Samples"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#BuildDir}\x64\*"; DestDir: "{app}\x64"; Flags: ignoreversion recursesubdirs createallsubdirs
