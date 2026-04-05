@@ -687,7 +687,7 @@ namespace PurplePen
                     // Moving a description. Descriptions are rather special in the way their locations are used.
                     DescriptionCourseObj descObj = (DescriptionCourseObj) courseObjectStart.Clone();
                     descObj.MoveHandle(handleLocation, location);
-                    //JU: generalize code to match other objects
+                    //JU: Generalized code to match other objects
                     RectangleF rect = descObj.rect;
                     controller.MoveSpecial(specialId, new PointF[2] { new PointF(rect.Left, rect.Bottom), new PointF(rect.Left + descObj.CellSize, rect.Bottom) }, descObj.NumberOfColumns);
                 }

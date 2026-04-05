@@ -1278,12 +1278,8 @@ namespace PurplePen
                 // Erase a rectangle that encloses the text.
                 SizeF textSize = metrics.GetTextSize(text);
                 Size expandedSize = new Size((int)Math.Ceiling(textSize.Width) + 4, (int)Math.Ceiling(textSize.Height) + 4);
-                //JU: Rotated text highlight - TODO  how to handle this with IGraphicsTraget
-                //old - g.TranslateTransform(topLeftPixel[0].X, topLeftPixel[0].Y);
-                //old - g.RotateTransform(-orientation);
                 g.FillRectangle(brush, new RectangleF(topLeftPixel[0].X - 2, topLeftPixel[0].Y - 2, expandedSize.Width, expandedSize.Height));
-                g.DrawText(text, fontKey, brush,  /* topLeftPixel[0] */ new PointF(0, 0));
-                //old - g.ResetTransform();
+                g.DrawText(text, fontKey, brush, /* JU: topLeftPixel[0] */ new PointF(0, 0));
             }
             else {
                 g.PushAntiAliasing(true);
@@ -1291,12 +1287,8 @@ namespace PurplePen
                 // Outline in white, makes the red text pop much better.
                 object whitePenKey = new object();
                 g.CreatePen(whitePenKey, CmykColor.FromCmyk(0, 0, 0, 0), 2, LineCapMode.Round, LineJoinMode.Round, 5);
-                //JU: Rotated text highlight - TODO how to handle this with IGraphicsTraget
-                //old - g.TranslateTransform(topLeftPixel[0].X, topLeftPixel[0].Y);
-                //old - g.RotateTransform(-orientation);
-                g.DrawTextOutline(text, fontKey, whitePenKey,  /* topLeftPixel[0] */ new PointF(0, 0));
-                g.DrawText(text, fontKey, brush,  /* topLeftPixel[0] */ new PointF(0, 0));
-                //old - g.ResetTransform();
+                g.DrawTextOutline(text, fontKey, whitePenKey,  /* JU: topLeftPixel[0] */ new PointF(0, 0));
+                g.DrawText(text, fontKey, brush, /* JU: topLeftPixel[0] */ new PointF(0, 0));
 
                 g.PopAntiAliasing();
             }
@@ -2409,7 +2401,7 @@ namespace PurplePen
 
         protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
         {
-            LineSymDef symdef = new LineSymDef("Uncrossable boundary", "707", lower_symColor, (appearance.mapStandard == "Spr2019"  /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? 1.0F : 0.7F) * courseObjRatio * appearance.lineWidth, LineJoinMode.Miter, LineCapMode.Flat);
+            LineSymDef symdef = new LineSymDef("Uncrossable boundary", "707", lower_symColor, (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? 1.0F : 0.7F) * courseObjRatio * appearance.lineWidth, LineJoinMode.Miter, LineCapMode.Flat);
             symdef.ToolboxImage = CoreMapUtil.CreateToolboxIcon(ImageResources.Line_OcadToolbox);
             map.AddSymdef(symdef);
             return symdef;
@@ -2956,7 +2948,7 @@ namespace PurplePen
         private object penKey = new object();
 
         public BasicTextCourseObj(Id<Special> specialId, string text, RectangleF rectBounding, string fontName, TextEffects textEffects, SpecialColor color, float fontDigitHeight /* JU: Rotated, Multiline */ , float rotation, bool multiline)
-            : base(Id<ControlPoint>.None, Id<CourseControl>.None, specialId, text, new PointF(rectBounding.Left, rectBounding.Bottom), fontName, textEffects, color, /* JU: Do not calculate EM height here */ 0.0F, 0.0F /* JU: Rotated, Multiline */, rotation, multiline)
+            : base(Id<ControlPoint>.None, Id<CourseControl>.None, specialId, text, new PointF(rectBounding.Left, rectBounding.Bottom), fontName, textEffects, color, /* JU: Do not calculate EM height here, but do it after adjustments below */ 0.0F, 0.0F /* JU: Rotated, Multiline */, rotation, multiline)
         {
             //JU: Multiline
             if (multiline) {
@@ -3023,7 +3015,7 @@ namespace PurplePen
 
             if (rotation > 0.0F) {
                 
-                //JU: TODO  replace complex sin+cos logic with simplified atan2
+                //JU: TODO Replace this complex sin+cos logic with simpler atan2 based calculations
                 
                 //     Xa   Xb  
                 //   TL---E---TR
@@ -3205,9 +3197,8 @@ namespace PurplePen
                 ITextFaceMetrics textMetrics = textMetricsProvider.GetTextFaceMetrics(SafeFontName, CalculateEmHeight(text, SafeFontName, textEffects, fontDigitHeight, new SizeF()), textEffects);
                 SizeF size = textMetrics.GetTextSize(text);
 
-                //return RectangleF.FromLTRB(boundingRect.Left, boundingRect.Bottom - size.Height, boundingRect.Left + size.Width, boundingRect.Bottom);
-
                 //JU: Rotated rectangle selection
+                //return RectangleF.FromLTRB(boundingRect.Left, boundingRect.Bottom - size.Height, boundingRect.Left + size.Width, boundingRect.Bottom);
                 RectangleF rect = new RectangleF(new PointF(this.topLeft.X, this.topLeft.Y - size.Height), size);
                 if (orientation > 0.0F) {
                     rect = Geometry.BoundsOfRotatedRectangle(rect, rect.BottomLeft(), orientation);
@@ -3325,9 +3316,9 @@ namespace PurplePen
 
             // Update the rectangle.
             //JU: Call RectangleUpdating
-            RectangleUpdating(ref newRect, false, changeLeft, changeTop, changeRight, changeBottom);
             //base.EmHeight = CalculateEmHeight(text, SafeFontName, textEffects, fontDigitHeight, newRect.Size);
             //base.topLeft = new PointF(newRect.Left, newRect.Bottom);
+            RectangleUpdating(ref newRect, false, changeLeft, changeTop, changeRight, changeBottom);
             rectBounding = newRect;
         }
 

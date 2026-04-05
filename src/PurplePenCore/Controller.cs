@@ -3900,7 +3900,6 @@ namespace PurplePen
 
             bool success = HandleExceptions(
                 delegate {
-                    //JU: Release image handle after import -> imageBitmap = (Bitmap)Image.FromStream(new MemoryStream(File.ReadAllBytes(fileName))); 
                     using (Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read)) {
                         graphicsBitmap = Services.BitmapLoader.ReadBitmapFromStream(stream);
                     }

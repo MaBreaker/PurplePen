@@ -34,8 +34,6 @@ namespace AvPurplePen
         public void ThreadsafeDraw(SKCanvas canvas, SKRect rectToDraw, SKSizeI pixelSize, CancellationToken cancelToken)
         {
             float minResolution = Math.Min(rectToDraw.Width / pixelSize.Width, rectToDraw.Height / pixelSize.Height);
-            return Task.Run(() => Draw(canvas, rectToDraw, minResolution, cancelToken), cancelToken);
-        }
 
             canvas.Clear(SKColors.White);
 
