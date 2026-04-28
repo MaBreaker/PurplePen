@@ -92,7 +92,7 @@ namespace PurplePen.Livelox
             var clonedMapDisplay = mapDisplay.CloneToFullIntensity();
             clonedMapDisplay.AntiAlias = false;
             clonedMapDisplay.SetCourse(null);
-            clonedMapDisplay.SetPrintArea(null /* JU */ , null);
+            clonedMapDisplay.SetPrintArea(null /* JU: Margin and Bleed */ , null);
             clonedMapDisplay.ColorModel = ColorModel.CMYK;
 
             //JU: Testing PDF map type import to Livelox

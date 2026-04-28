@@ -208,6 +208,7 @@ namespace PurplePen
                     comboBoxMapLayers.SelectedIndex = purpleLayerIndex;
                 }
 
+
                 comboBoxDescriptionColor.SelectedIndex = (value.descriptionsPurple ? 1 : 0);
 
                 checkBoxOverprint.Checked = value.useOcadOverprint;

@@ -331,11 +331,13 @@ namespace PurplePen
             get { return FullRadius - ((appearance.lineWidth * NormalCourseAppearance.lineThickness * courseObjRatio) / 2.0F); }
         }
 
+        //JU: White outline
         protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
         {
             throw new NotImplementedException("Should not be called.");
         }
 
+        //JU: White outline
         protected abstract SymDef CreateSymDef(Map map, SymColor upper_symColor, SymColor lower_symColor, SymColor whiteColor);
 
         protected override void AddToMap(Map map, SymDef symdef)
@@ -3779,5 +3781,4 @@ namespace PurplePen
 
     }
 
-}
-    
+}    

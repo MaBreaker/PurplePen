@@ -32,15 +32,16 @@
  * OF SUCH DAMAGE.
  */
 
+using PurplePen.MapModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
 using System.IO;
-
-using PurplePen.MapModel;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace PurplePen
 {
@@ -63,10 +64,41 @@ namespace PurplePen
             get { return labelTitle.Text; }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        //JU: Async
+        private Task<string> ShowOpenFileDialogOnStaAsync()
         {
-            if (openFileDialog.ShowDialog() == DialogResult.OK) {
-                containingWizard.MapFileName = mapFileNameTextBox.Text = openFileDialog.FileName;
+            var tcs = new TaskCompletionSource<string>();
+
+            Thread thread = new Thread(() => {
+                try
+                {
+                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                        tcs.SetResult(openFileDialog.FileName);
+                    else
+                        tcs.SetResult(null);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+
+            return tcs.Task;
+        }
+
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            //JU: Async
+            //if (openFileDialog.ShowDialog() == DialogResult.OK) {
+            string filename = await ShowOpenFileDialogOnStaAsync();
+            if (filename != null) {
+                //JU: Async
+                //containingWizard.MapFileName = mapFileNameTextBox.Text = openFileDialog.FileName;
+                containingWizard.MapFileName = mapFileNameTextBox.Text = filename;
                 mapFileDisplay.Visible = true;
 
                 string errorMessageText;

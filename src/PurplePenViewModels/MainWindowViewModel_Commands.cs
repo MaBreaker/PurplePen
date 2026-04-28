@@ -1571,6 +1571,18 @@ namespace PurplePen.ViewModels
             controller.ChangeMapStandard("Spr2019");
         }
 
+        //JU: Street-O
+        /// <summary>
+        /// Sets the map standard to StreetO.
+        /// </summary>
+        [RelayCommand]
+        private void SetMapStdStreetO()
+        {
+            if (controller == null) { return; }
+
+            controller.ChangeMapStandard("StreetO");
+        }
+
         #endregion // IOF Standards commands
 
         #region Print area commands

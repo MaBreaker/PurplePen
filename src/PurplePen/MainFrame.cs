@@ -486,7 +486,7 @@ namespace PurplePen
         void UpdatePrintArea()
         {
             if (hidePrintArea || !UserSettings.Current.ShowPrintArea)
-                mapDisplay.SetPrintArea(null /* JU */ , null);
+                mapDisplay.SetPrintArea(null /* JU: Margins */ , null);
             else
                 mapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart), /* JU: It is very difficult to get margins value from PageLayout */ null);
         }
@@ -3418,7 +3418,7 @@ namespace PurplePen
         {
             controller.ChangeMapStandard("2017");
         }
-        //JU´: StreetO
+        //JU: Street-O
         private void mapStdStreetOMenu_Click(object sender, EventArgs e)
         {
             controller.ChangeMapStandard("StreetO");
