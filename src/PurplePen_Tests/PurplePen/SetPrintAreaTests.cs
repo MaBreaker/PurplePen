@@ -44,6 +44,7 @@ using PurplePen.MapView;
 
 using TestingUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading.Tasks;
 
 
 namespace PurplePen.Tests
@@ -55,7 +56,7 @@ namespace PurplePen.Tests
         Controller controller;
         EventDB eventDB;
 
-        public void Setup(string filename)
+        public async Task Setup(string filename)
         {
             ui = TestUI.Create();
             controller = ui.controller;
@@ -63,12 +64,12 @@ namespace PurplePen.Tests
 
             string fileName = TestUtil.GetTestFile(filename);
 
-            bool success = controller.LoadInitialFile(fileName, true);
+            bool success = await controller.LoadInitialFile(fileName, true);
             Assert.IsTrue(success);
         }
 
         // Change a hightlighted rectangle from an expected rectangle to another.
-        public void ChangeRectangle(RectangleF initialRect, RectangleF finalRect)
+        public async Task ChangeRectangle(RectangleF initialRect, RectangleF finalRect)
         {
             RectangleF currentRect = initialRect;
 
@@ -82,7 +83,7 @@ namespace PurplePen.Tests
             Assert.AreEqual(StatusBarText.DraggingObject, controller.StatusText);
             MousePointerShape cursor = controller.GetMouseCursor(Pane.Map, ptClick, 0.3F);
             Assert.AreEqual(MousePointerShape.SizeAll, cursor);
-            controller.LeftButtonEndDrag(Pane.Map, new PointF(ptClick.X + delta, ptClick.Y), ptClick, 0.3F);
+            await controller.LeftButtonEndDrag(Pane.Map, new PointF(ptClick.X + delta, ptClick.Y), ptClick, 0.3F);
             currentRect.Offset(delta, 0);
 
             // 2. Move the bottom edge up or down.
@@ -93,7 +94,7 @@ namespace PurplePen.Tests
             Assert.AreEqual(StatusBarText.SizingRectangle, controller.StatusText);
             cursor = controller.GetMouseCursor(Pane.Map, ptClick, 0.3F);
             Assert.AreEqual(MousePointerShape.SizeNS, cursor);
-            controller.LeftButtonEndDrag(Pane.Map, new PointF(ptClick.X, ptClick.Y + delta), ptClick, 0.3F);
+            await controller.LeftButtonEndDrag(Pane.Map, new PointF(ptClick.X, ptClick.Y + delta), ptClick, 0.3F);
             currentRect.Height = currentRect.Height - delta;
             currentRect.Y = currentRect.Y + delta;
 
@@ -106,13 +107,13 @@ namespace PurplePen.Tests
             Assert.AreEqual(StatusBarText.SizingRectangle, controller.StatusText);
             cursor = controller.GetMouseCursor(Pane.Map, ptClick, 0.3F);
             Assert.AreEqual(MousePointerShape.SizeNESW, cursor);
-            controller.LeftButtonEndDrag(Pane.Map, new PointF(ptClick.X + deltaX, ptClick.Y + deltaY), ptClick, 0.3F);
+            await controller.LeftButtonEndDrag(Pane.Map, new PointF(ptClick.X + deltaX, ptClick.Y + deltaY), ptClick, 0.3F);
             currentRect = RectangleF.FromLTRB(currentRect.Left, currentRect.Top, currentRect.Right + deltaX, currentRect.Bottom + deltaY);
 
             TestUtil.AssertEqualRect(currentRect, finalRect, 0.01, "rectangle moving algorithm");
         }
 
-        void SetPrintArea(int tabIndex, RectangleF expectedCurrent, RectangleF newPrintArea, PrintAreaKind printAreaKind)
+        async Task SetPrintArea(int tabIndex, RectangleF expectedCurrent, RectangleF newPrintArea, PrintAreaKind printAreaKind)
         {
             Dictionary<int, RectangleF> printAreas = new Dictionary<int, RectangleF>();
 
@@ -130,7 +131,7 @@ namespace PurplePen.Tests
 
             controller.BeginSetPrintArea(printAreaKind, null);
 
-            ChangeRectangle(expectedCurrent, newPrintArea);
+            await ChangeRectangle(expectedCurrent, newPrintArea);
 
             controller.EndSetPrintArea(printAreaKind, new PrintArea(false, false, new RectangleF()));
 
@@ -149,71 +150,71 @@ namespace PurplePen.Tests
         }
 
         [TestMethod]
-        public void SetPrintArea1()
+        public async Task SetPrintArea1()
         {
-            Setup("modes\\printarea.ppen");
+            await Setup("modes\\printarea.ppen");
             RectangleF currentPrintArea = new RectangleF(-77.68744F, -142.4035F, 215.9F, 279.4F);
             RectangleF newPrintArea = RectangleF.FromLTRB(-5F, -20F, 70F, 30F);
 
-            SetPrintArea(1, currentPrintArea, newPrintArea, PrintAreaKind.OneCourse);
+            await SetPrintArea(1, currentPrintArea, newPrintArea, PrintAreaKind.OneCourse);
 
             currentPrintArea = newPrintArea;
             newPrintArea = RectangleF.FromLTRB(-25F, -27.5F, 100F, 35F);
 
-            SetPrintArea(1, currentPrintArea, newPrintArea, PrintAreaKind.OneCourse);
+            await SetPrintArea(1, currentPrintArea, newPrintArea, PrintAreaKind.OneCourse);
         }
 	
         [TestMethod]
-        public void SetPrintArea2()
+        public async Task SetPrintArea2()
         {
-            Setup("modes\\printarea.ppen");
+            await Setup("modes\\printarea.ppen");
             RectangleF currentPrintArea = RectangleF.FromLTRB(32.1F, -12F, 177F, 101.1F);
             RectangleF newPrintArea = RectangleF.FromLTRB(32.1F, -20F, 70F, 30F);
 
-            SetPrintArea(2, currentPrintArea, newPrintArea, PrintAreaKind.OneCourse);
+            await SetPrintArea(2, currentPrintArea, newPrintArea, PrintAreaKind.OneCourse);
 
             currentPrintArea = newPrintArea;
             newPrintArea = RectangleF.FromLTRB(-25F, -27.5F, 100F, 35F);
 
-            SetPrintArea(2, currentPrintArea, newPrintArea, PrintAreaKind.OneCourse);
+            await SetPrintArea(2, currentPrintArea, newPrintArea, PrintAreaKind.OneCourse);
         }
 
         [TestMethod]
-        public void SetPrintAreaAllControls()
+        public async Task SetPrintAreaAllControls()
         {
-            Setup("modes\\printarea.ppen");
+            await Setup("modes\\printarea.ppen");
             RectangleF currentPrintArea = new RectangleF(-48.27457F, -133.2415F, 215.9F, 279.4F);
             RectangleF newPrintArea = RectangleF.FromLTRB(-5F, 20F, 70F, 130F);
 
-            SetPrintArea(0, currentPrintArea, newPrintArea, PrintAreaKind.OneCourse);
+            await SetPrintArea(0, currentPrintArea, newPrintArea, PrintAreaKind.OneCourse);
 
             currentPrintArea = newPrintArea;
             newPrintArea = RectangleF.FromLTRB(-25F, -27.5F, 100F, 35F);
 
-            SetPrintArea(0, currentPrintArea, newPrintArea, PrintAreaKind.OneCourse);
+            await SetPrintArea(0, currentPrintArea, newPrintArea, PrintAreaKind.OneCourse);
         }
 
         [TestMethod]
-        public void SetPrintAreaAllCourses()
+        public async Task SetPrintAreaAllCourses()
         {
-            Setup("modes\\printarea.ppen");
+            await Setup("modes\\printarea.ppen");
             RectangleF currentPrintArea = new RectangleF(-48.27457F, -133.2415F, 215.9F, 279.4F);
             RectangleF newPrintArea = RectangleF.FromLTRB(-5F, -20F, 70F, 30F);
 
-            SetPrintArea(1, currentPrintArea, newPrintArea, PrintAreaKind.AllCourses);
+            await SetPrintArea(1, currentPrintArea, newPrintArea, PrintAreaKind.AllCourses);
 
             currentPrintArea = newPrintArea;
             newPrintArea = RectangleF.FromLTRB(-25F, -27.5F, 100F, 35F);
 
-            SetPrintArea(1, currentPrintArea, newPrintArea, PrintAreaKind.AllCourses);
+            await SetPrintArea(1, currentPrintArea, newPrintArea, PrintAreaKind.AllCourses);
         }
 
         [TestMethod] 
-        public void AutoPrintArea()
+        public async Task AutoPrintArea()
         {
             RectangleF expectedPrintArea = RectangleF.FromLTRB(25.9F, 68.9F, 305.3F, 284.8F);
 
-            Setup("modes\\printarea2.ppen");
+            await Setup("modes\\printarea2.ppen");
 
             controller.SelectTab(1);
             RectangleF autoPrintArea = controller.GetCurrentPrintAreaRectangle(new CourseDesignator(CourseId(1)));
@@ -266,13 +267,13 @@ namespace PurplePen.Tests
             }
         }
 
-        void ExportPrintAreaToOcad(int ocadVersion)
+        async Task ExportPrintAreaToOcad(int ocadVersion)
         {
-            Setup("modes\\printarea.ppen");
+            await Setup("modes\\printarea.ppen");
 
-            SetPrintArea(1, new RectangleF(-77.68744F, -142.4035F, 215.9F, 279.4F), RectangleF.FromLTRB(-5F, -20F, 70F, 30F), PrintAreaKind.OneCourse);
-            SetPrintArea(2, RectangleF.FromLTRB(32.1F, -12F, 177F, 101.1F), RectangleF.FromLTRB(-51.5F, 0F, 170.06F, 39.8F), PrintAreaKind.OneCourse);
-            SetPrintArea(0, new RectangleF(-48.27457F, -133.2415F, 215.9F, 279.4F), RectangleF.FromLTRB(-250F, -110F, -170F, -10F), PrintAreaKind.OneCourse);
+            await SetPrintArea(1, new RectangleF(-77.68744F, -142.4035F, 215.9F, 279.4F), RectangleF.FromLTRB(-5F, -20F, 70F, 30F), PrintAreaKind.OneCourse);
+            await SetPrintArea(2, RectangleF.FromLTRB(32.1F, -12F, 177F, 101.1F), RectangleF.FromLTRB(-51.5F, 0F, 170.06F, 39.8F), PrintAreaKind.OneCourse);
+            await SetPrintArea(0, new RectangleF(-48.27457F, -133.2415F, 215.9F, 279.4F), RectangleF.FromLTRB(-250F, -110F, -170F, -10F), PrintAreaKind.OneCourse);
 
             OcadCreationSettings settings = new OcadCreationSettings();
             settings.mapDirectory = settings.fileDirectory = false;
@@ -297,15 +298,15 @@ namespace PurplePen.Tests
         }
 
         [TestMethod, DoNotParallelize]
-        public void ExportPrintAreaToOcad6()
+        public async Task ExportPrintAreaToOcad6()
         {
-            ExportPrintAreaToOcad(6);
+            await ExportPrintAreaToOcad(6);
         }
 
         [TestMethod, DoNotParallelize]
-        public void ExportPrintAreaToOcad9()
+        public async Task ExportPrintAreaToOcad9()
         {
-            ExportPrintAreaToOcad(9);
+            await ExportPrintAreaToOcad(9);
         }
 	
 

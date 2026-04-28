@@ -17,6 +17,7 @@
         mc:Ignorable="d"
         d:DesignWidth="350" d:DesignHeight="450"
         x:Class="AvPurplePen.Views.SwitchLanguageDialog"
+        Classes="dialog"
         x:DataType="vm:SwitchLanguageDialogViewModel"
         Title="{x:Static resx:UIText.SwitchLanguageDialog_Title}"
         Width="350" Height="450"
@@ -62,7 +63,8 @@
         <ListBox x:Name="languageListBox"
                  ItemsSource="{Binding AvailableLanguages}"
                  SelectedItem="{Binding SelectedLanguage}"
-                 DoubleTapped="LanguageListBox_DoubleTapped">
+                 DoubleTapped="LanguageListBox_DoubleTapped"
+                 >
             <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:LanguageItem">
                     <StackPanel Orientation="Horizontal" Spacing="8">

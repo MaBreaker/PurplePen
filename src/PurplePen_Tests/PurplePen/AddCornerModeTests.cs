@@ -42,6 +42,7 @@ using PurplePen.MapView;
 
 using TestingUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading.Tasks;
 
 
 namespace PurplePen.Tests
@@ -53,7 +54,7 @@ namespace PurplePen.Tests
         Controller controller;
         EventDB eventDB;
 
-        public void Setup(string filename)
+        public async Task Setup(string filename)
         {
             ui = TestUI.Create();
             controller = ui.controller;
@@ -61,15 +62,15 @@ namespace PurplePen.Tests
 
             string fileName = TestUtil.GetTestFile(filename);
 
-            bool success = controller.LoadInitialFile(fileName, true);
+            bool success = await controller.LoadInitialFile(fileName, true);
             Assert.IsTrue(success);
         }
 
         // Add a bend to a leg.
         [TestMethod]
-        public void AddLegBend()
+        public async Task AddLegBend()
         {
-            Setup("modes\\speciallegs.ppen");
+            await Setup("modes\\speciallegs.ppen");
 
             // Select course 1.
             controller.SelectTab(1);       // Course 1.
@@ -78,7 +79,7 @@ namespace PurplePen.Tests
             // Click on leg to select it.
             DragAction dragAction = controller.LeftButtonDown(Pane.Map, new PointF(18.4F, 30.1F), 0.3F);
             Assert.AreEqual(DragAction.DelayedDrag, dragAction);
-            controller.LeftButtonClick(Pane.Map, new PointF(18.4F, 30.1F), 0.3F);
+            await controller.LeftButtonClick(Pane.Map, new PointF(18.4F, 30.1F), 0.3F);
 
             // Begin the add bend mode.
             controller.BeginAddLegBend();
@@ -125,9 +126,9 @@ namespace PurplePen.Tests
 
         // Add a corner to an area object.
         [TestMethod]
-        public void AddCornerArea()
+        public async Task AddCornerArea()
         {
-            Setup("modes\\marymoor2.coursescribe");
+            await Setup("modes\\marymoor2.coursescribe");
 
             // Select course 3.
             controller.SelectTab(3);       // Course 3.
@@ -136,7 +137,7 @@ namespace PurplePen.Tests
             // Click on area objects.
             DragAction dragAction = controller.LeftButtonDown(Pane.Map, new PointF(1,-2), 0.3F);
             Assert.AreEqual(DragAction.DelayedDrag, dragAction);
-            controller.LeftButtonClick(Pane.Map, new PointF(1, -2), 0.3F);
+            await controller.LeftButtonClick(Pane.Map, new PointF(1, -2), 0.3F);
 
             // Begin the add corner mode.
             controller.BeginAddSpecialCorner();
@@ -185,9 +186,9 @@ namespace PurplePen.Tests
 
         // Remove a corner from an area object.
         [TestMethod]
-        public void RemoveCornerArea()
+        public async Task RemoveCornerArea()
         {
-            Setup("modes\\marymoor2.coursescribe");
+            await Setup("modes\\marymoor2.coursescribe");
 
             // Select course 3.
             controller.SelectTab(3);       // Course 3.
@@ -196,7 +197,7 @@ namespace PurplePen.Tests
             // Click on area objects.
             DragAction dragAction = controller.LeftButtonDown(Pane.Map, new PointF(1, -2), 0.3F);
             Assert.AreEqual(DragAction.DelayedDrag, dragAction);
-            controller.LeftButtonClick(Pane.Map, new PointF(1, -2), 0.3F);
+            await controller.LeftButtonClick(Pane.Map, new PointF(1, -2), 0.3F);
 
             // Begin the remove corner mode.
             controller.BeginRemoveBend();
@@ -235,9 +236,9 @@ namespace PurplePen.Tests
 
         // Remove a bend from a leg.
         [TestMethod]
-        public void RemoveLegBend()
+        public async Task RemoveLegBend()
         {
-            Setup("modes\\speciallegs.ppen");
+            await Setup("modes\\speciallegs.ppen");
 
             // Select course 1.
             controller.SelectTab(1);       // Course 1.
@@ -246,7 +247,7 @@ namespace PurplePen.Tests
             // Click on leg to select it.
             DragAction dragAction = controller.LeftButtonDown(Pane.Map, new PointF(18.4F, 30.1F), 0.3F);
             Assert.AreEqual(DragAction.DelayedDrag, dragAction);
-            controller.LeftButtonClick(Pane.Map, new PointF(18.4F, 30.1F), 0.3F);
+            await controller.LeftButtonClick(Pane.Map, new PointF(18.4F, 30.1F), 0.3F);
 
             // Begin the remove bend mode.
             controller.BeginRemoveBend();

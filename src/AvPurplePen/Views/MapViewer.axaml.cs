@@ -8,6 +8,9 @@ using AvPurplePen.Views;
 using AvUtil;
 using PurplePen;
 using System;
+using System.Diagnostics;
+using System.Drawing;
+using Point = Avalonia.Point;
 using static AvUtil.PanAndZoom;
 
 namespace AvPurplePen;
@@ -22,6 +25,17 @@ public partial class MapViewer : UserControl
     // Has the map highlights that this map viewer should display.
     public static readonly StyledProperty<IMapViewerHighlight[]?> MapHighlightsProperty =
             AvaloniaProperty.Register<MainWindow, IMapViewerHighlight[]?>(nameof(MapHighlights));
+
+    // The location of the mouse in world coordinates, or null if the mouse is not currently in the viewport.
+    public static readonly DirectProperty<MapViewer, PointF?> MouseLocationProperty = 
+            AvaloniaProperty.RegisterDirect<MapViewer, PointF?>(nameof(MouseLocation), map => map.MouseLocation);
+
+    // The zoom factor.
+    public static readonly DirectProperty<MapViewer, float> ZoomFactorProperty =
+    AvaloniaProperty.RegisterDirect<MapViewer, float>(
+        nameof(ZoomFactor),
+        getter: o => o.ZoomFactor,
+        setter: (o, value) => o.ZoomFactor = value);
 
     public static readonly RoutedEvent<FancyMouseEventArgs> FancyMouseActivityEvent =
         RoutedEvent.Register<MapViewer, FancyMouseEventArgs>(
@@ -82,11 +96,34 @@ public partial class MapViewer : UserControl
         remove => RemoveHandler(FancyMouseActivityEvent, value);
     }
 
+    // Size of a pixel in world units.
     public float PixelSize {
         get {
             return panAndZoom.PixelToWorldDistance(1);
         }
     }
+
+    // Expose the inner PanAndZoom control's ZoomFactor as a property of MapViewer, so it can be data-bound.
+    // Note that we also subscribe to PropertyChanged on the PanAndZoom control to raise change notifications
+    // for this property when the zoom factor changes.
+    public float ZoomFactor {
+        get => panAndZoom.ZoomFactor;
+        set => panAndZoom.ZoomFactor = value;
+    }
+
+    PointF? _mouseLocation;  // Backing field for MouseLocation property. Only change via property setting to ensure change notifications.
+
+    // Location of the mouse in world coordinates, updated on mouse move. 
+    // Null if the mouse is not currently in the viewport (e.g. has left the control).
+    public PointF? MouseLocation {
+        get { 
+            return _mouseLocation; 
+        }
+        private set { 
+            SetAndRaise(MouseLocationProperty, ref _mouseLocation, value);
+        }
+    }
+
 
 
     private void MapDisplayChanged(IMapDisplay? newMapDisplay)
@@ -125,6 +162,14 @@ public partial class MapViewer : UserControl
         else if (change.Property == MapHighlightsProperty) {
             IMapViewerHighlight[]? newMapHighlights = change.GetNewValue<IMapViewerHighlight[]?>();
             HighlightsChanged(newMapHighlights);
+        }
+    }
+
+    private void panAndZoom_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        // If the pan and zoom control's ZoomFactor changes, so does ours.
+        if (e.Property == PanAndZoom.ZoomFactorProperty) {
+            RaisePropertyChanged(ZoomFactorProperty, (float)e.OldValue!, (float)e.NewValue!);
         }
     }
 
@@ -218,6 +263,12 @@ public partial class MapViewer : UserControl
             case BasicMouseAction.Up:
                 HandleMouseUp(e);
                 break;
+            case BasicMouseAction.Enter:
+                HandleMouseEnter(e);
+                break;
+            case BasicMouseAction.Leave:
+                HandleMouseLeave(e);
+                break;
             }
         }
     }
@@ -272,6 +323,7 @@ public partial class MapViewer : UserControl
     private void HandleMouseMove(BasicMouseEventArgs e)
     {
         lastMouseWorldLocation = e.WorldLocation;
+        MouseLocation = Conv.ToPointF(e.WorldLocation);
 
         RaiseFancyMouseEvent(e.Button, FancyMouseAction.Move, e.WorldLocation);
         ResetHoverTimer(e.WorldLocation);
@@ -340,6 +392,19 @@ public partial class MapViewer : UserControl
         else if (wasDown) {
             RaiseFancyMouseEvent(e.Button, FancyMouseAction.Up, e.WorldLocation, downPosition);
         }
+    }
+
+    private void HandleMouseLeave(BasicMouseEventArgs e)
+    {
+        MouseLocation = null;
+
+        // If the mouse leaves the control, cancel any hover.
+        DisableHoverTimer();
+    }
+
+    private void HandleMouseEnter(BasicMouseEventArgs e)
+    {
+        MouseLocation = Conv.ToPointF(e.WorldLocation);
     }
 
     // Cancels any drags currently in progress and raises DragCancel for each.

@@ -158,7 +158,7 @@ namespace PurplePen
 #endif
 
 #if !MSSTORE
-        private static void AskToDownload(string versionNumber, string fileName)
+        private static async Task AskToDownload(string versionNumber, string fileName)
         {
             // Ask to see if user wants to update.
             string message = string.Format(MiscText.NewerVersionAvailable, Util.PrettyVersionString(versionNumber), Util.PrettyVersionString(VersionNumber.Current));
@@ -169,7 +169,7 @@ namespace PurplePen
 
             // If we have a controller, make sure we can exit.
             if (Controller != null) {
-                if (!Controller.TryCloseFile())
+                if (!await Controller.TryCloseFile())
                     return;
             }
 
@@ -192,7 +192,7 @@ namespace PurplePen
             // controls can only be accessed from the thread that created them. BeginInvoke
             // queues the action onto the UI thread's message loop and returns immediately,
             // letting the download continue without blocking on the UI update.
-            Task.Run(async () => {
+            _ = Task.Run(async () => {
                 try {
                     using (HttpResponseMessage response = await client.GetAsync(downloadFrom, HttpCompletionOption.ResponseHeadersRead)) {
                         response.EnsureSuccessStatusCode();
@@ -308,7 +308,7 @@ namespace PurplePen
         }
 #endif
 
-        static void versionCheckWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        static async void versionCheckWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             // The version check has completed. The result is either null, or the version string of the new version.
             if (!e.Cancelled && e.Error == null && e.Result != null) {
@@ -349,10 +349,10 @@ namespace PurplePen
                 }
 #else
                 if (results.CurrentVersion != null && Util.CompareVersionStrings(VersionNumber.Current, results.CurrentVersion) < 0) {
-                    AskToDownload(results.CurrentVersion, results.CurrentFileName);
+                    await AskToDownload(results.CurrentVersion, results.CurrentFileName);
                 }
                 else if (results.PrereleaseVersion != null && Util.CompareVersionStrings(VersionNumber.Current, results.PrereleaseVersion) < 0 && Util.SameExceptRevision(VersionNumber.Current, results.PrereleaseVersion)) {
-                    AskToDownload(results.PrereleaseVersion, results.PrereleaseFileName);
+                    await AskToDownload(results.PrereleaseVersion, results.PrereleaseFileName);
                 }
 #endif
             }
@@ -417,6 +417,7 @@ namespace PurplePen
             // thread with no SynchronizationContext, so there is no deadlock risk.
             // We use GetAwaiter().GetResult() instead of .Result because .Result wraps
             // exceptions in AggregateException, which would bypass our HttpRequestException catch.
+#pragma warning disable VSTHRD002 
             string latestVersion = null;
             string latestPrerelease = null;
             try {
@@ -435,6 +436,7 @@ namespace PurplePen
                     latestPrerelease = null;
                 }
             }
+#pragma warning restore VSTHRD002
 
             if (latestVersion != null) {
                 // Get first line and second line.
@@ -482,7 +484,7 @@ namespace PurplePen
                 JsonEncode(CrashReporterDotNET.HelperMethods.GetWindowsVersion()));
             try {
                 StringContent content = new StringContent(status, Encoding.UTF8, "application/json");
-                client.PostAsync("http://monitor.purple-pen.org/api/Invocation", content);
+                _ = client.PostAsync("http://monitor.purple-pen.org/api/Invocation", content);
             }
             catch (HttpRequestException ex) {
                 // Ignore problems.

@@ -1,10 +1,14 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Primitives.PopupPositioning;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.Remote.Protocol.Input;
 using Avalonia.Rendering;
+using Avalonia.Styling;
 using AvUtil;
 using PurplePen;
 using PurplePen.Graphics2D;
@@ -13,6 +17,7 @@ using PurplePen.ViewModels;
 using SkiaSharp;
 using System;
 using System.Drawing;
+using System.Windows.Input;
 
 namespace AvPurplePen;
 
@@ -24,7 +29,16 @@ public partial class DescriptionViewer : UserControl
     public static readonly StyledProperty<SelectedLines?> SelectionProperty =
         AvaloniaProperty.Register<DescriptionViewer, SelectedLines?>(nameof(Selection), defaultBindingMode: BindingMode.TwoWay);
 
+    // Command invoked when the user selects an item or enters text in a description popup.
+    // The command parameter is a DescriptionChangeCommandData instance.
+    public static readonly StyledProperty<ICommand?> DescriptionChangeCommandProperty =
+        AvaloniaProperty.Register<DescriptionViewer, ICommand?>(nameof(DescriptionChangeCommand));
+
+    private SymbolDB? symbolDB;
     private DescriptionRenderer? renderer;
+
+    // This is the flyout for the popup menu, if it is open. 
+    private Flyout? flyout;
 
     private const int margin = 3;            // margin size in logical pixels
     private const int minCellSize = 20;      // minimum cell size in logical pixels
@@ -45,19 +59,18 @@ public partial class DescriptionViewer : UserControl
 
     public delegate void DescriptionChangedHandler(object sender, DescriptionChangeKind kind, int line, int box, object newValue);
 
-    // Via a popup-menu, the user requested a change to what is in a box in the description.
-    public event DescriptionChangedHandler? Change;
-
-    // Via a mouse, the selected was changed. Does not fire if the selected in changed via
-    // the property.
-    public event EventHandler? SelectedIndexChange;
-
-
     // Indicates which line(s) are selected, or null for
     // nothing selected.
     public SelectedLines? Selection {
         get => GetValue(SelectionProperty);
         set => SetValue(SelectionProperty, value);
+    }
+
+    // Command invoked when the user selects an item or enters text in a description popup.
+    // The command parameter is a DescriptionChangeCommandData instance.
+    public ICommand? DescriptionChangeCommand {
+        get => GetValue(DescriptionChangeCommandProperty);
+        set => SetValue(DescriptionChangeCommandProperty, value);
     }
 
 #if !PORTING
@@ -86,6 +99,7 @@ public partial class DescriptionViewer : UserControl
         if (this.DataContext is DescriptionViewerViewModel vm) {
             if (vm.SymbolDB != null) {
                 // Create the renderer.
+                symbolDB = vm.SymbolDB;
                 renderer = new DescriptionRenderer(vm.SymbolDB);
                 renderer.Margin = margin;
                 renderer.DescriptionKind = DescriptionKind.Symbols;     // control always shows symbols.
@@ -129,19 +143,94 @@ public partial class DescriptionViewer : UserControl
         if (!alreadySelected) {
             // Move the selected line.
             Selection = new SelectedLines(hitTest.firstLine, hitTest.lastLine);
-            SelectedIndexChange?.Invoke(this, EventArgs.Empty);
         }
 
         PointerUpdateKind whichButton = pointerPoint.Properties.PointerUpdateKind;
 
         // If the left-click the selected line, or right-click anywhere, then possibly show a popup menu.
         if ((whichButton == PointerUpdateKind.RightButtonPressed || alreadySelected) && hitTest.kind != HitTestKind.None) {
-#if !PORTING
             // Clicked on the selected line, in a potentially interesting place. Show a menu (maybe).
             PopupMenu(hitTest);
-#endif
         }
+    }
 
+    // Calculates the content area inside a popup button cell in physical pixels.
+    // Uses the CELLSIZE and BUTTON_CHROME_PER_SIDE constants from DescriptionPopup,
+    // and does the subtraction in physical pixel space with AwayFromZero rounding
+    // to match Avalonia's layout rounding (LayoutHelper.RoundLayoutValue).
+    private int MeasureCellContentSize()
+    {
+        double scaling = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0;
+
+        int physicalCell = (int)Math.Round(DescriptionPopup.CELLSIZE * scaling, MidpointRounding.AwayFromZero);
+        int physicalPerSide = (int)Math.Round(DescriptionPopup.BUTTON_CHROME_PER_SIDE * scaling, MidpointRounding.AwayFromZero);
+        int pixelSize = physicalCell - 2 * physicalPerSide;
+        return pixelSize;
+    }
+
+    private void PopupMenu(HitTestResult hitTest)
+    {
+        if (renderer == null || symbolDB == null || DataContext == null)
+            return;
+
+        DescriptionViewerViewModel? vm = DataContext as DescriptionViewerViewModel;
+        if (vm == null)
+            return;
+
+        int cellContentPixelSize = MeasureCellContentSize();
+
+        // Get the information to configure the popup menu, or null if no popup menu should be shown.
+        DescriptionPopupViewModel? popupViewModel = vm.GetPopupMenu(hitTest, renderer, cellContentPixelSize);
+        if (popupViewModel == null) 
+            return;
+
+        Avalonia.Point popupMenuLocation = new Avalonia.Point(hitTest.rect.Left + renderer.CellSize * 0.5F,
+                                                              hitTest.rect.Top + renderer.CellSize * 0.75F);
+        popupMenuLocation -= drawingView.Offset;
+
+        DescriptionPopup descriptionPopup = new() {
+            DataContext = popupViewModel
+        };
+
+        flyout = new Flyout() {
+            Placement = PlacementMode.AnchorAndGravity,
+            PlacementAnchor = PopupAnchor.TopLeft,
+            PlacementGravity = PopupGravity.BottomRight,
+            HorizontalOffset = popupMenuLocation.X,
+            VerticalOffset = popupMenuLocation.Y,
+            FlyoutPresenterTheme = new ControlTheme(typeof(FlyoutPresenter)) {
+                BasedOn = (ControlTheme)this.FindResource(typeof(FlyoutPresenter))!,
+                Setters = { new Setter(FlyoutPresenter.PaddingProperty, new Thickness(3)), 
+                            new Setter(FlyoutPresenter.BackgroundProperty, new SolidColorBrush(Avalonia.Media.Color.FromRgb(0xFB, 0xF8, 0xED))) }
+            },
+            Content = descriptionPopup
+        };
+
+        descriptionPopup.PopupItemSelected += DescriptionPopup_PopupItemSelected;
+        flyout.Closed += Flyout_Closed;
+        flyout.ShowAt(drawingView);
+    }
+
+    // The flyout closed. Don't track it anymore.
+    private void Flyout_Closed(object? sender, EventArgs e)
+    {
+        flyout = null;
+    }
+
+    // The popup selected an item or modified text.
+    // Close the flyout, and invoke a command to make the change.
+    private void DescriptionPopup_PopupItemSelected(object? sender, PopupItemSelectedEventArgs e)
+    {
+        flyout?.Hide();
+        flyout = null;
+
+        object? newValue = e.NewSymbol != null ? (object)e.NewSymbol : e.NewText;
+        DescriptionChangeCommandData data = new DescriptionChangeCommandData(
+            e.DescriptionChangeKind, e.ChangedLine, e.ChangedBox, newValue);
+
+        if (DescriptionChangeCommand != null && DescriptionChangeCommand.CanExecute(data)) {
+            DescriptionChangeCommand.Execute(data);
+        }
     }
 
 
@@ -194,11 +283,13 @@ public partial class DescriptionViewer : UserControl
             RectangleF selectedRect = (renderer.LineBounds(Selection.FirstLine, Selection.LastLine));
             if (selectedRect.IntersectsWith(clipRectangle)) {
                 object selectionBrush = new object();
-                grTarget.CreateSolidBrush(selectionBrush, CmykColor.FromColor(Color.Yellow));
+                grTarget.CreateSolidBrush(selectionBrush, CmykColor.FromColor(System.Drawing.Color.Yellow));
                 grTarget.FillRectangle(selectionBrush, selectedRect);
             }
         }
     }
 }
+
+
 
 

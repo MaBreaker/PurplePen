@@ -42,6 +42,7 @@ using TestingUtils;
 using PurplePen.MapView;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading.Tasks;
 
 namespace PurplePen.Tests
 {
@@ -97,6 +98,14 @@ namespace PurplePen.Tests
             // nothing to do.
         }
 
+        public void PostDelayedAction(Action action)
+        {
+            // This is typically used for error messages. We run it immediately, which is fine for testing.
+            // We don't actually test for error messages right now. We might need to change this implementation
+            // to somehow delay.
+            action();
+        }
+
         public void MouseMoved(float x, float y, float pixelSize)
         {
             this.mouseLocation = new PointF(x, y);
@@ -137,22 +146,26 @@ namespace PurplePen.Tests
             return returnOpenFileName;
         }
 
-        public void ErrorMessage(string message)
+#pragma warning disable VSTHRD103 // WriteLine synchronously blocks, await WriteLineAsync instead.
+        public Task ErrorMessage(string message)
         {
             output.WriteLine("ERROR: '{0}'", message);
+            return Task.CompletedTask;
         }
 
-        public void WarningMessage(string message)
+        public Task WarningMessage(string message)
         {
             output.WriteLine("WARNING: '{0}'", message);
+            return Task.CompletedTask;
         }
 
-        public void InfoMessage(string message)
+        public Task InfoMessage(string message)
         {
             output.WriteLine("INFO: '{0}'", message);
+            return Task.CompletedTask;
         }
 
-        public bool YesNoQuestion(string message, bool yesDefault)
+        public Task<bool> YesNoQuestion(string message, bool yesDefault)
         {
             output.WriteLine("YES/NO QUESTION: '{0}' (default {1})", message, yesDefault ? "yes" : "no");
             bool retVal;
@@ -164,10 +177,10 @@ namespace PurplePen.Tests
             else
                 retVal = false;
             output.WriteLine("  (returned {0})", retVal ? "yes" : "no");
-            return retVal;
+            return Task.FromResult(retVal);
         }
 
-        public bool OKCancelMessage(string message, bool okDefault)
+        public Task<bool> OKCancelMessage(string message, bool okDefault)
         {
             output.WriteLine("OK/CANCEL MESSAGE: '{0}' (default {1})", message, okDefault ? "ok" : "cancel");
             bool retVal;
@@ -179,10 +192,10 @@ namespace PurplePen.Tests
             else
                 retVal = false;
             output.WriteLine("  (returned {0})", retVal ? "ok" : "cancel");
-            return retVal;
+            return Task.FromResult(retVal);
         }
 
-        public YesNoCancel YesNoCancelQuestion(string message, bool yesDefault)
+        public Task<YesNoCancel> YesNoCancelQuestion(string message, bool yesDefault)
         {
             output.WriteLine("YES/NO/CANCEL QUESTION: '{0}' (default {1})", message, yesDefault ? "yes" : "no");
             YesNoCancel retVal;
@@ -193,14 +206,15 @@ namespace PurplePen.Tests
                 retVal = returnQuestion;
 
             output.WriteLine("  (returned {0})", retVal.ToString().ToLower());
-            return retVal;
+            return Task.FromResult(retVal);
         }
 
-        public YesNoCancel MovingSharedControl(string controlCode, string otherCourses)
+        public Task<YesNoCancel> MovingSharedControl(string controlCode, string otherCourses)
         {
             output.WriteLine("MOVING SHARED CONTROL QUESTION: '{0}' in '{1}'", controlCode, otherCourses);
-            return returnQuestion;
+            return Task.FromResult(returnQuestion);
         }
+#pragma warning restore VSTHRD103
 
 
         // Strings expected and returned from FindMissingMapFile.
@@ -208,11 +222,11 @@ namespace PurplePen.Tests
         public MapType newMapType;
         public float newMapDpi, newMapScale;
 
-        public bool FindMissingMapFile(string missingMapFile)
+        public Task<bool> FindMissingMapFile(string missingMapFile)
         {
             Assert.AreEqual(expectedMissingMapFile, missingMapFile);
             controller.ChangeMapFile(newMapType, newMapFile, newMapScale, newMapDpi);
-            return true;
+            return Task.FromResult(true);
         }
 
         public void InitiateMapDragging(PointF initialPos, PointerButton buttonEnd)

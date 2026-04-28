@@ -261,7 +261,7 @@ namespace PurplePen
                     case MapType.OCAD:
                     if (map != null) {
                         using (map.Read())
-                            return map.Bounds;
+                            return map.GetBoundsIncludingTemplates();
                     }
                     else
                         return new RectangleF();
@@ -597,7 +597,7 @@ namespace PurplePen
             // Only dim bitmap if size isn't too large. Otherwise takes too much memory.
             if ((mapType == MapType.Bitmap || mapType == MapType.PDF) && mapIntensity < 0.99F && (bitmap.PixelWidth * bitmap.PixelHeight) < 36000000) {
                 // ColorConverter doesn't actually matter since we are just drawing a bitmap.
-                using (IBitmapGraphicsTarget grTarget = Services.BitmapGraphicsTargetProvider.CreateBitmapGraphicsTarget(bitmap.PixelWidth, bitmap.PixelHeight, DefaultColorConverter.Instance)) {
+                using (IBitmapGraphicsTarget grTarget = Services.BitmapGraphicsTargetProvider.CreateBitmapGraphicsTarget(bitmap.PixelWidth, bitmap.PixelHeight, CmykColor.FromCmyk(0, 0, 0, 0), DefaultColorConverter.Instance)) {
                     grTarget.Intensity = mapIntensity;
                     grTarget.DrawBitmap(bitmap, new RectangleF(0, 0, bitmap.PixelWidth, bitmap.PixelHeight), BitmapScaling.NearestNeighbor);
                     dimmedBitmap = grTarget.FinishBitmap();

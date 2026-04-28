@@ -50,6 +50,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using static SkiaSharp.HarfBuzz.SKShaper;
 
@@ -186,6 +187,13 @@ namespace PurplePen
             }
         }
 
+        public void PostDelayedAction(Action action)
+        {
+            if (this.IsHandleCreated) {
+                this.BeginInvoke(action);
+            }
+        }
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool HidePrintArea
         {
@@ -256,7 +264,7 @@ namespace PurplePen
         }
 
         // Show an error message, with no choice.
-        public void ErrorMessage(string message)
+        public Task ErrorMessage(string message)
         {
             IWin32Window owner = this;
             if (!this.Visible)
@@ -266,44 +274,47 @@ namespace PurplePen
                 descriptionControl.CloseAnyPopup();
 
             MessageBox.Show(owner, message, MiscText.AppTitle, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+            return Task.CompletedTask;
         }
 
         // Show an warning message, with no choice.
-        public void WarningMessage(string message)
+        public Task WarningMessage(string message)
         {
             if (descriptionControl != null)
                 descriptionControl.CloseAnyPopup();
 
             MessageBox.Show(this, message, MiscText.AppTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+            return Task.CompletedTask;
         }
 
         // Show an informational message, with no choice.
-        public void InfoMessage(string message)
+        public Task InfoMessage(string message)
         {
             if (descriptionControl != null)
                 descriptionControl.CloseAnyPopup();
 
             MessageBox.Show(this, message, MiscText.AppTitle, MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+            return Task.CompletedTask;
         }
 
         // Show a ok-cancel message.
-        public bool OKCancelMessage(string message, bool okDefault)
+        public Task<bool> OKCancelMessage(string message, bool okDefault)
         {
             if (descriptionControl != null)
                 descriptionControl.CloseAnyPopup();
 
             DialogResult result = MessageBox.Show(this, message, MiscText.AppTitle, MessageBoxButtons.OKCancel, MessageBoxIcon.Information, okDefault ? MessageBoxDefaultButton.Button1 : MessageBoxDefaultButton.Button2);
-            return result == DialogResult.OK;
+            return Task.FromResult(result == DialogResult.OK);
         }
 
         // Ask a yes-no question.
-        public bool YesNoQuestion(string message, bool yesDefault)
+        public Task<bool> YesNoQuestion(string message, bool yesDefault)
         {
             if (descriptionControl != null)
                 descriptionControl.CloseAnyPopup();
 
             DialogResult result = MessageBox.Show(this, message, MiscText.AppTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question, yesDefault ? MessageBoxDefaultButton.Button1 : MessageBoxDefaultButton.Button2);
-            return result == DialogResult.Yes;
+            return Task.FromResult(result == DialogResult.Yes);
         }
 
         private YesNoCancel YesNoCancelFromDialogResult(DialogResult dialogResult)
@@ -321,16 +332,16 @@ namespace PurplePen
         }
 
         // Ask a yes-no-cancel question.
-        public YesNoCancel YesNoCancelQuestion(string message, bool yesDefault)
+        public Task<YesNoCancel> YesNoCancelQuestion(string message, bool yesDefault)
         {
             if (descriptionControl != null)
                 descriptionControl.CloseAnyPopup();
 
             DialogResult result = MessageBox.Show(this, message, MiscText.AppTitle, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, yesDefault ? MessageBoxDefaultButton.Button1 : MessageBoxDefaultButton.Button2);
-            return YesNoCancelFromDialogResult(result);
+            return Task.FromResult(YesNoCancelFromDialogResult(result));
         }
 
-        public YesNoCancel MovingSharedControl(string controlCode, string otherCourses)
+        public async Task<YesNoCancel> MovingSharedControl(string controlCode, string otherCourses)
         {
             using (MoveControlChoiceDialog dialog = new MoveControlChoiceDialog(controlCode, otherCourses)) {
                 DialogResult result = dialog.ShowDialog();
@@ -941,7 +952,7 @@ namespace PurplePen
 
 
 
-        void Application_Idle(object sender, EventArgs e)
+        async void Application_Idle(object sender, EventArgs e)
         {
             if (IsDisposed)
                 return;
@@ -973,7 +984,7 @@ namespace PurplePen
 
                     if (checkForUpdatedMapFile) {
                         checkForUpdatedMapFile = false;
-                        controller.CheckForChangedMapFile();
+                        await controller.CheckForChangedMapFile();
                     }
                 }
             }
@@ -1052,24 +1063,24 @@ namespace PurplePen
             Close();
         }
 
-        private void MainFrame_FormClosing(object sender, FormClosingEventArgs e)
+        private async void MainFrame_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Either File/Exit or the close button clicked. See if we can exit.
 
-            bool exit = controller.TryCloseFile();
+            bool exit = await controller.TryCloseFile();
             if (!exit)
                 e.Cancel = true;
         }
 
 
-        private void openMenu_Click(object sender, EventArgs e)
+        private async void openMenu_Click(object sender, EventArgs e)
         {
             // Try to close the current file. If that succeeds, then ask for a new file and try to open it.
-            bool closeSuccess = controller.TryCloseFile();
+            bool closeSuccess = await controller.TryCloseFile();
             if (closeSuccess) {
                 string newFilename = GetOpenFileName();
                 if (newFilename != null) {
-                    bool success = controller.LoadNewFile(newFilename);
+                    bool success = await controller.LoadNewFile(newFilename);
                     if (!success) {
                         // This is bad news. The old file is gone, and we don't have a new file. Go back to initial screen is the best solution, 
                         // I guess.
@@ -1086,15 +1097,15 @@ namespace PurplePen
         }
 
 
-        private void newEventMenu_Click(object sender, EventArgs e)
+        private async void newEventMenu_Click(object sender, EventArgs e)
         {
             // Try to close the current file. If that succeeds, then ask for a new file and try to open it.
-            bool closeSuccess = controller.TryCloseFile();
+            bool closeSuccess = await controller.TryCloseFile();
             if (closeSuccess) {
                 NewEventWizard wizard = new NewEventWizard();
                 DialogResult result = wizard.ShowDialog();
                 if (result == DialogResult.OK) {
-                    bool success = controller.NewEvent(wizard.CreateEventInfo);
+                    bool success = await controller.NewEvent(wizard.CreateEventInfo);
                     if (!success) {
                         // This is bad news. The old file is gone, and we don't have a new file. Go back to initial screen is the best solution, 
                         // I guess.
@@ -1162,14 +1173,14 @@ namespace PurplePen
                 controller.Redo();
         }
 
-        private void deleteMenu_Click(object sender, EventArgs e)
+        private async void deleteMenu_Click(object sender, EventArgs e)
         {
-            controller.DeleteSelection();
+            await controller.DeleteSelection();
         }
 
-        private void deleteForkMenu_Click(object sender, EventArgs e)
+        private async void deleteForkMenu_Click(object sender, EventArgs e)
         {
-            controller.DeleteFork();
+            await controller.DeleteFork();
         }
 
 
@@ -1225,11 +1236,11 @@ namespace PurplePen
             controller.BeginAddControlMode(ControlPointKind.MapExchange, MapExchangeType.None);
         }
 
-        private void addVariationMenu_Click(object sender, EventArgs e)
+        private async void addVariationMenu_Click(object sender, EventArgs e)
         {
             string reason;
             if (controller.CanAddVariation(out reason) != CommandStatus.Enabled) {
-                ErrorMessage(reason);
+                await ErrorMessage(reason);
                 return;                
             }
 
@@ -1238,7 +1249,7 @@ namespace PurplePen
             DialogResult result = addForkDialog.ShowDialog(this);
 
             if (result == DialogResult.OK) {
-                controller.AddVariation(addForkDialog.Loop, addForkDialog.NumberOfBranches);
+                await controller.AddVariation(addForkDialog.Loop, addForkDialog.NumberOfBranches);
             }
 
             addForkDialog.Dispose();
@@ -1278,9 +1289,9 @@ namespace PurplePen
             controller.SelectTab(courseTabs.SelectedIndex);
         }
 
-        private void descriptionControl_Change(DescriptionControl sender, DescriptionChangeKind kind, int line, int box, object newValue)
+        private async void descriptionControl_Change(DescriptionControl sender, DescriptionChangeKind kind, int line, int box, object newValue)
         {
-            controller.DescriptionChange(kind, line, box, newValue);
+            await controller.DescriptionChange(kind, line, box, newValue);
         }
 
         private void descriptionControl_SelectedIndexChange(object sender, EventArgs e)
@@ -1355,12 +1366,14 @@ namespace PurplePen
             }
         }
 
+#pragma warning disable VSTHRD002    // Everything in the WinForms version is actually synchronous, so this can't deadlock.
         private DragAction mapViewer_OnMouseEvent(object sender, MouseAction action, int buttonNumber, bool[] whichButtonsDown, PointF location, PointF locationStart)
         {
             if (action != MouseAction.Move)
                 toolTip.Hide(mapViewer);
 
-            return HandleMouseEvent(Pane.Map, mapViewer, action, buttonNumber, whichButtonsDown, location, locationStart);
+            Task<DragAction> task = HandleMouseEvent(Pane.Map, mapViewer, action, buttonNumber, whichButtonsDown, location, locationStart);
+            return task.Result;   // Everything in the WinForms version is actually synchronous, so this can't deadlock.
         }
 
         private DragAction mapViewerTopology_OnMouseEvent(object sender, MouseAction action, int buttonNumber, bool[] whichButtonsDown, PointF location, PointF locationStart)
@@ -1368,10 +1381,12 @@ namespace PurplePen
             if (action != MouseAction.Move)
                 toolTip.Hide(mapViewerTopology);
 
-            return HandleMouseEvent(Pane.Topology, mapViewerTopology, action, buttonNumber, whichButtonsDown, location, locationStart);
+            Task<DragAction> task = HandleMouseEvent(Pane.Topology, mapViewerTopology, action, buttonNumber, whichButtonsDown, location, locationStart);
+            return task.Result;   // Everything in the WinForms version is actually synchronous, so this can't deadlock.
         }
+#pragma warning restore VSTHRD002
 
-        private DragAction HandleMouseEvent(Pane pane, MapViewer activePaneMapViewer, MouseAction action, int buttonNumber, bool[] whichButtonsDown, PointF location, PointF locationStart)
+        private async Task<DragAction> HandleMouseEvent(Pane pane, MapViewer activePaneMapViewer, MouseAction action, int buttonNumber, bool[] whichButtonsDown, PointF location, PointF locationStart)
         {
             if (action == MouseAction.Down && buttonNumber == MapViewer.LeftMouseButton)
                 return controller.LeftButtonDown(pane, location, activePaneMapViewer.PixelSize);
@@ -1382,17 +1397,17 @@ namespace PurplePen
             else if (action == MouseAction.Up && buttonNumber == MapViewer.RightMouseButton)
                 controller.RightButtonUp(pane, location, activePaneMapViewer.PixelSize);
             else if (action == MouseAction.Click && buttonNumber == MapViewer.LeftMouseButton)
-                controller.LeftButtonClick(pane, location, activePaneMapViewer.PixelSize);
+                await controller.LeftButtonClick(pane, location, activePaneMapViewer.PixelSize);
             else if (action == MouseAction.Click && buttonNumber == MapViewer.RightMouseButton)
-                controller.RightButtonClick(pane, location, activePaneMapViewer.PixelSize);
+                await controller.RightButtonClick(pane, location, activePaneMapViewer.PixelSize);
             else if (action == MouseAction.Drag && buttonNumber == MapViewer.LeftMouseButton)
                 controller.LeftButtonDrag(pane, location, locationStart, activePaneMapViewer.PixelSize);
             else if (action == MouseAction.Drag && buttonNumber == MapViewer.RightMouseButton)
                 controller.RightButtonDrag(pane, location, locationStart, activePaneMapViewer.PixelSize);
             else if (action == MouseAction.DragEnd && buttonNumber == MapViewer.LeftMouseButton)
-                controller.LeftButtonEndDrag(pane, location, locationStart, activePaneMapViewer.PixelSize);
+                await controller.LeftButtonEndDrag(pane, location, locationStart, activePaneMapViewer.PixelSize);
             else if (action == MouseAction.DragEnd && buttonNumber == MapViewer.RightMouseButton)
-                controller.RightButtonEndDrag(pane, location, locationStart, activePaneMapViewer.PixelSize);
+                await controller.RightButtonEndDrag(pane, location, locationStart, activePaneMapViewer.PixelSize);
             else if (action == MouseAction.DragCancel && buttonNumber == MapViewer.LeftMouseButton)
                 controller.LeftButtonCancelDrag(pane);
             else if (action == MouseAction.DragCancel && buttonNumber == MapViewer.RightMouseButton)
@@ -1469,9 +1484,9 @@ namespace PurplePen
             }
         }
 
-        private void deleteCourseMenu_Click(object sender, EventArgs e)
+        private async void deleteCourseMenu_Click(object sender, EventArgs e)
         {
-            controller.DeleteCurrentCourse();
+            await controller.DeleteCurrentCourse();
         }
 
         private void addCourseMenu_Click(object sender, EventArgs e)
@@ -2029,14 +2044,14 @@ namespace PurplePen
         }
 
         // Show help of the given kind.
-        private void ShowHelp(HelpNavigator navigator, object parameter)
+        private async void ShowHelp(HelpNavigator navigator, object parameter)
         {
             if (helpFileUrl == null) {
                 string helpFileName = Util.GetFileInAppDirectory(HELP_FILE_NAME);
                 if (File.Exists(helpFileName))
                     helpFileUrl = new Uri(helpFileName);
                 else {
-                    ErrorMessage(string.Format(MiscText.HelpFileNotFound, helpFileName));
+                    await ErrorMessage(string.Format(MiscText.HelpFileNotFound, helpFileName));
                     return;
                 }
             }
@@ -2244,13 +2259,13 @@ namespace PurplePen
             dialog.Dispose();
         }
 
-        private void removeUnusedControlsMenu_Click(object sender, EventArgs e)
+        private async void removeUnusedControlsMenu_Click(object sender, EventArgs e)
         {
             List<KeyValuePair<Id<ControlPoint>,string>> unusedControls = controller.GetUnusedControls();
 
             if (unusedControls.Count == 0) {
                 // No controls to delete. Tell the user.
-                InfoMessage(MiscText.NoUnusedControls);
+                await InfoMessage(MiscText.NoUnusedControls);
             }
             else {
                 // Put up the dialog and do it.
@@ -2489,12 +2504,12 @@ namespace PurplePen
             createPdfDialog.Dispose();
         }
 
-        private void createGpxMenu_Click(object sender, EventArgs e)
+        private async void createGpxMenu_Click(object sender, EventArgs e)
         {
             // First check and give immediate message if we can't do coordinate mapping.
             string message;
             if (!controller.CanExportGpxOrKml(out message)) {
-                ErrorMessage(message);
+                await ErrorMessage(message);
                 return;
             }
 
@@ -2619,7 +2634,7 @@ namespace PurplePen
 
         // Find a new map file. This is like ChangeMapFile, but this UI is somewhat different -- we just show the
         // Open File dialog at first, and if we use it to select an OK OCAD file, then we close immediately too.
-        public bool FindMissingMapFile(string missingMapFile)
+        public Task<bool> FindMissingMapFile(string missingMapFile)
         {
             // Initialize dialog.
             ChangeMapFile dialog = new ChangeMapFile();
@@ -2638,14 +2653,14 @@ namespace PurplePen
             // Apply new map file.
             if (result == DialogResult.OK) {
                 controller.ChangeMapFile(dialog.MapType, dialog.MapFile, dialog.MapScale, dialog.Dpi);
-                return true;
+                return Task.FromResult(true);
             }
             else
-                return false;
+                return Task.FromResult(false);
         }
 
 
-        private void createOcadFilesMenu_Click(object sender, EventArgs e)
+        private async void createOcadFilesMenu_Click(object sender, EventArgs e)
         {
             bool success = false;
 
@@ -2706,7 +2721,7 @@ namespace PurplePen
                 // Give any other warning messages.
                 List<string> warnings = controller.OcadFilesWarnings(createOcadFilesDialog.OcadCreationSettings);
                 foreach (string warning in warnings) {
-                    WarningMessage(warning);
+                    await WarningMessage(warning);
                 }
 
                 // Save settings persisted between invocations of this dialog.
@@ -2715,7 +2730,7 @@ namespace PurplePen
 
                 // PP keeps bitmaps in memory and locks them. Tell the user to close PP.
                 if (mapDisplay.MapType == MapType.Bitmap)
-                    InfoMessage(MiscText.ClosePPBeforeLoadingOCAD);
+                    await InfoMessage(MiscText.ClosePPBeforeLoadingOCAD);
 
                 break;
             }
@@ -2727,21 +2742,21 @@ namespace PurplePen
             // Check if they need to be installed, ask the user, and if they say yes, install the fonts.
             if (success) {
                 if (controller.ShouldInstallRobotoFonts()) {
-                    if (YesNoQuestion(MiscText.AskInstallRobotoFonts, true)) {
+                    if (await YesNoQuestion(MiscText.AskInstallRobotoFonts, true)) {
                         bool installSucceeded = controller.InstallRobotoFonts();
                         if (!installSucceeded)
-                            ErrorMessage(MiscText.RobotoFontsInstallFailed);
+                            await ErrorMessage(MiscText.RobotoFontsInstallFailed);
                     }
                 }
             }
         }
 
-        private void createKmlFilesMenu_Click(object sender, EventArgs e)
+        private async void createKmlFilesMenu_Click(object sender, EventArgs e)
         {
             // First check and give immediate message if we can't do coordinate mapping.
             string message;
             if (!controller.CanExportGpxOrKml(out message)) {
-                ErrorMessage(message);
+                await ErrorMessage(message);
                 return;
             }
 
@@ -3172,7 +3187,7 @@ namespace PurplePen
 
 
 
-        private void programLanguageMenu_Click(object sender, EventArgs e)
+        private async void programLanguageMenu_Click(object sender, EventArgs e)
         {
             SetUILanguage dialog = new SetUILanguage();
 
@@ -3193,7 +3208,7 @@ namespace PurplePen
 
                 if (controller.GetDescriptionLanguage() != dialog.Culture.Name && controller.HasDescriptionLanguage(dialog.Culture.Name)) {
                     // The current description language does not match the new program language. Offer to change it to match.
-                    if (YesNoQuestion(string.Format(MiscText.ChangeDescriptionLanguage,
+                    if (await YesNoQuestion(string.Format(MiscText.ChangeDescriptionLanguage,
                                                                         CultureInfo.GetCultureInfo(controller.GetDescriptionLanguage()).NativeName,
                                                                         CultureInfo.GetCultureInfo(dialog.Culture.Name).NativeName),
                                                  true)) 

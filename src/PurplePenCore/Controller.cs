@@ -41,6 +41,7 @@ using System.Diagnostics;
 using System.Linq;
 using PurplePen.MapModel;
 using PurplePen.Graphics2D;
+using System.Threading.Tasks;
 
 namespace PurplePen
 {
@@ -237,16 +238,20 @@ namespace PurplePen
             }
         }
 
+        // Like NewMapFileLoaded, but called if want to ask the user about a missing map file, if there is one.
+        private async Task NewMapFileLoadedWithMissingMapUI()
+        {
+            // If the map file can't be found, try to recover.
+            if (MapType != MapType.None && !File.Exists(MapFileName) && await FindMissingMapFile(MapFileName))
+                return;     // FindMissingMapFile() will cause NewMapFileLoaded() to be called again after updating the map file name.
+
+            NewMapFileLoaded(true);
+        }
+
         // Bookkeeping that needs to be done when a new map file is loaded. If "tryToFindMissingMap" is true, then attempt to recover from a missing map, possibly asking the user.
         private void NewMapFileLoaded(bool tryToFindMissingMap)
         {
             ForceChangeUpdate(true);
-
-            if (tryToFindMissingMap) {
-                // If the map file can't be found, try to recover.
-                if (MapType != MapType.None && !File.Exists(MapFileName) && FindMissingMapFile(MapFileName))
-                    return;     // FindMissingMapFile() will cause NewMapFileLoaded() to be called again after updating the map file name.
-            }
 
             bool success = HandleExceptions(
                 delegate {
@@ -297,7 +302,7 @@ namespace PurplePen
         // use that. Otherwise, inform the user and try to find the map file elsewhere.
         // Return true if a new map file was found and ChangeMapFile() was called with it. 
         // Return false if a new map file was not found.
-        private bool FindMissingMapFile(string missingMapFile)
+        private async Task<bool> FindMissingMapFile(string missingMapFile)
         {
             // Try the file name in the same directory as the purple pen event file.
             string directory = Path.GetDirectoryName(FileName);
@@ -312,16 +317,16 @@ namespace PurplePen
             }
 
             // Tell the user the map is missing.
-            ui.ErrorMessage(string.Format(MiscText.MissingMapFile, Path.GetFileName(missingMapFile)));
+            await ui.ErrorMessage(string.Format(MiscText.MissingMapFile, Path.GetFileName(missingMapFile)));
 
             // Ask the UI to set a new map file.
-            return ui.FindMissingMapFile(missingMapFile);
+            return await ui.FindMissingMapFile(missingMapFile);
         }
 
         private bool inChangeMapFileCheck = false;       // prevent recursive calls.
 
         // Check if the map file has changed.
-        public void CheckForChangedMapFile()
+        public async Task CheckForChangedMapFile()
         {
             if (!inChangeMapFileCheck && mapDisplay != null && MapFileName != null) {
                 if (!File.Exists(MapFileName)) {
@@ -331,10 +336,10 @@ namespace PurplePen
 
                     try {
                         // Map file no longer exists.
-                        ui.InfoMessage(string.Format(MiscText.MapFileDeleted, MapFileName));
+                        await ui.InfoMessage(string.Format(MiscText.MapFileDeleted, MapFileName));
                         if (File.Exists(MapFileName))
                             mapDisplay.SetMapFile(MapType, MapFileName);
-                        NewMapFileLoaded(true);
+                        await NewMapFileLoadedWithMissingMapUI();
                         return;
                     }
                     finally {
@@ -385,7 +390,7 @@ namespace PurplePen
                     inChangeMapFileCheck = true;
 
                     try {
-                        ui.InfoMessage(string.Format(MiscText.MapFileChanged, changedReferencedFile));
+                        await ui.InfoMessage(string.Format(MiscText.MapFileChanged, changedReferencedFile));
 
                         bool success = HandleExceptions(
                             delegate {
@@ -507,7 +512,7 @@ namespace PurplePen
         }
 
         // Load the initial file. Should only be called before any file has been loaded.
-        public bool LoadInitialFile(string fileName, bool setAsLastLoadedFile)
+        public async Task<bool> LoadInitialFile(string fileName, bool setAsLastLoadedFile)
         {
             bool success = HandleExceptions(
                 delegate { eventDB.Load(fileName); },
@@ -515,7 +520,7 @@ namespace PurplePen
 
             if (success) {
                 this.fileName = Path.GetFullPath(fileName);
-                if (setAsLastLoadedFile) {
+                if (setAsLastLoadedFile && UserSettings.Current.LastLoadedFile != this.fileName) {
                     UserSettings.Current.LastLoadedFile = this.fileName;
                     UserSettings.Current.Save();
                 }
@@ -523,7 +528,7 @@ namespace PurplePen
                 symbolDB.Standard = eventDB.GetEvent().descriptionStandard;
                 selectionMgr.SelectCourseView(CourseDesignator.AllControls);
                 selectionMgr.ClearSelection();
-                NewMapFileLoaded(true);
+                await NewMapFileLoadedWithMissingMapUI();
 
                 // For backward compatibility, update the automatic print areas.
                 UpdateAutomaticPrintAreas();
@@ -534,10 +539,10 @@ namespace PurplePen
 
         // Load a new file. Should only be called if you know the current file can be closed.
         // If this method returns false, the old file has been destroyed so we're basically in limbo.
-        public bool LoadNewFile(string fileName)
+        public async Task<bool> LoadNewFile(string fileName)
         {
             ResetState();
-            return LoadInitialFile(fileName, true);
+            return await LoadInitialFile(fileName, true);
         }
 
         // Info needed to create a new event.
@@ -561,7 +566,7 @@ namespace PurplePen
         }
 
         // Create a new event. Should only be called before any file has been loaded.
-        public bool InitialNewEvent(CreateEventInfo info)
+        public async Task<bool> InitialNewEvent(CreateEventInfo info)
         {
             undoMgr.BeginCommand(8112, CommandNameText.NewEvent);
 
@@ -625,7 +630,7 @@ namespace PurplePen
 
             undoMgr.EndCommand(8112);
 
-            NewMapFileLoaded(true);
+            await NewMapFileLoadedWithMissingMapUI();
 
             // Save the new event in the given file.
             bool success = SaveAs(info.eventFileName);
@@ -639,10 +644,10 @@ namespace PurplePen
 
         // Create a new event. Should only be called if you know the current file can be closed.
         // If this method returns false, the old file has been destroyed so we're basically in limbo.
-        public bool NewEvent(CreateEventInfo info)
+        public async Task<bool> NewEvent(CreateEventInfo info)
         {
             ResetState();
-            return InitialNewEvent(info);
+            return await InitialNewEvent(info);
         }
 
 
@@ -1245,14 +1250,14 @@ namespace PurplePen
         // Return true if closed and re-initialized.
         // Return false if user canceled or the save failed.
         // If true is returned, can exit or load a new file via LoadNewFile.
-        public bool TryCloseFile()
+        public async Task<bool> TryCloseFile()
         {
             bool success;
 
             CancelMode();
 
             if (IsDirty) {
-                YesNoCancel result = ui.YesNoCancelQuestion(string.Format(MiscText.SaveChanges, Path.GetFileName(FileName)), true);
+                YesNoCancel result = await ui.YesNoCancelQuestion(string.Format(MiscText.SaveChanges, Path.GetFileName(FileName)), true);
                 if (result == YesNoCancel.Yes) {
                     if (!Save())
                         result = YesNoCancel.Cancel;   // if the save fails, automatically cancel the exit.
@@ -1636,7 +1641,7 @@ namespace PurplePen
         }
 
         // Delete the currently selected object.
-        public bool DeleteSelection()
+        public async Task<bool> DeleteSelection()
         {
             CancelMode();
 
@@ -1645,11 +1650,11 @@ namespace PurplePen
             // We can delete any selected control.
             if (selection.SelectionKind == SelectionKind.Control) {
                 if (selection.SelectedCourseControl.IsNone) {
-                    return DeleteControlFromAllControls(selection);
+                    return await DeleteControlFromAllControls(selection);
                 }
                 else {
                     // Deleting one control from a course.
-                    return DeleteControlFromCourse(selection.ActiveCourseDesignator.CourseId, selection.SelectedCourseControl, CommandNameText.DeleteControl);
+                    return await DeleteControlFromCourse(selection.ActiveCourseDesignator.CourseId, selection.SelectedCourseControl, CommandNameText.DeleteControl);
                 }
             }
             else if (selection.SelectionKind == SelectionKind.Special) {
@@ -1703,7 +1708,7 @@ namespace PurplePen
             return Id<CourseControl>.None;
         }
 
-        private bool DeleteControlFromCourse(Id<Course> courseId, Id<CourseControl> courseControl, string commandNameText)
+        private async Task<bool> DeleteControlFromCourse(Id<Course> courseId, Id<CourseControl> courseControl, string commandNameText)
         {
             Debug.Assert(selectionMgr.Selection.ActiveCourseDesignator.IsNotAllControls);
             Id<CourseControl> previous = PreviousCourseControlInSelection();
@@ -1712,7 +1717,7 @@ namespace PurplePen
 
             ICollection<Id<ControlPoint>> removedControls = ChangeEvent.RemoveCourseControl(eventDB, courseId, courseControl);
 
-            AskUserAboutDeletingOrphanedControls(removedControls);
+            await AskUserAboutDeletingOrphanedControls(removedControls);
 
             undoMgr.EndCommand(177);
 
@@ -1723,7 +1728,7 @@ namespace PurplePen
             return true;
         }
 
-        private bool DeleteControlFromAllControls(SelectionInfo selection)
+        private async Task<bool> DeleteControlFromAllControls(SelectionInfo selection)
         {
             bool delete = true;   // actually delete the control?
 
@@ -1736,7 +1741,7 @@ namespace PurplePen
                 string controlName = "\"" + Util.ControlPointName(eventDB, selection.SelectedControl, NameStyle.Medium) + "\"";
                 string courseNames = QueryEvent.CourseList(eventDB, coursesUsingControl);
 
-                delete = ui.YesNoQuestion(string.Format(MiscText.DeleteControlFromAllControls, controlName, courseNames), false);
+                delete = await ui.YesNoQuestion(string.Format(MiscText.DeleteControlFromAllControls, controlName, courseNames), false);
             }
 
             if (delete) {
@@ -1758,7 +1763,7 @@ namespace PurplePen
         }
 
         // Delete the current course
-        public bool DeleteCurrentCourse()
+        public async Task<bool> DeleteCurrentCourse()
         {
             CourseDesignator courseDesignator = selectionMgr.Selection.ActiveCourseDesignator;
             if (courseDesignator.IsAllControls)
@@ -1776,14 +1781,14 @@ namespace PurplePen
             undoMgr.BeginCommand(712, CommandNameText.DeleteCourse);
             ChangeEvent.DeleteCourse(eventDB, courseDesignator.CourseId);
 
-            AskUserAboutDeletingOrphanedControls(usedControls);
+            await AskUserAboutDeletingOrphanedControls(usedControls);
 
             undoMgr.EndCommand(712);
 
             return true;
         }
 
-        private void AskUserAboutDeletingOrphanedControls(IEnumerable<Id<ControlPoint>> possibleOrphans)
+        private async Task AskUserAboutDeletingOrphanedControls(IEnumerable<Id<ControlPoint>> possibleOrphans)
         {
             // Determine if any of the controls are "orphaned".
             List<Id<ControlPoint>> orphanedControls = new List<Id<ControlPoint>>();
@@ -1799,7 +1804,7 @@ namespace PurplePen
 
             // If there are orphaned controls, ask the user when to remove them also.
             if (orphanedControls.Count > 0) {
-                bool delete = ui.YesNoQuestion(string.Format((orphanedControls.Count == 1) ? MiscText.DeleteControlFromControlsCollection : MiscText.DeleteMultipleControlsFromControlsCollection,
+                bool delete = await ui.YesNoQuestion(string.Format((orphanedControls.Count == 1) ? MiscText.DeleteControlFromControlsCollection : MiscText.DeleteMultipleControlsFromControlsCollection,
                         orphanedControlsText), false);
                 if (delete) {
                     foreach (Id<ControlPoint> controlId in orphanedControls)
@@ -3216,7 +3221,7 @@ namespace PurplePen
             return (result == QueryEvent.AddVariationResult.OK) ? CommandStatus.Enabled : CommandStatus.Disabled;
         }
 
-        public void AddVariation(bool loop, int numberOfForks)
+        public async Task AddVariation(bool loop, int numberOfForks)
         {
             SelectionInfo selection = selectionMgr.Selection;
             Id<Course> courseId = selection.ActiveCourseDesignator.CourseId;
@@ -3233,7 +3238,7 @@ namespace PurplePen
             if (totalVariations > maxTotalVariationsAllowed) {
                 // Adding this variation created too many total variations.
                 undoMgr.Undo();
-                ui.ErrorMessage(string.Format(MiscText.TooManyVariations, maxTotalVariationsAllowed));
+                await ui.ErrorMessage(string.Format(MiscText.TooManyVariations, maxTotalVariationsAllowed));
             }
             else {
                 // Select the first branch.
@@ -3279,7 +3284,7 @@ namespace PurplePen
             return CommandStatus.Disabled;
         }
 
-        public void DeleteFork()
+        public async Task DeleteFork()
         {
 
             if (CanDeleteFork() != CommandStatus.Enabled)
@@ -3290,7 +3295,7 @@ namespace PurplePen
 
             Id<CourseControl> forkStart = QueryEvent.GetForkStart(eventDB, courseId, selection.SelectedCourseControl);
 
-            DeleteControlFromCourse(courseId, forkStart, CommandNameText.DeleteFork);
+            await DeleteControlFromCourse(courseId, forkStart, CommandNameText.DeleteFork);
         }
 
         // Can we set a text line for the selected object? If so, return default text and position, name of object, and whether to enable the "this course only" option.
@@ -3517,7 +3522,7 @@ namespace PurplePen
         }
 
         // A change has been made to a box in the description.
-        public void DescriptionChange(DescriptionChangeKind kind, int line, int box, object newValue)
+        public async Task DescriptionChange(DescriptionChangeKind kind, int line, int box, object newValue)
         {
             string newStringValue = "";  // never null!
             if (newValue is string)
@@ -3538,7 +3543,7 @@ namespace PurplePen
                 else {
                     if (!float.TryParse(Util.RemoveMeterSuffix(newStringValue), out newClimb) || newClimb < 0 || newClimb >= 10000) {
                         // Invalid climb value.
-                        ui.ErrorMessage(string.Format(MiscText.BadClimb, newStringValue));
+                        await ui.ErrorMessage(string.Format(MiscText.BadClimb, newStringValue));
                         break;
                     }
                 }
@@ -3557,7 +3562,7 @@ namespace PurplePen
                 else {
                     if (!float.TryParse(Util.RemoveSuffix(newStringValue, "km"), out newLength) || newLength <= 0 || newLength >= 100) {
                         // Invalid length value.
-                        ui.ErrorMessage(string.Format(MiscText.BadLength, newStringValue));
+                        await ui.ErrorMessage(string.Format(MiscText.BadLength, newStringValue));
                         break;
                     }
                 }
@@ -3577,7 +3582,7 @@ namespace PurplePen
                 else {
                     if (!int.TryParse(newStringValue, out newScore) || newScore < 0 || newScore >= 1000) {
                         // Invalid score value.
-                        ui.ErrorMessage(string.Format(MiscText.BadScore, newStringValue));
+                        await ui.ErrorMessage(string.Format(MiscText.BadScore, newStringValue));
                         break;
                     }
                 }
@@ -3614,7 +3619,7 @@ namespace PurplePen
                 if (QueryEvent.IsCodeInUse(eventDB, newStringValue)) {
                     if (selectionMgr.Selection.ActiveCourseDesignator.IsAllControls) {
                         // In all controls. We can't change to a control that is in use.
-                        ui.ErrorMessage(string.Format(MiscText.CodeInUse, newStringValue));
+                        await ui.ErrorMessage(string.Format(MiscText.CodeInUse, newStringValue));
                     }
                     else {
                         // In a course, we can change a control to a new control by typing in the new code.
@@ -3631,9 +3636,9 @@ namespace PurplePen
                     valid = QueryEvent.IsPreferredControlCode(eventDB, newStringValue, out reason);
                     if (reason != null) {
                         if (valid)
-                            ui.WarningMessage(reason);   // valid, but not preferred. Warn the user but continue with the change.
+                            await ui.WarningMessage(reason);   // valid, but not preferred. Warn the user but continue with the change.
                         else
-                            ui.ErrorMessage(reason);
+                            await ui.ErrorMessage(reason);
                     }
 
                     if (valid) {
@@ -3918,7 +3923,7 @@ namespace PurplePen
         }
 
         // Move a control.
-        public void MoveControlInCurrentCourse(Id<ControlPoint> controlId, PointF newLocation)
+        public async Task MoveControlInCurrentCourse(Id<ControlPoint> controlId, PointF newLocation)
         {
             CourseDesignator currentCourse = selectionMgr.Selection.ActiveCourseDesignator;
             if (!currentCourse.IsAllControls) {
@@ -3931,7 +3936,7 @@ namespace PurplePen
                 if (otherCourses != null) {
                     string courseList = QueryEvent.CourseList(eventDB, otherCourses);
                     string code = eventDB.GetControl(controlId).code;
-                    YesNoCancel result = ui.MovingSharedControl(code, courseList);
+                    YesNoCancel result = await ui.MovingSharedControl(code, courseList);
                     if (result == YesNoCancel.Cancel) {
                         // Cancel -- do nothing.
                         return;
@@ -3981,7 +3986,7 @@ namespace PurplePen
 
         // Move a course control to a different place in the course, like from the topology view.
         // If duplicate is true, makes a duplicate of the control.
-        public bool RearrangeControl(Id<CourseControl> courseControlToMove, Id<CourseControl> courseControlDest1, Id<CourseControl> courseControlDest2,
+        public async Task<bool> RearrangeControl(Id<CourseControl> courseControlToMove, Id<CourseControl> courseControlDest1, Id<CourseControl> courseControlDest2,
                                     LegInsertionLoc legInsertionLoc)
         {
             Id<Course> courseId = selectionMgr.Selection.ActiveCourseDesignator.CourseId;
@@ -3992,7 +3997,7 @@ namespace PurplePen
             // Can't move a split control.
             if (eventDB.GetCourseControl(courseControlToMove).split) {
                 // Message user that you can't move control.
-                ui.ErrorMessage(MiscText.CantRearrangeSplitControl);
+                await ui.ErrorMessage(MiscText.CantRearrangeSplitControl);
                 return false;
             }
 
@@ -4226,20 +4231,16 @@ namespace PurplePen
                 ForceChangeUpdate();
         }
 
-        public void LeftButtonClick(Pane pane, PointF location, float pixelSize)
+        public async Task LeftButtonClick(Pane pane, PointF location, float pixelSize)
         {
-            bool displayUpdateNeeded = false;
-
-            currentMode.LeftButtonClick(pane, location, pixelSize, ref displayUpdateNeeded);
+            bool displayUpdateNeeded = await currentMode.LeftButtonClick(pane, location, pixelSize);
             if (displayUpdateNeeded)
                 ForceChangeUpdate();
         }
 
-        public void RightButtonClick(Pane pane, PointF location, float pixelSize)
+        public async Task RightButtonClick(Pane pane, PointF location, float pixelSize)
         {
-            bool displayUpdateNeeded = false;
-
-            currentMode.RightButtonClick(pane, location, pixelSize, ref displayUpdateNeeded);
+            bool displayUpdateNeeded = await currentMode.RightButtonClick(pane, location, pixelSize);
             if (displayUpdateNeeded)
                 ForceChangeUpdate();
         }
@@ -4262,20 +4263,16 @@ namespace PurplePen
                 ForceChangeUpdate();
         }
 
-        public void LeftButtonEndDrag(Pane pane, PointF location, PointF locationStart, float pixelSize)
+        public async Task LeftButtonEndDrag(Pane pane, PointF location, PointF locationStart, float pixelSize)
         {
-            bool displayUpdateNeeded = false;
-
-            currentMode.LeftButtonEndDrag(pane, location, locationStart, pixelSize, ref displayUpdateNeeded);
+            bool displayUpdateNeeded = await currentMode.LeftButtonEndDrag(pane, location, locationStart, pixelSize);
             if (displayUpdateNeeded)
                 ForceChangeUpdate();
         }
 
-        public void RightButtonEndDrag(Pane pane, PointF location, PointF locationStart, float pixelSize)
+        public async Task RightButtonEndDrag(Pane pane, PointF location, PointF locationStart, float pixelSize)
         {
-            bool displayUpdateNeeded = false;
-
-            currentMode.RightButtonEndDrag(pane, location, locationStart, pixelSize, ref displayUpdateNeeded);
+            bool displayUpdateNeeded = await currentMode.RightButtonEndDrag(pane, location, locationStart, pixelSize);
             if (displayUpdateNeeded)
                 ForceChangeUpdate();
         }
@@ -4336,7 +4333,7 @@ namespace PurplePen
             ui.EndProgressDialog();
         }
 
-        public bool OkCancelMessage(string message, bool okDefault)
+        public Task<bool> OkCancelMessage(string message, bool okDefault)
         {
             return ui.OKCancelMessage(message, okDefault);
         }
@@ -4359,6 +4356,15 @@ namespace PurplePen
         }
 #endif
 
+        // Show an error message delayed by posting to the message loop/dispatcher.
+        public void PostDelayedErrorMessage(string message)
+        {
+            ui.PostDelayedAction(() => {
+                // Nothing to do with the Task here.
+                _ = ui.ErrorMessage(message);  
+            });
+        }
+
         // Perform an operation. If an exception occurs, display an error message with the 
         // indicated message, followed by 2 newlines and the exception message.
         // Returns true if the operation had no exception.
@@ -4371,7 +4377,7 @@ namespace PurplePen
             }
             catch (Exception e) {
                 string errorMessage = string.Format(message, fillIns) + "\r\n\r\n" + e.Message;
-                ui.ErrorMessage(errorMessage);
+                PostDelayedErrorMessage(errorMessage);
                 return false;
             }
         }
@@ -4387,7 +4393,7 @@ namespace PurplePen
             }
             catch (Exception e) {
                 string errorMessage = e.Message;
-                ui.ErrorMessage(errorMessage);
+                PostDelayedErrorMessage(errorMessage);
                 return false;
             }
         }
@@ -4460,16 +4466,16 @@ namespace PurplePen
         void RightButtonUp(Pane pane, PointF location, float pixelSize, ref bool displayUpdateNeeded);
 
         // A mouse button was clicked if delayed dragging was enabled.
-        void LeftButtonClick(Pane pane, PointF location, float pixelSize, ref bool displayUpdateNeeded);
-        void RightButtonClick(Pane pane, PointF location, float pixelSize, ref bool displayUpdateNeeded);
+        Task<bool> LeftButtonClick(Pane pane, PointF location, float pixelSize);
+        Task<bool> RightButtonClick(Pane pane, PointF location, float pixelSize);
 
         // The mouse is being dragged
         void LeftButtonDrag(Pane pane, PointF location, PointF locationStart, float pixelSize, ref bool displayUpdateNeeded);
         void RightButtonDrag(Pane pane, PointF location, PointF locationStart, float pixelSize, ref bool displayUpdateNeeded);
 
         // The drag is ending (mouse released)
-        void LeftButtonEndDrag(Pane pane, PointF location, PointF locationStart, float pixelSize, ref bool displayUpdateNeeded);
-        void RightButtonEndDrag(Pane pane, PointF location, PointF locationStart, float pixelSize, ref bool displayUpdateNeeded);
+        Task<bool> LeftButtonEndDrag(Pane pane, PointF location, PointF locationStart, float pixelSize);
+        Task<bool> RightButtonEndDrag(Pane pane, PointF location, PointF locationStart, float pixelSize);
 
         // The drag was canceled (mouse taken away)
         void LeftButtonCancelDrag(Pane pane, ref bool displayUpdateNeeded);
@@ -4500,6 +4506,9 @@ namespace PurplePen
         // to check state.
         void QueueIdleEvent();
 
+        // Post an error to the message loop/dispatcher to execute later.
+        void PostDelayedAction(Action action);
+
         // Get the pointer location (return false if mouse not over the map)
         bool GetCurrentLocation(out PointF location, out float pixelSize);
 
@@ -4510,18 +4519,18 @@ namespace PurplePen
         int LogicalToDeviceUnits(int value);
 
         // Different kinds of message box like messages
-        void ErrorMessage(string message);
-        void WarningMessage(string message);
-        void InfoMessage(string message);
-        bool OKCancelMessage(string message, bool okDefault);
-        bool YesNoQuestion(string message, bool yesDefault);
-        YesNoCancel YesNoCancelQuestion(string message, bool yesDefault);
+        Task ErrorMessage(string message);
+        Task WarningMessage(string message);
+        Task InfoMessage(string message);
+        Task<bool> OKCancelMessage(string message, bool okDefault);
+        Task<bool> YesNoQuestion(string message, bool yesDefault);
+        Task<YesNoCancel> YesNoCancelQuestion(string message, bool yesDefault);
 
         // Yes = move control, No = create new control, Cancel = do nothing.
-        YesNoCancel MovingSharedControl(string controlCode, string otherCourses);
+        Task<YesNoCancel> MovingSharedControl(string controlCode, string otherCourses);
 
         // Find a missing map file.
-        bool FindMissingMapFile(string missingMapFile);
+        Task<bool> FindMissingMapFile(string missingMapFile);
 
         // Initiate map dragging.
         void InitiateMapDragging(PointF initialPos, PointerButton buttonEnd);
