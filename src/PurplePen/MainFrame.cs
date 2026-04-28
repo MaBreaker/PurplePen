@@ -776,7 +776,7 @@ namespace PurplePen
             mapStd2000Menu.Checked = (mapStandard == "2000");
             mapStd2017Menu.Checked = (mapStandard == "2017");
             mapStdSpr2019Menu.Checked = (mapStandard == "Spr2019");
-            //JU: StreetO
+            //JU: Street-O
             mapStdStreetOMenu.Checked = (mapStandard == "StreetO");
             dangerousToolStripMenuItem.Visible = (mapStandard == "2000");
             addDangerousMenu.Visible = (mapStandard == "2000");

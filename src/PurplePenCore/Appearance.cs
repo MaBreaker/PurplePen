@@ -270,7 +270,7 @@ namespace PurplePen
         //JU: Control white outline
         public const float numberOutlineWidth = 0.0F;
         public const float controlOutlineWidth = 0.0F;
-        //JU: StreetO
+        //JU: Street-O
         public const float centerDotDiameterStreetO = 0.60F;
         public const float numberOutlineWidthStreetO = 0.20F;
         public const float controlOutlineWidthStreetO = 0.20F;

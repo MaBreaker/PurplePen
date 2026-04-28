@@ -592,7 +592,7 @@ namespace PurplePen
             else if (info.mapStandard == "Spr2019") {
                 ev.courseAppearance.itemScaling = ItemScaling.RelativeToMap;
             }
-            //JU: StreetO
+            //JU: Street-O
             else if (info.mapStandard == "StreetO")
             {
                 ev.courseAppearance.purpleColorBlend = PurpleColorBlend.Blend;

@@ -1349,7 +1349,7 @@ namespace PurplePen
             : base(controlId, courseControlId, Id<Special>.None, courseObjRatio, appearance, gaps, 0,
                   (appearance.mapStandard == "2017" ? 
                       NormalCourseAppearance.controlOutsideDiameter2017 : 
-                      (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? NormalCourseAppearance.controlOutsideDiameterSpr2019 : NormalCourseAppearance.controlOutsideDiameter2000)) / 2F,
+                      (appearance.mapStandard == "Spr2019" /* JU: Street-O */ || appearance.mapStandard == "StreetO" ? NormalCourseAppearance.controlOutsideDiameterSpr2019 : NormalCourseAppearance.controlOutsideDiameter2000)) / 2F,
                   location)
         {
         }
@@ -1357,7 +1357,7 @@ namespace PurplePen
         protected float Diameter {
             get {
                 return (appearance.mapStandard == "2017" ? NormalCourseAppearance.controlOutsideDiameter2017
-                                                         : (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? NormalCourseAppearance.controlOutsideDiameterSpr2019 : NormalCourseAppearance.controlOutsideDiameter2000)) * courseObjRatio * appearance.controlCircleSize;
+                                                         : (appearance.mapStandard == "Spr2019" /* JU: Street-O */ || appearance.mapStandard == "StreetO" ? NormalCourseAppearance.controlOutsideDiameterSpr2019 : NormalCourseAppearance.controlOutsideDiameter2000)) * courseObjRatio * appearance.controlCircleSize;
             }
         }
 
@@ -1769,7 +1769,7 @@ namespace PurplePen
         public FinishCourseObj(Id<ControlPoint> controlId, Id<CourseControl> courseControlId, float courseObjRatio, CourseAppearance appearance,
             CircleGap[] gaps, PointF location, CrossHairOptions crossHairOptions)
             : base(controlId, courseControlId, Id<Special>.None, courseObjRatio, appearance, gaps, 0,
-                  ((appearance.mapStandard == "2017") ? NormalCourseAppearance.finishOutsideDiameter2017 : (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? NormalCourseAppearance.finishOutsideDiameterSpr2019 : NormalCourseAppearance.finishOutsideDiameter2000)) / 2F,
+                  ((appearance.mapStandard == "2017") ? NormalCourseAppearance.finishOutsideDiameter2017 : (appearance.mapStandard == "Spr2019" /* JU: Street-O */ || appearance.mapStandard == "StreetO" ? NormalCourseAppearance.finishOutsideDiameterSpr2019 : NormalCourseAppearance.finishOutsideDiameter2000)) / 2F,
                   location)
         {
             this.crossHairOptions = crossHairOptions;
@@ -2069,10 +2069,10 @@ namespace PurplePen
         public float stretch;
 
         public CrossingCourseObj(Id<ControlPoint> controlId, Id<CourseControl> courseControlId, Id<Special> specialId, float courseObjRatio, CourseAppearance appearance, float orientation, float stretch, PointF location)
-            : base(controlId, courseControlId, specialId, courseObjRatio, appearance, null, orientation, (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? 1.82F : 1.72F) + stretch / 2, location)
+            : base(controlId, courseControlId, specialId, courseObjRatio, appearance, null, orientation, (appearance.mapStandard == "Spr2019" /* JU: Street-O */ || appearance.mapStandard == "StreetO" ? 1.82F : 1.72F) + stretch / 2, location)
         {
             this.stretch = stretch;
-            if (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO") {
+            if (appearance.mapStandard == "Spr2019" /* JU: Street-O */ || appearance.mapStandard == "StreetO") {
                 // In ISSpr2019, the inner width of crossing symbols is larger.
                 for (int i = 0; i < coords1.Length; ++i) {
                     coords1[i].X -= 0.175F;
@@ -2110,7 +2110,7 @@ namespace PurplePen
                 PointKind[] kinds = { PointKind.Normal, PointKind.BezierControl, PointKind.BezierControl, PointKind.Normal, PointKind.Normal, PointKind.BezierControl, PointKind.BezierControl, PointKind.Normal };
                 PointF[] pts = { new PointF(-0.85F, -1.5F - hStretch), new PointF(-0.6F, -1.08F - hStretch), new PointF(-0.48F, -0.5F - hStretch), new PointF(-0.48F, - hStretch),
                                  new PointF(-0.48F, hStretch), new PointF(-0.48F, 0.5F + hStretch), new PointF(-0.6F, 1.08F + hStretch), new PointF(-0.85F, 1.5F + hStretch) };
-                if (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO") {
+                if (appearance.mapStandard == "Spr2019" /* JU: Street-O */ || appearance.mapStandard == "StreetO") {
                     // In ISSpr2019, the inner width of crossing symbols is larger.
                     for (int i = 0; i < pts.Length; ++i) {
                         pts[i].X -= 0.175F;
@@ -2122,7 +2122,7 @@ namespace PurplePen
                 kinds = new PointKind[] { PointKind.Normal, PointKind.BezierControl, PointKind.BezierControl, PointKind.Normal, PointKind.Normal, PointKind.BezierControl, PointKind.BezierControl, PointKind.Normal };
                 pts = new PointF[] { new PointF(0.85F, -1.5F - hStretch), new PointF(0.6F, -1.08F - hStretch), new PointF(0.48F, -0.5F - hStretch), new PointF(0.48F, -hStretch),
                                      new PointF(0.48F, hStretch), new PointF(0.48F, 0.5F + hStretch), new PointF(0.6F, 1.08F + hStretch), new PointF(0.85F, 1.5F + hStretch) };
-                if (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO") {
+                if (appearance.mapStandard == "Spr2019" /* JU: Street-O */ || appearance.mapStandard == "StreetO") {
                     // In ISSpr2019, the inner width of crossing symbols is larger.
                     for (int i = 0; i < pts.Length; ++i) {
                         pts[i].X += 0.175F;
@@ -2394,14 +2394,14 @@ namespace PurplePen
     {
         public BoundaryCourseObj(Id<Special> specialId, float courseObjRatio, CourseAppearance appearance, SymPath path)
             : base(Id<ControlPoint>.None, Id<CourseControl>.None, Id<CourseControl>.None, specialId, courseObjRatio, appearance, 
-                   (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? 1.0F : 0.7F) * appearance.lineWidth, 
+                   (appearance.mapStandard == "Spr2019" /* JU: Street-O */ || appearance.mapStandard == "StreetO" ? 1.0F : 0.7F) * appearance.lineWidth, 
                    path, null)
         {
         }
 
         protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
         {
-            LineSymDef symdef = new LineSymDef("Uncrossable boundary", "707", lower_symColor, (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO" ? 1.0F : 0.7F) * courseObjRatio * appearance.lineWidth, LineJoinMode.Miter, LineCapMode.Flat);
+            LineSymDef symdef = new LineSymDef("Uncrossable boundary", "707", lower_symColor, (appearance.mapStandard == "Spr2019" /* JU: Street-O */ || appearance.mapStandard == "StreetO" ? 1.0F : 0.7F) * courseObjRatio * appearance.lineWidth, LineJoinMode.Miter, LineCapMode.Flat);
             symdef.ToolboxImage = CoreMapUtil.CreateToolboxIcon(ImageResources.Line_OcadToolbox);
             map.AddSymdef(symdef);
             return symdef;
@@ -2871,7 +2871,7 @@ namespace PurplePen
         // but if there is an outline, only upper purple will work.
         internal static SpecialColor ColorOfControlNumber(CourseAppearance appearance)
         {
-            if (appearance.mapStandard == "Spr2019" /* JU: StreetO */ || appearance.mapStandard == "StreetO") {
+            if (appearance.mapStandard == "Spr2019" /* JU: Street-O */ || appearance.mapStandard == "StreetO") {
                 return SpecialColor.UpperPurple;
             }
             else if (appearance.numberOutlineWidth > 0) {

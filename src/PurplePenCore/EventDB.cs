@@ -2703,7 +2703,7 @@ namespace PurplePen
             get {
                 if (mapStandard == "2017")
                     return NormalCourseAppearance.controlOutsideDiameter2017 * controlCircleSize;
-                else if (mapStandard == "Spr2019" /* JU: StreetO */ || mapStandard == "StreetO")
+                else if (mapStandard == "Spr2019" /* JU: Street-O */ || mapStandard == "StreetO")
                     return NormalCourseAppearance.controlOutsideDiameterSpr2019 * controlCircleSize;
                 else
                     return NormalCourseAppearance.controlOutsideDiameter2000 * controlCircleSize;
@@ -2714,7 +2714,7 @@ namespace PurplePen
             get {
                 if (mapStandard == "2017")
                     return NormalCourseAppearance.finishOutsideDiameter2017 * controlCircleSize;
-                else if (mapStandard == "Spr2019" /* JU: StreetO */ || mapStandard == "StreetO")
+                else if (mapStandard == "Spr2019" /* JU: Street-O */ || mapStandard == "StreetO")
                     return NormalCourseAppearance.finishOutsideDiameterSpr2019 * controlCircleSize;
                 else
                     return NormalCourseAppearance.finishOutsideDiameter2000 * controlCircleSize;
@@ -2726,7 +2726,7 @@ namespace PurplePen
             get {
                 if (mapStandard == "2017")
                     return ((NormalCourseAppearance.finishInsideDiameter2017 + NormalCourseAppearance.lineThickness) * controlCircleSize) - (lineWidth * NormalCourseAppearance.lineThickness);
-                else if (mapStandard == "Spr2019" /* JU: StreetO */ || mapStandard == "StreetO")
+                else if (mapStandard == "Spr2019" /* JU: Street-O */ || mapStandard == "StreetO")
                     return ((NormalCourseAppearance.finishInsideDiameterSpr2019 + NormalCourseAppearance.lineThickness) * controlCircleSize) - (lineWidth * NormalCourseAppearance.lineThickness);
                 else
                     return ((NormalCourseAppearance.finishInsideDiameter2000 + NormalCourseAppearance.lineThickness) * controlCircleSize) - (lineWidth * NormalCourseAppearance.lineThickness);

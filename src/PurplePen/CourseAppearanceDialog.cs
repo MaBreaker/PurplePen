@@ -68,7 +68,7 @@ namespace PurplePen
 
                 if (checkBoxStandardSizes.Checked) {
                     result.lineWidth = result.numberHeight = result.controlCircleSize = 1.0F;
-                    //JU: StreetO
+                    //JU: Street-O
                     result.centerDotDiameter = (mapStandard == "StreetO" ? NormalCourseAppearance.centerDotDiameterStreetO : NormalCourseAppearance.centerDotDiameter);
                     result.numberOutlineWidth = (mapStandard == "StreetO" ? NormalCourseAppearance.numberOutlineWidthStreetO : NormalCourseAppearance.numberOutlineWidth);
                     result.controlOutlineWidth = (mapStandard == "StreetO" ? NormalCourseAppearance.controlOutlineWidthStreetO : NormalCourseAppearance.controlOutlineWidth);
@@ -78,7 +78,7 @@ namespace PurplePen
                         result.controlCircleSize = ((float) upDownControlCircle.Value) / NormalCourseAppearance.controlOutsideDiameter2017;
                     else if (mapStandard == "Spr2019")
                         result.controlCircleSize = ((float) upDownControlCircle.Value) / NormalCourseAppearance.controlOutsideDiameterSpr2019;
-                    //JU: StreetO
+                    //JU: Street-O
                     else if (mapStandard == "StreetO")
                         result.controlCircleSize = ((float)upDownControlCircle.Value) / NormalCourseAppearance.controlOutsideDiameterStreetO;
                     else
@@ -155,14 +155,14 @@ namespace PurplePen
                     upDownControlCircle.Value = (decimal) (NormalCourseAppearance.controlOutsideDiameter2017 * value.controlCircleSize);
                 else if (mapStandard == "Spr2019")
                     upDownControlCircle.Value = (decimal)(NormalCourseAppearance.controlOutsideDiameterSpr2019 * value.controlCircleSize);
-                //JU: StreetO
+                //JU: Street-O
                 else if (mapStandard == "StreetO")
                     upDownControlCircle.Value = (decimal)(NormalCourseAppearance.controlOutsideDiameterStreetO * value.controlCircleSize);
                 else
                     upDownControlCircle.Value = (decimal)(NormalCourseAppearance.controlOutsideDiameter2000 * value.controlCircleSize);
 
                 upDownLineWidth.Value = (decimal) (NormalCourseAppearance.lineThickness * value.lineWidth);
-                //JU: StreetO
+                //JU: Street-O
                 upDownCenterDot.Value = (decimal) value.centerDotDiameter;
                 upDownNumberHeight.Value = (decimal) (NormalCourseAppearance.nominalControlNumberHeight * value.numberHeight);
                 if (!value.numberBold && !value.numberRoboto)
@@ -187,7 +187,7 @@ namespace PurplePen
                 //JU: Control white outline
                 upDownCOutlineWidth.Value = (decimal)value.controlOutlineWidth;
 
-                //JU: StreetO
+                //JU: Street-O
                 checkBoxStandardSizes.Checked = (value.controlCircleSize == 1.0F && value.lineWidth == 1.0F && value.numberHeight == 1.0F 
                     && value.centerDotDiameter == (mapStandard == "StreetO" ? NormalCourseAppearance.centerDotDiameterStreetO : NormalCourseAppearance.centerDotDiameter)
                     && value.numberOutlineWidth == (mapStandard == "StreetO" ? NormalCourseAppearance.numberOutlineWidthStreetO : NormalCourseAppearance.numberOutlineWidth)
@@ -242,7 +242,7 @@ namespace PurplePen
                     upDownControlCircle.Value = (decimal) (NormalCourseAppearance.controlOutsideDiameter2017);
                 else if (mapStandard == "Spr2019")
                     upDownControlCircle.Value = (decimal)(NormalCourseAppearance.controlOutsideDiameterSpr2019);
-                //JU: StreetO
+                //JU: Street-O
                 else if (mapStandard == "StreetO")
                     upDownControlCircle.Value = (decimal)(NormalCourseAppearance.controlOutsideDiameterStreetO);
                 else
@@ -250,7 +250,7 @@ namespace PurplePen
 
                 upDownLineWidth.Value = (decimal) (NormalCourseAppearance.lineThickness);
                 upDownNumberHeight.Value = (decimal) (NormalCourseAppearance.nominalControlNumberHeight);
-                //JU: StreetO
+                //JU: Street-O
                 upDownCenterDot.Value = (decimal) (mapStandard == "StreetO" ? NormalCourseAppearance.centerDotDiameterStreetO : NormalCourseAppearance.centerDotDiameter);
                 //JU: Control white outline
                 upDownControlCircle.Enabled = upDownCenterDot.Enabled = upDownLineWidth.Enabled = upDownNumberHeight.Enabled = comboBoxControlNumberStyle.Enabled = upDownOutlineWidth.Enabled = upDownCOutlineWidth.Enabled = false;
@@ -344,7 +344,7 @@ namespace PurplePen
                     finishDrawRadiusOuter = ((circleDiameter * NormalCourseAppearance.finishOutsideDiameter2017 / NormalCourseAppearance.controlOutsideDiameter2017) - lineWidth) / 2F;
                     finishDrawRadiusInner = ((circleDiameter * (NormalCourseAppearance.finishInsideDiameter2017 + NormalCourseAppearance.lineThickness) / NormalCourseAppearance.controlOutsideDiameter2017) - 2F * lineWidth) / 2F;
                 }
-                else if (mapStandard == "Spr2019" /* JU: StreetO */ || mapStandard == "StreetO") {
+                else if (mapStandard == "Spr2019" /* JU: Street-O */ || mapStandard == "StreetO") {
                     finishDrawRadiusOuter = ((circleDiameter * NormalCourseAppearance.finishOutsideDiameterSpr2019 / NormalCourseAppearance.controlOutsideDiameterSpr2019) - lineWidth) / 2F;
                     finishDrawRadiusInner = ((circleDiameter * (NormalCourseAppearance.finishInsideDiameterSpr2019 + NormalCourseAppearance.lineThickness) / NormalCourseAppearance.controlOutsideDiameterSpr2019) - 2F * lineWidth) / 2F;
                 }
