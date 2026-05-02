@@ -94,11 +94,11 @@ namespace PurplePen
         {
             //JU: Async
             //if (openFileDialog.ShowDialog() == DialogResult.OK) {
-            string filename = await ShowOpenFileDialogOnStaAsync();
-            if (filename != null) {
+            string fileName = await ShowOpenFileDialogOnStaAsync();
+            if (fileName != null) {
                 //JU: Async
                 //containingWizard.MapFileName = mapFileNameTextBox.Text = openFileDialog.FileName;
-                containingWizard.MapFileName = mapFileNameTextBox.Text = filename;
+                containingWizard.MapFileName = mapFileNameTextBox.Text = fileName;
                 mapFileDisplay.Visible = true;
 
                 string errorMessageText;

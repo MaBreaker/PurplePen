@@ -109,7 +109,7 @@ namespace PurplePen
             MainFrame mainFrame = new MainFrame();
             Controller controller = new Controller(mainFrame);
 
-            string fileName = mainFrame.GetOpenFileName();
+            string fileName = await mainFrame.ShowOpenFileNameStaAsync(); //JU: Async
             if (fileName == null || !await controller.LoadInitialFile(fileName, true)) {
                 // User cancelled or the file didn't load. 
                 // Go back and show the initial screen again.

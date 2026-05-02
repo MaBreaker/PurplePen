@@ -240,6 +240,35 @@ namespace PurplePen
             }
         }
 
+        //JU: Async
+        public Task<string> ShowOpenFileNameStaAsync()
+        {
+            var tcs = new TaskCompletionSource<string>();
+
+            Thread thread = new Thread(() => {
+                try
+                {
+                    openFileDialog.FileName = null;
+                    DialogResult result = openFileDialog.ShowDialog();
+
+                    if (result == DialogResult.OK)
+                        tcs.SetResult(openFileDialog.FileName);
+                    else
+                        tcs.SetResult(null);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+
+            return tcs.Task;
+        }
+
         // Prompt the user for a file name to open.
         public string GetOpenFileName()
         {
@@ -250,6 +279,35 @@ namespace PurplePen
                 return openFileDialog.FileName;
             else
                 return null;
+        }
+
+        //JU: Async
+        public Task<string> ShowSaveFileNameStaAsync(string initialName)
+        {
+            var tcs = new TaskCompletionSource<string>();
+
+            Thread thread = new Thread(() => {
+                try
+                {
+                    saveFileDialog.FileName = initialName;
+                    DialogResult result = saveFileDialog.ShowDialog();
+
+                    if (result == DialogResult.OK)
+                        tcs.SetResult(saveFileDialog.FileName);
+                    else
+                        tcs.SetResult(null);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+
+            return tcs.Task;
         }
 
         // Prompt the user for a file name to open.
@@ -1078,7 +1136,7 @@ namespace PurplePen
             // Try to close the current file. If that succeeds, then ask for a new file and try to open it.
             bool closeSuccess = await controller.TryCloseFile();
             if (closeSuccess) {
-                string newFilename = GetOpenFileName();
+                string newFilename = await ShowOpenFileNameStaAsync(); //JU: Async
                 if (newFilename != null) {
                     bool success = await controller.LoadNewFile(newFilename);
                     if (!success) {
@@ -1124,9 +1182,9 @@ namespace PurplePen
             controller.Save();
         }
 
-        private void saveAsMenu_Click(object sender, EventArgs e)
+        private async void saveAsMenu_Click(object sender, EventArgs e)
         {
-            string newFileName = GetSaveFileName(controller.FileName);
+            string newFileName = await ShowSaveFileNameStaAsync(controller.FileName); //JU: Async
             if (newFileName != null) {
                 controller.SaveAs(newFileName);
             }
@@ -1770,13 +1828,37 @@ namespace PurplePen
             dialog.Dispose();
         }
 
-        private void addImageMenu_Click(object sender, EventArgs e)
+        //JU: Async
+        private Task<string> ShowOpenImageDialogOnStaAsync()
         {
-            openImageDialog.FileName = null;
-            DialogResult result = openImageDialog.ShowDialog();
+            var tcs = new TaskCompletionSource<string>();
 
-            if (result == DialogResult.OK) {
-                string fileName = openImageDialog.FileName;
+            Thread thread = new Thread(() => {
+                try
+                {
+                    if (openImageDialog.ShowDialog() == DialogResult.OK)
+                        tcs.SetResult(openImageDialog.FileName);
+                    else
+                        tcs.SetResult(null);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+
+            return tcs.Task;
+        }
+
+        private async void addImageMenu_Click(object sender, EventArgs e)
+        {
+            //JU: Async
+            string fileName = await ShowOpenImageDialogOnStaAsync();
+            if (fileName != null) {
                 controller.BeginAddImageSpecialMode(fileName);
             }
         }
