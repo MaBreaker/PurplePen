@@ -272,6 +272,10 @@ namespace PurplePen
         // Prompt the user for a file name to open.
         public string GetOpenFileName()
         {
+            /*
+            string fileName = await ShowOpenFileNameStaAsync();
+            return fileName;
+            */
             openFileDialog.FileName = null;
             DialogResult result = openFileDialog.ShowDialog();
 
@@ -2506,6 +2510,7 @@ namespace PurplePen
             PrintCourses printCoursesDialog = new PrintCourses(controller.GetEventDB(), controller.AnyMultipart());
             printCoursesDialog.controller = controller;
             printCoursesDialog.PrintSettings = coursePrintSettings;
+            printCoursesDialog.PageSettings = coursePrintPageSettings; //JU: Use main frame page setup margins etc.
 
 #if XPS_PRINTING
             if (controller.MustRasterizePrinting) {

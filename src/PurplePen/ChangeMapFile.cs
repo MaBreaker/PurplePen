@@ -4,6 +4,8 @@ using System.ComponentModel;
 
 using System.Drawing;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 
@@ -143,15 +145,40 @@ namespace PurplePen
             mapFileNameTextBox.Text = mapFile;
             UpdateOKButton();
         }
+        
+        //JU: Async
+        private Task<string> ShowOpenFileDialogOnStaAsync()
+        {
+            var tcs = new TaskCompletionSource<string>();
 
-        private void buttonChooseFile_Click(object sender, EventArgs e)
+            Thread thread = new Thread(() => {
+                try
+                {
+                    openFileDialog.FileName = mapFile; 
+                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                        tcs.SetResult(openFileDialog.FileName);
+                    else
+                        tcs.SetResult(null);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+
+            return tcs.Task;
+        }
+
+        private async void buttonChooseFile_Click(object sender, EventArgs e)
         {
             // Choose a new map file.
-            openFileDialog.FileName = mapFile;
-
-            DialogResult result = openFileDialog.ShowDialog();
-            if (result == DialogResult.OK) 
-                MapFile = openFileDialog.FileName;
+            string fileName = await ShowOpenFileDialogOnStaAsync();
+            if (fileName != null)
+                MapFile = fileName;
         }
 
         // Should the OK button be enabled?
