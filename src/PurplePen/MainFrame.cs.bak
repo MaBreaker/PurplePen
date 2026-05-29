@@ -240,9 +240,42 @@ namespace PurplePen
             }
         }
 
+        //JU: Async
+        public Task<string> ShowOpenFileNameStaAsync()
+        {
+            var tcs = new TaskCompletionSource<string>();
+
+            Thread thread = new Thread(() => {
+                try
+                {
+                    openFileDialog.FileName = null;
+                    DialogResult result = openFileDialog.ShowDialog();
+
+                    if (result == DialogResult.OK)
+                        tcs.SetResult(openFileDialog.FileName);
+                    else
+                        tcs.SetResult(null);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+
+            return tcs.Task;
+        }
+
         // Prompt the user for a file name to open.
         public string GetOpenFileName()
         {
+            /*
+            string fileName = await ShowOpenFileNameStaAsync();
+            return fileName;
+            */
             openFileDialog.FileName = null;
             DialogResult result = openFileDialog.ShowDialog();
 
@@ -250,6 +283,35 @@ namespace PurplePen
                 return openFileDialog.FileName;
             else
                 return null;
+        }
+
+        //JU: Async
+        public Task<string> ShowSaveFileNameStaAsync(string initialName)
+        {
+            var tcs = new TaskCompletionSource<string>();
+
+            Thread thread = new Thread(() => {
+                try
+                {
+                    saveFileDialog.FileName = initialName;
+                    DialogResult result = saveFileDialog.ShowDialog();
+
+                    if (result == DialogResult.OK)
+                        tcs.SetResult(saveFileDialog.FileName);
+                    else
+                        tcs.SetResult(null);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+
+            return tcs.Task;
         }
 
         // Prompt the user for a file name to open.
@@ -1078,7 +1140,7 @@ namespace PurplePen
             // Try to close the current file. If that succeeds, then ask for a new file and try to open it.
             bool closeSuccess = await controller.TryCloseFile();
             if (closeSuccess) {
-                string newFilename = GetOpenFileName();
+                string newFilename = await ShowOpenFileNameStaAsync(); //JU: Async
                 if (newFilename != null) {
                     bool success = await controller.LoadNewFile(newFilename);
                     if (!success) {
@@ -1126,6 +1188,7 @@ namespace PurplePen
 
         private void saveAsMenu_Click(object sender, EventArgs e)
         {
+            //string newFileName = await ShowSaveFileNameStaAsync(controller.FileName); //JU: Async
             string newFileName = GetSaveFileName(controller.FileName);
             if (newFileName != null) {
                 controller.SaveAs(newFileName);
@@ -1770,13 +1833,37 @@ namespace PurplePen
             dialog.Dispose();
         }
 
-        private void addImageMenu_Click(object sender, EventArgs e)
+        //JU: Async
+        private Task<string> ShowOpenImageDialogOnStaAsync()
         {
-            openImageDialog.FileName = null;
-            DialogResult result = openImageDialog.ShowDialog();
+            var tcs = new TaskCompletionSource<string>();
 
-            if (result == DialogResult.OK) {
-                string fileName = openImageDialog.FileName;
+            Thread thread = new Thread(() => {
+                try
+                {
+                    if (openImageDialog.ShowDialog() == DialogResult.OK)
+                        tcs.SetResult(openImageDialog.FileName);
+                    else
+                        tcs.SetResult(null);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+
+            return tcs.Task;
+        }
+
+        private async void addImageMenu_Click(object sender, EventArgs e)
+        {
+            //JU: Async
+            string fileName = await ShowOpenImageDialogOnStaAsync();
+            if (fileName != null) {
                 controller.BeginAddImageSpecialMode(fileName);
             }
         }
@@ -2505,7 +2592,14 @@ namespace PurplePen
             createPdfDialog.Dispose();
         }
 
-        private async void createGpxMenu_Click(object sender, EventArgs e)
+        //JU: Async
+        private void createGpxMenu_Click(object sender, EventArgs e)
+        {
+            // Fire-and-forget pattern to call async method from event handler
+            _ = createGpxMenu_ClickAsync();
+        }
+
+        private async Task createGpxMenu_ClickAsync()
         {
             // First check and give immediate message if we can't do coordinate mapping.
             string message;
@@ -2934,19 +3028,51 @@ namespace PurplePen
             });
         }
 
-        private void createXmlMenu_Click(object sender, EventArgs e)
+        //JU: Async
+        private class SaveXmlFileDialogResult
+        {
+            public string FileName { get; set; }
+            public int FilterIndex { get; set; }
+        }
+        private Task<SaveXmlFileDialogResult> ShowSaveXmlFileDialogOnStaAsync(string initialFileName)
+        {
+            var tcs = new TaskCompletionSource<SaveXmlFileDialogResult>();
+
+            Thread thread = new Thread(() => {
+                try
+                {
+                    saveXmlFileDialog.FileName = initialFileName;
+                    DialogResult result = saveXmlFileDialog.ShowDialog();
+
+                    if (result == DialogResult.OK)
+                        tcs.SetResult(new SaveXmlFileDialogResult { FileName = saveXmlFileDialog.FileName, FilterIndex = saveXmlFileDialog.FilterIndex });
+                    else
+                        tcs.SetResult(null);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+
+            return tcs.Task;
+        }
+        private async void createXmlMenu_Click(object sender, EventArgs e)
         {
             // The default output for the XML is the same as the event file name, with xml extension.
             string xmlFileName = Path.ChangeExtension(controller.FileName, ".xml");
 
-            saveXmlFileDialog.FileName = xmlFileName;
-            DialogResult result = saveXmlFileDialog.ShowDialog();
+            SaveXmlFileDialogResult result = await ShowSaveXmlFileDialogOnStaAsync(xmlFileName);
 
-            if (result == DialogResult.OK) {
+            if (result != null) {
                 int version = 2;
-                if (saveXmlFileDialog.FilterIndex == 2)
+                if (result.FilterIndex == 2)
                     version = 3;
-                controller.ExportXml(saveXmlFileDialog.FileName, mapDisplay.MapBounds, version);
+                controller.ExportXml(result.FileName, mapDisplay.MapBounds, version);
             }
         }
 

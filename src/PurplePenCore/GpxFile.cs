@@ -380,6 +380,10 @@ namespace PurplePen
                 if (!GetRealWorld(paperCoord, out realX, out realY))
                     return false;
 
+                //JU: Skip if map projection is not set
+                if (mapProjection == null || wgs1984Projection == null)
+                    return false;
+
                 double[] xy = { realX, realY };
                 double[] z = {1};
                 Reproject.ReprojectPoints(xy, z, mapProjection, wgs1984Projection, 0, 1);

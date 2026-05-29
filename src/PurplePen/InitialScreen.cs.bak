@@ -68,6 +68,8 @@ namespace PurplePen
         // Create new event was selected.
         public async Task CreateNewEvent()
         {
+            //JU: Async
+            try {
                 NewEventWizard wizard = new NewEventWizard();
                 DialogResult result = wizard.ShowDialog(this);
 
@@ -84,7 +86,7 @@ namespace PurplePen
                     Controller controller = new Controller(mainFrame);
 
                     // Create the new event.
-                if (await controller.InitialNewEvent(wizard.CreateEventInfo)) {
+                    if (await controller.InitialNewEvent(wizard.CreateEventInfo).ConfigureAwait(true)) { //JU: Async
                         // success
 
                         // show the main frame with the new event.
@@ -102,6 +104,12 @@ namespace PurplePen
                     }
                 }
             }
+            //JU: Async
+            catch (Exception ex)
+            {
+                Debug.Fail("Error in CreateNewEvent: " + ex.Message);
+            }
+        }
 
         // Open existing event was selected.
         public async Task OpenExistingEvent()
@@ -109,7 +117,7 @@ namespace PurplePen
             MainFrame mainFrame = new MainFrame();
             Controller controller = new Controller(mainFrame);
 
-            string fileName = mainFrame.GetOpenFileName();
+            string fileName = await mainFrame.ShowOpenFileNameStaAsync(); //JU: Async
             if (fileName == null || !await controller.LoadInitialFile(fileName, true)) {
                 // User cancelled or the file didn't load. 
                 // Go back and show the initial screen again.
