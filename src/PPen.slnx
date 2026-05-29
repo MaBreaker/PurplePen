@@ -17,7 +17,7 @@
   <Folder Name="/DotSpatialProjectionsLite/">
     <Project Path="DotSpatialProjectionsLite/DotSpatial.Projections.CoordinateSystems/DotSpatial.Projections.CoordinateSystems.csproj" />
     <Project Path="DotSpatialProjectionsLite/DotSpatial.Projections.Tests/DotSpatial.Projections.Tests.csproj">
-      <Platform Solution="*|x86" Project="x86" />
+      <Platform Solution="*|x86" Project="false" />
     </Project>
     <Project Path="DotSpatialProjectionsLite/DotSpatial.Projections/DotSpatial.Projections.csproj" />
   </Folder>
@@ -41,7 +41,6 @@
       <BuildType Solution="StorePkg|Any CPU" Project="Release" />
       <BuildType Solution="StorePkg|ARM" Project="Debug" />
       <BuildType Solution="StorePkg|ARM64" Project="Debug" />
-      <BuildType Solution="StorePkg|x64" Project="Debug" />
       <BuildType Solution="StorePkg|x86" Project="Debug" />
       <Build Solution="Debug|Any CPU" Project="false" />
       <Build Solution="Release|Any CPU" Project="false" />
@@ -57,8 +56,7 @@
       <Platform Project="Win32" />
     </Project>
     <Project Path="MapModel/GDIPlusNative64/GDIPlusNative64.vcxproj" Id="9363abb8-2a6d-42c0-aed6-021d691ccb66">
-      <Platform Solution="*|ARM" Project="x64" />
-      <Platform Solution="*|ARM64" Project="x64" />
+      <Platform Project="x64" />
     </Project>
     <Project Path="MapModel/Graphics2D.Tests/Graphics2D.Tests.csproj" Id="56e11e5d-18d0-4143-b5df-ec19add9c937" />
     <Project Path="MapModel/Graphics2D/Graphics2D.csproj" Id="ef01e0b6-d7e7-4a4c-970a-29d677d59233" />

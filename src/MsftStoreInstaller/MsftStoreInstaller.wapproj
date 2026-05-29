@@ -80,7 +80,7 @@
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundlePlatforms>x86|x64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
@@ -196,5 +196,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PurplePen\PurplePen.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- JU: This file is not wanted with .net10 -->
+    <Content Remove="PurplePen.exe.config" />
   </ItemGroup>
 </Project>

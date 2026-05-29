@@ -60,6 +60,7 @@ namespace PurplePen.ViewModels
             MapStd2000Checked = (mapStandard == "2000");
             MapStd2017Checked = (mapStandard == "2017");
             MapStdSpr2019Checked = (mapStandard == "Spr2019");
+            MapStdStreetOChecked = (mapStandard == "StreetO");
             IsVisibleDangerousArea = (mapStandard == "2000");
 
             // Update checked status of leg flagging options
@@ -1744,6 +1745,7 @@ namespace PurplePen.ViewModels
         [ObservableProperty] private bool mapStd2000Checked;
         [ObservableProperty] private bool mapStd2017Checked;
         [ObservableProperty] private bool mapStdSpr2019Checked;
+        [ObservableProperty] private bool mapStdStreetOChecked; //JU: Street-O
         [ObservableProperty] private bool isVisibleDangerousArea;
 
 

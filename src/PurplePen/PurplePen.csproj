@@ -954,8 +954,10 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System.Net.Http" />
-    <!-- JU: app.config used by net48, not work / corrupted with net10 -->
-    <None Include="PurplePen.exe.config" />
+    <!-- JU: Statis exe.config instead of app.config for net48, while app.config does not work for net10, NOT NEEDED -->
+    <!--
+	<None Include="PurplePen.exe.config" />
+	-->
   </ItemGroup>
   <!-- JU: Enable PageSize config serialization for net10, NOT WORK -->
   <!--

@@ -68,38 +68,46 @@ namespace PurplePen
         // Create new event was selected.
         public async Task CreateNewEvent()
         {
-            NewEventWizard wizard = new NewEventWizard();
-            DialogResult result = wizard.ShowDialog(this);
+            //JU: Async
+            try {
+                NewEventWizard wizard = new NewEventWizard();
+                DialogResult result = wizard.ShowDialog(this);
 
-            if (result == DialogResult.Cancel) {
-                // User cancelled 
-                // Go back and show the initial screen again.
-                Show();
-                Activate();
-                return;
-            }
-            else {
-                // Start the UI
-                MainFrame mainFrame = new MainFrame();
-                Controller controller = new Controller(mainFrame);
-
-                // Create the new event.
-                if (await controller.InitialNewEvent(wizard.CreateEventInfo)) {
-                    // success
-
-                    // show the main frame with the new event.
-                    mainFrame.Show();
-                    mainFrame.Activate();
-
-                    // The initial screen is over and out.
-                    Dispose();
-                }
-                else {
-                    // Failure: Go back and show the initial screen again.
-                    mainFrame.Dispose();
+                if (result == DialogResult.Cancel) {
+                    // User cancelled 
+                    // Go back and show the initial screen again.
                     Show();
                     Activate();
+                    return;
                 }
+                else {
+                    // Start the UI
+                    MainFrame mainFrame = new MainFrame();
+                    Controller controller = new Controller(mainFrame);
+
+                    // Create the new event.
+                    if (await controller.InitialNewEvent(wizard.CreateEventInfo).ConfigureAwait(true)) { //JU: Async
+                        // success
+
+                        // show the main frame with the new event.
+                        mainFrame.Show();
+                        mainFrame.Activate();
+
+                        // The initial screen is over and out.
+                        Dispose();
+                    }
+                    else {
+                        // Failure: Go back and show the initial screen again.
+                        mainFrame.Dispose();
+                        Show();
+                        Activate();
+                    }
+                }
+            }
+            //JU: Async
+            catch (Exception ex)
+            {
+                Debug.Fail("Error in CreateNewEvent: " + ex.Message);
             }
         }
 

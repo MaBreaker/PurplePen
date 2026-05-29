@@ -2591,7 +2591,14 @@ namespace PurplePen
             createPdfDialog.Dispose();
         }
 
-        private async void createGpxMenu_Click(object sender, EventArgs e)
+        //JU: Async
+        private void createGpxMenu_Click(object sender, EventArgs e)
+        {
+            // Fire-and-forget pattern to call async method from event handler
+            _ = createGpxMenu_ClickAsync();
+        }
+
+        private async Task createGpxMenu_ClickAsync()
         {
             // First check and give immediate message if we can't do coordinate mapping.
             string message;
@@ -3020,22 +3027,53 @@ namespace PurplePen
             });
         }
 
-        private void createXmlMenu_Click(object sender, EventArgs e)
+        //JU: Async
+        private class SaveXmlFileDialogResult
+        {
+            public string FileName { get; set; }
+            public int FilterIndex { get; set; }
+        }
+        private Task<SaveXmlFileDialogResult> ShowSaveXmlFileDialogOnStaAsync(string initialFileName)
+        {
+            var tcs = new TaskCompletionSource<SaveXmlFileDialogResult>();
+
+            Thread thread = new Thread(() => {
+                try
+                {
+                    saveXmlFileDialog.FileName = initialFileName;
+                    DialogResult result = saveXmlFileDialog.ShowDialog();
+
+                    if (result == DialogResult.OK)
+                        tcs.SetResult(new SaveXmlFileDialogResult { FileName = saveXmlFileDialog.FileName, FilterIndex = saveXmlFileDialog.FilterIndex });
+                    else
+                        tcs.SetResult(null);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+
+            return tcs.Task;
+        }
+        private async void createXmlMenu_Click(object sender, EventArgs e)
         {
             // The default output for the XML is the same as the event file name, with xml extension.
             string xmlFileName = Path.ChangeExtension(controller.FileName, ".xml");
 
-            saveXmlFileDialog.FileName = xmlFileName;
-            DialogResult result = saveXmlFileDialog.ShowDialog();
+            SaveXmlFileDialogResult result = await ShowSaveXmlFileDialogOnStaAsync(xmlFileName);
 
-            if (result == DialogResult.OK) {
+            if (result != null) {
                 int version = 2;
-                if (saveXmlFileDialog.FilterIndex == 2)
+                if (result.FilterIndex == 2)
                     version = 3;
-                controller.ExportXml(saveXmlFileDialog.FileName, mapDisplay.MapBounds, version);
+                controller.ExportXml(result.FileName, mapDisplay.MapBounds, version);
             }
         }
-
 
         private void courseSelectorTesterMenu_Click(object sender, EventArgs e)
         {
