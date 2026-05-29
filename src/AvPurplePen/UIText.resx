@@ -495,9 +495,6 @@
   <data name="NewEventMapFile_chooseMapFileButton_Text" xml:space="preserve">
     <value>_Choose map file...</value>
   </data>
-  <data name="ChangeMapFile_openFileDialog_Filter" xml:space="preserve">
-    <value>All map files|*.ocd;*.omap;*.xmap;*.pdf;*.jpeg;*.jpg;*.tiff;*.tif;*.bmp;*.png;*.gif|OCAD files (*.ocd)|*.ocd|Open Orienteering Mapper Files|*.omap;*.xmap|PDF files (*.pdf)|*.pdf|Image files|*.jpeg;*.jpg;*.tiff;*.tif;*.bmp;*.png;*.gif</value>
-  </data>
   <data name="NewEventMapFile_openFileDialog_Filter" xml:space="preserve">
     <value>All map files|*.ocd;*.omap;*.xmap;*.pdf;*.jpeg;*.jpg;*.tiff;*.tif;*.bmp;*.png;*.gif|OCAD files (*.ocd)|*.ocd|Open Orienteering Mapper Files|*.omap;*.xmap|PDF files (*.pdf)|*.pdf|Image files|*.jpeg;*.jpg;*.tiff;*.tif;*.bmp;*.png;*.gif</value>
   </data>
@@ -914,6 +911,30 @@
   </data>
   <data name="MoveAllControls_Text" xml:space="preserve">
     <value>Move All Controls</value>
+  </data>
+  <data name="MoveControlChoiceDialog_Text" xml:space="preserve">
+    <value>Moving Shared Control</value>
+  </data>
+  <data name="MoveControlChoiceDialog_labelExplanation_Text" xml:space="preserve">
+    <value>Control "{0}" is present in the following other courses. If you move it, those courses will be changed also.</value>
+  </data>
+  <data name="MoveControlChoiceDialog_moveButton_TitleText" xml:space="preserve">
+    <value>Move Control In All Courses</value>
+  </data>
+  <data name="MoveControlChoiceDialog_moveButton_DetailText" xml:space="preserve">
+    <value>This course and the above listed courses will all change.</value>
+  </data>
+  <data name="MoveControlChoiceDialog_duplicateButton_TitleText" xml:space="preserve">
+    <value>Create New Control In This Course</value>
+  </data>
+  <data name="MoveControlChoiceDialog_duplicateButton_DetailText" xml:space="preserve">
+    <value>Other courses will not change, and control "{0}" will be replaced with a new control at the new location in this course.</value>
+  </data>
+  <data name="MoveControlChoiceDialog_cancelButton_TitleText" xml:space="preserve">
+    <value>Do Nothing</value>
+  </data>
+  <data name="MoveControlChoiceDialog_cancelButton_DetailText" xml:space="preserve">
+    <value>Do not move this control.</value>
   </data>
   <data name="SelectLocationsForMove_Text" xml:space="preserve">
     <value>Move All Controls</value>

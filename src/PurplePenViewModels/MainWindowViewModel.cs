@@ -34,6 +34,38 @@ namespace PurplePen.ViewModels
         long changeNum = 0;         // When this changes, state information needs to be updated in the UI.
         bool updatingTabs = false;  // Guard to prevent re-entrant controller calls during UpdateTabs.
 
+        // Settings remembered across invocations of the Create OCAD Files dialog,
+        // so the user's last choices (folder, format, prefix, etc.) are preserved.
+        // Reset to null when a new map file is loaded.
+        private OcadCreationSettings? ocadCreationSettingsPrevious;
+
+        // Same idea for the Create Image Files dialog.
+        private BitmapCreationSettings? bitmapCreationSettingsPrevious;
+
+        // Same idea for the Create GPX File dialog.
+        private GpxCreationSettings? gpxCreationSettingsPrevious;
+
+        // Same idea for the Create KML Files dialog.
+        private ExportKmlSettings? exportKmlSettingsPrevious;
+
+        // Same idea for the Create RouteGadget Files dialog.
+        private RouteGadgetCreationSettings? routeGadgetCreationSettingsPrevious;
+
+        // Same idea for the Create PDF Files dialog.
+        private CoursePdfSettings? coursePdfSettings;
+
+        // Persisted settings for the Print Descriptions / Create Description PDF
+        // dialog. The printer / paper / margins live in their own fields because
+        // the new ViewModel takes them as separate inputs.
+        private DescriptionPrintSettings? descPrintSettings;
+        private PrinterNameAndSettings? descPrinter;
+        private PrintingPaperSizeWithMargins? descPaperSizeWithMargins;
+
+        // Same idea for the Print Punch Cards / Create Punchcard PDF dialog.
+        private CorePunchPrintSettings? punchPrintSettings;
+        private PrinterNameAndSettings? punchPrinter;
+        private PrintingPaperSizeWithMargins? punchPaperSizeWithMargins;
+
         [ObservableProperty]
         private MapDisplay? mapDisplay;
 
@@ -198,11 +230,13 @@ namespace PurplePen.ViewModels
 #if !PORTING
                 mapViewer.ZoomFactor = 1.0F;   // used if the map bounds are empty, then this zoom factor is preserved.
                 ShowRectangle(mapDisplay.MapBounds);
-
-                // Reset the OCAD file creating settings dialog to default settings.
+#endif
+                // Reset the per-dialog settings caches.
                 ocadCreationSettingsPrevious = null;
                 bitmapCreationSettingsPrevious = null;
-#endif
+                gpxCreationSettingsPrevious = null;
+                exportKmlSettingsPrevious = null;
+                routeGadgetCreationSettingsPrevious = null;
             }
 
 #if PORTING
