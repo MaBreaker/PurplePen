@@ -153,7 +153,7 @@ namespace PurplePen
                         pageSettings.PaperSize = printDialog.PrinterSettings.DefaultPageSettings.PaperSize;
                         pageSettings.PaperSource = printDialog.PrinterSettings.DefaultPageSettings.PaperSource;
                         pageSettings.PrinterSettings = printDialog.PrinterSettings;
-                        pageSettings.PrinterSettings.Copies = 1; // ignore copies from the print settings dialog.
+                        pageSettings.PrinterSettings.Copies = (short) settings.Count; //JU: Set correct copies // ignore copies from the print settings dialog.
                         UpdateDialog();
                     }
                 }

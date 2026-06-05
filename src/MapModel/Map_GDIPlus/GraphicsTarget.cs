@@ -1160,12 +1160,28 @@ namespace PurplePen.MapModel
 
         public int PixelWidth
         {
-            get { return bitmap != null ? bitmap.Width : 0; }
+            get { 
+                try {
+                    return bitmap != null ? bitmap.Width : 0;
+                }
+                catch {
+                    // Bitmap may have been disposed or is in use elsewhere
+                    return 0;
+                }
+            }
         }
 
         public int PixelHeight
         {
-            get { return bitmap != null ? bitmap.Height : 0; }
+            get { 
+                try {
+                    return bitmap != null ? bitmap.Height : 0;
+                }
+                catch {
+                    // Bitmap may have been disposed or is in use elsewhere
+                    return 0;
+                }
+            }
         }
 
         public bool MustCopyBitsForGraphicsTarget => false;

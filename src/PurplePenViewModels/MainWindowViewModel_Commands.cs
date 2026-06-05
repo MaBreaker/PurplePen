@@ -905,7 +905,9 @@ namespace PurplePen.ViewModels
             float fontHeight;
             bool fontAutoSize;
             SpecialColor fontColor;
-            controller.GetAddTextDefaultProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight, out fontAutoSize);
+            float textRotation; //JU: Text rotation
+            bool textMultiline; //JU: Multiline
+            controller.GetAddTextDefaultProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight, out fontAutoSize /* JU: Text rotation and multiline */, out textRotation, out textMultiline);
 
             TextPropertiesDialogViewModel vm = new TextPropertiesDialogViewModel {
                 DialogTitle = MiscText.AddTextSpecialTitle,
@@ -918,11 +920,14 @@ namespace PurplePen.ViewModels
                 Color = fontColor,
                 FontSize = (decimal)fontHeight,
                 FontSizeAutomatic = fontAutoSize,
+                //JU: TODO add text rotation and multiline for Avalonian
+                //TextRotation = (decimal)textRotation,
+                //TextMultiline = textMultiline,
             };
             vm.PurpleColor = CmykColor.FromCmyk(c, m, y, k);
 
             if (await Services.DialogService.ShowDialogAsync(vm)) {
-                controller.BeginAddTextSpecialMode(vm.UserText, vm.FontName, vm.FontBold, vm.FontItalic, vm.Color, vm.FontSizeAutomatic ? -1 : (float)vm.FontSize);
+                controller.BeginAddTextSpecialMode(vm.UserText, vm.FontName, vm.FontBold, vm.FontItalic, vm.Color, vm.FontSizeAutomatic ? -1 : (float)vm.FontSize /* JU: Text rotation and multiline */, textRotation, textMultiline);
             }
 #endif
         }
@@ -1305,8 +1310,10 @@ namespace PurplePen.ViewModels
             string fontName;
             bool fontBold, fontItalic;
             float fontHeight;
+            float textRotation; //JU: Text rotation
+            bool textMultiline; //JU: Multiline
             SpecialColor fontColor;
-            controller.GetChangableTextProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight);
+            controller.GetChangableTextProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight /* JU: Text rotation and multiline */ , out textRotation, out textMultiline);
 
             TextPropertiesDialogViewModel vm = new TextPropertiesDialogViewModel {
                 DialogTitle = MiscText.ChangeTextTitle,
@@ -1320,11 +1327,14 @@ namespace PurplePen.ViewModels
                 Color = fontColor,
                 FontSize = (fontHeight < 0) ? 5m : (decimal)fontHeight,
                 FontSizeAutomatic = (fontHeight < 0),
+                //JU: TODO add text rotation and multiline for Avalonian
+                //TextRotation = (decimal)textRotation,
+                //TextMultiline = textMultiline,
             };
             vm.PurpleColor = CmykColor.FromCmyk(c, m, y, k);
 
             if (await Services.DialogService.ShowDialogAsync(vm)) {
-                controller.ChangeText(vm.UserText, vm.FontName, vm.FontBold, vm.FontItalic, vm.Color, vm.FontSizeAutomatic ? -1 : (float)vm.FontSize);
+                controller.ChangeText(vm.UserText, vm.FontName, vm.FontBold, vm.FontItalic, vm.Color, vm.FontSizeAutomatic ? -1 : (float)vm.FontSize /* JU: text rotation and multiline */, textRotation, textMultiline);
             }
 #endif
         }

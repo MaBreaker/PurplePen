@@ -53,7 +53,7 @@ namespace PurplePen.MapView {
 		Size bitmapSize;		// size of the bitmap and the cached view.
 		RectangleF mapView;		// The part of the map that is being cached in the bitmap
 		Matrix matTransform;	// The transform that maps from map view to the bitmap coordinates.
-        IMapDisplay mapDisplay; // The map display being viewed.
+		IMapDisplay mapDisplay; // The map display being viewed.
 		Brush bitmapBrush; // Brush made from bitmap.
 
 		bool allValid, allInvalid; // State of the iamge in the bitmap: 
@@ -61,9 +61,12 @@ namespace PurplePen.MapView {
 		//  allInvalid=true -- no bits are a correct reflection of the map
 		//  both false -- some bits are valid, as specified in invalidRegion.
 		Region invalidRegion;	   // The invalid region of the bitmap, in bitmap coordinates.
-        long changeNumber;         // incremented every time re-validated.
+		long changeNumber;         // incremented every time re-validated.
 
 		bool disposed = false;
+
+		// Lock to synchronize access to bitmap and related fields between drawing and modification operations
+		private readonly object bitmapLock = new object();
 
 		void MarkAllValid() {
             if (!allValid)
@@ -98,81 +101,90 @@ namespace PurplePen.MapView {
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-                return;
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposed)
+				return;
 
-            if (disposing) {
-                // Unsubscribe from map display events
-                if (mapDisplay != null)
-                    mapDisplay.Changed -= MapChanged;
+			if (disposing) {
+				// Unsubscribe from map display events
+				if (mapDisplay != null)
+					mapDisplay.Changed -= MapChanged;
 
-                // Dispose managed disposable resources
-                if (bitmap != null) {
-                    bitmap.Dispose();
-                    bitmap = null;
-                }
+				// Dispose managed disposable resources
+				lock (bitmapLock) {
+					if (bitmap != null) {
+						bitmap.Dispose();
+						bitmap = null;
+					}
 
-                if (invalidRegion != null) {
-                    invalidRegion.Dispose();
-                    invalidRegion = null;
-                }
+					if (invalidRegion != null) {
+						invalidRegion.Dispose();
+						invalidRegion = null;
+					}
 
-                if (bitmapBrush != null) {
-                    bitmapBrush.Dispose();
-                    bitmapBrush = null;
-                }
+					if (bitmapBrush != null) {
+						bitmapBrush.Dispose();
+						bitmapBrush = null;
+					}
 
-                if (matTransform != null) {
-                    matTransform.Dispose();
-                    matTransform = null;
-                }
-            }
+					if (matTransform != null) {
+						matTransform.Dispose();
+						matTransform = null;
+					}
+				}
+			}
 
-            disposed = true;
-        }
-
-
-        // This is the main entry point to the ViewCache. It asks to draw the part of the map into the graphics
-        // requested. This graphics is in pixel (viewport) coordinates. The transform that maps between the
-        // two is passed in, so that it doesn't need to be recomputed.
-        public void Draw(Graphics g, Rectangle clipRect, Size sizeView, RectangleF mapAreaToView, Matrix transform)
-        {
-            // Make sure the cache is up to date.
-            UpdateCache(sizeView, mapAreaToView, transform);
-
-            try {
-                // Draw the requested part of the bitmap to the destinated graphics.
-                FastBitmapPaint.PaintBitmap(g, bitmap, clipRect, new Point(clipRect.Left, clipRect.Top));
-
-                // This used to be:
-                //g.DrawImage(bitmap, clipRect.Left, clipRect.Top, clipRect, GraphicsUnit.Pixel);
-            }
-            catch (Exception) {
-                // Do nothing. Very occasionally, GDI+ given an overflow exception or ExternalException or OutOfMemory exception. 
-                // Just ignore it; there's nothing else to do. See bug #1997301.            
-            }
-        }
-
-        // Get a bit that is is the (up-to-date) viewcache for the given location.  Do not dispose this brush!
-        public Bitmap GetCacheBitmap(Size sizeView, RectangleF mapAreaToView, Matrix transform, out long changeNumber)
-        {
-            UpdateCache(sizeView, mapAreaToView, transform);
-            changeNumber = this.changeNumber;
-            return bitmap;
-        }
+			disposed = true;
+		}
 
 
-        // Get a brush whose texture is the (up-to-date) viewcache for the given location.  Do not dispose this brush!
-        public Brush GetCacheBrush(Size sizeView, RectangleF mapAreaToView, Matrix transform) {
+		// This is the main entry point to the ViewCache. It asks to draw the part of the map into the graphics
+		// requested. This graphics is in pixel (viewport) coordinates. The transform that maps between the
+		// two is passed in, so that it doesn't need to be recomputed.
+		public void Draw(Graphics g, Rectangle clipRect, Size sizeView, RectangleF mapAreaToView, Matrix transform)
+		{
+			// Make sure the cache is up to date.
 			UpdateCache(sizeView, mapAreaToView, transform);
 
-            if (bitmapBrush == null) {
-                bitmapBrush = new TextureBrush(bitmap);
-            }
+			try {
+				// Draw the requested part of the bitmap to the destinated graphics.
+				lock (bitmapLock) {
+					if (bitmap != null)
+						FastBitmapPaint.PaintBitmap(g, bitmap, clipRect, new Point(clipRect.Left, clipRect.Top));
+				}
 
-			return bitmapBrush;
+				// This used to be:
+				//g.DrawImage(bitmap, clipRect.Left, clipRect.Top, clipRect, GraphicsUnit.Pixel);
+			}
+			catch (Exception) {
+				// Do nothing. Very occasionally, GDI+ given an overflow exception or ExternalException or OutOfMemory exception. 
+				// Just ignore it; there's nothing else to do. See bug #1997301.            
+			}
+		}
+
+		// Get a bit that is is the (up-to-date) viewcache for the given location.  Do not dispose this brush!
+		public Bitmap GetCacheBitmap(Size sizeView, RectangleF mapAreaToView, Matrix transform, out long changeNumber)
+		{
+			UpdateCache(sizeView, mapAreaToView, transform);
+			lock (bitmapLock) {
+				changeNumber = this.changeNumber;
+				return bitmap;
+			}
+		}
+
+
+		// Get a brush whose texture is the (up-to-date) viewcache for the given location.  Do not dispose this brush!
+		public Brush GetCacheBrush(Size sizeView, RectangleF mapAreaToView, Matrix transform) {
+			UpdateCache(sizeView, mapAreaToView, transform);
+
+			lock (bitmapLock) {
+				if (bitmapBrush == null && bitmap != null) {
+					bitmapBrush = new TextureBrush(bitmap);
+				}
+
+				return bitmapBrush;
+			}
 		}
 
 		// Make sure the cached bitmap is up-to-date with the map and the requested view/map transform.
@@ -183,16 +195,21 @@ namespace PurplePen.MapView {
 
 			if (!allValid) {
 				// Part of the cache is invalid. Draw from the map to the cache.
-				if (bitmapBrush != null)
-					bitmapBrush.Dispose();
-				bitmapBrush = null;
+				lock (bitmapLock) {
+					if (bitmapBrush != null)
+						bitmapBrush.Dispose();
+					bitmapBrush = null;
 
-				if (allInvalid) {
-                    mapDisplay.Draw(new GDIPlus_Bitmap(bitmap), transform, null);
-				}
-				else {
-					Graphics g = WindowsUtil.GetHiresGraphics();
-                    mapDisplay.Draw(new GDIPlus_Bitmap(bitmap), transform, invalidRegion.GetBounds(g));
+					Bitmap bitmapCopy = bitmap;
+					if (bitmapCopy != null) {
+						if (allInvalid) {
+							mapDisplay.Draw(new GDIPlus_Bitmap(bitmapCopy), transform, null);
+						}
+						else {
+							Graphics g = WindowsUtil.GetHiresGraphics();
+							mapDisplay.Draw(new GDIPlus_Bitmap(bitmapCopy), transform, invalidRegion.GetBounds(g));
+						}
+					}
 				}
 			}
 
@@ -207,96 +224,98 @@ namespace PurplePen.MapView {
 		// some, the invalidRegion is updated as appropriate. If we can't preserve any, the invalidRegion
 		// is set to an infinite region.
 		void ChangeCacheSizeOrPosition(Size sizeView, RectangleF mapAreaToView, Matrix transform) {
-			if (mapAreaToView == mapView && sizeView == bitmapSize && bitmap != null)
-				return; // nothing to do.
+			lock (bitmapLock) {
+				if (mapAreaToView == mapView && sizeView == bitmapSize && bitmap != null)
+					return; // nothing to do.
 
-			Bitmap newBitmap;
+				Bitmap newBitmap;
 
-			// Set newBitmap to the new bitmap's size.
-			if (bitmap == null || bitmapSize != sizeView) {
-				// Need a new bitmap.
-				newBitmap = new Bitmap(sizeView.Width, sizeView.Height, GDIPlus_GraphicsTarget.NonAlphaPixelFormat);
-				MarkAllInvalid();  // CONSIDER: it seems like it should be possible to preserve parts of the bitmap
-				// it this case, but I can't get it to work properly without some drawing glitches
-				// from rounding errors. The rest of the code is written to try to handle the case
-				// if this line were removed.
-			}
-			else {
-				// The old bitmap is of the correct size.
-				newBitmap = bitmap;
-			}
+				// Set newBitmap to the new bitmap's size.
+				if (bitmap == null || bitmapSize != sizeView) {
+					// Need a new bitmap.
+					newBitmap = new Bitmap(sizeView.Width, sizeView.Height, GDIPlus_GraphicsTarget.NonAlphaPixelFormat);
+					MarkAllInvalid();  // CONSIDER: it seems like it should be possible to preserve parts of the bitmap
+					// it this case, but I can't get it to work properly without some drawing glitches
+					// from rounding errors. The rest of the code is written to try to handle the case
+					// if this line were removed.
+				}
+				else {
+					// The old bitmap is of the correct size.
+					newBitmap = bitmap;
+				}
 
-			// Preserve any part of the old bitmap that we can.
-			bool preservedPart = false; // Set to true if we successfully kept part of the bitmap.
+				// Preserve any part of the old bitmap that we can.
+				bool preservedPart = false; // Set to true if we successfully kept part of the bitmap.
 
-			if (bitmap != null && !allInvalid) {
-				// Calculate the transform from the old coordinates to the new coordinates.
-				Matrix transformOldToNew = matTransform.Clone();
-				transformOldToNew.Invert();
-				transformOldToNew.Multiply(transform, MatrixOrder.Append);
+				if (bitmap != null && !allInvalid) {
+					// Calculate the transform from the old coordinates to the new coordinates.
+					Matrix transformOldToNew = matTransform.Clone();
+					transformOldToNew.Invert();
+					transformOldToNew.Multiply(transform, MatrixOrder.Append);
 
-				// If it's a simple translation, then we might be able to preserve something.
-				float[] elements = transformOldToNew.Elements;
-				const float SMALL = 2E-6F;
-				if (Math.Abs(elements[0] - 1.0F) < SMALL && 
-					Math.Abs(elements[1] - 0.0F) < SMALL && 
-					Math.Abs(elements[2] - 0.0F) < SMALL && 
-					Math.Abs(elements[3] - 1.0F) < SMALL) {
-					// The transformation is a simple translation. Copy parts of the old bitmap to the new bitmap, if they intersect, and
-					// if the translation is a whole number of pixels.
-					PointF[] newUpperRight = { new PointF(0,0)};
-					transformOldToNew.TransformPoints(newUpperRight);
-					if (Math.Round(newUpperRight[0].X) - newUpperRight[0].X < SMALL &&
-						Math.Round(newUpperRight[0].Y) - newUpperRight[0].Y < SMALL) {
-						Rectangle copy = new Rectangle((int) Math.Round(newUpperRight[0].X), (int) Math.Round(newUpperRight[0].Y), bitmapSize.Width, bitmapSize.Height);
-						Rectangle newBitmapRect = new Rectangle(0, 0, sizeView.Width, sizeView.Height);
+					// If it's a simple translation, then we might be able to preserve something.
+					float[] elements = transformOldToNew.Elements;
+					const float SMALL = 2E-6F;
+					if (Math.Abs(elements[0] - 1.0F) < SMALL && 
+						Math.Abs(elements[1] - 0.0F) < SMALL && 
+						Math.Abs(elements[2] - 0.0F) < SMALL && 
+						Math.Abs(elements[3] - 1.0F) < SMALL) {
+						// The transformation is a simple translation. Copy parts of the old bitmap to the new bitmap, if they intersect, and
+						// if the translation is a whole number of pixels.
+						PointF[] newUpperRight = { new PointF(0,0)};
+						transformOldToNew.TransformPoints(newUpperRight);
+						if (Math.Round(newUpperRight[0].X) - newUpperRight[0].X < SMALL &&
+							Math.Round(newUpperRight[0].Y) - newUpperRight[0].Y < SMALL) {
+							Rectangle copy = new Rectangle((int) Math.Round(newUpperRight[0].X), (int) Math.Round(newUpperRight[0].Y), bitmapSize.Width, bitmapSize.Height);
+							Rectangle newBitmapRect = new Rectangle(0, 0, sizeView.Width, sizeView.Height);
 
-						if (copy.IntersectsWith(newBitmapRect)) {
-							// Copy old bits to the new area
-							
-							if (newBitmap == bitmap) {
-								BitmapUtil.MoveRectangle(bitmap, newBitmapRect, copy.Left, copy.Top);
+							if (copy.IntersectsWith(newBitmapRect)) {
+								// Copy old bits to the new area
+
+								if (newBitmap == bitmap) {
+									BitmapUtil.MoveRectangle(bitmap, newBitmapRect, copy.Left, copy.Top);
+								}
+								else {
+									Graphics g = Graphics.FromImage(newBitmap);
+									g.DrawImageUnscaled(bitmap, copy.Location);
+									g.Dispose();
+								}
+
+								// Update the invalid region by transforming it and including the newly exposed area.
+								allValid = false;
+								if (invalidRegion == null) {
+									invalidRegion = new Region();
+									invalidRegion.MakeEmpty();
+								}
+								else {
+									invalidRegion.Transform(transformOldToNew.ToSysDrawMatrix());
+								}
+								Region exposed = new Region(newBitmapRect);
+								exposed.Exclude(copy);
+								invalidRegion.Union(exposed);
+
+								preservedPart = true;
 							}
-							else {
-								Graphics g = Graphics.FromImage(newBitmap);
-								g.DrawImageUnscaled(bitmap, copy.Location);
-								g.Dispose();
-							}
-
-							// Update the invalid region by transforming it and including the newly exposed area.
-							allValid = false;
-							if (invalidRegion == null) {
-								invalidRegion = new Region();
-								invalidRegion.MakeEmpty();
-							}
-							else {
-								invalidRegion.Transform(transformOldToNew.ToSysDrawMatrix());
-							}
-							Region exposed = new Region(newBitmapRect);
-							exposed.Exclude(copy);
-							invalidRegion.Union(exposed);
-
-							preservedPart = true;
 						}
 					}
 				}
-			}
 
-			// Update class variables:
-			bitmapSize = sizeView;
-			mapView = mapAreaToView;
-			matTransform = transform;
-			if (bitmap != newBitmap) {
-				if (bitmap != null)
-					bitmap.Dispose();
-				bitmap = newBitmap;
+				// Update class variables:
+				bitmapSize = sizeView;
+				mapView = mapAreaToView;
+				matTransform = transform;
+				if (bitmap != newBitmap) {
+					if (bitmap != null)
+						bitmap.Dispose();
+					bitmap = newBitmap;
 
-				if (bitmapBrush != null)
-					bitmapBrush.Dispose();
-				bitmapBrush = null;
+					if (bitmapBrush != null)
+						bitmapBrush.Dispose();
+					bitmapBrush = null;
+				}
+				if (!preservedPart) 
+					MarkAllInvalid();
 			}
-			if (!preservedPart) 
-				MarkAllInvalid();
 		}
 
 		float GetMinResolution(Graphics g) {

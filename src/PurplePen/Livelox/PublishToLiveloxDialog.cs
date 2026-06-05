@@ -686,7 +686,8 @@ namespace PurplePen.Livelox
                 if (!aborted)
                 {
                     string message;
-                    if ((ex as StatusCodeException)?.StatusCode == HttpStatusCode.Unauthorized)
+                    if ((ex as StatusCodeException)?.StatusCode == HttpStatusCode.Unauthorized ||
+                        (ex as OAuth2Exception)?.StatusCode == HttpStatusCode.Unauthorized)
                     {
                         message = LiveloxResources.UnauthorizedMessage;
                     }
