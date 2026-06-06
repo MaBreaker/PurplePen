@@ -89,29 +89,17 @@ Inter Tight
 Didact Gothic
 Sofia Sans
 Fira Sans
-Source Sans 3
+Source Sans 3  <-- this is what I currently chose.
 Lato
 
 Dialogs remaining to port:
-AllControlsProperties
-CoursePartProperties
-CustomSymbolText
 DownloadProgressDialog
-EnterSymbolText
 InitialScreen
-LegAssignmentsDialog
-LicenseForm
-MapIssueChoiceDialog
-MissingsFonts
-MoveAllControls
 NewEventWizard and sub-forms
-PdfConversionInProgress
 PrintCourses
 PrinterMargins
-ReportForm
-SelectLocationsForMove
 SetPrintAreaDialog
-TeamVariationsForm
+
 
 
 
