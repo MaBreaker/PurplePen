@@ -1094,6 +1094,26 @@ namespace AvPurplePen {
                 return ResourceManager.GetString("ChangeText_label3_Text", resourceCulture);
             }
         }
+         
+        //JU: Rotation
+        /// <summary>
+        ///   Looks up a localized string similar to Rotation:.
+        /// </summary>
+        public static string ChangeText_label4_Text {
+            get {
+                return ResourceManager.GetString("ChangeText_label4_Text", resourceCulture);
+            }
+        }
+         
+        //JU: Multiline
+        /// <summary>
+        ///   Looks up a localized string similar to Multiline:.
+        /// </summary>
+        public static string ChangeText_label5_Text {
+            get {
+                return ResourceManager.GetString("ChangeText_label5_Text", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to mm.

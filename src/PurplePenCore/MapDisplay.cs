@@ -96,8 +96,8 @@ namespace PurplePen
         RectangleF? printArea;          // print area to display, or null for none.
         private bool disposed = false;
 
-        //JU: Margins / Bleed
-        int? margins;
+
+        //int? margins; //JU: Margins / Bleed
 
         // Clones this map display.
         public MapDisplay Clone()
@@ -690,11 +690,9 @@ namespace PurplePen
 
         // Draw the map and course onto a bitmap of the given size. The given rectangle is mapped onto the whole bitmap, then
         // the given clip region is applied.
-        // Draw the map and course onto a bitmap of the given size. The given rectangle is mapped onto the whole bitmap, then
-        // the given clip region is applied.
         public void Draw(IGraphicsBitmap bitmap, Matrix transform, RectangleF? clipRect = null)
         {
-            Debug.Assert(colorModel == ColorModel.CMYK || colorModel == ColorModel.RGB);
+            Debug.Assert(colorModel == ColorModel.CMYK || colorModel == ColorModel.RGB || colorModel == ColorModel.OCADCompatible, "Unknówn color model selected");
             IColorConverter colorConverter = (colorModel == ColorModel.CMYK) ? (IColorConverter) SwopColorConverter.Instance : (IColorConverter) DefaultColorConverter.Instance;
 
             if (bitmap.PixelHeight == 0 || bitmap.PixelWidth == 0)

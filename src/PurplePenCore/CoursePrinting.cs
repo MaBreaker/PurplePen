@@ -49,7 +49,7 @@ namespace PurplePen
     using PurplePen.MapModel;
 
     // Class to print out courses.
-    class CoursePrinting: IPrintable
+    public class CoursePrinting: IPrintable
     {
         // List of all the pages, constructed during layout.
         private List<CoursePage> pages = new List<CoursePage>();
@@ -84,10 +84,11 @@ namespace PurplePen
         public int LayoutPages(PrintingPaperSizeWithMargins defaultPaperSizeWithMargins) 
         {
 #if !PORTING
+#pragma warning disable CA1416
             // We need to deal with Copies and Collating manually, instead of relying on the Windows print system.
-            pageSettings.PrinterSettings.Copies = (short)coursePrintSettings.Count;
-            pageSettings.PrinterSettings.Collate = false;      // print all of one course, then all of next, etc.
-
+            coursePrintSettings.PageSettings.PrinterSettings.Copies = (short)coursePrintSettings.Count;
+            coursePrintSettings.PageSettings.PrinterSettings.Collate = false;      // print all of one course, then all of next, etc.
+#pragma warning restore CA1416
 #endif
 
             CoursePageLayout pageLayout = new CoursePageLayout(eventDB, symbolDB, controller, appearance, coursePrintSettings.CropLargePrintArea);
@@ -109,7 +110,7 @@ namespace PurplePen
         // Need to implement the pausing functionality still, maybe. Not sure how this 
         // integrates into IPrintable.
 
-        protected override bool PausePrintingAfterPage(int pageNumber, out string pauseMessage)
+        protected bool PausePrintingAfterPage(int pageNumber, out string pauseMessage)
         {
             if (coursePrintSettings.PauseAfterCourseOrPart && pages[pageNumber].lastPageOfCourseOrPart && pageNumber + 1 < pages.Count) {
                 pauseMessage = PausePrintingMessage(pageNumber);
@@ -264,10 +265,11 @@ namespace PurplePen
 
 #if !PORTING
     // All the information needed to print courses.
-    class CoursePrintSettings
+    public class CoursePrintSettings
     {
         private PageSettings pageSettings;
 
+#pragma warning disable CA1416
         public PageSettings PageSettings
         {
             get
@@ -285,6 +287,7 @@ namespace PurplePen
                 pageSettings = value;
             }
         }
+#pragma warning restore CA1416
 
         public Id<Course>[] CourseIds;          // Courses to print, None is all controls.
         public bool AllCourses = true;          // If true, overrides the course ids in CourseIds except for "all controls".

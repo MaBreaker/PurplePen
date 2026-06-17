@@ -964,9 +964,9 @@ namespace PurplePen.ViewModels
                 Color = fontColor,
                 FontSize = (decimal)fontHeight,
                 FontSizeAutomatic = fontAutoSize,
-                //JU: TODO add text rotation and multiline for Avalonian
-                //TextRotation = (decimal)textRotation,
-                //TextMultiline = textMultiline,
+                //JU: Add text rotation and multiline for Avalonian
+                TextRotation = (decimal)textRotation,
+                TextMultiline = textMultiline,
             };
             vm.PurpleColor = CmykColor.FromCmyk(c, m, y, k);
 
@@ -1039,7 +1039,7 @@ namespace PurplePen.ViewModels
             float c, m, y, k;
             bool purpleOverprint;
             short ocadId;
-            FindPurple.GetPurpleColor(mapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
+            FindPurple.GetPurpleColor(MapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
 
             SpecialColor color;
             LineKind lineKind;
@@ -1113,7 +1113,7 @@ namespace PurplePen.ViewModels
             float c, m, y, k;
             bool purpleOverprint;
             short ocadId;
-            FindPurple.GetPurpleColor(mapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
+            FindPurple.GetPurpleColor(MapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
 
             SpecialColor color;
             LineKind lineKind;
@@ -1188,7 +1188,7 @@ namespace PurplePen.ViewModels
             float c, m, y, k;
             bool purpleOverprint;
             short ocadId;
-            FindPurple.GetPurpleColor(mapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
+            FindPurple.GetPurpleColor(MapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
 
             SpecialColor color;
             LineKind lineKind;
@@ -1320,11 +1320,13 @@ namespace PurplePen.ViewModels
                 string fontName;
                 bool fontBold, fontItalic;
                 float fontHeight;
+                float textRotation; //JU: Text rotation
+                bool textMultiline; //JU: Multiline
                 SpecialColor fontColor;
                 FindPurple.GetPurpleColor(mapDisplay, controller.GetCourseAppearance(), out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
 
                 string oldText = controller.GetChangableText();
-                controller.GetChangableTextProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight);
+                controller.GetChangableTextProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight /* JU: Text rotation and multiline */ , out textRotation, out textMultiline);
                 ChangeText dialog = new ChangeText(MiscText.ChangeTextTitle, MiscText.ChangeTextSpecialExplanation, true,
                                                    CmykColor.FromCmyk(c, m, y, k), controller.ExpandText);
                 dialog.HelpTopic = "ItemChangeText.htm";
@@ -1371,14 +1373,14 @@ namespace PurplePen.ViewModels
                 Color = fontColor,
                 FontSize = (fontHeight < 0) ? 5m : (decimal)fontHeight,
                 FontSizeAutomatic = (fontHeight < 0),
-                //JU: TODO add text rotation and multiline for Avalonian
-                //TextRotation = (decimal)textRotation,
-                //TextMultiline = textMultiline,
+                //JU: Add text rotation and multiline for Avalonian
+                TextRotation = (decimal)textRotation,
+                TextMultiline = textMultiline,
             };
             vm.PurpleColor = CmykColor.FromCmyk(c, m, y, k);
 
             if (await Services.DialogService.ShowDialogAsync(vm)) {
-                controller.ChangeText(vm.UserText, vm.FontName, vm.FontBold, vm.FontItalic, vm.Color, vm.FontSizeAutomatic ? -1 : (float)vm.FontSize /* JU: text rotation and multiline */, textRotation, textMultiline);
+                controller.ChangeText(vm.UserText, vm.FontName, vm.FontBold, vm.FontItalic, vm.Color, vm.FontSizeAutomatic ? -1 : (float)vm.FontSize /* JU: text rotation and multiline */, (float)vm.TextRotation, vm.TextMultiline);
             }
 #endif
         }
@@ -1434,7 +1436,7 @@ namespace PurplePen.ViewModels
             short colorOcadId;
             float c, m, y, k;
             bool purpleOverprint;
-            FindPurple.GetPurpleColor(mapDisplay, appearance, out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
+            FindPurple.GetPurpleColor(MapDisplay, appearance, out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
 
             SpecialColor color;
             LineKind lineKind;
@@ -2672,10 +2674,10 @@ namespace PurplePen.ViewModels
         /// Executes the File/Print Courses command.
         /// </summary>
         [RelayCommand]
-        private void PrintCourses()
+        private async Task PrintCourses()
         {
 #if !PORTING
-            if (!CheckForNonRenderableObjects(false, true))
+            if (! await CheckForNonRenderableObjects(false, true))
                 return;
 
             PrintCourses printCoursesDialog = new PrintCourses(controller.GetEventDB(), controller.AnyMultipart());
@@ -2715,7 +2717,7 @@ namespace PurplePen.ViewModels
         private async Task CreateCoursePdf()
         {
 #if !PORTING
-            if (! CheckForNonRenderableObjects(false, true))
+            if (! await CheckForNonRenderableObjects(false, true))
                 return;
 
             bool isPdfMap = controller.MapType == MapType.PDF;

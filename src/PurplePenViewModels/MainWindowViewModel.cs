@@ -33,7 +33,9 @@ namespace PurplePen.ViewModels
         SymbolDB symbolDB = null!;
         long changeNum = 0;         // When this changes, state information needs to be updated in the UI.
         bool updatingTabs = false;  // Guard to prevent re-entrant controller calls during UpdateTabs.
-
+#if !PORTING
+        private bool checkForUpdatedMapFile = false; // Indicates if we should check for an updated map file on idle
+#endif
         // Settings remembered across invocations of the Create OCAD Files dialog,
         // so the user's last choices (folder, format, prefix, etc.) are preserved.
         // Reset to null when a new map file is loaded.
@@ -179,11 +181,11 @@ namespace PurplePen.ViewModels
                 UpdateHighlight();
                 CoursePartBannerViewModel.UpdatePartBanner();
 #if !PORTING
-                UpdateTopology();
+                //UpdateTopology();
                 UpdatePrintArea();
-                UpdateTopologyHighlight();
-                UpdateCustomSymbolText();
-                CheckForNonRenderableObjects(true, false);
+                //UpdateTopologyHighlight();
+                //UpdateCustomSymbolText();
+                _ = CheckForNonRenderableObjects(true, false);
 #endif
                 // Warn about missing fonts (fire-and-forget — the controller
                 // reports the list only once per map file, so re-entry from a
@@ -194,7 +196,7 @@ namespace PurplePen.ViewModels
 #if !PORTING
             if (checkForUpdatedMapFile) {
                 checkForUpdatedMapFile = false;
-                controller.CheckForChangedMapFile();
+                _ = controller.CheckForChangedMapFile();
             }
 #endif
         }
@@ -231,8 +233,8 @@ namespace PurplePen.ViewModels
             if (controller.MapDisplay.MapType != controller.MapType || controller.MapDisplay.FileName != controller.MapFileName || (controller.MapType == MapType.Bitmap && controller.MapDisplay.Dpi != controller.MapDpi)) {
                 // A new map file has been loaded, or the DPI has changed.
 #if !PORTING
-                mapViewer.ZoomFactor = 1.0F;   // used if the map bounds are empty, then this zoom factor is preserved.
-                ShowRectangle(mapDisplay.MapBounds);
+                MapZoomFactor = 1.0F;   // used if the map bounds are empty, then this zoom factor is preserved.
+                ShowRectangle(MapDisplay.MapBounds);
 #endif
                 // Reset the per-dialog settings caches.
                 ocadCreationSettingsPrevious = null;
@@ -356,6 +358,70 @@ namespace PurplePen.ViewModels
             this.MapHighlights = controller.GetHighlights(Pane.Map);
         }
 
+#if !PORTING
+        // Update the topology display.
+        private void UpdateTopology()
+        {
+            if (controller == null)
+                return;
+            // MainFrame has a full topology view; the ViewModel has no topology UI.
+            // Keep a stub so calls in UpdateStateOnIdle compile and preserve behavior.
+        }
+
+        // Update the topology pane highlights.
+        private void UpdateTopologyHighlight()
+        {
+            if (controller == null)
+                return;
+            // Stub for compatibility with MainFrame; nothing to update in this ViewModel.
+        }
+
+        // Update the print area in the map pane
+        private void UpdatePrintArea()
+        {
+            if (controller == null || MapDisplay == null)
+                return;
+
+            if (!UserSettings.Current.ShowPrintArea)
+                MapDisplay.SetPrintArea(null /* JU: Margins */, null);
+            else
+                MapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart), /* JU: margins */ null);
+        }
+
+        // Get the dictionary mapping each symbol to custom text for symbol descriptions.
+        private void UpdateCustomSymbolText()
+        {
+            if (controller == null || symbolDB == null)
+                return;
+
+            Dictionary<string, List<SymbolText>> customSymbolText;
+            Dictionary<string, bool> customSymbolKey;
+
+            controller.GetCustomSymbolText(out customSymbolText, out customSymbolKey);
+
+            string langId = controller.GetDescriptionLanguage();
+            Dictionary<string, string> symbolTextDict = new Dictionary<string, string>();
+
+            foreach (var pair in customSymbolText)
+            {
+                if (Symbol.ContainsLanguage(pair.Value, langId))
+                    symbolTextDict.Add(pair.Key, Symbol.GetBestSymbolText(symbolDB, pair.Value, langId, false, "", ""));
+            }
+
+            //JU: TODO is this custom symbol funtion even needed ?!?
+            //DescriptionViewerViewModel.CustomSymbolText = symbolTextDict;
+        }
+
+        // Change the viewport to show the given rectangle.
+        // MainFrame has a concrete implementation that manipulates the MapViewer control.
+        // The ViewModel has no direct access to the view, so keep a stub so calls compile
+        // and preserve compatibility with the original MainFrame implementation.
+        private void ShowRectangle(RectangleF bounds)
+        {
+            // Stub for compatibility with MainFrame; the view is expected to respond to
+            // MapDisplay / MapZoomFactor changes and perform actual viewport changes.
+        }
+#endif
         #endregion // State updating on idle.
 
 

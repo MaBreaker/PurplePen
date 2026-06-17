@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !PORTING
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -26,8 +28,10 @@ namespace PurplePen
             if (robotoFontsInstalled)
                 return true;  // already checked or already installed.
 
+#pragma warning disable CA1416
             // FontFamily constructor throws if the family is not available.
-            try {
+            try
+            {
                 bool allStyles = true;
                 FontFamily roboto = new FontFamily("Roboto");
                 if (roboto == null)
@@ -51,6 +55,7 @@ namespace PurplePen
             catch {
                 return false;
             }
+#pragma warning restore CA1416
         }
 
 
@@ -59,6 +64,7 @@ namespace PurplePen
         // tell if the user installed it).
         public static bool RunRobotoFontInstaller()
         {
+#pragma warning disable CA1416
             string pathnameInAppDir = Util.GetFileInAppDirectory("Roboto Font Installer.exe");
             if (!File.Exists(pathnameInAppDir)) {
                 return false;
@@ -90,6 +96,8 @@ namespace PurplePen
             finally {
                 File.Delete(pathnameInTempDirectory);
             }
+#pragma warning restore CA1416
         }
     }
 }
+#endif

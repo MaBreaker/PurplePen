@@ -132,7 +132,7 @@
         <HeaderedContentControl Header="{resx:Localize ChangeText_groupBox1_Text}"
                                 Padding="10,12,10,8">
             <Grid ColumnDefinitions="Auto,*,Auto,Auto"
-                  RowDefinitions="Auto,*,Auto,Auto">
+                  RowDefinitions="Auto,*,Auto,Auto,Auto">
 
                 <!-- Row 0-1: Font label + ListBox, with Bold/Italic checkboxes -->
                 <TextBlock Grid.Row="0" Grid.Column="0"
@@ -176,7 +176,8 @@
                            VerticalAlignment="Center"
                            Margin="0,0,8,0"/>
                 <StackPanel Grid.Row="3" Grid.Column="1"
-                            Orientation="Horizontal"
+                            Grid.ColumnSpan="2"
+							Orientation="Horizontal"
                             Spacing="4">
                     <NumericUpDown x:Name="upDownFontSize"
                                    Width="80"
@@ -193,6 +194,31 @@
                           Grid.Row="3" Grid.Column="3"
                           Content="{resx:Localize ChangeText_checkBoxAutoFontSize_Text}"
                           IsChecked="{Binding FontSizeAutomatic, Mode=TwoWay}"
+                          VerticalAlignment="Center"
+						  Margin="0,0,0,8"/>
+
+                <!-- Row 4: JU: Rotated and Multiline text -->
+                <TextBlock Grid.Row="4" Grid.Column="0"
+                           Text="{resx:Localize ChangeText_label4_Text}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+                <StackPanel Grid.Row="4" Grid.Column="1"
+							Grid.ColumnSpan="2"
+                            Orientation="Horizontal"
+                            Spacing="4">
+                    <NumericUpDown x:Name="upDownTextRotation"
+                                   Width="80"
+                                   Value="{Binding TextRotation, Mode=TwoWay}"
+                                   Minimum="0.0" Maximum="360.0"
+                                   Increment="1"
+                                   FormatString="0.0"/>
+                    <TextBlock Text="{resx:Localize ChangeText_labelRotationDeg_Text}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+                <CheckBox x:Name="checkBoxMultiline"
+                          Grid.Row="4" Grid.Column="3"
+                          Content="{resx:Localize ChangeText_label5_Text}"
+                          IsChecked="{Binding TextMultiline, Mode=TwoWay}"
                           VerticalAlignment="Center"/>
             </Grid>
         </HeaderedContentControl>

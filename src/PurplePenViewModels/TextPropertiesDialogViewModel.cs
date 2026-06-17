@@ -101,6 +101,16 @@ namespace PurplePen.ViewModels
         [ObservableProperty]
         private decimal fontSize = 5.0m;
 
+        //JU: Rotation
+        /// <summary>Text rotation in degrees.</summary>
+        [ObservableProperty]
+        private decimal textRotation = 0.0m;
+
+        //JU: Multiline
+        /// <summary>Multiline texts.</summary>
+        [ObservableProperty]
+        private bool textMultiline = false;
+
         // === Computed UI state ===
 
         /// <summary>Whether the OK button should be enabled (text is non-empty).</summary>
@@ -159,7 +169,13 @@ namespace PurplePen.ViewModels
             if (TextExpander != null) {
                 text = TextExpander(text);
             }
-
+            //JU: Multiline texts
+            if (TextMultiline)
+            {
+                //TODO: Skia DrawText NOT work with \n new line characters as those are removed by HarfBuzz.
+                //      Would need similar for loop approach to SumDef.cs Draw / DrawStringWithEffects / DrawSingleLineString / DrawText function
+                text = text.Replace("|", "\n"); // \u2029
+            }
             if (string.IsNullOrEmpty(text)) {
                 grTarget.PopAntiAliasing();
                 return;

@@ -606,11 +606,20 @@
   <data name="ChangeText_label3_Text" xml:space="preserve">
     <value>Size:</value>
   </data>
+  <data name="ChangeText_label4_Text" xml:space="preserve">
+    <value>Rotation:</value>
+  </data>
+  <data name="ChangeText_label5_Text" xml:space="preserve">
+    <value>Multiline:</value>
+  </data>
   <data name="PrinterMargins_labelPaper_Text" xml:space="preserve">
     <value>Size:</value>
   </data>
   <data name="ChangeText_labelFontSizeMm_Text" xml:space="preserve">
     <value>mm</value>
+  </data>
+  <data name="ChangeText_labelRotationDeg_Text" xml:space="preserve">
+    <value>deg</value>
   </data>
   <data name="CourseAppearanceDialog_label12_Text" xml:space="preserve">
     <value>mm</value>

@@ -47,7 +47,7 @@ namespace PurplePen
     partial class PrintCourses: OkCancelDialog
     {
         CoursePrintSettings settings = new CoursePrintSettings();
-        PageSettings pageSettings = new PageSettings();
+        //JU: PageSettings pageSettings = new PageSettings();
 
         internal Controller controller;
 
@@ -69,10 +69,10 @@ namespace PurplePen
         public PageSettings PageSettings {
             get {
                 UpdateSettings();
-                return pageSettings;
+                return settings.PageSettings; //JU: pageSettings
             }
             set {
-                pageSettings = value;
+                settings.PageSettings = value; //JU: pageSettings
                 UpdateDialog();
             }
         }
@@ -95,7 +95,7 @@ namespace PurplePen
         // Update the dialog with information from the settings.
         void UpdateDialog()
         {
-            PrinterSettings printerSettings = pageSettings.PrinterSettings;
+            PrinterSettings printerSettings = settings.PageSettings.PrinterSettings;
 
             // Courses
             if (settings.CourseIds != null)
@@ -144,16 +144,16 @@ namespace PurplePen
             controller.HandleExceptions(
                 delegate {
                     UpdateSettings();
-                    printDialog.PrinterSettings = pageSettings.PrinterSettings;
-                    printDialog.PrinterSettings.DefaultPageSettings.Landscape = pageSettings.Landscape;
-                    printDialog.PrinterSettings.DefaultPageSettings.PaperSize = pageSettings.PaperSize;
-                    printDialog.PrinterSettings.DefaultPageSettings.PaperSource = pageSettings.PaperSource;
+                    printDialog.PrinterSettings = PageSettings.PrinterSettings;
+                    printDialog.PrinterSettings.DefaultPageSettings.Landscape = PageSettings.Landscape;
+                    printDialog.PrinterSettings.DefaultPageSettings.PaperSize = PageSettings.PaperSize;
+                    printDialog.PrinterSettings.DefaultPageSettings.PaperSource = PageSettings.PaperSource;
                     DialogResult result = printDialog.ShowDialog(this);
                     if (result == DialogResult.OK) {
-                        pageSettings.PaperSize = printDialog.PrinterSettings.DefaultPageSettings.PaperSize;
-                        pageSettings.PaperSource = printDialog.PrinterSettings.DefaultPageSettings.PaperSource;
-                        pageSettings.PrinterSettings = printDialog.PrinterSettings;
-                        pageSettings.PrinterSettings.Copies = (short) settings.Count; //JU: Set correct copies // ignore copies from the print settings dialog.
+                        PageSettings.PaperSize = printDialog.PrinterSettings.DefaultPageSettings.PaperSize;
+                        PageSettings.PaperSource = printDialog.PrinterSettings.DefaultPageSettings.PaperSource;
+                        PageSettings.PrinterSettings = printDialog.PrinterSettings;
+                        PageSettings.PrinterSettings.Copies = 1; // ignore copies from the print settings dialog.
                         UpdateDialog();
                     }
                 }

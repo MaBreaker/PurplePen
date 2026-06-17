@@ -9,14 +9,14 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>TRACE;DEBUG;TEST;PORTING</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TEST;PORTINGno</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <CodeAnalysisRuleSet>..\Tools\PurplePenRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DefineConstants>TRACE;TEST;PORTING</DefineConstants>
+    <DefineConstants>TRACE;TEST;PORTINGno</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   
@@ -164,6 +164,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="System.Drawing.Common" />
     <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 

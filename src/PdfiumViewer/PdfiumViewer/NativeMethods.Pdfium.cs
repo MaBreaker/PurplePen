@@ -401,7 +401,7 @@ namespace PdfiumViewer
         /// </summary>
         /// <param name="input">The input Stream. Don't dispose prior to closing the pdf.</param>
         /// <param name="password">Password, if the PDF is protected. Can be null.</param>
-        /// <param name="streamPtr">Retrieves an IntPtr to the COM object for the Stream. The caller must release this with Marshal.Release prior to Disposing the Stream.</param>
+        /// <param name="id">Retrieves an IntPtr to the COM object for the Stream. The caller must release this with Marshal.Release prior to Disposing the Stream.</param>
         /// <returns>An IntPtr to the FPDF_DOCUMENT object.</returns>
         public static IntPtr FPDF_LoadCustomDocument(Stream input, string password, int id)
         {
