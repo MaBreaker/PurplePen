@@ -249,6 +249,10 @@ namespace PurplePen
                 switch (mapType) {
                 case MapType.Bitmap:
                 case MapType.PDF:
+                    //JU: If null
+                    if (bitmap == null) {
+                        return new RectangleF();
+                    }
                     int pixelWidth = bitmap.PixelWidth;
                     int pixelHeight = bitmap.PixelHeight;
                     if (pixelWidth == 0 || pixelHeight == 0) {
@@ -258,7 +262,7 @@ namespace PurplePen
                         return Geometry.TransformRectangle(BitmapTransform(), new RectangleF(0, 0, pixelWidth, pixelHeight));
                     }
 
-                    case MapType.OCAD:
+                case MapType.OCAD:
                     if (map != null) {
                         using (map.Read())
                             return map.GetBoundsIncludingTemplates();

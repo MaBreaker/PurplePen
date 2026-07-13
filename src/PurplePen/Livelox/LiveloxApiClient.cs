@@ -121,7 +121,11 @@ namespace PurplePen.Livelox
             );
 
             // Opens request in the browser.
-            System.Diagnostics.Process.Start(authorizationRequest);
+            var processInfo = new System.Diagnostics.ProcessStartInfo(authorizationRequest)
+            {
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(processInfo /* authorizationRequest */); //JU: Fix URL execution for .net10
 
             progressReportCallback(LiveloxResources.WaitingForLiveloxConsentResponse);
 

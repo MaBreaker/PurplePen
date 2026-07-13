@@ -636,7 +636,12 @@ namespace PurplePen.Livelox
 
         private static void ShowUrlInBrowser(string url)
         {
-            System.Diagnostics.Process.Start(url);
+            // Opens request in the browser.
+            var processInfo = new System.Diagnostics.ProcessStartInfo(url)
+            {
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(processInfo /* url */); //JU: Fix URL execution for .net10
         }
 
         private void ShowImportableEventCreatedDialog(ImportableEventLink importableEventLink)

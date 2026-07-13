@@ -2423,6 +2423,7 @@ namespace PurplePen
             // CONSIDER: shouldn't have GetEventDB here! Do something different.
             PrintCourses printCoursesDialog = new PrintCourses(controller.GetEventDB(), controller.AnyMultipart());
             printCoursesDialog.controller = controller;
+            coursePrintSettings.Count = 1; //JU: Set initially 1 copies to every new printout action
             printCoursesDialog.PrintSettings = coursePrintSettings;
             printCoursesDialog.PageSettings = coursePrintPageSettings; //JU: Use main frame page setup margins etc.
 
@@ -2435,7 +2436,7 @@ namespace PurplePen
             }
 #endif // XPS_PRINTING
 
-            printCoursesDialog.PrintSettings.Count = 1;
+            //printCoursesDialog.PrintSettings.Count = 1; //JU: Not work because dialog up/down overwrites this value in "UpdateSettings" function
 
             // show the dialog, on success, print.
             if (printCoursesDialog.ShowDialog(this) == DialogResult.OK) {

@@ -145,6 +145,7 @@ namespace PurplePen
                 delegate {
                     UpdateSettings();
                     printDialog.PrinterSettings = PageSettings.PrinterSettings;
+                    printDialog.PrinterSettings.Copies = 1; //JU: ignore print copies
                     printDialog.PrinterSettings.DefaultPageSettings.Landscape = PageSettings.Landscape;
                     printDialog.PrinterSettings.DefaultPageSettings.PaperSize = PageSettings.PaperSize;
                     printDialog.PrinterSettings.DefaultPageSettings.PaperSource = PageSettings.PaperSource;
