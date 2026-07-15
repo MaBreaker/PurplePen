@@ -30,7 +30,7 @@
         x:Class="AvPurplePen.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/PurplePenIcon.png"
-        Title="{resx:Localize MainFrame_Text}"
+        Title="{Binding WindowTitle}"
         MapMousePointerShape="{Binding MapMousePointerShape}"
         >
 
@@ -60,7 +60,7 @@
                 </MenuItem>
                 <MenuItem x:Name="saveAsMenu" Header="{resx:Localize MainFrame_saveAsMenu_Text}" Command="{Binding SaveAsCommand}"/>
                 <Separator/>
-                <MenuItem x:Name="createOcadFilesMenu" Header="{resx:Localize MainFrame_createOcadFilesMenu_Text}" Command="{Binding CreateOcadFilesCommand}"/>
+                <MenuItem x:Name="createOcadFilesMenu" Header="{Binding CreateOcadFilesCommandName}" Command="{Binding CreateOcadFilesCommand}"/>
                 <MenuItem x:Name="createImageFilesMenu" Header="{resx:Localize MainFrame_createImageFilesMenu_Text}" Command="{Binding CreateImageFilesCommand}"/>
                 <MenuItem x:Name="createPDFsMenu" Header="{resx:Localize MainFrame_createPDFsMenu_Text}">
                     <MenuItem x:Name="createDescriptionPdfMenu" Header="{resx:Localize MainFrame_createDescriptionPdfMenu_Text}" Command="{Binding CreateDescriptionPdfCommand}"/>
@@ -78,7 +78,7 @@
                 <MenuItem x:Name="printPunchCardsMenu" Header="{resx:Localize MainFrame_printPunchCardsMenu_Text}" Command="{Binding PrintPunchCardsCommand}"/>
                 <MenuItem x:Name="printCoursesMenu" Header="{resx:Localize MainFrame_printCoursesMenu_Text}" Command="{Binding PrintCoursesCommand}"/>
                 <MenuItem x:Name="setPrintAreaMenu" Header="{resx:Localize MainFrame_setPrintAreaMenu_Text}">
-                    <MenuItem x:Name="printAreaThisPartMenu" Header="{resx:Localize MainFrame_printAreaThisPartMenu_Text}" Command="{Binding SetPrintAreaThisPartCommand}"/>
+                    <MenuItem x:Name="printAreaThisPartMenu" Header="{resx:Localize MainFrame_printAreaThisPartMenu_Text}" IsVisible="{Binding IsVisibleSetPrintAreaThisPart}" Command="{Binding SetPrintAreaThisPartCommand}"/>
                     <MenuItem x:Name="printAreaThisCourseMenu" Header="{resx:Localize MainFrame_printAreaThisCourseMenu_Text}" Command="{Binding SetPrintAreaThisCourseCommand}"/>
                     <MenuItem x:Name="printAreaAllCoursesMenu" Header="{resx:Localize MainFrame_printAreaAllCoursesMenu_Text}" Command="{Binding SetPrintAreaAllCoursesCommand}"/>
                 </MenuItem>
@@ -93,11 +93,23 @@
             <MenuItem x:Name="editMenu" Header="{resx:Localize MainFrame_editMenu_Text}">
                 <MenuItem x:Name="cancelMenu" Header="{resx:Localize MainFrame_cancelMenu_Text}" Command="{Binding CancelCommand}"/>
                 <Separator/>
-                <MenuItem x:Name="undoMenu" Header="{resx:Localize MainFrame_undoMenu_Text}" InputGesture="Ctrl+Z" Command="{Binding UndoCommand}">
-                    <MenuItem.Icon><Image Source="/Assets/Toolbar/undo.png" Width="16" Height="16"/></MenuItem.Icon>
+                <MenuItem x:Name="undoMenu" Header="{Binding UndoCommandName}" InputGesture="Ctrl+Z" Command="{Binding UndoCommand}">
+                    <MenuItem.Icon>
+                        <Image Width="16" Height="16"
+                               Source="{Binding IsEffectivelyEnabled,
+                                        RelativeSource={RelativeSource Self},
+                                        Converter={x:Static avutil:DisabledImageConverter.Instance},
+                                        ConverterParameter=/Assets/Toolbar/undo.png}"/>
+                    </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="redoMenu" Header="{resx:Localize MainFrame_redoMenu_Text}" InputGesture="Ctrl+Y" Command="{Binding RedoCommand}">
-                    <MenuItem.Icon><Image Source="/Assets/Toolbar/redo.png" Width="16" Height="16"/></MenuItem.Icon>
+                <MenuItem x:Name="redoMenu" Header="{Binding RedoCommandName}" InputGesture="Ctrl+Y" Command="{Binding RedoCommand}">
+                    <MenuItem.Icon>
+                        <Image Width="16" Height="16"
+                               Source="{Binding IsEffectivelyEnabled,
+                                        RelativeSource={RelativeSource Self},
+                                        Converter={x:Static avutil:DisabledImageConverter.Instance},
+                                        ConverterParameter=/Assets/Toolbar/redo.png}"/>
+                    </MenuItem.Icon>
                 </MenuItem>
                 <Separator/>
                 <MenuItem x:Name="deleteMenu" Header="{resx:Localize MainFrame_deleteMenu_Text}" InputGesture="Delete" Command="{Binding DeleteSelectionCommand}">
@@ -162,8 +174,14 @@
                               ToggleType="CheckBox" IsChecked="{Binding HighQualityMapDisplay}"/>
                 </MenuItem>
 
-                <MenuItem x:Name="showPrintAreaMenu" Header="{resx:Localize MainFrame_showPrintAreaMenu_Text}" Command="{Binding ToggleShowPrintAreaCommand}"/>
-                <MenuItem x:Name="showPopupsMenu" Header="{resx:Localize MainFrame_showPopupsMenu_Text}" Command="{Binding ToggleShowPopupsCommand}"/>
+                <MenuItem x:Name="showPrintAreaMenu" 
+                          Header="{resx:Localize MainFrame_showPrintAreaMenu_Text}"     
+                          ToggleType="CheckBox" IsChecked="{Binding ShowPrintArea}"
+                          Command="{Binding ToggleShowPrintAreaCommand}"/>
+                <MenuItem x:Name="showPopupsMenu"   
+                          Header="{resx:Localize MainFrame_showPopupsMenu_Text}" 
+                          ToggleType="CheckBox" IsChecked="{Binding ShowToolTips}"
+                          Command="{Binding ToggleShowPopupsCommand}"/>
 
                 <Separator/>
 
@@ -333,7 +351,13 @@
                           Command="{Binding RemoveBendCommand}"/>
                 <MenuItem x:Name="addGapMenu" Header="{resx:Localize MainFrame_addGapMenu_Text}" InputGesture="Ctrl+G"
                           Command="{Binding AddGapCommand}">
-                    <MenuItem.Icon><Image Source="/Assets/Toolbar/addGap.png" Width="16" Height="16"/></MenuItem.Icon>
+                    <MenuItem.Icon>
+                        <Image Width="16" Height="16"
+                               Source="{Binding IsEffectivelyEnabled,
+                                        RelativeSource={RelativeSource Self},
+                                        Converter={x:Static avutil:DisabledImageConverter.Instance},
+                                        ConverterParameter=/Assets/Toolbar/addGap.png}"/>
+                    </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem x:Name="removeGapMenu" Header="{resx:Localize MainFrame_removeGapMenu_Text}" InputGesture="Ctrl+Shift+G"
                           Command="{Binding RemoveGapCommand}"/>
@@ -386,10 +410,12 @@
             </MenuItem>
 
             <!-- === Help Menu === -->
-            <MenuItem x:Name="helpMenu" Header="{resx:Localize MainFrame_helpMenu_Text}">
+            <MenuItem x:Name="helpMenu" Header="{resx:Localize MainFrame_helpMenu_Text}"
+                      SubmenuOpened="HelpMenu_SubmenuOpened">
                 <MenuItem x:Name="helpContentsMenu" Header="{resx:Localize MainFrame_helpContentsMenu_Text}" InputGesture="F1"
                           Command="{Binding HelpContentsCommand}"/>
                 <MenuItem x:Name="helpTranslatedMenu" Header="{resx:Localize MainFrame_helpTranslatedMenu_Text}"
+                          IsVisible="{Binding IsVisibleTranslatedWebSite}"
                           Command="{Binding HelpTranslatedCommand}"/>
                 <Separator/>
                 <MenuItem x:Name="mainWebSiteToolMenu" Header="{resx:Localize MainFrame_mainWebSiteToolMenu_Text}"
@@ -401,26 +427,13 @@
                 <Separator/>
                 <MenuItem x:Name="aboutMenu" Header="{resx:Localize MainFrame_aboutMenu_Text}"
                           Command="{Binding ShowAboutDialogCommand}"/>
-                <!-- Debug submenu — only visible in debug builds -->
-                <MenuItem x:Name="debugMenu" Header="{resx:Localize MainFrame_debugMenu_Text}">
-                    <MenuItem x:Name="symbolBrowserMenu" Header="{resx:Localize MainFrame_symbolBrowserMenu_Text}"
-                              Command="{Binding ShowSymbolBrowserCommand}"/>
-                    <MenuItem x:Name="descriptionBrowserMenu" Header="{resx:Localize MainFrame_descriptionBrowserMenu_Text}"
-                              Command="{Binding ShowDescriptionBrowserCommand}"/>
-                    <MenuItem x:Name="controlTesterMenu" Header="{resx:Localize MainFrame_controlTesterMenu_Text}"
-                              Command="{Binding ShowControlTesterCommand}"/>
+
+                <!-- Debug submenu (shown only with Ctrl+Shift or Ctrl+Alt held; see HelpMenu_SubmenuOpened) -->
+                <MenuItem x:Name="debugMenu" Header="{resx:Localize MainFrame_debugMenu_Text}" IsVisible="False">
                     <MenuItem x:Name="mapTesterMenu" Header="{resx:Localize MainFrame_mapTesterMenu_Text}"
                               Command="{Binding ShowMapTesterCommand}"/>
-                    <MenuItem x:Name="courseSelectorTesterMenu" Header="{resx:Localize MainFrame_courseSelectorTesterMenu_Text}"
-                              Command="{Binding ShowCourseSelectorTesterCommand}"/>
-                    <MenuItem x:Name="dotGridTesterToolStripMenuItem" Header="{resx:Localize MainFrame_dotGridTesterToolStripMenuItem_Text}"
-                              Command="{Binding ShowDotGridTesterCommand}"/>
                     <MenuItem x:Name="dumpOCADFileMenu" Header="{resx:Localize MainFrame_dumpOCADFileMenu_Text}"
                               Command="{Binding DumpOcadFileCommand}"/>
-                    <MenuItem x:Name="reportTesterToolStripMenuItem" Header="{resx:Localize MainFrame_reportTesterToolStripMenuItem_Text}"
-                              Command="{Binding ShowReportTesterCommand}"/>
-                    <MenuItem x:Name="fontMetricsToolStripMenuItem" Header="{resx:Localize MainFrame_fontMetricsToolStripMenuItem_Text}"
-                              Command="{Binding ShowFontMetricsCommand}"/>
                     <MenuItem x:Name="missingTranslationsMenuItem" Header="{resx:Localize MainFrame_missingTranslationsMenuItem_Text}"
                               Command="{Binding ShowMissingTranslationsCommand}"/>
                     <MenuItem x:Name="crashToolStripMenuItem" Header="{resx:Localize MainFrame_crashToolStripMenuItem_Text}"
@@ -432,8 +445,9 @@
                         <MenuItem Header="Yes / No / Cancel" Command="{Binding TestMessageBoxYesNoCancelCommand}"/>
                     </MenuItem>
                 </MenuItem>
-                <!-- Translate submenu -->
-                <MenuItem x:Name="translateMenu" Header="{resx:Localize MainFrame_translateMenu_Text}">
+
+                <!-- Translate submenu (shown only with Ctrl+Shift or Ctrl+Alt held; see HelpMenu_SubmenuOpened) -->
+                <MenuItem x:Name="translateMenu" Header="{resx:Localize MainFrame_translateMenu_Text}" IsVisible="False">
                     <MenuItem x:Name="addDescriptionLanguageMenu" Header="{resx:Localize MainFrame_addDescriptionLanguageMenu_Text}"
                               Command="{Binding AddDescriptionLanguageCommand}"/>
                     <MenuItem x:Name="addTranslatedTextsMenu" Header="{resx:Localize MainFrame_addTranslatedTextsMenu_Text}"
@@ -472,18 +486,26 @@
 
             <!-- Undo (image only) -->
             <Button x:Name="undoToolStripButton"
-                    ToolTip.Tip="{resx:Localize MainFrame_undoToolStripButton_ToolTipText}"
+                    ToolTip.Tip="{Binding UndoToolTip}"
                     Command="{Binding UndoCommand}"
                     Padding="2,2">
-                <Image Source="/Assets/Toolbar/undo.png" Width="16" Height="16"/>
+                <Image Width="16" Height="16"
+                       Source="{Binding IsEffectivelyEnabled,
+                                RelativeSource={RelativeSource Self},
+                                Converter={x:Static avutil:DisabledImageConverter.Instance},
+                                ConverterParameter=/Assets/Toolbar/undo.png}"/>
             </Button>
 
             <!-- Redo (image only) -->
             <Button x:Name="redoToolStripButton"
-                    ToolTip.Tip="{resx:Localize MainFrame_redoToolStripButton_ToolTipText}"
+                    ToolTip.Tip="{Binding RedoToolTip}"
                     Command="{Binding RedoCommand}"
                     Padding="2,2">
-                <Image Source="/Assets/Toolbar/redo.png" Width="16" Height="16"/>
+                <Image Width="16" Height="16"
+                       Source="{Binding IsEffectivelyEnabled,
+                                RelativeSource={RelativeSource Self},
+                                Converter={x:Static avutil:DisabledImageConverter.Instance},
+                                ConverterParameter=/Assets/Toolbar/redo.png}"/>
             </Button>
             <Separator Width="1" Margin="4,2"/>
 
@@ -720,7 +742,11 @@
                     ToolTip.Tip="{resx:Localize MainFrame_addGapToolStripButton_ToolTipText}"
                     Command="{Binding AddGapCommand}"
                     Padding="2,2">
-                <Image Source="/Assets/Toolbar/addGap.png" Width="16" Height="16"/>
+                <Image Width="16" Height="16"
+                       Source="{Binding IsEffectivelyEnabled,
+                                RelativeSource={RelativeSource Self},
+                                Converter={x:Static avutil:DisabledImageConverter.Instance},
+                                ConverterParameter=/Assets/Toolbar/addGap.png}"/>
             </Button>
         </StackPanel>
 
@@ -888,6 +914,7 @@
                     Grid.Row="1" Grid.Column="0"
                     MapDisplay="{Binding MapDisplay}"
                     MapHighlights="{Binding MapHighlights}"
+                    ToolTip="{Binding MapViewerToolTip}"
                     FancyMouseActivity="MapViewer_MouseActivity"
                     MouseLocation="{Binding MouseLocationInMap, Mode=OneWayToSource}"
                     ZoomFactor="{Binding MapZoomFactor, Mode=TwoWay}"

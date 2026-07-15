@@ -8,6 +8,9 @@ using PurplePen.MapModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Net.NetworkInformation;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace PurplePen.ViewModels
@@ -23,15 +26,14 @@ namespace PurplePen.ViewModels
 
 #if PORTING
             // Still need to port more logic from MainFrame.UpdateMenusToolbarButtons.
-            // - Undo/Redo text
             // - Cancel mode vs Clear selection text
-            // - showPopupsMenu 
-            // - showPrintAreaMenu
-            // - createOcadFilesMenu.Text
             // - outOfBoundsToolStripMenuItem.Image,  addOutOfBoundsMenu.Image
 #endif
 
             // Update enabled status for commands.
+            UndoStatus undoStatus = controller.GetUndoStatus();
+            CanUndo = undoStatus.CanUndo;
+            CanRedo = undoStatus.CanRedo;
             CanDeleteSelection = controller.CanDeleteSelection();
             CanDeleteCourse = controller.CanDeleteCurrentCourse();
             CanDuplicateCourse = controller.CanDuplicateCurrentCourse();
@@ -54,6 +56,8 @@ namespace PurplePen.ViewModels
             CanClearOtherCourses = (controller.CanClearExtraCourseDisplay() == CommandStatus.Enabled);
             CanChangeDisplayedCourses = (controller.CanChangeDisplayedCourses(out _, out _) == CommandStatus.Enabled);
             IsVisibleClearOtherCourses = (controller.CanClearExtraCourseDisplay() != CommandStatus.Hidden);
+            IsVisibleTranslatedWebSite = TranslatedWebSiteExists();
+            IsVisibleSetPrintAreaThisPart = (controller.NumberOfParts > 1);
 
             // Update checked status of standards, and make dangerous area visible/hidden.
             string descriptionStandard = controller.GetDescriptionStandard();
@@ -65,6 +69,28 @@ namespace PurplePen.ViewModels
             MapStdSpr2019Checked = (mapStandard == "Spr2019");
             MapStdStreetOChecked = (mapStandard == "StreetO");
             IsVisibleDangerousArea = (mapStandard == "2000");
+
+            // Update names of certain menu items.
+            if (undoStatus.CanUndo) {
+                UndoCommandName = MiscText.UndoWithShortcut + " " + undoStatus.UndoName;
+                UndoToolTip = MiscText.Undo + " " + undoStatus.UndoName; 
+            }
+            else {
+                UndoCommandName = MiscText.UndoWithShortcut;
+                UndoToolTip = MiscText.Undo;
+            }
+
+            if (undoStatus.CanRedo) {
+                RedoCommandName = MiscText.RedoWithShortcut + " " + undoStatus.RedoName;
+                RedoToolTip = MiscText.Redo + " " + undoStatus.RedoName;
+            }
+            else {
+                RedoCommandName = MiscText.RedoWithShortcut;
+                RedoToolTip = MiscText.Redo;
+            }
+
+            CreateOcadFilesCommandName = controller.CreateOcadFilesText(true).Replace("&", "_") + "...";
+
 
             // Update checked status of leg flagging options
             FlaggingKind currentFlagging;
@@ -130,23 +156,6 @@ namespace PurplePen.ViewModels
         // Warn user about non-renderable objects. Return false if shouldn't continue
         private async Task<bool> CheckForNonRenderableObjects(bool onlyOnce, bool showCancelAndContinue)
         {
-#if !PORTING
-            // Check for objects that aren't renderable, and warn. If user choses cancel, then cancel.
-            string[] nonRenderableObjects = controller.NonrenderableObjects(onlyOnce);
-
-            if (nonRenderableObjects != null && nonRenderableObjects.Length > 0) {
-                NonPrintableObjects dialog = new NonPrintableObjects(showCancelAndContinue);
-                dialog.MapName = Path.GetFileName(controller.MapFileName);
-                dialog.BadObjectList = nonRenderableObjects;
-
-                DialogResult result = dialog.ShowDialog();
-
-                if (result == DialogResult.Cancel)
-                    return false;
-            }
-
-            return true;
-#else
             if (controller == null) { return true; }
 
             string[]? nonRenderableObjects = controller.NonrenderableObjects(onlyOnce);
@@ -163,7 +172,6 @@ namespace PurplePen.ViewModels
             // (showCancelAndContinue=false) only Continue is shown, so the
             // result is always true, but we still respect it for symmetry.
             return await Services.DialogService.ShowDialogAsync(vm);
-#endif
         }
 
         // Check for missing fonts in the map file and warn about them. The
@@ -171,20 +179,6 @@ namespace PurplePen.ViewModels
         // to call from the idle handler — subsequent calls return nothing.
         private async Task CheckForMissingFonts()
         {
-#if !PORTING
-            string[] missingFonts = controller.MissingFontList();      // This only returns missing fonts once!
-
-            if (missingFonts != null && missingFonts.Length > 0) {
-                // We have some missing fonts. Show the dialog.
-                MissingFonts dialog = new MissingFonts();
-                dialog.MapName = Path.GetFileName(controller.MapFileName);
-                dialog.MissingFontList = missingFonts;
-
-                dialog.ShowDialog();
-
-                controller.IgnoreMissingFontsForever(dialog.IgnoreMissingFonts);
-            }
-#else
             if (controller == null) { return; }
 
             string[]? missingFonts = controller.MissingFontList();   // This only returns missing fonts once!
@@ -200,7 +194,6 @@ namespace PurplePen.ViewModels
 
             // Remember the "don't warn again for this event" choice.
             controller.IgnoreMissingFontsForever(vm.IgnoreMissingFonts);
-#endif
         }
 
 
@@ -214,24 +207,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task NewEvent()
         {
-#if !PORTING
-            // Try to close the current file. If that succeeds, then ask for a new file and try to open it.
-            bool closeSuccess = await controller.TryCloseFile();
-            if (closeSuccess) {
-                NewEventWizard wizard = new NewEventWizard();
-                DialogResult result = wizard.ShowDialog();
-                if (result == DialogResult.OK) {
-                    bool success = await controller.NewEvent(wizard.CreateEventInfo);
-                    if (!success) {
-                        // This is bad news. The old file is gone, and we don't have a new file. Go back to initial screen is the best solution,
-                        // I guess.
-                        Application.Idle -= new EventHandler(Application_Idle);
-                        this.Dispose();
-                        new InitialScreen().Show();
-                    }
-                }
-            }
-#else
             if (controller == null)
                 return;
 
@@ -246,12 +221,13 @@ namespace PurplePen.ViewModels
             if (result) {
                 bool success = await controller.NewEvent(vm.CreateEventInfo);
                 if (!success) {
+#if !PORTING
                     // The old file has been closed and creating the new event failed, so there
                     // is no open file. The WinForms path returned to the InitialScreen here (see
                     // the #if !PORTING block above); that recovery flow is not yet ported.
+#endif
                 }
             }
-#endif
         }
 
         /// <summary>
@@ -263,19 +239,21 @@ namespace PurplePen.ViewModels
         {
             if (controller == null) return;
 
-#if PORTING
-            // Not all functionality ported from MainFrame.openMenu_Click.
-#endif
-            FileOpenSingleViewModel fileOpenVM = new FileOpenSingleViewModel {
-                FileFilters = MiscText.OpenFileDialog_PurplePenFilter,
-                InitialFileFilterIndex = 1
-            };
+            // Try to close the current file. If that succeeds, then ask for a new file and try to open it.
+            bool closeSuccess = await controller.TryCloseFile();
 
-            bool result = await Services.DialogService.ShowDialogAsync(fileOpenVM);
+            if (closeSuccess) {
+                FileOpenSingleViewModel fileOpenVM = new FileOpenSingleViewModel {
+                    FileFilters = MiscText.OpenFileDialog_PurplePenFilter,
+                    InitialFileFilterIndex = 1
+                };
 
-            if (result && fileOpenVM.SelectedFile != null) {
-                string newFilename = fileOpenVM.SelectedFile;
-                bool success = await controller.LoadNewFile(newFilename);
+                bool result = await Services.DialogService.ShowDialogAsync(fileOpenVM);
+
+                if (result && fileOpenVM.SelectedFile != null) {
+                    string newFilename = fileOpenVM.SelectedFile;
+                    bool success = await controller.LoadNewFile(newFilename);
+                }
             }
         }
 
@@ -285,34 +263,60 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void Save()
         {
-#if !PORTING
+            if (controller == null) return;
             controller.Save();
-#endif
         }
 
         /// <summary>
-        /// Executes the File/Save As command. Shows a Save File dialog.
+        /// Executes the File/Save As command. Shows a Save File dialog and,
+        /// if the user picks a file, saves the event under the new name.
         /// </summary>
         [RelayCommand]
-        private void SaveAs()
+        private async Task SaveAs()
         {
-#if !PORTING
-            string newFileName = GetSaveFileName(controller.FileName);
-            if (newFileName != null) {
-                controller.SaveAs(newFileName);
+            if (controller == null) return;
+
+            // Ask where to save. The file-save picker is hosted by
+            // DialogService via FileSaveViewModel's special case.
+            FileSaveViewModel saveVm = new FileSaveViewModel {
+                FileFilters = MiscText.SaveFileDialog_PurplePenFilter,
+                FileFilterIndex = 1,
+                DefaultExtension = "ppen",
+                ShowOverwritePrompt = true,
+                InitialDirectory = System.IO.Path.GetDirectoryName(controller.FileName),
+                SuggestedFileName = System.IO.Path.GetFileName(controller.FileName),
+            };
+
+            if (!await Services.DialogService.ShowDialogAsync(saveVm))
+                return;
+            if (saveVm.SelectedFile == null)
+                return;
+
+            controller.SaveAs(saveVm.SelectedFile);
+        }
+
+        /// <summary>
+        /// Raised when the application should exit after the current file has
+        /// been closed successfully. The View handles this by shutting down the
+        /// application. The ViewModel cannot reference Avalonia, so the actual
+        /// shutdown is performed by the View.
+        /// </summary>
+        public event Action? ExitRequested;
+
+        /// <summary>
+        /// Executes the File/Exit command. Tries to close the current file
+        /// (prompting to save if dirty); if the user does not cancel, requests
+        /// that the application exit.
+        /// </summary>
+        [RelayCommand]
+        private async Task Exit()
+        {
+            if (controller == null)
+                return;
+
+            if (await controller.TryCloseFile()) {
+                ExitRequested?.Invoke();
             }
-#endif
-        }
-
-        /// <summary>
-        /// Executes the File/Exit command. Closes the application.
-        /// </summary>
-        [RelayCommand]
-        private void Exit()
-        {
-#if !PORTING
-            Close();
-#endif
         }
 
         #endregion // File commands
@@ -339,30 +343,36 @@ namespace PurplePen.ViewModels
         /// <summary>
         /// Executes the Edit/Undo command.
         /// </summary>
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanUndo))]
         private void Undo()
         {
-#if !PORTING
-            UndoStatus status = controller.GetUndoStatus();
+            if (controller == null) { return; }
 
+            UndoStatus status = controller.GetUndoStatus();
+        
             if (status.CanUndo)
                 controller.Undo();
-#endif
         }
+
+        [ObservableProperty, NotifyCanExecuteChangedFor(nameof(UndoCommand))]
+        private bool canUndo;
 
         /// <summary>
         /// Executes the Edit/Redo command.
         /// </summary>
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanRedo))]
         private void Redo()
         {
-#if !PORTING
+            if (controller == null) { return; }
+
             UndoStatus status = controller.GetUndoStatus();
 
             if (status.CanRedo)
                 controller.Redo();
-#endif
         }
+
+        [ObservableProperty, NotifyCanExecuteChangedFor(nameof(RedoCommand))]
+        private bool canRedo;
 
         /// <summary>
         /// Executes the Edit/Delete command. Deletes the current selection.
@@ -467,12 +477,12 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void ToggleShowPopups()
         {
-#if !PORTING
-            showToolTips = !showToolTips;
-            UserSettings.Current.ShowPopupInfo = showToolTips;
+            ShowToolTips = !ShowToolTips;
+            UserSettings.Current.ShowPopupInfo = ShowToolTips;
             UserSettings.Current.Save();
-#endif
         }
+
+        [ObservableProperty] private bool showToolTips = UserSettings.Current.ShowPopupInfo;
 
         /// <summary>
         /// Toggles display of the print area.
@@ -480,12 +490,13 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void ToggleShowPrintArea()
         {
-#if !PORTING
-            UserSettings.Current.ShowPrintArea = !UserSettings.Current.ShowPrintArea;
+            ShowPrintArea = !ShowPrintArea;
+            UserSettings.Current.ShowPrintArea = ShowPrintArea;
             UserSettings.Current.Save();
-            controller.ForceChangeUpdate(true);
-#endif
+            controller?.ForceChangeUpdate(true);
         }
+
+        [ObservableProperty] private bool showPrintArea = UserSettings.Current.ShowPrintArea;
 
         /// <summary>
         /// Sets map rendering to high quality (anti-aliased).
@@ -540,14 +551,6 @@ namespace PurplePen.ViewModels
         [RelayCommand(CanExecute = nameof(CanShowOtherCourses))]
         private async Task ShowOtherCourses()
         {
-#if !PORTING
-            ViewAdditionalCourses dialog = new ViewAdditionalCourses(controller.CurrentTabName, controller.CurrentCourseId);
-            dialog.EventDB = controller.GetEventDB();
-            dialog.DisplayedCourses = controller.ExtraCourseDisplay;
-            if (dialog.ShowDialog() == DialogResult.OK) {
-                controller.ExtraCourseDisplay = dialog.DisplayedCourses;
-            }
-#else
             if (controller == null) { return; }
 
             ViewAdditionalCoursesDialogViewModel vm = new ViewAdditionalCoursesDialogViewModel {
@@ -560,7 +563,6 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.ExtraCourseDisplay = vm.DisplayedCourses;
             }
-#endif
         }
 
         [ObservableProperty, NotifyCanExecuteChangedFor(nameof(ShowOtherCoursesCommand))]
@@ -581,6 +583,8 @@ namespace PurplePen.ViewModels
         private bool canClearOtherCourses;
         [ObservableProperty]
         private bool isVisibleClearOtherCourses;
+        [ObservableProperty]
+        private bool isVisibleTranslatedWebSite;
 
 
         #endregion // View commands
@@ -685,23 +689,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task AddVariation()
         {
-#if !PORTING
-            string reason;
-            if (controller.CanAddVariation(out reason) != CommandStatus.Enabled) {
-                await ErrorMessage(reason);
-                return;
-            }
-
-            AddForkDialog addForkDialog = new AddForkDialog();
-
-            DialogResult result = addForkDialog.ShowDialog(this);
-
-            if (result == DialogResult.OK) {
-                await controller.AddVariation(addForkDialog.Loop, addForkDialog.NumberOfBranches);
-            }
-
-            addForkDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             string reason;
@@ -715,7 +702,6 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 await controller.AddVariation(vm.IsLoop, vm.NumberOfBranches);
             }
-#endif
         }
 
         /// <summary>
@@ -724,29 +710,6 @@ namespace PurplePen.ViewModels
         [RelayCommand(CanExecute = nameof(CanAddTextLine))]
         private async Task AddTextLine()
         {
-#if !PORTING
-            string defaultText;
-            DescriptionLine.TextLineKind defaultLineKind;
-            bool enableThisCourse;
-            string objectName;
-
-            if (controller.CanAddTextLine(out defaultText, out defaultLineKind, out objectName, out enableThisCourse)) {
-                // Initialize dialog.
-                AddTextLine dialog = new AddTextLine(objectName, enableThisCourse);
-                dialog.TextLine = defaultText;
-                dialog.TextLineKind = defaultLineKind;
-
-                // Show the dialog.
-                DialogResult result = dialog.ShowDialog(this);
-
-                // Apply changes.
-                if (result == DialogResult.OK) {
-                    controller.AddTextLine(dialog.TextLine, dialog.TextLineKind);
-                }
-
-                dialog.Dispose();
-            }
-#else
             if (controller == null) { return; }
 
             string defaultText;
@@ -767,7 +730,6 @@ namespace PurplePen.ViewModels
                     controller.AddTextLine(vm.TextLine ?? "", vm.TextLineKind);
                 }
             }
-#endif
         }
 
         [ObservableProperty, NotifyCanExecuteChangedFor(nameof(AddTextLineCommand))]
@@ -784,20 +746,12 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task AddMapIssue()
         {
-#if !PORTING
-            MapIssueChoiceDialog dialog = new MapIssueChoiceDialog();
-            if (dialog.ShowDialog(this) == DialogResult.OK) {
-                controller.BeginAddMapIssuePointMode(dialog.MapIssueKind);
-            }
-            dialog.Dispose();
-#else
             if (controller == null) { return; }
 
             MapIssueChoiceDialogViewModel vm = new MapIssueChoiceDialogViewModel();
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.BeginAddMapIssuePointMode(vm.MapIssueKind);
             }
-#endif
         }
 
         /// <summary>
@@ -927,36 +881,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task AddText()
         {
-#if !PORTING
-            short colorOcadId;
-            float c, m, y, k;
-            bool purpleOverprint;
-            string fontName;
-            bool fontBold, fontItalic;
-            float fontHeight;
-            bool fontAutoSize;
-            SpecialColor fontColor;
-
-            FindPurple.GetPurpleColor(mapDisplay, controller.GetCourseAppearance(), out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
-
-            ChangeText dialog = new ChangeText(MiscText.AddTextSpecialTitle, MiscText.AddTextSpecialExplanation, true,
-                                               CmykColor.FromCmyk(c, m, y, k), controller.ExpandText);
-            dialog.HelpTopic = "EditAddText.htm";
-
-            controller.GetAddTextDefaultProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight, out fontAutoSize);
-            dialog.FontName = fontName;
-            dialog.FontBold = fontBold;
-            dialog.FontItalic = fontItalic;
-            dialog.FontColor = fontColor;
-            dialog.FontSize = fontHeight;
-            dialog.FontSizeAutomatic = fontAutoSize;
-
-            if (dialog.ShowDialog(this) == DialogResult.OK) {
-                controller.BeginAddTextSpecialMode(dialog.UserText, dialog.FontName, dialog.FontBold, dialog.FontItalic, dialog.FontColor, dialog.FontSizeAutomatic ? -1 : dialog.FontSize);
-            }
-
-            dialog.Dispose();
-#else
             if (controller == null) { return; }
 
             float c, m, y, k;
@@ -993,24 +917,25 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.BeginAddTextSpecialMode(vm.UserText, vm.FontName, vm.FontBold, vm.FontItalic, vm.Color, vm.FontSizeAutomatic ? -1 : (float)vm.FontSize /* JU: Text rotation and multiline */, textRotation, textMultiline);
             }
-#endif
         }
 
         /// <summary>
-        /// Executes the Add/Image command. Shows an Open File dialog for image selection.
+        /// Executes the Add/Image command. Shows an Open File dialog for image selection,
+        /// then begins the add-image special mode with the selected file.
         /// </summary>
         [RelayCommand]
-        private void AddImage()
+        private async Task AddImage()
         {
-#if !PORTING
-            openImageDialog.FileName = null;
-            DialogResult result = openImageDialog.ShowDialog();
+            if (controller == null) { return; }
 
-            if (result == DialogResult.OK) {
-                string fileName = openImageDialog.FileName;
-                controller.BeginAddImageSpecialMode(fileName);
+            FileOpenSingleViewModel fileOpenVM = new FileOpenSingleViewModel {
+                FileFilters = MiscText.OpenImageDialog_Filter,
+                InitialFileFilterIndex = 1,
+            };
+
+            if (await Services.DialogService.ShowDialogAsync(fileOpenVM) && fileOpenVM.SelectedFile != null) {
+                controller.BeginAddImageSpecialMode(fileOpenVM.SelectedFile);
             }
-#endif
         }
 
         /// <summary>
@@ -1019,39 +944,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task AddLine()
         {
-#if !PORTING
-            // Set the course appearance into the dialog
-            CourseAppearance appearance = controller.GetCourseAppearance();
-
-            // Get the correct default purple color to use.
-            float c, m, y, k;
-            bool purpleOverprint;
-            short ocadId;
-            FindPurple.GetPurpleColor(mapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
-
-            LinePropertiesDialog linePropertiesDialog = new LinePropertiesDialog(MiscText.AddLineTitle, MiscText.AddLineExplanation, "EditAddLine.htm", CmykColor.FromCmyk(c, m, y, k), appearance);
-
-            // Get the defaults for a new line.
-            SpecialColor color;
-            LineKind lineKind;
-            float lineWidth, gapSize, dashSize, cornerRadius;
-            controller.GetLineSpecialProperties(SpecialKind.Line, false, out color, out lineKind, out lineWidth, out gapSize, out dashSize, out cornerRadius);
-            linePropertiesDialog.ShowRadius = false;
-            linePropertiesDialog.ShowLineKind = true;
-            linePropertiesDialog.Color = color;
-            linePropertiesDialog.LineKind = lineKind;
-            linePropertiesDialog.LineWidth = lineWidth;
-            linePropertiesDialog.GapSize = gapSize;
-            linePropertiesDialog.DashSize = dashSize;
-
-            DialogResult result = linePropertiesDialog.ShowDialog();
-
-            if (result == DialogResult.OK) {
-                controller.BeginAddLineSpecialMode(linePropertiesDialog.Color, linePropertiesDialog.LineKind, linePropertiesDialog.LineWidth, linePropertiesDialog.GapSize, linePropertiesDialog.DashSize);
-            }
-
-            linePropertiesDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             CourseAppearance appearance = controller.GetCourseAppearance();
@@ -1083,7 +975,6 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.BeginAddLineSpecialMode(vm.Color, vm.LineKind, (float)vm.LineWidth, (float)vm.GapSize, (float)vm.DashSize);
             }
-#endif
         }
 
         /// <summary>
@@ -1092,40 +983,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task AddRectangle()
         {
-#if !PORTING
-            // Set the course appearance into the dialog
-            CourseAppearance appearance = controller.GetCourseAppearance();
-
-            // Get the correct default purple color to use.
-            float c, m, y, k;
-            bool purpleOverprint;
-            short ocadId;
-            FindPurple.GetPurpleColor(mapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
-
-            LinePropertiesDialog linePropertiesDialog = new LinePropertiesDialog(MiscText.AddRectangleTitle, MiscText.AddRectangleExplanation, "EditAddRectangle.htm", CmykColor.FromCmyk(c, m, y, k), appearance);
-
-            // Get the defaults for a new line.
-            SpecialColor color;
-            LineKind lineKind;
-            float lineWidth, gapSize, dashSize, cornerRadius;
-            controller.GetLineSpecialProperties(SpecialKind.Rectangle, false, out color, out lineKind, out lineWidth, out gapSize, out dashSize, out cornerRadius);
-            linePropertiesDialog.ShowRadius = true;
-            linePropertiesDialog.ShowLineKind = false;
-            linePropertiesDialog.Color = color;
-            linePropertiesDialog.LineKind = LineKind.Single;
-            linePropertiesDialog.LineWidth = lineWidth;
-            linePropertiesDialog.GapSize = gapSize;
-            linePropertiesDialog.DashSize = dashSize;
-            linePropertiesDialog.CornerRadius = cornerRadius;
-
-            DialogResult result = linePropertiesDialog.ShowDialog();
-
-            if (result == DialogResult.OK) {
-                controller.BeginAddRectangleSpecialMode(false, linePropertiesDialog.Color, linePropertiesDialog.LineKind, linePropertiesDialog.LineWidth, linePropertiesDialog.GapSize, linePropertiesDialog.DashSize, linePropertiesDialog.CornerRadius);
-            }
-
-            linePropertiesDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             CourseAppearance appearance = controller.GetCourseAppearance();
@@ -1158,7 +1015,6 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.BeginAddRectangleSpecialMode(false, vm.Color, vm.LineKind, (float)vm.LineWidth, (float)vm.GapSize, (float)vm.DashSize, (float)vm.CornerRadius);
             }
-#endif
         }
 
         /// <summary>
@@ -1167,40 +1023,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task AddEllipse()
         {
-#if !PORTING
-            // Set the course appearance into the dialog
-            CourseAppearance appearance = controller.GetCourseAppearance();
-
-            // Get the correct default purple color to use.
-            float c, m, y, k;
-            bool purpleOverprint;
-            short ocadId;
-            FindPurple.GetPurpleColor(mapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
-
-            LinePropertiesDialog linePropertiesDialog = new LinePropertiesDialog(MiscText.AddEllipseTitle, MiscText.AddEllipseExplanation, "EditAddEllipse.htm", CmykColor.FromCmyk(c, m, y, k), appearance);
-
-            // Get the defaults for a new line.
-            SpecialColor color;
-            LineKind lineKind;
-            float lineWidth, gapSize, dashSize, cornerRadius;
-            controller.GetLineSpecialProperties(SpecialKind.Ellipse, false, out color, out lineKind, out lineWidth, out gapSize, out dashSize, out cornerRadius);
-            linePropertiesDialog.ShowRadius = false;
-            linePropertiesDialog.ShowLineKind = true;
-            linePropertiesDialog.Color = color;
-            linePropertiesDialog.LineKind = LineKind.Single;
-            linePropertiesDialog.LineWidth = lineWidth;
-            linePropertiesDialog.GapSize = gapSize;
-            linePropertiesDialog.DashSize = dashSize;
-            linePropertiesDialog.CornerRadius = cornerRadius;
-
-            DialogResult result = linePropertiesDialog.ShowDialog();
-
-            if (result == DialogResult.OK) {
-                controller.BeginAddRectangleSpecialMode(true, linePropertiesDialog.Color, linePropertiesDialog.LineKind, linePropertiesDialog.LineWidth, linePropertiesDialog.GapSize, linePropertiesDialog.DashSize, 0);
-            }
-
-            linePropertiesDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             CourseAppearance appearance = controller.GetCourseAppearance();
@@ -1232,7 +1054,6 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.BeginAddRectangleSpecialMode(true, vm.Color, vm.LineKind, (float)vm.LineWidth, (float)vm.GapSize, (float)vm.DashSize, 0);
             }
-#endif
         }
 
         #endregion // Add special item commands
@@ -1332,40 +1153,7 @@ namespace PurplePen.ViewModels
         [RelayCommand(CanExecute = nameof(CanChangeText))]
         private async Task ChangeText()
         {
-#if !PORTING
-            if (controller.CanChangeText() == CommandStatus.Enabled) {
-                short colorOcadId;
-                float c, m, y, k;
-                bool purpleOverprint;
-                string fontName;
-                bool fontBold, fontItalic;
-                float fontHeight;
-                float textRotation; //JU: Text rotation
-                bool textMultiline; //JU: Multiline
-                SpecialColor fontColor;
-                FindPurple.GetPurpleColor(mapDisplay, controller.GetCourseAppearance(), out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
-
-                string oldText = controller.GetChangableText();
-                controller.GetChangableTextProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight /* JU: Text rotation and multiline */ , out textRotation, out textMultiline);
-                ChangeText dialog = new ChangeText(MiscText.ChangeTextTitle, MiscText.ChangeTextSpecialExplanation, true,
-                                                   CmykColor.FromCmyk(c, m, y, k), controller.ExpandText);
-                dialog.HelpTopic = "ItemChangeText.htm";
-                dialog.UserText = oldText;
-                dialog.FontName = fontName;
-                dialog.FontBold = fontBold;
-                dialog.FontItalic = fontItalic;
-                dialog.FontColor = fontColor;
-                dialog.FontSize = (fontHeight < 0) ? 5 : fontHeight;
-                dialog.FontSizeAutomatic = (fontHeight < 0);
-
-                if (dialog.ShowDialog(this) == DialogResult.OK) {
-                    controller.ChangeText(dialog.UserText, dialog.FontName, dialog.FontBold, dialog.FontItalic, dialog.FontColor, dialog.FontSizeAutomatic ? -1 : dialog.FontSize);
-                }
-
-                dialog.Dispose();
-            }
-#else
-            if (controller == null) { return; }
+            if (controller == null || controller.CanChangeText() != CommandStatus.Enabled) { return; }
 
             float c, m, y, k;
             bool purpleOverprint;
@@ -1402,7 +1190,6 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.ChangeText(vm.UserText, vm.FontName, vm.FontBold, vm.FontItalic, vm.Color, vm.FontSizeAutomatic ? -1 : (float)vm.FontSize /* JU: text rotation and multiline */, (float)vm.TextRotation, vm.TextMultiline);
             }
-#endif
         }
 
         [ObservableProperty, NotifyCanExecuteChangedFor(nameof(ChangeTextCommand))]
@@ -1414,42 +1201,7 @@ namespace PurplePen.ViewModels
         [RelayCommand(CanExecute = nameof(CanChangeLineAppearance))]
         private async Task ChangeLineAppearance()
         {
-#if !PORTING
-            if (controller.CanChangeLineAppearance() == CommandStatus.Enabled) {
-                CourseAppearance appearance = controller.GetCourseAppearance();
-
-                short colorOcadId;
-                float c, m, y, k;
-                bool purpleOverprint;
-                FindPurple.GetPurpleColor(mapDisplay, appearance, out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
-
-                LinePropertiesDialog linePropertiesDialog = new LinePropertiesDialog(MiscText.ChangeLineAppearanceTitle, MiscText.ChangeLineAppearanceExplanation, "ItemChangeLineAppearance.htm", CmykColor.FromCmyk(c, m, y, k), appearance);
-
-                // Get the defaults for a new line.
-                SpecialColor color;
-                LineKind lineKind;
-                bool showRadius;
-                float lineWidth, gapSize, dashSize, cornerRadius;
-                controller.GetChangableLineProperties(out showRadius, out color, out lineKind, out lineWidth, out gapSize, out dashSize, out cornerRadius);
-                linePropertiesDialog.ShowRadius = showRadius;
-                linePropertiesDialog.ShowLineKind = !showRadius;
-                linePropertiesDialog.Color = color;
-                linePropertiesDialog.LineKind = lineKind;
-                linePropertiesDialog.LineWidth = lineWidth;
-                linePropertiesDialog.GapSize = gapSize;
-                linePropertiesDialog.DashSize = dashSize;
-                linePropertiesDialog.CornerRadius = cornerRadius;
-
-                DialogResult result = linePropertiesDialog.ShowDialog();
-
-                if (result == DialogResult.OK) {
-                    controller.ChangeLineAppearance(linePropertiesDialog.Color, linePropertiesDialog.LineKind, linePropertiesDialog.LineWidth, linePropertiesDialog.GapSize, linePropertiesDialog.DashSize, linePropertiesDialog.CornerRadius);
-                }
-
-                linePropertiesDialog.Dispose();
-            }
-#else
-            if (controller == null) { return; }
+            if (controller == null || controller.CanChangeLineAppearance() != CommandStatus.Enabled) { return; }
 
             CourseAppearance appearance = controller.GetCourseAppearance();
 
@@ -1482,7 +1234,6 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.ChangeLineAppearance(vm.Color, vm.LineKind, (float)vm.LineWidth, (float)vm.GapSize, (float)vm.DashSize, (float)vm.CornerRadius);
             }
-#endif
         }
 
         [ObservableProperty, NotifyCanExecuteChangedFor(nameof(ChangeLineAppearanceCommand))]
@@ -1624,27 +1375,6 @@ namespace PurplePen.ViewModels
         [RelayCommand(CanExecute = nameof(CanDuplicateCourse))]
         private async Task DuplicateCourse()
         {
-#if !PORTING
-            if (controller.CanDuplicateCurrentCourse()) {
-                // Initialize the dialog
-                AddCourse addCourseDialog = new AddCourse();
-                InitializeCoursePropertiesDialogWithCurrentValues(addCourseDialog);
-                addCourseDialog.SetTitle(MiscText.DuplicateCourseTitle);
-                addCourseDialog.HelpTopic = "CourseDuplicate.htm";
-                addCourseDialog.CourseName = "";
-                addCourseDialog.CanChangeCourseKind = false;
-
-                // Display the dialog
-                DialogResult result = addCourseDialog.ShowDialog();
-
-                // If the dialog completed successfully, then add the course.
-                if (result == DialogResult.OK) {
-                    controller.DuplicateCurrentCourse(addCourseDialog.CourseName, addCourseDialog.ControlLabelKind, addCourseDialog.ScoreColumn, addCourseDialog.SecondaryTitle,
-                                                      addCourseDialog.PrintScale, addCourseDialog.Climb, addCourseDialog.Length, addCourseDialog.DescKind, addCourseDialog.FirstControlOrdinal, addCourseDialog.HideFromReports);
-                }
-
-            }
-#else
             if (controller == null) { return; }
 
             if (controller.CanDuplicateCurrentCourse()) {
@@ -1683,7 +1413,6 @@ namespace PurplePen.ViewModels
                         vm.PrintScale, vm.Climb, vm.Length, vm.DescKind, vm.FirstControlOrdinal, vm.HideFromReports);
                 }
             }
-#endif
         }
 
         [ObservableProperty, NotifyCanExecuteChangedFor(nameof(DuplicateCourseCommand))]
@@ -1699,44 +1428,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task ShowCourseProperties()
         {
-#if !PORTING
-            if (controller.CanChangeCourseProperties()) {
-                // Initialize the dialog
-                AddCourse addCourseDialog = new AddCourse();
-                InitializeCoursePropertiesDialogWithCurrentValues(addCourseDialog);
-                addCourseDialog.SetTitle(MiscText.CoursePropertiesTitle);
-                addCourseDialog.HelpTopic = "CourseProperties.htm";
-
-                // Display the dialog
-                DialogResult result = addCourseDialog.ShowDialog();
-
-                // If the dialog completed successfully, then change the course.
-                if (result == DialogResult.OK) {
-                    controller.ChangeCurrentCourseProperties(addCourseDialog.CourseKind, addCourseDialog.CourseName, addCourseDialog.ControlLabelKind, addCourseDialog.ScoreColumn, addCourseDialog.SecondaryTitle,
-                        addCourseDialog.PrintScale, addCourseDialog.Climb, addCourseDialog.Length, addCourseDialog.DescKind, addCourseDialog.FirstControlOrdinal, addCourseDialog.HideFromReports);
-                }
-            }
-            else {
-                // Change properties of all controls.
-                float printScale;
-                DescriptionKind descKind;
-                controller.GetAllControlsProperties(out printScale, out descKind);
-
-                // Initialize the dialog
-                AllControlsProperties allControlsDialog = new AllControlsProperties();
-                allControlsDialog.InitializePrintScales(controller.MapScale);
-                allControlsDialog.PrintScale = printScale;
-                allControlsDialog.DescKind = descKind;
-
-                // Display the dialog
-                DialogResult result = allControlsDialog.ShowDialog();
-
-                // If the dialog completed successfully, then change the course.
-                if (result == DialogResult.OK) {
-                    controller.ChangeAllControlsProperties(allControlsDialog.PrintScale, allControlsDialog.DescKind);
-                }
-            }
-#else
             if (controller == null) { return; }
 
             if (controller.CanChangeCourseProperties()) {
@@ -1789,7 +1480,6 @@ namespace PurplePen.ViewModels
                     controller.ChangeAllControlsProperties(vm.PrintScale, vm.DescKind);
                 }
             }
-#endif
         }
 
         /// <summary>
@@ -1798,21 +1488,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task ShowCourseLoad()
         {
-#if !PORTING
-            // Initialize the dialog with the current load values.
-            CourseLoad courseLoadDialog = new CourseLoad();
-            courseLoadDialog.SetCourseLoads(controller.GetAllCourseLoads());
-
-            // Show the dialog.
-            DialogResult result = courseLoadDialog.ShowDialog(this);
-
-            // Apply the changes.
-            if (result == DialogResult.OK) {
-                controller.SetAllCourseLoads(courseLoadDialog.GetCourseLoads());
-            }
-
-            courseLoadDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             // Initialize the dialog with the current load values.
@@ -1824,7 +1499,6 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.SetAllCourseLoads(vm.CourseLoads);
             }
-#endif
         }
 
         /// <summary>
@@ -1833,20 +1507,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task ShowCourseOrder()
         {
-#if !PORTING
-            // Initialize dialog.
-            ChangeCourseOrder courseOrderDialog = new ChangeCourseOrder(controller.GetAllCourseOrders());
-
-            // Show the dialog.
-            DialogResult result = courseOrderDialog.ShowDialog(this);
-
-            // Apply the changes.
-            if (result == DialogResult.OK) {
-                controller.SetAllCourseOrders(courseOrderDialog.GetCourseOrders());
-            }
-
-            courseOrderDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             // Initialize the dialog with the current course order.
@@ -1858,7 +1518,6 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.SetAllCourseOrders(vm.CourseOrders);
             }
-#endif
         }
 
         /// <summary>
@@ -1867,44 +1526,6 @@ namespace PurplePen.ViewModels
         [RelayCommand(CanExecute = nameof(CanShowCourseVariationReport))]
         private async Task ShowCourseVariationReport()
         {
-#if !PORTING
-            RelaySettings relaySettings = controller.GetRelayParameters();
-            bool hideVariationsOnMap = controller.GetHideVariationsOnMap();
-            TeamVariationsForm reportForm = new TeamVariationsForm();
-            reportForm.FirstTeamNumber = relaySettings.firstTeamNumber;
-            reportForm.NumberOfTeams = relaySettings.relayTeams;
-            reportForm.NumberOfLegs = relaySettings.relayLegs;
-            reportForm.FixedBranchAssignments = relaySettings.relayBranchAssignments;
-            reportForm.HideVariationsOnMap = hideVariationsOnMap;
-            reportForm.DefaultExportFileName = controller.GetDefaultVariationExportFileName();
-
-            SetVariationReportBody(reportForm);
-
-            reportForm.CalculateVariationsPressed += (reportSender, reportEventArgs) => {
-                SetVariationReportBody(reportForm);
-            };
-
-            reportForm.AssignLegsPressed += (reportSender, reportEventArgs) => {
-                ShowAssignLegs(reportForm);
-            };
-
-            reportForm.ExportFilePressed += (reportSender, reportEventArgs) => {
-                ExportVariationReport(reportForm, reportEventArgs.FileType, reportEventArgs.FileName);
-            };
-
-            reportForm.ShowDialog(this);
-
-            if (relaySettings.firstTeamNumber != reportForm.FirstTeamNumber ||
-                relaySettings.relayTeams != reportForm.NumberOfTeams ||
-                relaySettings.relayLegs != reportForm.NumberOfLegs ||
-                hideVariationsOnMap != reportForm.HideVariationsOnMap ||
-                !object.Equals(relaySettings.relayBranchAssignments, reportForm.FixedBranchAssignments))
-            {
-                controller.SetRelayParameters(reportForm.RelaySettings, reportForm.HideVariationsOnMap);
-            }
-
-            reportForm.Dispose();
-#else
             if (controller == null)
                 return;
 
@@ -1937,7 +1558,6 @@ namespace PurplePen.ViewModels
                 !object.Equals(relaySettings.relayBranchAssignments, newSettings.relayBranchAssignments)) {
                 controller.SetRelayParameters(newSettings, vm.HideVariationsOnMap);
             }
-#endif
         }
 
         [ObservableProperty, NotifyCanExecuteChangedFor(nameof(ShowCourseVariationReportCommand))]
@@ -1955,26 +1575,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task ChangeMapFile()
         {
-#if !PORTING
-            // Initialize dialog.
-            ChangeMapFile dialog = new ChangeMapFile();
-            dialog.MapFile = controller.MapFileName;
-            if (controller.MapType == MapType.Bitmap) {
-                dialog.MapScale = controller.MapScale;   // Note: these must be set AFTER the MapFile property
-                dialog.Dpi = controller.MapDpi;
-            }
-            else if (controller.MapType == MapType.PDF) {
-                dialog.MapScale = controller.MapScale;
-            }
-
-            // Show the dialog.
-            DialogResult result = dialog.ShowDialog(this);
-
-            // Apply new map file.
-            if (result == DialogResult.OK) {
-                controller.ChangeMapFile(dialog.MapType, dialog.MapFile, dialog.MapScale, dialog.Dpi);
-            }
-#else
             if (controller == null) return;
 
             // Initialize dialog.
@@ -1992,7 +1592,6 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.ChangeMapFile(vm.MapType, vm.MapFile, vm.MapScale, vm.Dpi);
             }
-#endif
         }
 
         /// <summary>
@@ -2001,22 +1600,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task ChangeCodes()
         {
-#if !PORTING
-            // Initialize the dialog with the current codes.
-            ChangeAllCodes changeCodesDialog = new ChangeAllCodes();
-            changeCodesDialog.SetEventDB(controller.GetEventDB());
-            changeCodesDialog.Codes = controller.GetAllControlCodes();
-
-            // Show the dialog to allow people to change the codes.
-            DialogResult result = changeCodesDialog.ShowDialog(this);
-
-            // Apply the changes.
-            if (result == DialogResult.OK) {
-                controller.SetAllControlCodes(changeCodesDialog.Codes);
-            }
-
-            changeCodesDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             // Initialize the dialog with the current codes.
@@ -2029,7 +1612,6 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.SetAllControlCodes(vm.Codes);
             }
-#endif
         }
 
         /// <summary>
@@ -2038,29 +1620,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task AutoNumbering()
         {
-#if !PORTING
-            // Get initial values.
-            int firstCode;
-            bool disallowInvertibleCodes;
-
-            controller.GetAutoNumbering(out firstCode, out disallowInvertibleCodes);
-
-            // Initialize dialog.
-            AutoNumbering autoNumberingDialog = new AutoNumbering();
-            autoNumberingDialog.FirstCode = firstCode;
-            autoNumberingDialog.DisallowInvertibleCodes = disallowInvertibleCodes;
-            autoNumberingDialog.RenumberExisting = false;
-
-            // Show the dialog.
-            DialogResult result = autoNumberingDialog.ShowDialog(this);
-
-            // Apply the changes.
-            if (result == DialogResult.OK) {
-                controller.AutoNumbering(autoNumberingDialog.FirstCode, autoNumberingDialog.DisallowInvertibleCodes, autoNumberingDialog.RenumberExisting);
-            }
-
-            autoNumberingDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             // Get the current auto-numbering settings to seed the dialog.
@@ -2076,7 +1635,6 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.AutoNumbering(vm.FirstCode, vm.DisallowInvertibleCodes, vm.RenumberExisting);
             }
-#endif
         }
 
         /// <summary>
@@ -2111,28 +1669,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task MoveAllControls()
         {
-#if !PORTING
-            // Part 1: Determine which action we are doing.
-            MoveAllControls moveAllControlsDialog = new MoveAllControls();
-            if (moveAllControlsDialog.ShowDialog() == DialogResult.Cancel) {
-                moveAllControlsDialog.Dispose();
-                return;
-            }
-
-            MoveAllControlsAction action = moveAllControlsDialog.Action;
-            moveAllControlsDialog.Dispose();
-
-            // Part 2: Prompt use to move controls
-            controller.BeginMoveAllControls();
-
-            SelectLocationsForMove selectLocationsForMoveDialog = new SelectLocationsForMove(controller, action);
-            Point location = this.Location;
-            location.Offset(10, 130);
-            selectLocationsForMoveDialog.Location = location;
-            selectLocationsForMoveDialog.Show(this);
-
-            // Dialog dismisses/disposes itself and invokes controller.
-#else
             if (controller == null) { return; }
 
             // Part 1: Determine which kind of move (move / scale / rotate).
@@ -2154,7 +1690,6 @@ namespace PurplePen.ViewModels
             // clicks controls and locations. The dialog drives the controller
             // and finishes the command itself when confirmed or cancelled.
             Services.DialogService.ShowOwnedDialog(locationsVm, disableOwner: false);
-#endif
         }
 
         /// <summary>
@@ -2163,28 +1698,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task PunchPatterns()
         {
-#if !PORTING
-            // Get all the punch patterns and the punch card layout.
-            Dictionary<string, PunchPattern> allPatterns = controller.GetAllPunchPatterns();
-            PunchcardFormat punchcardFormat = controller.GetPunchcardFormat();
-
-            // Initialize the dialog.
-            PunchPatternDialog dialog = new PunchPatternDialog();
-            dialog.AllPunchPatterns = allPatterns;
-            dialog.PunchcardFormat = punchcardFormat;
-
-            // Show the dialog.
-            DialogResult result = dialog.ShowDialog(this);
-
-            // Apply the changes.
-            if (result == DialogResult.OK) {
-                if (!dialog.PunchcardFormat.Equals(punchcardFormat))
-                    controller.SetPunchcardFormat(dialog.PunchcardFormat);
-                controller.SetAllPunchPatterns(dialog.AllPunchPatterns);
-            }
-
-            dialog.Dispose();
-#else
             if (controller == null) { return; }
 
             Dictionary<string, PunchPattern> allPatterns = controller.GetAllPunchPatterns();
@@ -2201,7 +1714,6 @@ namespace PurplePen.ViewModels
                     controller.SetPunchcardFormat(vm.PunchcardFormat);
                 controller.SetAllPunchPatterns(vm.AllPunchPatterns!);
             }
-#endif
         }
 
         /// <summary>
@@ -2210,29 +1722,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task CustomizeDescriptions()
         {
-#if !PORTING
-            Dictionary<string, List<SymbolText>> customSymbolText;
-            Dictionary<string, bool> customSymbolKey;
-
-            // Initialize the dialog
-            CustomSymbolText dialog = new CustomSymbolText(symbolDB, false);
-            controller.GetCustomSymbolText(out customSymbolText, out customSymbolKey);
-            dialog.SetCustomSymbolDictionaries(customSymbolText, customSymbolKey);
-            dialog.LangId = controller.GetDescriptionLanguage();
-
-            // Show the dialog.
-            DialogResult result = dialog.ShowDialog(this);
-
-            // Apply the changes
-            if (result == DialogResult.OK) {
-                // dialog changes the dictionaries, so we don't need to retrieve them.
-                controller.SetCustomSymbolText(customSymbolText, customSymbolKey, dialog.LangId);
-                if (dialog.UseAsDefaultLanguage)
-                    controller.DefaultDescriptionLanguage = dialog.LangId;
-            }
-
-            dialog.Dispose();
-#else
             if (controller == null) { return; }
 
             controller.GetCustomSymbolText(out Dictionary<string, List<SymbolText>> customSymbolText, out Dictionary<string, bool> customSymbolKey);
@@ -2251,7 +1740,6 @@ namespace PurplePen.ViewModels
                 if (vm.UseAsDefaultLanguage)
                     controller.DefaultDescriptionLanguage = vm.LangId;
             }
-#endif
         }
 
         /// <summary>
@@ -2260,34 +1748,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task CustomizeCourseAppearance()
         {
-#if !PORTING
-            // Initialize the dialog
-            CourseAppearanceDialog dialog = new CourseAppearanceDialog();
-
-            // Get the correct default purple color to use.
-            float c, m, y, k;
-            bool purpleOverprint;
-            short ocadId;
-            FindPurple.GetPurpleColor(mapDisplay, null, out ocadId, out c, out m, out y, out k, out purpleOverprint);
-            dialog.SetDefaultPurple(c, m, y, k);
-            dialog.UsesOcadMap = (mapDisplay.MapType == MapType.OCAD);
-            dialog.SetMapLayers(controller.GetUnderlyingMapColors());
-
-            // Set the course appearance into the dialog
-            CourseAppearance appearance = controller.GetCourseAppearance();
-            if (dialog.UsesOcadMap && appearance.purpleColorBlend != PurpleColorBlend.UpperLowerPurple) {
-                // Set the default lower purple layer anyway, so that it is chosen by default when the user changes the blend.
-                appearance.mapLayerForLowerPurple = controller.GetDefaultLowerPurpleLayer();
-            }
-            dialog.CourseAppearance = appearance;
-
-            // Show the dialog.
-            if (dialog.ShowDialog(this) == DialogResult.OK) {
-                controller.SetCourseAppearance(dialog.CourseAppearance);
-            }
-
-            dialog.Dispose();
-#else
             if (controller == null) { return; }
 
             // Get the correct default purple color to use.
@@ -2317,7 +1777,6 @@ namespace PurplePen.ViewModels
             if (await Services.DialogService.ShowDialogAsync(vm)) {
                 controller.SetCourseAppearance(vm.Settings);
             }
-#endif
         }
 
         #endregion // Event/tools commands
@@ -2408,40 +1867,99 @@ namespace PurplePen.ViewModels
 
         #region Print area commands
 
+        // True while any Set Print Area dialog is open. Disables all three Set
+        // Print Area commands (not just the one in effect) so a second print-area
+        // dialog can't be opened on top of the first.
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SetPrintAreaThisPartCommand))]
+        [NotifyCanExecuteChangedFor(nameof(SetPrintAreaThisCourseCommand))]
+        [NotifyCanExecuteChangedFor(nameof(SetPrintAreaAllCoursesCommand))]
+        private bool settingPrintArea;
+
+        // The Set Print Area commands are available as long as no print-area
+        // dialog is already open. (The command bodies no-op when there's no
+        // loaded event; `controller` isn't observable so it can't gate
+        // CanExecute without risking a stuck-disabled menu at startup.)
+        private bool CanSetPrintArea() => !SettingPrintArea;
+
+        [ObservableProperty]
+        private bool isVisibleSetPrintAreaThisPart = true;  // Is the SetPrintArea/This Part command visible?
+
+        // Opens the interactive Set Print Area tool window for the given kind of
+        // print area. The dialog is owned but non-modal so the map stays usable
+        // while the user drags the print rectangle. The normal print-area display
+        // is hidden while the dialog is up (the dialog shows its own draggable
+        // rectangle instead) and restored when it closes.
+        private async Task SetPrintArea(PrintAreaKind printAreaKind)
+        {
+            if (controller == null) { return; }
+
+            SettingPrintArea = true;
+
+#if PORTING
+            // TODO: ensure the existing print area is fully visible before hiding
+            // the gray display. The WinForms version did:
+            //     RectangleF r = controller.GetCurrentPrintAreaRectangle(printAreaKind);
+            //     if (!mapViewer.Viewport.Contains(r)) { r.Inflate(...); ShowRectangle(r); }
+            // This depends on map-viewer viewport/ShowRectangle support that is
+            // not yet ported to the Avalonia main window.
+#endif
+
+            HidePrintArea = true;
+
+            SetPrintAreaDialogViewModel vm = new SetPrintAreaDialogViewModel {
+                Controller = controller,
+                PrintAreaKind = printAreaKind,
+            };
+
+            INonModalDialog<SetPrintAreaDialogViewModel> dialog =
+                Services.DialogService.ShowOwnedDialog(vm, disableOwner: false);
+
+            // The ViewModel closes its own window when the Controller ends the
+            // rectangle-select mode (Done, Cancel, or another command taking over).
+            vm.RequestClose = dialog.Close;
+
+            // Begin the mode, passing the ViewModel as the IDisposable to dispose
+            // when the mode ends; then seed the dialog with the current print area.
+            controller.BeginSetPrintArea(printAreaKind, vm);
+            vm.PrintArea = controller.GetCurrentPrintArea(printAreaKind);
+
+            // Restore the normal print-area display once the dialog closes,
+            // however it closed.
+            await dialog.ClosedTask;
+            HidePrintArea = false;
+            SettingPrintArea = false;
+        }
+
+
         /// <summary>
         /// Sets the print area for this part only.
         /// </summary>
-        [RelayCommand]
-        private void SetPrintAreaThisPart()
+        [RelayCommand(CanExecute = nameof(CanSetPrintArea))]
+        private async Task SetPrintAreaThisPart()
         {
-#if !PORTING
-            SetPrintArea(PrintAreaKind.OnePart);
-#endif
+            await SetPrintArea(PrintAreaKind.OnePart);
         }
 
         /// <summary>
         /// Sets the print area for this course only.
         /// </summary>
-        [RelayCommand]
-        private void SetPrintAreaThisCourse()
+        [RelayCommand(CanExecute = nameof(CanSetPrintArea))]
+        private async Task SetPrintAreaThisCourse()
         {
-#if !PORTING
-            SetPrintArea(PrintAreaKind.OneCourse);
-#endif
+            await SetPrintArea(PrintAreaKind.OneCourse);
         }
 
         /// <summary>
         /// Sets the print area for all courses.
         /// </summary>
-        [RelayCommand]
-        private void SetPrintAreaAllCourses()
+        [RelayCommand(CanExecute = nameof(CanSetPrintArea))]
+        private async Task SetPrintAreaAllCourses()
         {
-#if !PORTING
-            SetPrintArea(PrintAreaKind.AllCourses);
-#endif
+            await SetPrintArea(PrintAreaKind.AllCourses);
         }
 
-        #endregion // Print area commands
+#endregion // Print area commands
 
         #region Print and export commands
 
@@ -2449,7 +1967,7 @@ namespace PurplePen.ViewModels
         /// Executes the File/Print Descriptions command.
         /// </summary>
         [RelayCommand]
-        private void PrintDescriptions()
+        private async Task PrintDescriptions()
         {
 #if !PORTING
             // Initialize dialog
@@ -2469,6 +1987,14 @@ namespace PurplePen.ViewModels
 
             // And the dialog is done.
             printDescDialog.Dispose();
+#else
+            MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel {
+                Message = "Direct printing is not yet implemented in this beta release. For now, please use the PDF creation feature.",
+                Buttons = MessageBoxButtons.Ok,
+                DefaultButton = MessageBoxButton.Ok,
+                Icon = MessageBoxIcon.Warning
+            };
+            await Services.DialogService.ShowDialogAsync(vm);
 #endif
         }
 
@@ -2478,34 +2004,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task CreateDescriptionPdf()
         {
-#if !PORTING
-            // Initialize dialog
-            PrintDescriptions printDescDialog = new PrintDescriptions(controller.GetEventDB(), true);
-            printDescDialog.controller = controller;
-            printDescDialog.PrintSettings = descPrintSettings;
-            printDescDialog.PrinterPageSettings = descPrintPageSettings;
-
-            // show the dialog, on success, print.
-            if (printDescDialog.ShowDialog(this) == DialogResult.OK) {
-                // Figure out filename
-                SaveFileDialog savePdfDialog = new SaveFileDialog();
-                savePdfDialog.Filter = MiscText.PdfFilter;
-                savePdfDialog.FilterIndex = 1;
-                savePdfDialog.DefaultExt = "pdf";
-                savePdfDialog.OverwritePrompt = true;
-                savePdfDialog.InitialDirectory = Path.GetDirectoryName(controller.FileName);
-
-                if (savePdfDialog.ShowDialog(this) == DialogResult.OK) {
-                    // Save the settings for the next invocation of the dialog.
-                    descPrintSettings = printDescDialog.PrintSettings;
-                    descPrintPageSettings = printDescDialog.PrinterPageSettings;
-                    controller.CreateDescriptionsPdf(descPrintSettings, WindowsUtil.PrintingPaperSizeWithMarginsFromPageSettings(descPrintPageSettings), savePdfDialog.FileName);
-                }
-            }
-
-            // And the dialog is done.
-            printDescDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             // Seed from previous settings or build defaults. The printer
@@ -2551,10 +2049,8 @@ namespace PurplePen.ViewModels
             controller.CreateDescriptionsPdf(descPrintSettings,
                                              descPaperSizeWithMargins,
                                              saveVm.SelectedFile);
-#endif
         }
 
-#if PORTING
         // Builds a default PrintingPaperSizeWithMargins (Letter + 0.25" margins
         // on US English, A4 + 7mm margins on metric). Used to seed the PDF
         // description dialog the first time it's opened, before the user has
@@ -2569,13 +2065,12 @@ namespace PurplePen.ViewModels
                                 : PrintingStandards.DefaultDescriptionsEnglishMarginInHundreths;
             return new PrintingPaperSizeWithMargins(paperSize, new PrintingMarginSize(margin));
         }
-#endif
 
         /// <summary>
         /// Executes the File/Print Punch Cards command.
         /// </summary>
         [RelayCommand]
-        private void PrintPunchCards()
+        private async Task PrintPunchCards()
         {
 #if !PORTING
             PrintPunches printPunchesDialog = new PrintPunches(controller.GetEventDB(), false);
@@ -2596,6 +2091,14 @@ namespace PurplePen.ViewModels
 
             // And the dialog is done.
             printPunchesDialog.Dispose();
+#else
+            MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel {
+                Message = "Direct printing is not yet implemented in this beta release. For now, please use the PDF creation feature.",
+                Buttons = MessageBoxButtons.Ok,
+                DefaultButton = MessageBoxButton.Ok,
+                Icon = MessageBoxIcon.Warning
+            };
+            await Services.DialogService.ShowDialogAsync(vm);
 #endif
         }
 
@@ -2605,34 +2108,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task CreatePunchcardPdf()
         {
-#if !PORTING
-            PrintPunches printPunchesDialog = new PrintPunches(controller.GetEventDB(), true);
-            printPunchesDialog.controller = controller;
-            printPunchesDialog.PrintSettings = punchPrintSettings;
-            printPunchesDialog.PrinterPageSettings = punchPrintPageSettings;
-            printPunchesDialog.PrintSettings.Count = 1;
-
-            // show the dialog, on success, print.
-            if (printPunchesDialog.ShowDialog(this) == DialogResult.OK) {
-                // Figure out filename
-                SaveFileDialog savePdfDialog = new SaveFileDialog();
-                savePdfDialog.Filter = MiscText.PdfFilter;
-                savePdfDialog.FilterIndex = 1;
-                savePdfDialog.DefaultExt = "pdf";
-                savePdfDialog.OverwritePrompt = true;
-                savePdfDialog.InitialDirectory = Path.GetDirectoryName(controller.FileName);
-
-                if (savePdfDialog.ShowDialog(this) == DialogResult.OK) {
-                    // Save the settings for the next invocation of the dialog.
-                    punchPrintSettings = printPunchesDialog.PrintSettings;
-                    punchPrintPageSettings = printPunchesDialog.PrinterPageSettings;
-                    controller.CreatePunchesPdf(punchPrintSettings, WindowsUtil.PrintingPaperSizeWithMarginsFromPageSettings(punchPrintPageSettings), savePdfDialog.FileName);
-                }
-            }
-
-            // And the dialog is done.
-            printPunchesDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             // Seed from previous settings or build defaults. The printer
@@ -2687,7 +2162,6 @@ namespace PurplePen.ViewModels
             controller.CreatePunchesPdf(punchPrintSettings,
                                         punchPaperSizeWithMargins,
                                         saveVm.SelectedFile);
-#endif
         }
 
         /// <summary>
@@ -2727,6 +2201,14 @@ namespace PurplePen.ViewModels
 
             // And the dialog is done.
             printCoursesDialog.Dispose();
+#else
+            MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel {
+                Message = "Direct printing is not yet implemented in this beta release. For now, please use the PDF creation feature.",
+                Buttons = MessageBoxButtons.Ok,
+                DefaultButton = MessageBoxButton.Ok,
+                Icon = MessageBoxIcon.Warning
+            };
+            await Services.DialogService.ShowDialogAsync(vm);
 #endif
         }
 
@@ -2736,58 +2218,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task CreateCoursePdf()
         {
-#if !PORTING
-            if (! await CheckForNonRenderableObjects(false, true))
-                return;
-
-            bool isPdfMap = controller.MapType == MapType.PDF;
-
-            CoursePdfSettings settings;
-            if (coursePdfSettings != null)
-                settings = coursePdfSettings.Clone();
-            else {
-                // Default settings: creating in file directory
-                settings = new CoursePdfSettings();
-
-                settings.fileDirectory = true;
-                settings.mapDirectory = false;
-                settings.outputDirectory = Path.GetDirectoryName(controller.FileName);
-            }
-
-            if (isPdfMap) {
-                // If the map file is a PDF, then created PDF must use that paper size, zero margins, and crop courses to that size.
-                settings.CropLargePrintArea = true;
-                RectangleF bounds = controller.MapDisplay.MapBounds;
-            }
-
-            // Initialize dialog
-            CreatePdfCourses createPdfDialog = new CreatePdfCourses(controller.GetEventDB(), controller.AnyMultipart());
-            createPdfDialog.controller = controller;
-            createPdfDialog.PdfSettings = settings;
-            if (isPdfMap) {
-                createPdfDialog.EnableChangeCropping = false;
-            }
-
-            // show the dialog, on success, print.
-            while (createPdfDialog.ShowDialog(this) == DialogResult.OK) {
-                List<string> overwritingFiles = controller.OverwritingPdfFiles(createPdfDialog.PdfSettings);
-                if (overwritingFiles.Count > 0) {
-                    OverwritingOcadFilesDialog overwriteDialog = new OverwritingOcadFilesDialog();
-                    overwriteDialog.Filenames = overwritingFiles;
-                    if (overwriteDialog.ShowDialog(this) == DialogResult.Cancel)
-                        continue;
-                }
-
-                // Save the settings for the next invocation of the dialog.
-                coursePdfSettings = createPdfDialog.PdfSettings;
-                controller.CreateCoursePdfs(coursePdfSettings);
-
-                break;
-            }
-
-            // And the dialog is done.
-            createPdfDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             if (! await CheckForNonRenderableObjects(false, true))
@@ -2841,7 +2271,6 @@ namespace PurplePen.ViewModels
 
                 break;
             }
-#endif
         }
 
         /// <summary>
@@ -2850,89 +2279,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task CreateOcadFiles()
         {
-#if !PORTING
-            bool success = false;
-
-            MapFileFormatKind restrictToKind;  // restrict to outputting this kind of map.
-            if (mapDisplay.MapType == MapType.OCAD) {
-                restrictToKind = mapDisplay.MapVersion.kind;
-            }
-            else {
-                restrictToKind = MapFileFormatKind.None;
-            }
-
-            OcadCreationSettings settings;
-            if (ocadCreationSettingsPrevious != null)
-            {
-                settings = ocadCreationSettingsPrevious.Clone();
-                if (restrictToKind != MapFileFormatKind.None & restrictToKind != ocadCreationSettingsPrevious.fileFormat.kind) {
-                    settings.fileFormat = mapDisplay.MapVersion;
-                }
-            }
-            else {
-                // Default settings: creating in file directory, use format of the current map file.
-                settings = new OcadCreationSettings();
-
-                settings.fileDirectory = true;
-                settings.mapDirectory = false;
-                settings.outputDirectory = Path.GetDirectoryName(controller.FileName);
-                if (mapDisplay.MapType == MapType.OCAD) {
-                    settings.fileFormat = mapDisplay.MapVersion;
-                }
-                else {
-                    settings.fileFormat = new MapFileFormat(MapFileFormatKind.OCAD, 8);
-                }
-            }
-
-            // Get the correct purple color to use.
-            FindPurple.GetPurpleColor(mapDisplay, controller.GetCourseAppearance(), out settings.colorOcadId, out settings.cyan, out settings.magenta, out settings.yellow, out settings.black, out settings.purpleOverprint);
-
-            // Initialize the dialog.
-            CreateOcadFiles createOcadFilesDialog = new CreateOcadFiles(controller.GetEventDB(), restrictToKind, controller.CreateOcadFilesText(false));
-            createOcadFilesDialog.OcadCreationSettings = settings;
-
-            // show the dialog; on success, create the files.
-            while (createOcadFilesDialog.ShowDialog(this) == DialogResult.OK) {
-                // Warn about files that will be overwritten.
-                List<string> overwritingFiles = controller.OverwritingOcadFiles(createOcadFilesDialog.OcadCreationSettings);
-                if (overwritingFiles.Count > 0) {
-                    OverwritingOcadFilesDialog overwriteDialog = new OverwritingOcadFilesDialog();
-                    overwriteDialog.Filenames = overwritingFiles;
-                    if (overwriteDialog.ShowDialog(this) == DialogResult.Cancel)
-                        continue;
-                }
-
-                // Give any other warning messages.
-                List<string> warnings = controller.OcadFilesWarnings(createOcadFilesDialog.OcadCreationSettings);
-                foreach (string warning in warnings) {
-                    await WarningMessage(warning);
-                }
-
-                // Save settings persisted between invocations of this dialog.
-                ocadCreationSettingsPrevious = createOcadFilesDialog.OcadCreationSettings;
-                success = controller.CreateOcadFiles(createOcadFilesDialog.OcadCreationSettings);
-
-                // PP keeps bitmaps in memory and locks them. Tell the user to close PP.
-                if (mapDisplay.MapType == MapType.Bitmap)
-                    await InfoMessage(MiscText.ClosePPBeforeLoadingOCAD);
-
-                break;
-            }
-
-            // And the dialog is done.
-            createOcadFilesDialog.Dispose();
-
-            // The Windows Store version doesn't install Roboto fonts into the system. So we may need to tell the user to install them.
-            if (success) {
-                if (controller.ShouldInstallRobotoFonts()) {
-                    if (await YesNoQuestion(MiscText.AskInstallRobotoFonts, true)) {
-                        bool installSucceeded = controller.InstallRobotoFonts();
-                        if (!installSucceeded)
-                            await ErrorMessage(MiscText.RobotoFontsInstallFailed);
-                    }
-                }
-            }
-#else
             if (controller == null || MapDisplay == null) { return; }
 
             bool success = false;
@@ -3007,10 +2353,6 @@ namespace PurplePen.ViewModels
                 ocadCreationSettingsPrevious = chosen;
                 success = controller.CreateOcadFiles(chosen);
 
-                // PP keeps bitmaps in memory and locks them. Tell the user to close PP.
-                if (MapDisplay.MapType == MapType.Bitmap)
-                    await InfoMessage(MiscText.ClosePPBeforeLoadingOCAD);
-
                 break;
             }
 
@@ -3027,8 +2369,7 @@ namespace PurplePen.ViewModels
                 }
 #endif
             }
-#endif
-            }
+        }
 
         /// <summary>
         /// Executes the File/Create Image Files command.
@@ -3036,52 +2377,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task CreateImageFiles()
         {
-#if !PORTING
-            BitmapCreationSettings settings;
-            if (bitmapCreationSettingsPrevious != null) {
-                settings = bitmapCreationSettingsPrevious.Clone();
-            }
-            else {
-                // Default settings: creating in file directory, use format of the current map file.
-                settings = new BitmapCreationSettings();
-
-                settings.fileDirectory = true;
-                settings.mapDirectory = false;
-                settings.outputDirectory = Path.GetDirectoryName(controller.FileName);
-                settings.Dpi = 200;
-                settings.ColorModel = ColorModel.CMYK;
-                settings.ExportedBitmapKind = BitmapCreationSettings.BitmapKind.Png;
-            }
-
-            // Initialize the dialog.
-            CreateImageFiles createImageFilesDialog = new CreateImageFiles(controller.GetEventDB());
-            if (!controller.BitmapFilesCanCreateWorldFile()) {
-                createImageFilesDialog.WorldFileEnabled = false;
-                settings.WorldFile = false;
-            }
-            createImageFilesDialog.BitmapCreationSettings = settings;
-
-            // show the dialog; on success, create the files.
-            while (createImageFilesDialog.ShowDialog(this) == DialogResult.OK) {
-                // Warn about files that will be overwritten.
-                List<string> overwritingFiles = controller.OverwritingBitmapFiles(createImageFilesDialog.BitmapCreationSettings);
-                if (overwritingFiles.Count > 0) {
-                    OverwritingOcadFilesDialog overwriteDialog = new OverwritingOcadFilesDialog();
-                    overwriteDialog.Filenames = overwritingFiles;
-                    if (overwriteDialog.ShowDialog(this) == DialogResult.Cancel)
-                        continue;
-                }
-
-                // Save settings persisted between invocations of this dialog.
-                bitmapCreationSettingsPrevious = createImageFilesDialog.BitmapCreationSettings;
-                controller.CreateBitmapFiles(createImageFilesDialog.BitmapCreationSettings);
-
-                break;
-            }
-
-            // And the dialog is done.
-            createImageFilesDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             // Seed from previous settings or build defaults.
@@ -3134,7 +2429,6 @@ namespace PurplePen.ViewModels
 
                 break;
             }
-#endif
         }
 
         /// <summary>
@@ -3143,44 +2437,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task CreateRouteGadgetFiles()
         {
-#if !PORTING
-            RouteGadgetCreationSettings settings;
-            if (routeGadgetCreationSettingsPrevious != null)
-                settings = routeGadgetCreationSettingsPrevious.Clone();
-            else {
-                // Default settings: creating in file directory, use format of the current map file.
-                settings = new RouteGadgetCreationSettings();
-
-                settings.fileDirectory = true;
-                settings.mapDirectory = false;
-                settings.outputDirectory = Path.GetDirectoryName(controller.FileName);
-                settings.fileBaseName = Path.GetFileNameWithoutExtension(controller.FileName);
-            }
-
-            // Initialize the dialog.
-            CreateRouteGadgetFiles createRouteGadgetFilesDialog = new CreateRouteGadgetFiles(controller.GetEventDB());
-            createRouteGadgetFilesDialog.RouteGadgetCreationSettings = settings;
-
-            // show the dialog; on success, create the files.
-            while (createRouteGadgetFilesDialog.ShowDialog(this) == DialogResult.OK) {
-                List<string> overwritingFiles = controller.OverwritingRouteGadgetFiles(createRouteGadgetFilesDialog.RouteGadgetCreationSettings);
-                if (overwritingFiles.Count > 0) {
-                    OverwritingOcadFilesDialog overwriteDialog = new OverwritingOcadFilesDialog();
-                    overwriteDialog.Filenames = overwritingFiles;
-                    if (overwriteDialog.ShowDialog(this) == DialogResult.Cancel)
-                        continue;
-                }
-
-                // Save settings persisted between invocations of this dialog.
-                routeGadgetCreationSettingsPrevious = createRouteGadgetFilesDialog.RouteGadgetCreationSettings;
-                controller.CreateRouteGadgetFiles(createRouteGadgetFilesDialog.RouteGadgetCreationSettings);
-
-                break;
-            }
-
-            // And the dialog is done.
-            createRouteGadgetFilesDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             RouteGadgetCreationSettings settings;
@@ -3216,29 +2472,40 @@ namespace PurplePen.ViewModels
 
                 break;
             }
-#endif
         }
 
         /// <summary>
-        /// Executes the File/Export XML command.
+        /// Executes the File/Export XML command. Shows a Save File dialog and,
+        /// if the user picks a file, exports the event as an IOF XML interchange file.
         /// </summary>
         [RelayCommand]
-        private void CreateXml()
+        private async Task CreateXml()
         {
-#if !PORTING
+            if (controller == null || MapDisplay == null) { return; }
+
             // The default output for the XML is the same as the event file name, with xml extension.
             string xmlFileName = Path.ChangeExtension(controller.FileName, ".xml");
 
-            saveXmlFileDialog.FileName = xmlFileName;
-            DialogResult result = saveXmlFileDialog.ShowDialog();
+            // Ask where to save. The file-save picker is hosted by
+            // DialogService via FileSaveViewModel's special case.
+            FileSaveViewModel saveVm = new FileSaveViewModel {
+                Title = MiscText.SaveXmlFileDialog_Title,
+                FileFilters = MiscText.SaveXmlFileDialog_Filter,
+                FileFilterIndex = 2,
+                DefaultExtension = "xml",
+                ShowOverwritePrompt = true,
+                InitialDirectory = Path.GetDirectoryName(xmlFileName),
+                SuggestedFileName = Path.GetFileName(xmlFileName),
+            };
 
-            if (result == DialogResult.OK) {
-                int version = 2;
-                if (saveXmlFileDialog.FilterIndex == 2)
-                    version = 3;
-                controller.ExportXml(saveXmlFileDialog.FileName, mapDisplay.MapBounds, version);
-            }
-#endif
+            if (!await Services.DialogService.ShowDialogAsync(saveVm))
+                return;
+            if (saveVm.SelectedFile == null)
+                return;
+
+            // The first filter (default) selects IOF XML version 3; the second selects version 2.
+            int version = (saveVm.FileFilterIndex == 2) ? 2 : 3;
+            controller.ExportXml(saveVm.SelectedFile, MapDisplay.MapBounds, version);
         }
 
         /// <summary>
@@ -3247,46 +2514,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task CreateGpx()
         {
-#if !PORTING
-            // First check and give immediate message if we can't do coordinate mapping.
-            string message;
-            if (!controller.CanExportGpxOrKml(out message)) {
-                await ErrorMessage(message);
-                return;
-            }
-
-            GpxCreationSettings settings;
-            if (gpxCreationSettingsPrevious != null)
-                settings = gpxCreationSettingsPrevious.Clone();
-            else {
-                // Default settings
-                settings = new GpxCreationSettings();
-            }
-
-            // Initialize the dialog.
-            CreateGpx createGpxDialog = new CreateGpx(controller.GetEventDB());
-            createGpxDialog.CreationSettings = settings;
-
-            // show the dialog; on success, create the files.
-            if (createGpxDialog.ShowDialog(this) == DialogResult.OK) {
-                // Show common save dialog to choose output file name.
-                string gpxFileName = Path.ChangeExtension(controller.FileName, ".gpx");
-
-                saveGpxFileDialog.FileName = gpxFileName;
-                DialogResult result = saveGpxFileDialog.ShowDialog();
-
-                if (result == DialogResult.OK) {
-                    gpxFileName = saveGpxFileDialog.FileName;
-
-                    // Save settings persisted between invocations of this dialog.
-                    gpxCreationSettingsPrevious = createGpxDialog.CreationSettings;
-                    controller.ExportGpx(gpxFileName, createGpxDialog.CreationSettings);
-                }
-            }
-
-            // And the dialog is done.
-            createGpxDialog.Dispose();
-#else
             if (controller == null)
                 return;
 
@@ -3328,7 +2555,6 @@ namespace PurplePen.ViewModels
             // Persist the user's choices for next time, then export.
             gpxCreationSettingsPrevious = vm.Settings;
             controller.ExportGpx(saveVm.SelectedFile, vm.Settings);
-#endif
         }
 
         /// <summary>
@@ -3337,52 +2563,6 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task CreateKmlFiles()
         {
-#if !PORTING
-            // First check and give immediate message if we can't do coordinate mapping.
-            string message;
-            if (!controller.CanExportGpxOrKml(out message)) {
-                await ErrorMessage(message);
-                return;
-            }
-
-            ExportKmlSettings settings;
-            if (exportKmlSettingsPrevious != null) {
-                settings = exportKmlSettingsPrevious.Clone();
-            }
-            else {
-                // Default settings: creating in file directory, use format of the current map file.
-                settings = new ExportKmlSettings();
-
-                settings.fileDirectory = true;
-                settings.mapDirectory = false;
-                settings.outputDirectory = Path.GetDirectoryName(controller.FileName);
-            }
-
-            // Initialize the dialog.
-            CreateKmlFiles createKmlFilesDialog = new CreateKmlFiles(controller.GetEventDB());
-            createKmlFilesDialog.ExportKmlSettings = settings;
-
-            // show the dialog; on success, create the files.
-            while (createKmlFilesDialog.ShowDialog(this) == DialogResult.OK) {
-                // Warn about files that will be overwritten.
-                List<string> overwritingFiles = controller.OverwritingKmlFiles(createKmlFilesDialog.ExportKmlSettings);
-                if (overwritingFiles.Count > 0) {
-                    OverwritingOcadFilesDialog overwriteDialog = new OverwritingOcadFilesDialog();
-                    overwriteDialog.Filenames = overwritingFiles;
-                    if (overwriteDialog.ShowDialog(this) == DialogResult.Cancel)
-                        continue;
-                }
-
-                // Save settings persisted between invocations of this dialog.
-                exportKmlSettingsPrevious = createKmlFilesDialog.ExportKmlSettings;
-                controller.CreateKmlFiles(createKmlFilesDialog.ExportKmlSettings);
-
-                break;
-            }
-
-            // And the dialog is done.
-            createKmlFilesDialog.Dispose();
-#else
             if (controller == null) { return; }
 
             string message;
@@ -3424,7 +2604,6 @@ namespace PurplePen.ViewModels
 
                 break;
             }
-#endif
         }
 
         /// <summary>
@@ -3469,7 +2648,6 @@ namespace PurplePen.ViewModels
 
         #region Report commands
 
-#if PORTING
         /// <summary>
         /// Shows an HTML report in the generic report dialog. The localized strings
         /// (the report title) come from the View: each report menu item passes its
@@ -3500,7 +2678,6 @@ namespace PurplePen.ViewModels
         {
             return System.Text.RegularExpressions.Regex.Replace(caption ?? "", "_(.)", "$1");
         }
-#endif
 
         /// <summary>
         /// Shows the Course Summary report.
@@ -3508,21 +2685,11 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task ShowCourseSummary(string? menuCaption)
         {
-#if !PORTING
-            Reports reportGenerator = new Reports();
-
-            string testReport = reportGenerator.CreateCourseSummaryReport(controller.GetEventDB());
-
-            ReportForm reportForm = new ReportForm(WindowsUtil.RemoveHotkeyPrefix(courseSummaryMenu.Text), "", testReport, "ReportsCourseSummary.htm");
-            reportForm.ShowDialog(this);
-            reportForm.Dispose();
-#else
             if (controller == null)
                 return;
 
             string reportBody = new Reports().CreateCourseSummaryReport(controller.GetEventDB());
             await ShowReport(menuCaption, reportBody, "ReportsCourseSummary.htm");
-#endif
         }
 
         /// <summary>
@@ -3531,21 +2698,11 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task ShowControlCrossref(string? menuCaption)
         {
-#if !PORTING
-            Reports reportGenerator = new Reports();
-
-            string testReport = reportGenerator.CreateCrossReferenceReport(controller.GetEventDB());
-
-            ReportForm reportForm = new ReportForm(WindowsUtil.RemoveHotkeyPrefix(controlCrossrefMenu.Text), "", testReport, "ReportsControlCrossReference.htm");
-            reportForm.ShowDialog(this);
-            reportForm.Dispose();
-#else
             if (controller == null)
                 return;
 
             string reportBody = new Reports().CreateCrossReferenceReport(controller.GetEventDB());
             await ShowReport(menuCaption, reportBody, "ReportsControlCrossReference.htm");
-#endif
         }
 
         /// <summary>
@@ -3554,21 +2711,11 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task ShowControlAndLegLoad(string? menuCaption)
         {
-#if !PORTING
-            Reports reportGenerator = new Reports();
-
-            string testReport = reportGenerator.CreateLoadReport(controller.GetEventDB());
-
-            ReportForm reportForm = new ReportForm(WindowsUtil.RemoveHotkeyPrefix(controlAndLegLoadMenu.Text), "", testReport, "ReportsControlAndLegLoad.htm");
-            reportForm.ShowDialog(this);
-            reportForm.Dispose();
-#else
             if (controller == null)
                 return;
 
             string reportBody = new Reports().CreateLoadReport(controller.GetEventDB());
             await ShowReport(menuCaption, reportBody, "ReportsControlAndLegLoad.htm");
-#endif
         }
 
         /// <summary>
@@ -3577,21 +2724,11 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task ShowLegLengths(string? menuCaption)
         {
-#if !PORTING
-            Reports reportGenerator = new Reports();
-
-            string testReport = reportGenerator.CreateLegLengthReport(controller.GetEventDB());
-
-            ReportForm reportForm = new ReportForm(WindowsUtil.RemoveHotkeyPrefix(legLengthsMenu.Text), "", testReport, "ReportsLegLengths.htm");
-            reportForm.ShowDialog(this);
-            reportForm.Dispose();
-#else
             if (controller == null)
                 return;
 
             string reportBody = new Reports().CreateLegLengthReport(controller.GetEventDB());
             await ShowReport(menuCaption, reportBody, "ReportsLegLengths.htm");
-#endif
         }
 
         /// <summary>
@@ -3600,21 +2737,11 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task ShowEventAudit(string? menuCaption)
         {
-#if !PORTING
-            Reports reportGenerator = new Reports();
-
-            string testReport = reportGenerator.CreateEventAuditReport(controller.GetEventDB());
-
-            ReportForm reportForm = new ReportForm(WindowsUtil.RemoveHotkeyPrefix(eventAuditMenu.Text), "", testReport, "ReportsEventAudit.htm");
-            reportForm.ShowDialog(this);
-            reportForm.Dispose();
-#else
             if (controller == null)
                 return;
 
             string reportBody = new Reports().CreateEventAuditReport(controller.GetEventDB());
             await ShowReport(menuCaption, reportBody, "ReportsEventAudit.htm");
-#endif
         }
 
         #endregion // Report commands
@@ -3632,48 +2759,50 @@ namespace PurplePen.ViewModels
 #endif
         }
 
+        private bool TranslatedWebSiteExists()
+        {
+            string url = MiscText.TranslatedHelpWebSite;
+            return (url.Length > 0 && url[0] == 'h');
+        }
+
+
+
         /// <summary>
         /// Opens the translated help web site.
         /// </summary>
         [RelayCommand]
-        private void HelpTranslated()
+        private async Task HelpTranslated()
         {
-#if !PORTING
-            WindowsUtil.GoToWebPage(MiscText.TranslatedHelpWebSite);
-#endif
+            if (TranslatedWebSiteExists()) {
+                await Services.WebsiteLauncher.ShowWebsite(MiscText.TranslatedHelpWebSite);
+            }
         }
 
         /// <summary>
         /// Opens the main Purple Pen web site.
         /// </summary>
         [RelayCommand]
-        private void OpenMainWebSite()
+        private async Task OpenMainWebSite()
         {
-#if !PORTING
-            WindowsUtil.GoToWebPage("http://purple-pen.org");
-#endif
+            await Services.WebsiteLauncher.ShowWebsite("http://purple-pen.org");
         }
 
         /// <summary>
         /// Opens the Purple Pen support web site.
         /// </summary>
         [RelayCommand]
-        private void OpenSupportWebSite()
+        private async Task OpenSupportWebSite()
         {
-#if !PORTING
-            WindowsUtil.GoToWebPage("http://purple-pen.org#support");
-#endif
+            await Services.WebsiteLauncher.ShowWebsite("http://purple-pen.org#support");
         }
 
         /// <summary>
         /// Opens the Purple Pen donate web site.
         /// </summary>
         [RelayCommand]
-        private void OpenDonateWebSite()
+        private async Task OpenDonateWebSite()
         {
-#if !PORTING
-            WindowsUtil.GoToWebPage("http://purple-pen.org#donate");
-#endif
+            await Services.WebsiteLauncher.ShowWebsite("http://purple-pen.org#donate");
         }
 
         /// <summary>
@@ -3786,47 +2915,6 @@ namespace PurplePen.ViewModels
 
         #region Debug commands
 
-        /// <summary>
-        /// Shows the Symbol Browser debug dialog.
-        /// </summary>
-        [RelayCommand]
-        private void ShowSymbolBrowser()
-        {
-#if !PORTING
-            SymbolBrowser symbolBrowser = new SymbolBrowser();
-            symbolBrowser.Initialize(symbolDB);
-            symbolBrowser.ShowDialog();
-            symbolBrowser.Dispose();
-#endif
-        }
-
-        /// <summary>
-        /// Shows the Description Browser debug dialog.
-        /// </summary>
-        [RelayCommand]
-        private void ShowDescriptionBrowser()
-        {
-#if !PORTING
-            DescriptionBrowser browser = new DescriptionBrowser();
-            browser.Initialize(controller.GetEventDB(), symbolDB);
-            browser.ShowDialog();
-            browser.Dispose();
-#endif
-        }
-
-        /// <summary>
-        /// Shows the Control Tester debug dialog.
-        /// </summary>
-        [RelayCommand]
-        private void ShowControlTester()
-        {
-#if !PORTING
-            ControlTester controlTester = new ControlTester();
-            controlTester.Initialize(controller.GetEventDB(), symbolDB);
-            controlTester.ShowDialog();
-            controlTester.Dispose();
-#endif
-        }
 
         /// <summary>
         /// Shows the Map Tester debug dialog.
@@ -3841,27 +2929,6 @@ namespace PurplePen.ViewModels
 #endif
         }
 
-        /// <summary>
-        /// Shows the Course Selector Tester debug dialog.
-        /// </summary>
-        [RelayCommand]
-        private void ShowCourseSelectorTester()
-        {
-#if !PORTING
-            new CourseSelectorTestForm(controller.GetEventDB()).ShowDialog(this);
-#endif
-        }
-
-        /// <summary>
-        /// Shows the Dot Grid Tester debug dialog.
-        /// </summary>
-        [RelayCommand]
-        private void ShowDotGridTester()
-        {
-#if !PORTING
-            new DotGridTester().ShowDialog(this);
-#endif
-        }
 
         /// <summary>
         /// Shows the Dump OCAD File debug dialog.
@@ -3897,36 +2964,6 @@ namespace PurplePen.ViewModels
 #endif
         }
 
-        /// <summary>
-        /// Shows the Report Tester debug dialog.
-        /// </summary>
-        [RelayCommand]
-        private void ShowReportTester()
-        {
-#if !PORTING
-            Reports reportGenerator = new Reports();
-
-            string testReport = reportGenerator.CreateTestReport(controller.GetEventDB());
-
-            ReportForm reportForm = new ReportForm("Test Report", "", testReport, "PurplePenWindow.htm");
-            reportForm.ShowDialog(this);
-            reportForm.Dispose();
-#endif
-        }
-
-        /// <summary>
-        /// Shows the Font Metrics debug dialog.
-        /// </summary>
-        [RelayCommand]
-        private void ShowFontMetrics()
-        {
-#if !PORTING
-            ShowFontMetrics fontMetricsDialog = new ShowFontMetrics(new GDIPlus_TextMetrics());
-
-            fontMetricsDialog.ShowDialog(this);
-            fontMetricsDialog.Dispose();
-#endif
-        }
 
         /// <summary>
         /// Shows the Missing Translations debug dialog.
@@ -3947,13 +2984,19 @@ namespace PurplePen.ViewModels
         /// <summary>
         /// Intentional crash for testing error handling.
         /// </summary>
+
+        volatile int x = 0;  // volatile to prevent compiler optimization that would eliminate the crash
+
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        private int GetCrashValue()
+        {
+            return 5 / x; // will throw DivideByZeroException
+        }
+
         [RelayCommand]
         private void TriggerCrash()
         {
-#if !PORTING
-            int x = 0;
-            int y = 5 / x;
-#endif
+            int y = GetCrashValue(); // will throw DivideByZeroException
         }
 
         /// <summary>

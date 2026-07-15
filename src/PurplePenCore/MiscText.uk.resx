@@ -172,13 +172,13 @@
     <value>Навантаження дстанції учасниками має бути цілим числом від 0 до 999999, або не заповнюється.</value>
   </data>
   <data name="UndoWithShortcut" xml:space="preserve">
-    <value>&amp;Вернути</value>
+    <value>_Вернути</value>
   </data>
   <data name="Undo" xml:space="preserve">
     <value>Відмінити</value>
   </data>
   <data name="RedoWithShortcut" xml:space="preserve">
-    <value>&amp;Повторити</value>
+    <value>_Повторити</value>
   </data>
   <data name="Redo" xml:space="preserve">
     <value>Повернути</value>
@@ -621,5 +621,17 @@
   </data>
   <data name="GpxFilter" xml:space="preserve">
     <value>Файл GPX|*.gpx</value>
+  </data>
+  <data name="SaveFileDialog_PurplePenFilter" xml:space="preserve">
+    <value>Файли Purple Pen|*.ppen</value>
+  </data>
+  <data name="SaveXmlFileDialog_Filter" xml:space="preserve">
+    <value>IOF XML версія 3.0|*.xml|IOF XML версія 2.0.3|*.xml</value>
+  </data>
+  <data name="SaveXmlFileDialog_Title" xml:space="preserve">
+    <value>Створити файл обміну даними XML</value>
+  </data>
+  <data name="OpenImageDialog_Filter" xml:space="preserve">
+    <value>Файл зображення|*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.tif;*.tiff</value>
   </data>
 </root>

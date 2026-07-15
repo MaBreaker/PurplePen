@@ -172,13 +172,13 @@
     <value>Натоварването на маршрута трябва да е цяло число от 0 до 999999 или празно поле.</value>
   </data>
   <data name="UndoWithShortcut" xml:space="preserve">
-    <value>&amp;Undo</value>
+    <value>_Undo</value>
   </data>
   <data name="Undo" xml:space="preserve">
     <value>Отмени</value>
   </data>
   <data name="RedoWithShortcut" xml:space="preserve">
-    <value>&amp;Повтори</value>
+    <value>_Повтори</value>
   </data>
   <data name="Redo" xml:space="preserve">
     <value>Възстанови</value>
@@ -636,5 +636,17 @@
   </data>
   <data name="GpxFilter" xml:space="preserve">
     <value>GPX файл|*.gpx</value>
+  </data>
+  <data name="SaveFileDialog_PurplePenFilter" xml:space="preserve">
+    <value>Файл на Purple Pen|*.ppen</value>
+  </data>
+  <data name="SaveXmlFileDialog_Filter" xml:space="preserve">
+    <value>IOF XML версия 3.0|*.xml|IOF XML версия 2.0.3|*.xml</value>
+  </data>
+  <data name="SaveXmlFileDialog_Title" xml:space="preserve">
+    <value>Създай XML файл за обмен на данни...</value>
+  </data>
+  <data name="OpenImageDialog_Filter" xml:space="preserve">
+    <value>Файл с изображение|*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.tif;*.tiff</value>
   </data>
 </root>

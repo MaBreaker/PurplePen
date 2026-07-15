@@ -172,13 +172,13 @@
     <value>La densidad de corredores para un recorrido debe ser un entero de 0-999999, o blanco.</value>
   </data>
   <data name="UndoWithShortcut" xml:space="preserve">
-    <value>&amp;Deshacer</value>
+    <value>_Deshacer</value>
   </data>
   <data name="Undo" xml:space="preserve">
     <value>Deshacer</value>
   </data>
   <data name="RedoWithShortcut" xml:space="preserve">
-    <value>&amp;Rehacer</value>
+    <value>_Rehacer</value>
   </data>
   <data name="Redo" xml:space="preserve">
     <value>Rehacer</value>
@@ -615,5 +615,17 @@ Presione Aceptar, e intente encontrar una copia del mapa en su ordenador.</value
   </data>
   <data name="GpxFilter" xml:space="preserve">
     <value>Archivo GPX|*.gpx</value>
+  </data>
+  <data name="SaveFileDialog_PurplePenFilter" xml:space="preserve">
+    <value>Archivo Purple Pen|*.ppen</value>
+  </data>
+  <data name="SaveXmlFileDialog_Filter" xml:space="preserve">
+    <value>IOF XML versión 3.0|*.xml|IOF XML versión 2.0.3|*.xml</value>
+  </data>
+  <data name="SaveXmlFileDialog_Title" xml:space="preserve">
+    <value>Crear archivo XML de intercambio</value>
+  </data>
+  <data name="OpenImageDialog_Filter" xml:space="preserve">
+    <value>Archivo de imagen|*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.tif;*.tiff</value>
   </data>
 </root>

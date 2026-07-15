@@ -175,13 +175,13 @@
     <value>The load for a course must be an integer 0-999999, or blank.</value>
   </data>
   <data name="UndoWithShortcut" xml:space="preserve">
-    <value>&amp;Undo</value>
+    <value>_Undo</value>
   </data>
   <data name="Undo" xml:space="preserve">
     <value>Undo</value>
   </data>
   <data name="RedoWithShortcut" xml:space="preserve">
-    <value>&amp;Redo</value>
+    <value>_Redo</value>
   </data>
   <data name="Redo" xml:space="preserve">
     <value>Redo</value>
@@ -660,6 +660,18 @@ After pressing OK, try to find a copy of the map file on your computer.</value>
   </data>
   <data name="RelayVariationExportFilter" xml:space="preserve">
     <value>IOF XML 3.0|*.xml|Spreadsheet (CSV)|*.csv</value>
+  </data>
+  <data name="SaveFileDialog_PurplePenFilter" xml:space="preserve">
+    <value>Purple Pen file|*.ppen</value>
+  </data>
+  <data name="SaveXmlFileDialog_Filter" xml:space="preserve">
+    <value>IOF XML version 3.0|*.xml|IOF XML version 2.0.3|*.xml</value>
+  </data>
+  <data name="SaveXmlFileDialog_Title" xml:space="preserve">
+    <value>Create XML Interchange File</value>
+  </data>
+  <data name="OpenImageDialog_Filter" xml:space="preserve">
+    <value>Image file|*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.tif;*.tiff</value>
   </data>
   <!-- JU: Overlay -->
   <data name="Orange" xml:space="preserve">

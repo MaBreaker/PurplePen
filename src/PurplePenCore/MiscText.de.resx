@@ -172,13 +172,13 @@
     <value>Die Läuferzahl für eine Bahn muss zwischen 1-999999 liegen oder leer bleiben.</value>
   </data>
   <data name="UndoWithShortcut" xml:space="preserve">
-    <value>&amp;Rückgängig:</value>
+    <value>_Rückgängig:</value>
   </data>
   <data name="Undo" xml:space="preserve">
     <value>Rückgängig:</value>
   </data>
   <data name="RedoWithShortcut" xml:space="preserve">
-    <value>&amp;Wiederholen:</value>
+    <value>_Wiederholen:</value>
   </data>
   <data name="Redo" xml:space="preserve">
     <value>Wiederherstellen:</value>
@@ -631,13 +631,25 @@ Suchen Sie, nach Klicken auf "OK", nach der Kartendatei auf Ihrem Computer.</val
   <data name="ChangeMapFile_FileFilter" xml:space="preserve">
     <value>Alle Kartendateien|*.ocd;*.omap;*.xmap;*.pdf;*.jpeg;*.jpg;*.tiff;*.tif;*.bmp;*.png;*.gif|OCAD files (*.ocd)|*.ocd|Open Orienteering Mapper Files|*.omap;*.xmap|PDF files (*.pdf)|*.pdf|Image files|*.jpeg;*.jpg;*.tiff;*.tif;*.bmp;*.png;*.gif</value>
   </data>
+  <data name="GpxFilter" xml:space="preserve">
+    <value>GPX-Datei|*.gpx</value>
+  </data>
   <data name="DownloadGhostscript" xml:space="preserve">
     <value>Um PDF-Dateien laden zu können, muss eine Kopie von GPL Ghostscript installiert sein. Möchten Sie es automatisch herunterladen und installieren lassen?</value>
   </data>
   <data name="GhostscriptNotInstalled" xml:space="preserve">
     <value>GPL Ghostscript ist nicht installiert</value>
   </data>
-  <data name="GpxFilter" xml:space="preserve">
-    <value>GPX-Datei|*.gpx</value>
+  <data name="SaveFileDialog_PurplePenFilter" xml:space="preserve">
+    <value>Purple Pen-Dateien|*.ppen</value>
+  </data>
+  <data name="SaveXmlFileDialog_Filter" xml:space="preserve">
+    <value>IOF XML version 3.0|*.xml|IOF XML version 2.0.3|*.xml</value>
+  </data>
+  <data name="SaveXmlFileDialog_Title" xml:space="preserve">
+    <value>XML-Austausch Datei erstellen</value>
+  </data>
+  <data name="OpenImageDialog_Filter" xml:space="preserve">
+    <value>Bild Datei|*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.tif;*.tiff</value>
   </data>
 </root>

@@ -26,6 +26,9 @@ namespace AvPurplePen
             InitUILanguage();
             FontDesc.InitializeFonts();
 
+            // Report statistics about the invocation of Purple Pen. This is done asynchronously, so it doesn't block the startup of the application.
+            Services.ServiceProvider.GetRequiredService<StatisticsReporter>().ReportStatistics();
+
             // Initialization code. Don't use any Avalonia APIs or any
             // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
             // yet and stuff might break.
@@ -47,16 +50,21 @@ namespace AvPurplePen
             services.AddSingleton<IPdfWriter, PdfWriter>();
             services.AddSingleton<IApplicationIdleService, ApplicationIdleServiceAdapter>();
 
+            services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<IUILanguage, UILanguageService>();
+            services.AddSingleton<IWebsiteLauncher, WebsiteLauncherService>();
+            services.AddSingleton<IEventDispatcherService, EventDispatcherService>();
+            services.AddSingleton<StatisticsReporter>();
+
             // Transient (not singleton): PdfLoadingUI holds per-conversion state
             // (completion flag, dialog handle), so each PDF validation must get a
             // fresh instance. CoreMapUtil.ValidatePdf resolves it once per call.
             services.AddTransient<IPdfLoadingStatus, PdfLoadingUI>();
 
-            // IDialogService depends on the MainWindow, which is created later by App.
-            // The factory defers construction until first use, by which time App.MainWindow is set.
-            services.AddSingleton<IDialogService>(sp => new DialogService(App.MainWindow!));
-            services.AddSingleton<IUILanguage, UILanguageService>();
-            services.AddSingleton<IEventDispatcherService, EventDispatcherService>();
+            // Configure IHttpClientProvider with resiliance (retrying) defaults.
+            services.AddHttpClient();
+            services.ConfigureHttpClientDefaults(
+                httpClientBuilder => httpClientBuilder.AddStandardResilienceHandler());
 
             serviceProvider = services.BuildServiceProvider();
             Services.RegisterServiceProvider(serviceProvider);

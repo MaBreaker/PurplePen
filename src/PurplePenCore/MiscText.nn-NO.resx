@@ -172,13 +172,13 @@
     <value>Antall deltakere i ei løype må være eit heltal mellom 0 og 999999 eller være blank.</value>
   </data>
   <data name="UndoWithShortcut" xml:space="preserve">
-    <value>&amp;Angra</value>
+    <value>_Angra</value>
   </data>
   <data name="Undo" xml:space="preserve">
     <value>Gjer om</value>
   </data>
   <data name="RedoWithShortcut" xml:space="preserve">
-    <value>&amp;Gjer om</value>
+    <value>_Gjer om</value>
   </data>
   <data name="Redo" xml:space="preserve">
     <value>Gjer om</value>
@@ -381,5 +381,11 @@ Trykk OK og forsøk å finne kartfila på datamaskina di.</value>
   </data>
   <data name="OpenFileDialog_PurplePenFilter" xml:space="preserve">
     <value>Purple Pen filer|*.ppen|Alle filer|*.*</value>
+  </data>
+  <data name="SaveFileDialog_PurplePenFilter" xml:space="preserve">
+    <value>Purple Pen fil|*.ppen</value>
+  </data>
+  <data name="SaveXmlFileDialog_Title" xml:space="preserve">
+    <value>Lag en XML-fil for eksport</value>
   </data>
 </root>

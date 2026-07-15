@@ -33,9 +33,8 @@ namespace PurplePen.ViewModels
         SymbolDB symbolDB = null!;
         long changeNum = 0;         // When this changes, state information needs to be updated in the UI.
         bool updatingTabs = false;  // Guard to prevent re-entrant controller calls during UpdateTabs.
-#if !PORTING
-        private bool checkForUpdatedMapFile = false; // Indicates if we should check for an updated map file on idle
-#endif
+        bool hidePrintArea = false; // Guard to allow disabling print area display at times.
+
         // Settings remembered across invocations of the Create OCAD Files dialog,
         // so the user's last choices (folder, format, prefix, etc.) are preserved.
         // Reset to null when a new map file is loaded.
@@ -69,10 +68,16 @@ namespace PurplePen.ViewModels
         private PrintingPaperSizeWithMargins? punchPaperSizeWithMargins;
 
         [ObservableProperty]
+        private string windowTitle = MiscText.AppTitle;
+
+        [ObservableProperty]
         private MapDisplay? mapDisplay;
 
         [ObservableProperty]
         private IMapViewerHighlight[]? mapHighlights;
+
+        [ObservableProperty]
+        private ToolTipDescription? mapViewerToolTip;
 
         [ObservableProperty]
         private DescriptionViewerViewModel descriptionViewerViewModel = new DescriptionViewerViewModel();
@@ -106,6 +111,22 @@ namespace PurplePen.ViewModels
 
         [ObservableProperty]
         MousePointerShape mapMousePointerShape = new MousePointerShape(PredefinedMousePointerShape.Arrow);
+
+        [ObservableProperty]
+        private string undoCommandName = MiscText.UndoWithShortcut;
+
+        [ObservableProperty]
+        private string undoToolTip = MiscText.Undo;
+
+        [ObservableProperty]
+        private string redoCommandName = MiscText.RedoWithShortcut;
+
+        [ObservableProperty]
+        private string redoToolTip = MiscText.Redo;
+
+        [ObservableProperty]
+        private string createOcadFilesCommandName = "";
+
 
         // The slider view of the zoom, which is a log-based based of the true zoom, clamped to 0-100.
         private const float zoomSliderMin = 0.25F; //25%
@@ -180,13 +201,17 @@ namespace PurplePen.ViewModels
                 UpdateSelectionPanel();
                 UpdateHighlight();
                 CoursePartBannerViewModel.UpdatePartBanner();
-#if !PORTING
-                //UpdateTopology();
                 UpdatePrintArea();
-                //UpdateTopologyHighlight();
-                //UpdateCustomSymbolText();
-                _ = CheckForNonRenderableObjects(true, false);
+#if !PORTING
+                UpdateTopology();
+                UpdateTopologyHighlight();
+                UpdateCustomSymbolText();
 #endif
+                // Warn about non-renderable objects (fire-and-forget — the controller
+                // reports the list only once per map file, so re-entry from a
+                // later idle tick while the dialog is open is harmless).
+                _ = CheckForNonRenderableObjects(true, false);
+
                 // Warn about missing fonts (fire-and-forget — the controller
                 // reports the list only once per map file, so re-entry from a
                 // later idle tick while the dialog is open is harmless).
@@ -212,8 +237,8 @@ namespace PurplePen.ViewModels
         // Update the window title with the current file name.
         private void UpdateWindowTitle()
         {
-#if !PORTING
-#endif
+            if (controller == null) { return; }
+            WindowTitle = string.Format("{0} - {1}", Path.GetFileNameWithoutExtension(controller.FileName), MiscText.AppTitle);
         }
 
         // Update the map file on Display.
@@ -388,6 +413,32 @@ namespace PurplePen.ViewModels
                 MapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart), /* JU: margins */ null);
         }
 
+        // When true, the normal print-area display is suppressed. Used while the
+        // Set Print Area dialog is open, since that dialog shows its own
+        // interactive (draggable) print rectangle instead. Setting it forces a
+        // redraw so the change takes effect immediately. Centralizes what the
+        // WinForms version split between MainFrame and the dialog's Dispose.
+        public bool HidePrintArea
+        {
+            get => hidePrintArea;
+            set {
+                hidePrintArea = value;
+                controller?.ForceChangeUpdate(true);
+            }
+        }
+
+        // Update the print area in the map pane.
+        void UpdatePrintArea()
+        {
+            if (controller == null || MapDisplay == null) { return; }
+
+            if (hidePrintArea || !UserSettings.Current.ShowPrintArea)
+                MapDisplay.SetPrintArea(null);
+            else
+                MapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart));
+        }
+
+
         // Get the dictionary mapping each symbol to custom text for symbol descriptions.
         private void UpdateCustomSymbolText()
         {
@@ -429,14 +480,17 @@ namespace PurplePen.ViewModels
 
         public void MapViewerMouseMove(PointF? location, float pixelSize)
         {
+            MapViewerToolTip = null;
+
             if (location.HasValue && controller != null) {
-                // Inside the viewpoint
+                // Inside the viewport
                 controller.MouseMoved(Pane.Map, location.Value, pixelSize);
                 MapMousePointerShape = controller.GetMouseCursor(Pane.Map, location.Value, pixelSize);
+
+                if (ShowToolTips && controller.GetToolTip(Pane.Map, location.Value, pixelSize, out string tipText, out string titleText)) {
+                    MapViewerToolTip = new ToolTipDescription(titleText, tipText);
+                }
             }
-#if PORTING
-            // TODO: Deal with tool tips.
-#endif
         }
 
         public DragAction MapViewerLeftButtonDown(PointF location, float pixelSize)

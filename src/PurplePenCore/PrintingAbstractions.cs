@@ -49,6 +49,26 @@ namespace PurplePen
             }
         }
 
+        // The smaller of the two paper dimensions, in inches (independent of orientation).
+        public float SmallerDimensionInInches {
+            get { return Math.Min(SizeInInches.Width, SizeInInches.Height); }
+        }
+
+        // The larger of the two paper dimensions, in inches (independent of orientation).
+        public float LargerDimensionInInches {
+            get { return Math.Max(SizeInInches.Width, SizeInInches.Height); }
+        }
+
+        // The smaller of the two paper dimensions, in hundredths of an inch (independent of orientation).
+        public float SmallerDimensionInHundreths {
+            get { return SmallerDimensionInInches * 100F; }
+        }
+
+        // The larger of the two paper dimensions, in hundredths of an inch (independent of orientation).
+        public float LargerDimensionInHundreths {
+            get { return LargerDimensionInInches * 100F; }
+        }
+
         public PrintingPaperSize(string name, float widthInHundreths, float heightInHundreths)
         {
             Name = name;
@@ -195,7 +215,7 @@ namespace PurplePen
     // Standard sizes.
     public static class PrintingStandards
     {
-        // Standard paper sizes, in hundredths of an inch.  The first 10 are metric sizes, the last 3 are English sizes.
+        // Standard paper sizes, in hundredths of an inch.  The first 6 are metric sizes, the last 3 are English sizes.
         // Note that the names must match the Winforms PaperKind enumeration names.
         public static PrintingPaperSize[] StandardPaperSizes = {
             new PrintingPaperSize("A2", 1654, 2339),
@@ -203,19 +223,14 @@ namespace PurplePen
             new PrintingPaperSize("A4", 827, 1169),
             new PrintingPaperSize("A5", 583, 827),
             new PrintingPaperSize("A6", 413, 583),
-            new PrintingPaperSize("B2", 1969, 2783),
-            new PrintingPaperSize("B3", 1390, 1969),
-            new PrintingPaperSize("B4", 984, 1390),
-            new PrintingPaperSize("B5", 693, 984),
-            new PrintingPaperSize("B6", 492, 693),
             new PrintingPaperSize("Letter", 850, 1100),
             new PrintingPaperSize("Legal", 850, 1400),
             new PrintingPaperSize("Tabloid", 1100, 1700)
         };
 
         public const int FirstMetricPaperSizeIndex = 0;
-        public const int FirstEnglishPaperSizeIndex = 10;
-        public const int DefaultEnglighPaperSizeIndex = 10;
+        public const int FirstEnglishPaperSizeIndex = 5;
+        public const int DefaultEnglighPaperSizeIndex = 5;
         public const int DefaultMetricPaperSizeindex = 2;
 
         public const int DefaultMapEnglishMarginInHundreths = 25;  // 1/4 of a inch.
