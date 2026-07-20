@@ -802,12 +802,25 @@
         <!-- ==================== MAIN CONTENT AREA ==================== -->
         <!-- Horizontal split: left panel (descriptions/selection) | right panel (map viewer).
              Replaces WinForms splitContainer. Left panel is fixed width. -->
-        <Grid x:Name="splitContainer" ColumnDefinitions="250,Auto,*">
+        <Grid x:Name="splitContainer" >
+            <Grid.ColumnDefinitions>
+                <!-- Have minimum widths for left and right panels so they don't collapse too much when gridsplitter is dragged. -->
+				<ColumnDefinition Width="250" MinWidth="166"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" MinWidth="200"/>
+            </Grid.ColumnDefinitions>
 
             <!-- === LEFT PANEL (splitDescription equivalent) === -->
             <!-- Vertical split: top (description/topology) | bottom (selection panel).
                  Replaces WinForms splitDescription. Bottom panel is fixed height. -->
-            <Grid Grid.Column="0" RowDefinitions="*,Auto,200" >
+            <Grid Grid.Column="0"  >
+                <Grid.RowDefinitions>
+                    <!-- Have minimum widths for left and right panels so they don't collapse too much when gridsplitter is dragged. -->
+				    <RowDefinition Height="*" MinHeight="150"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="200" MinHeight="50"/>
+                </Grid.RowDefinitions>
+
 
                 <!-- Description/Topology area with radio button toggle -->
                 <Grid x:Name="leftColumnPanel" Grid.Row="0" Background="White" ClipToBounds="True"
@@ -823,35 +836,42 @@
                              This is a custom control that renders the description grid,
                              supports selection, and fires Change/SelectedIndexChange events.
                         -->
-                        <views:DescriptionViewer 
-                            x:Name="descriptionViewer"
-                            DataContext="{Binding DescriptionViewerViewModel}"
-                        />
+                        <!-- Wrapped in a Panel (which inherits the MainWindowViewModel
+                             DataContext) so the IsVisible binding resolves against the
+                             MainWindowViewModel. DescriptionViewer itself overrides its
+                             DataContext to DescriptionViewerViewModel, so a !ShowTopology
+                             binding placed directly on it would not resolve. -->
+                        <Panel IsVisible="{Binding !ShowTopology}">
+                            <views:DescriptionViewer
+                                x:Name="descriptionViewer"
+                                DataContext="{Binding DescriptionViewerViewModel}"
+                            />
+                        </Panel>
 
                         <!-- Topology view panel (hidden by default, shown when radio button selected) -->
-                        <Grid x:Name="panelTopology" IsVisible="False"
-                              ColumnDefinitions="*,Auto">
+                        <Panel x:Name="panelTopology" IsVisible="{Binding ShowTopology}">
 
-                            <!-- PLACEHOLDER: mapViewerTopology
+                            <!-- mapViewerTopology
                                  WinForms type: PurplePen.MapView.MapViewer
                                  Displays the topology/ordering view of the course.
                                  Configured with: ConstrainedScrolling=PinTop, MaxZoom=1,
-                                 MouseWheel=Scroll, MiddleButtonAutoDrag=false.
-                                 TODO: Implement as a custom Avalonia control sharing
-                                 the MapViewer rendering infrastructure. -->
-                            <Border x:Name="mapViewerTopology" Grid.Column="0"
-                                    Background="White" BorderBrush="LightGray" BorderThickness="1">
-                                <TextBlock Text="[mapViewerTopology placeholder]"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                                           Foreground="Gray" FontStyle="Italic"/>
-                            </Border>
+                                 MouseWheel=Scroll, MiddleButtonAutoDrag=false.-->
+                            <resx:MapViewer
+                                x:Name="mapViewerTopology"
+                                MapDisplay="{Binding TopologyMapDisplay}"
+                                MapHighlights="{Binding TopologyHighlights}"
+                                ToolTip="{Binding TopologyToolTip}"
+                                FancyMouseActivity="TopologyViewer_MouseActivity"
+                                ViewportController="{Binding TopologyViewport}"
+                                HorizontalScrollBarVisibility="Auto"
+                                VerticalScrollBarVisibility="Auto"
+                                MouseWheelAction="Scroll"
+                                ConstrainedScrolling="PinTop"
+                                MinZoom="0.4"
+                                MaxZoom="10">
+                            </resx:MapViewer>
 
-                            <!-- Vertical scroll bar for topology view -->
-                            <ScrollBar x:Name="topologyScrollBar" Grid.Column="1"
-                                       Orientation="Vertical"
-                                       AllowAutoHide="False"
-                                       Minimum="0" Maximum="100" ViewportSize="20"/>
-                        </Grid>
+                        </Panel>
                     </Panel>
 
                     <!-- Radio buttons to toggle between Descriptions and Topology/Ordering views -->
@@ -873,13 +893,15 @@
                                      HorizontalAlignment="Stretch"
                                      HorizontalContentAlignment="Center"
                                      Content="{resx:Localize MainFrame_radioButtonDescriptions_Text}"
-                                     IsChecked="True"/>
+                                     IsChecked="{Binding !ShowTopology, Mode=TwoWay}"/>
                         <RadioButton x:Name="radioButtonTopology" Grid.Column="1"
                                      Theme="{DynamicResource ButtonRadioButton}"
                                      Classes="Small"
                                      HorizontalAlignment="Stretch"
                                      HorizontalContentAlignment="Center"
-                                     Content="{resx:Localize MainFrame_radioButtonTopology_Text}"/>
+                                     Content="{resx:Localize MainFrame_radioButtonTopology_Text}"
+                                     IsEnabled="{Binding EnableTopology}"
+                                     IsChecked="{Binding ShowTopology, Mode=TwoWay}"/>
                     </Grid>
                 </Grid>
 
@@ -900,11 +922,11 @@
             <GridSplitter Grid.Column="1" Width="4" ResizeDirection="Columns" Padding="2 0"/>
 
             <!-- === RIGHT PANEL (map viewer area) === -->
-            <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto" ColumnDefinitions="*,Auto">
+            <Grid Grid.Column="2" RowDefinitions="Auto,*" MinWidth="100">
 
                 <!-- Course part banner (top of map area) — shows course parts, variations, properties -->
-                <resx:CoursePartBanner x:Name="coursePartBanner" 
-                                       Grid.Row="0" Grid.ColumnSpan="2"
+                <resx:CoursePartBanner x:Name="coursePartBanner"
+                                       Grid.Row="0"
                                        DataContext="{Binding CoursePartBannerViewModel}"/>
 
                 <!-- MapViewer
@@ -914,29 +936,25 @@
                      MouseWheel=Zoom, MiddleButtonAutoDrag=true, HoverDelay=400ms.
                      Renders the orienteering map with course overlays using MapDisplay.
                      Handles mouse events for course editing (adding controls, moving items, etc.).
-                     Scroll bars are external (horizScroll, vertScroll below). -->
+                     Scroll bars are provided internally by the PanAndZoom control. -->
                 <resx:MapViewer
                     x:Name="mapViewer"
-                    Grid.Row="1" Grid.Column="0"
+                    Grid.Row="1"
                     MapDisplay="{Binding MapDisplay}"
                     MapHighlights="{Binding MapHighlights}"
                     ToolTip="{Binding MapViewerToolTip}"
                     FancyMouseActivity="MapViewer_MouseActivity"
                     MouseLocation="{Binding MouseLocationInMap, Mode=OneWayToSource}"
+                    PixelSize="{Binding MapViewerPixelSize, Mode=OneWayToSource}"
                     ZoomFactor="{Binding MapZoomFactor, Mode=TwoWay}"
+                    ViewportController="{Binding MapViewport}"
+                    HorizontalScrollBarVisibility="Visible"
+                    VerticalScrollBarVisibility="Visible"
+                    ConstrainedScrolling="KeepSome"
+                    MouseWheelAction="Zoom"
+                    MinZoom="0.1"
+                    MaxZoom="100"
                 />
-
-                <!-- Vertical scroll bar for map viewer -->
-                <ScrollBar x:Name="vertScroll" Grid.Row="1" Grid.Column="1"
-                           Orientation="Vertical"
-                           AllowAutoHide="False"
-                           Minimum="0" Maximum="100" ViewportSize="20"/>
-
-                <!-- Horizontal scroll bar for map viewer -->
-                <ScrollBar x:Name="horizScroll" Grid.Row="2" Grid.Column="0"
-                           Orientation="Horizontal"
-                           AllowAutoHide="False"
-                           Minimum="0" Maximum="100" ViewportSize="20"/>
             </Grid>
         </Grid>
     </DockPanel>

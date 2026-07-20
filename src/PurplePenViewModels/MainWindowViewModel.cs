@@ -80,10 +80,52 @@ namespace PurplePen.ViewModels
         private ToolTipDescription? mapViewerToolTip;
 
         [ObservableProperty]
+        private MapDisplay? topologyMapDisplay;
+
+        [ObservableProperty]
+        private IMapViewerHighlight[]? topologyHighlights;
+
+        [ObservableProperty]
+        private ToolTipDescription? topologyToolTip;
+
+        // Channels for asking the map viewers to change what area they display (fit a rectangle, or scroll a
+        // rectangle into view) without the ViewModel referencing the views. The MapViewers bind their
+        // ViewportController to these; fire a request via the ShowMapRectangle / ScrollMapRectangleIntoView
+        // helpers below.
+        public MapViewportController MapViewport { get; } = new MapViewportController();
+        public MapViewportController TopologyViewport { get; } = new MapViewportController();
+
+        // Adjust the main map view to show the given world-coordinate rectangle as fully as possible, zooming
+        // and panning to fit it. An empty rectangle just recenters the view without changing the zoom.
+        private void ShowMapRectangle(RectangleF rectangle)
+        {
+            MapViewport.ShowArea(MapAreaShowMode.FitRectangle, rectangle);
+        }
+
+        // Pan the main map view the minimum amount needed to bring the given world-coordinate rectangle into
+        // view, without changing the zoom. Does nothing if the rectangle is already fully visible.
+        private void ScrollMapRectangleIntoView(RectangleF rectangle)
+        {
+            MapViewport.ShowArea(MapAreaShowMode.ScrollIntoView, rectangle);
+        }
+
+
+        [ObservableProperty]
         private DescriptionViewerViewModel descriptionViewerViewModel = new DescriptionViewerViewModel();
 
         [ObservableProperty]
         private CoursePartBannerViewModel coursePartBannerViewModel = new CoursePartBannerViewModel();
+
+        // Controls which view is shown in the left column: the topology/ordering view
+        // (when true) or the control descriptions view (when false). The two radio
+        // buttons (Descriptions / Topology) bind to this, and it can also be set
+        // programmatically to switch the displayed view from the ViewModel.
+        [ObservableProperty]
+        private bool showTopology = false;
+
+        // Controls whether the topology view is enabled (when true) or disabled (when false).
+        [ObservableProperty]
+        private bool enableTopology = false;
 
         /// <summary>
         /// The names of the course tabs displayed in the tab strip.
@@ -106,11 +148,18 @@ namespace PurplePen.ViewModels
         [ObservableProperty, NotifyPropertyChangedFor(nameof(StatusBarLocationDisplay))]
         private PointF? mouseLocationInMap;
 
+        // The size of a physical pixel in world (map) units. Bound one-way from the MapViewer's PixelSize.
+        [ObservableProperty]
+        private float mapViewerPixelSize;
+
         [ObservableProperty]
         string statusBarText = "";
 
         [ObservableProperty]
         MousePointerShape mapMousePointerShape = new MousePointerShape(PredefinedMousePointerShape.Arrow);
+
+        [ObservableProperty]
+        MousePointerShape topologyMousePointerShape = new MousePointerShape(PredefinedMousePointerShape.Arrow);
 
         [ObservableProperty]
         private string undoCommandName = MiscText.UndoWithShortcut;
@@ -202,9 +251,9 @@ namespace PurplePen.ViewModels
                 UpdateHighlight();
                 CoursePartBannerViewModel.UpdatePartBanner();
                 UpdatePrintArea();
-#if !PORTING
                 UpdateTopology();
                 UpdateTopologyHighlight();
+#if !PORTING
                 UpdateCustomSymbolText();
 #endif
                 // Warn about non-renderable objects (fire-and-forget — the controller
@@ -248,19 +297,19 @@ namespace PurplePen.ViewModels
                 return;   // happens in design mode, for example.
 
             if (MapDisplay != controller.MapDisplay) {
-                // The mapDisplay object is new. This currently o`nly happens on startup.
+                // The mapDisplay object is new. This currently only happens on startup.
                 MapDisplay = controller.MapDisplay;
                 controller.MapDisplay.MapIntensity = UserSettings.Current.MapIntensity;
                 controller.MapDisplay.AntiAlias = UserSettings.Current.MapHighQuality;
                 controller.ShowAllControls = UserSettings.Current.ViewAllControls;
+                ShowMapRectangle(MapDisplay.MapBounds);
             }
 
-            if (controller.MapDisplay.MapType != controller.MapType || controller.MapDisplay.FileName != controller.MapFileName || (controller.MapType == MapType.Bitmap && controller.MapDisplay.Dpi != controller.MapDpi)) {
+            if (MapDisplay.MapType != controller.MapType || MapDisplay.FileName != controller.MapFileName || (controller.MapType == MapType.Bitmap && controller.MapDisplay.Dpi != controller.MapDpi)) {
                 // A new map file has been loaded, or the DPI has changed.
-#if !PORTING
                 MapZoomFactor = 1.0F;   // used if the map bounds are empty, then this zoom factor is preserved.
-                ShowRectangle(MapDisplay.MapBounds);
-#endif
+                ShowMapRectangle(MapDisplay.MapBounds);
+
                 // Reset the per-dialog settings caches.
                 ocadCreationSettingsPrevious = null;
                 bitmapCreationSettingsPrevious = null;
@@ -381,6 +430,15 @@ namespace PurplePen.ViewModels
                 return;   // happens in design mode, for example.
 
             this.MapHighlights = controller.GetHighlights(Pane.Map);
+
+            // Scroll the highlights into view if needed.
+            if (controller.ScrollHighlightIntoView && MapHighlights != null && MapHighlights.Length > 0) {
+                RectangleF highlightBounds = MapHighlights[0].GetHighlightBounds();
+                for (int i = 1; i < MapHighlights.Length; ++i) {
+                    highlightBounds = RectangleF.Union(highlightBounds, MapHighlights[i].GetHighlightBounds());
+                }
+                ScrollMapRectangleIntoView(highlightBounds);
+            }
         }
 
         // When true, the normal print-area display is suppressed. Used while the
@@ -451,6 +509,20 @@ namespace PurplePen.ViewModels
             //JU: TODO is this custom symbol funtion even needed ?!?
             //DescriptionViewerViewModel.CustomSymbolText = symbolTextDict;
         }
+        // Update the topology pane display.
+        void UpdateTopology()
+        {
+            if (controller == null) return;
+
+            if (TopologyMapDisplay == null) {
+                TopologyMapDisplay = new MapDisplay();
+                TopologyMapDisplay.SetMapFile(MapType.None, null);
+                TopologyMapDisplay.AntiAlias = true;
+                TopologyMapDisplay.Printing = false;
+            }
+
+            CourseLayout topologyCourseLayout = controller.GetTopologyLayout();
+            TopologyMapDisplay.SetCourse(topologyCourseLayout);
 
         // Change the viewport to show the given rectangle.
         // MainFrame has a concrete implementation that manipulates the MapViewer control.
@@ -463,6 +535,34 @@ namespace PurplePen.ViewModels
         }
 */
 #endif
+            if (topologyCourseLayout == null) {
+                ShowTopology = false;
+                EnableTopology = false;
+            }
+            else {
+                EnableTopology = true;
+            }
+            
+            /*
+            // Get zoom factor for the width, but constrained by min/max on the mapViewerTopology
+            float desiredZoomFactor = mapViewerTopology.ZoomFactorForWorldWidth(panelTopology.Width - vScrollbarWidth, topologyMapDisplay.Bounds.Width);
+            mapViewerTopology.ZoomFactor = desiredZoomFactor;
+            mapViewerTopology.Recenter();
+            */
+            /*
+            UpdateTopologyScrollBars();
+            */
+        }
+
+        // Update the highlights in the topology pane.
+        void UpdateTopologyHighlight()
+        {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
+            TopologyHighlights = controller.GetHighlights(Pane.Topology);
+        }
+
         #endregion // State updating on idle.
 
 
@@ -517,6 +617,60 @@ namespace PurplePen.ViewModels
 
         public void MapViewerRightButtonCancelDrag()
         { controller?.RightButtonCancelDrag(Pane.Map); }
+
+        #endregion
+
+        #region Topology View Mouse events
+
+        public void TopologyViewerMouseMove(PointF? location, float pixelSize)
+        {
+            TopologyToolTip = null;
+
+            if (location.HasValue && controller != null) {
+                // Inside the viewport
+                controller.MouseMoved(Pane.Topology, location.Value, pixelSize);
+                TopologyMousePointerShape = controller.GetMouseCursor(Pane.Topology, location.Value, pixelSize);
+
+                if (ShowToolTips && controller.GetToolTip(Pane.Topology, location.Value, pixelSize, out string tipText, out string titleText)) {
+                    TopologyToolTip = new ToolTipDescription(titleText, tipText);
+                }
+            }
+        }
+
+        public DragAction TopologyViewerLeftButtonDown(PointF location, float pixelSize)
+        { return controller?.LeftButtonDown(Pane.Topology, location, pixelSize) ?? DragAction.None; }
+
+        public DragAction TopologyViewerRightButtonDown(PointF location, float pixelSize)
+        { return controller?.RightButtonDown(Pane.Topology, location, pixelSize) ?? DragAction.None; }
+
+        public void TopologyViewerLeftButtonUp(PointF location, float pixelSize)
+        { controller?.LeftButtonUp(Pane.Topology, location, pixelSize); }
+
+        public void TopologyViewerRightButtonUp(PointF location, float pixelSize)
+        { controller?.RightButtonUp(Pane.Topology, location, pixelSize); }
+
+        public async Task TopologyViewerLeftButtonClick(PointF location, float pixelSize)
+        { await controller?.LeftButtonClick(Pane.Topology, location, pixelSize)!; }
+
+        public async Task TopologyViewerRightButtonClick(PointF location, float pixelSize)
+        { await controller?.RightButtonClick(Pane.Topology, location, pixelSize)!; }
+
+        public void TopologyViewerLeftButtonDrag(PointF location, PointF locationStart, float pixelSize)
+        { controller?.LeftButtonDrag(Pane.Topology, location, locationStart, pixelSize); }
+
+        public void TopologyViewerRightButtonDrag(PointF location, PointF locationStart, float pixelSize)
+        { controller?.RightButtonDrag(Pane.Topology, location, locationStart, pixelSize); }
+
+        public async Task TopologyViewerLeftButtonEndDrag(PointF location, PointF locationStart, float pixelSize)
+        { await controller?.LeftButtonEndDrag(Pane.Topology, location, locationStart, pixelSize)!; }
+
+        public async Task TopologyViewerRightButtonEndDrag(PointF location, PointF locationStart, float pixelSize)
+        { await controller?.RightButtonEndDrag(Pane.Topology, location, locationStart, pixelSize)!; }
+        public void TopologyViewerLeftButtonCancelDrag()
+        { controller?.LeftButtonCancelDrag(Pane.Topology); }
+
+        public void TopologyViewerRightButtonCancelDrag()
+        { controller?.RightButtonCancelDrag(Pane.Topology); }
 
         #endregion
 

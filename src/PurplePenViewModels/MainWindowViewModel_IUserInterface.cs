@@ -218,20 +218,17 @@ namespace PurplePen.ViewModels
 
         public bool GetCurrentLocation(out PointF location, out float pixelSize)
         {
-#if PORTING
-            // TODO: get correct pixelSize.
             if (MouseLocationInMap.HasValue) {
                 location = MouseLocationInMap.Value;
-                pixelSize = 0.1F;
+                pixelSize = MapViewerPixelSize;
                 return true;
             }
             else {
                 location = new PointF();
-                pixelSize = 0.1F;
+                pixelSize = MapViewerPixelSize;
                 return false;
             }
-#endif
-        }
+       }
 
         public int LogicalToDeviceUnits(int value)
         {
@@ -241,10 +238,8 @@ namespace PurplePen.ViewModels
 
         public void ShowTopologyView()
         {
-#if PORTING
-            // Not yet implemented.
-            return;
-#endif
+            // The viewing of the Topology pane is bound to this property.
+            ShowTopology = true;
         }
 
     }

@@ -7,10 +7,12 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="AvPurplePen.MapViewer"
 >
-        <avutil:PanAndZoom  
+        <avutil:PanAndZoom
             Name="panAndZoom"
             BasicMouseActivity="panAndZoom_MouseActivity"
             PropertyChanged="panAndZoom_PropertyChanged"
-         />    
+            ViewportChanging="panAndZoom_ViewportChanging"
+            ViewportChanged="panAndZoom_ViewportChanged"
+         />
 
 </UserControl>
