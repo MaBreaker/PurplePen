@@ -2046,6 +2046,10 @@
   <data name="MainFrame_mapStdSpr2019Menu_Text" xml:space="preserve">
     <value>ISSprOM 2019 Map Standard</value>
   </data>
+  <!-- JU: Street-O -->
+  <data name="MainFrame_mapStdStreetOMenu_Text" xml:space="preserve">
+    <value>Street-O Map Standard</value>
+  </data>
   <data name="MainFrame_iOFStandardsToolStripMenuItem_Text" xml:space="preserve">
     <value>IOF _Standards</value>
   </data>
@@ -3816,5 +3820,14 @@ For printing competition maps, it is suggested that courses be exported to OCAD 
   </data>
   <data name="PaperSizeControl_checkBoxLandscape_Text" xml:space="preserve">
     <value>Landscape</value>
+  </data>
+  <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
+    <value>Publish to &amp;Livelox</value>
+  </data>
+  <data name="CourseAppearanceDialog_label14_Text" xml:space="preserve">
+    <value>mm</value>
+  </data>
+  <data name="CourseAppearanceDialog_labelCOutlineWidth_Text" xml:space="preserve">
+    <value>White outline around controls:</value>
   </data>
 </root>

@@ -78,6 +78,9 @@ namespace PurplePen.ViewModels
         private decimal outlineWidth;
 
         [ObservableProperty]
+        private decimal controlOutlineWidth;
+
+        [ObservableProperty]
         private decimal legGapSize = 3.5m;
 
         // 0 = None, 1 = Relative to map scale, 2 = Relative to 1:15000.
@@ -191,6 +194,8 @@ namespace PurplePen.ViewModels
                         result.controlCircleSize = (float)ControlCircleDiameter / NormalCourseAppearance.controlOutsideDiameter2017;
                     else if (MapStandard == "Spr2019")
                         result.controlCircleSize = (float)ControlCircleDiameter / NormalCourseAppearance.controlOutsideDiameterSpr2019;
+                    else if (MapStandard == "StreetO")
+                        result.controlCircleSize = (float)ControlCircleDiameter / NormalCourseAppearance.controlOutsideDiameterStreetO;
                     else
                         result.controlCircleSize = (float)ControlCircleDiameter / NormalCourseAppearance.controlOutsideDiameter2000;
 
@@ -207,6 +212,7 @@ namespace PurplePen.ViewModels
                 }
 
                 result.numberOutlineWidth = (float)OutlineWidth;
+                result.controlOutlineWidth = (float)ControlOutlineWidth;
                 result.autoLegGapSize = (float)LegGapSize;
 
                 switch (ScaleItemSizesIndex) {
@@ -252,6 +258,9 @@ namespace PurplePen.ViewModels
                     ControlCircleDiameter = (decimal)(NormalCourseAppearance.controlOutsideDiameter2017 * value.controlCircleSize);
                 else if (MapStandard == "Spr2019")
                     ControlCircleDiameter = (decimal)(NormalCourseAppearance.controlOutsideDiameterSpr2019 * value.controlCircleSize);
+                //JU: Street-O
+                else if (MapStandard == "StreetO")
+                    ControlCircleDiameter = (decimal)(NormalCourseAppearance.controlOutsideDiameterStreetO * value.controlCircleSize);
                 else
                     ControlCircleDiameter = (decimal)(NormalCourseAppearance.controlOutsideDiameter2000 * value.controlCircleSize);
 
@@ -269,6 +278,7 @@ namespace PurplePen.ViewModels
                     ControlNumberStyleIndex = 3;
 
                 OutlineWidth = (decimal)value.numberOutlineWidth;
+                ControlOutlineWidth = (decimal)value.controlOutlineWidth; //JU: Control outline width
                 LegGapSize = (decimal)value.autoLegGapSize;
 
                 switch (value.itemScaling) {
@@ -308,10 +318,26 @@ namespace PurplePen.ViewModels
         partial void OnUseIofStandardSizesChanged(bool value)
         {
             if (value) {
-                ControlCircleDiameter = StandardControlCircleDiameter();
+
+                //JU: Default IOF values
+                if (mapStandard == "2017")
+                    ControlCircleDiameter = (decimal)(NormalCourseAppearance.controlOutsideDiameter2017);
+                else if (mapStandard == "Spr2019")
+                    ControlCircleDiameter = (decimal)(NormalCourseAppearance.controlOutsideDiameterSpr2019);
+                //JU: Street-O
+                else if (mapStandard == "StreetO")
+                    ControlCircleDiameter = (decimal)(NormalCourseAppearance.controlOutsideDiameterStreetO);
+                else
+                    ControlCircleDiameter = (decimal)(NormalCourseAppearance.controlOutsideDiameter2000);
+
                 LineWidth = (decimal)NormalCourseAppearance.lineThickness;
                 NumberHeight = (decimal)NormalCourseAppearance.nominalControlNumberHeight;
-                CenterDotDiameter = (decimal)NormalCourseAppearance.centerDotDiameter;
+                ControlNumberStyleIndex = 0;
+
+                //JU: Street-O
+                CenterDotDiameter = (decimal)(mapStandard == "StreetO" ? NormalCourseAppearance.centerDotDiameterStreetO : NormalCourseAppearance.centerDotDiameter);
+                OutlineWidth = (decimal)(mapStandard == "StreetO" ? NormalCourseAppearance.numberOutlineWidthStreetO : NormalCourseAppearance.numberOutlineWidth);
+                ControlOutlineWidth = (decimal)(mapStandard == "StreetO" ? NormalCourseAppearance.controlOutlineWidthStreetO : NormalCourseAppearance.controlOutlineWidth);
             }
         }
 
@@ -342,6 +368,9 @@ namespace PurplePen.ViewModels
                 return (decimal)NormalCourseAppearance.controlOutsideDiameter2017;
             else if (MapStandard == "Spr2019")
                 return (decimal)NormalCourseAppearance.controlOutsideDiameterSpr2019;
+            //JU: Street-O
+            else if (MapStandard == "StreetO")
+                return (decimal)NormalCourseAppearance.controlOutsideDiameterStreetO;
             else
                 return (decimal)NormalCourseAppearance.controlOutsideDiameter2000;
         }
@@ -372,7 +401,7 @@ namespace PurplePen.ViewModels
             object roadPen = new object();
             grTarget.CreatePen(roadPen, CmykColor.FromCmyk(0, 0, 0, 1), 0.35F, LineCapMode.Flat, LineJoinMode.Round, 5F);
             PointF[] roadPts = { new PointF(28.3F, 8.7F), new PointF(28.7F, 6.7F), new PointF(30.8F, 6.3F), new PointF(33.1F, 5.9F),
-                                 new PointF(34.4F, 6.3F), new PointF(36.5F, 5.4F), new PointF(38.9F, 4.3F), new PointF(38.4F, 1.1F), new PointF(37.6F, -0.5F) };
+                                    new PointF(34.4F, 6.3F), new PointF(36.5F, 5.4F), new PointF(38.9F, 4.3F), new PointF(38.4F, 1.1F), new PointF(37.6F, -0.5F) };
             GraphicsPathPart roadPathStart = new GraphicsPathPart(GraphicsPathPartKind.Start, new PointF[1] { new PointF(27.8F, 10.5F) });
             GraphicsPathPart roadPathPart = new GraphicsPathPart(GraphicsPathPartKind.Beziers, roadPts);
             grTarget.DrawPath(roadPen, new List<GraphicsPathPart> { roadPathStart, roadPathPart });
@@ -406,6 +435,7 @@ namespace PurplePen.ViewModels
             float numberHeightVal = (float)NumberHeight;
             float autoLegGapSize = (float)LegGapSize;
             float outlineWidthVal = (float)OutlineWidth;
+            float controlOutlineWidthVal = (float)ControlOutlineWidth; //JU: Control outline width
             float circleDrawRadius = (circleDiameter - lineWidthVal) / 2;    // radius to pen center
 
             float finishDrawRadiusOuter, finishDrawRadiusInner;
@@ -417,6 +447,11 @@ namespace PurplePen.ViewModels
             else if (MapStandard == "Spr2019") {
                 finishDrawRadiusOuter = ((circleDiameter * NormalCourseAppearance.finishOutsideDiameterSpr2019 / NormalCourseAppearance.controlOutsideDiameterSpr2019) - lineWidthVal) / 2F;
                 finishDrawRadiusInner = ((circleDiameter * (NormalCourseAppearance.finishInsideDiameterSpr2019 + NormalCourseAppearance.lineThickness) / NormalCourseAppearance.controlOutsideDiameterSpr2019) - 2F * lineWidthVal) / 2F;
+            }
+            //JU: Street-O
+            else if (MapStandard == "StreetO") {
+                finishDrawRadiusOuter = ((circleDiameter * NormalCourseAppearance.finishOutsideDiameterStreetO / NormalCourseAppearance.controlOutsideDiameterStreetO) - lineWidthVal) / 2F;
+                finishDrawRadiusInner = ((circleDiameter * (NormalCourseAppearance.finishInsideDiameterStreetO + NormalCourseAppearance.lineThickness) / NormalCourseAppearance.controlOutsideDiameterStreetO) - 2F * lineWidthVal) / 2F;
             }
             else {
                 finishDrawRadiusOuter = ((circleDiameter * NormalCourseAppearance.finishOutsideDiameter2000 / NormalCourseAppearance.controlOutsideDiameter2000) - lineWidthVal) / 2F;
@@ -467,9 +502,18 @@ namespace PurplePen.ViewModels
                 grTarget.DrawTextOutline(controlNumberText, font, whitePen, controlNumberLocation);
             }
 
+            //JU: White control outline
+            if (controlOutlineWidthVal > 0)
+            {
+                // No blending with white outline
+                object whitePen = new object();
+                grTarget.CreatePen(whitePen, CmykColor.FromCmyk(0, 0, 0, 0), controlOutlineWidthVal + lineWidthVal, LineCapMode.Round, LineJoinMode.Round, 5F);
+                grTarget.DrawEllipse(whitePen, centerCircle, circleDrawRadius + controlOutlineWidthVal / 2, circleDrawRadius + controlOutlineWidthVal / 2); 
+            }
+
             if (BlendPurpleIndex == 1)
                 grTarget.PushBlending(BlendMode.Darken);
-
+            
             // Draw control circle.
             grTarget.DrawEllipse(pen, centerCircle, circleDrawRadius, circleDrawRadius);
 

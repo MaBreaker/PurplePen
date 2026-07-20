@@ -74,6 +74,9 @@
                 <MenuItem x:Name="createGPXFileMenu" Header="{resx:Localize MainFrame_createGPXFileMenu_Text}" Command="{Binding CreateGpxCommand}"/>
                 <MenuItem x:Name="createKMLFileMenu" Header="{resx:Localize MainFrame_createKMLFileMenu_Text}" Command="{Binding CreateKmlFilesCommand}"/>
                 <Separator/>
+				<!-- JU: LiveLox -->
+                <MenuItem x:Name="publishToLiveloxMenu" Header="{resx:Localize MainFrame_publishToLiveloxMenu_Text}" Command="{Binding PublishToLiveloxCommand}"/>
+                <Separator/>
                 <MenuItem x:Name="printDescriptionsMenu" Header="{resx:Localize MainFrame_printDescriptionsMenu_Text}" InputGesture="Ctrl+P" Command="{Binding PrintDescriptionsCommand}"/>
                 <MenuItem x:Name="printPunchCardsMenu" Header="{resx:Localize MainFrame_printPunchCardsMenu_Text}" Command="{Binding PrintPunchCardsCommand}"/>
                 <MenuItem x:Name="printCoursesMenu" Header="{resx:Localize MainFrame_printCoursesMenu_Text}" Command="{Binding PrintCoursesCommand}"/>
@@ -312,6 +315,9 @@
                     <MenuItem x:Name="mapStdSpr2019Menu" Header="{resx:Localize MainFrame_mapStdSpr2019Menu_Text}" 
                               ToggleType="CheckBox" IsChecked="{Binding MapStdSpr2019Checked}"
                               Command="{Binding SetMapStdSpr2019Command}"/>
+					<MenuItem x:Name="mapStdStreetOMenu" Header="{resx:Localize MainFrame_mapStdStreetOMenu_Text}"
+                              ToggleType="CheckBox" IsChecked="{Binding MapStdStreetOChecked}"
+                              Command="{Binding SetMapStdStreetOCommand}"/>
                 </MenuItem>
                 <MenuItem x:Name="customizeDescriptionsMenu" Header="{resx:Localize MainFrame_customizeDescriptionsMenu_Text}" Command="{Binding CustomizeDescriptionsCommand}"/>
                 <MenuItem x:Name="customizeCourseAppearanceMenu" Header="{resx:Localize MainFrame_customizeCourseAppearanceMenu_Text}" Command="{Binding CustomizeCourseAppearanceCommand}"/>

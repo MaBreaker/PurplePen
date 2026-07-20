@@ -37,6 +37,10 @@
                     <RadioButton GroupName="MapStandard"
                                  Content="{resx:Localize NewEventStandards_radioButtonMapSpr2019_Text}"
                                  IsChecked="{Binding IsMapSpr2019, Mode=TwoWay}"/>
+					<!-- JU: Street-O -->
+					<RadioButton GroupName="MapStandard"
+                                 Content="{resx:Localize NewEventStandards_radioButtonMapStreetO_Text}"
+                                 IsChecked="{Binding IsMapStreetO, Mode=TwoWay}"/>
                 </StackPanel>
             </HeaderedContentControl>
 

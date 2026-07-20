@@ -291,32 +291,26 @@ namespace PurplePen
         }
 
         //JU: Control white outline preview
-        private void DrawBlackPartsOfPreview(IGraphicsTarget grTarget, int item)
+        private void DrawBlackPartsOfPreview(IGraphicsTarget grTarget)
         {
-            if (item == 1)
-            {
-                // Draw road
-                object roadPen = new object();
-                grTarget.CreatePen(roadPen, CmykColor.FromCmyk(0, 0, 0, 1), 0.35F, LineCapMode.Flat, LineJoinMode   .Round, 5F);
-                PointF[] roadPts = { new PointF(28.3F, 8.7F), new PointF(28.7F, 6.7F), new PointF(30.8F, 6.3F), new PointF(33.1F, 5.9F),
-                                           new PointF(34.4F, 6.3F), new PointF(36.5F, 5.4F), new PointF(38.9F, 4.3F), new PointF(38.4F, 1.1F), new PointF(37.6F, -0.5F)};
-                GraphicsPathPart roadPathStart = new GraphicsPathPart(GraphicsPathPartKind.Start, new PointF[1] { new PointF(27.8F, 10.5F) });
-                GraphicsPathPart roadPathPart = new GraphicsPathPart(GraphicsPathPartKind.Beziers, roadPts);
-                grTarget.DrawPath(roadPen, new List<GraphicsPathPart> { roadPathStart, roadPathPart });
-            }
+            // Draw road
+            object roadPen = new object();
+            grTarget.CreatePen(roadPen, CmykColor.FromCmyk(0, 0, 0, 1), 0.35F, LineCapMode.Flat, LineJoinMode   .Round, 5F);
+            PointF[] roadPts = { new PointF(28.3F, 8.7F), new PointF(28.7F, 6.7F), new PointF(30.8F, 6.3F), new PointF(33.1F, 5.9F),
+                                        new PointF(34.4F, 6.3F), new PointF(36.5F, 5.4F), new PointF(38.9F, 4.3F), new PointF(38.4F, 1.1F), new PointF(37.6F, -0.5F)};
+            GraphicsPathPart roadPathStart = new GraphicsPathPart(GraphicsPathPartKind.Start, new PointF[1] { new PointF(27.8F, 10.5F) });
+            GraphicsPathPart roadPathPart = new GraphicsPathPart(GraphicsPathPartKind.Beziers, roadPts);
+            grTarget.DrawPath(roadPen, new List<GraphicsPathPart> { roadPathStart, roadPathPart });
 
-            if (item == 2)
-            {
-                // Draw boulder cluster.
-                object boulderBrush = new object();
-                grTarget.CreateSolidBrush(boulderBrush, CmykColor.FromCmyk(0, 0, 0, 1));
-                PointF[] boulderPts = { new PointF(0, -0.4F), new PointF(0.4F, 0.3F), new PointF(-0.4F, 0.3F) };
-                Matrix xformBoulder = new Matrix();
-                xformBoulder.Translate(18, 5.1F);
-                grTarget.PushTransform(xformBoulder);
-                grTarget.FillPolygon(boulderBrush, boulderPts, AreaFillMode.Alternate);
-                grTarget.PopTransform();
-            }
+            // Draw boulder cluster.
+            object boulderBrush = new object();
+            grTarget.CreateSolidBrush(boulderBrush, CmykColor.FromCmyk(0, 0, 0, 1));
+            PointF[] boulderPts = { new PointF(0, -0.4F), new PointF(0.4F, 0.3F), new PointF(-0.4F, 0.3F) };
+            Matrix xformBoulder = new Matrix();
+            xformBoulder.Translate(18, 5.1F);
+            grTarget.PushTransform(xformBoulder);
+            grTarget.FillPolygon(boulderBrush, boulderPts, AreaFillMode.Alternate);
+            grTarget.PopTransform();
         }
 
         private void pictureBoxPreview_Paint(object sender, PaintEventArgs e)
@@ -369,9 +363,8 @@ namespace PurplePen
                 // Draw the black parts of the preview if we are not using the layer option. In the layer option, we
                 // draw the black parts after the purple parts.
                 //JU: Draw road always under purple
-                DrawBlackPartsOfPreview(grTarget, 1);
                 if (comboBoxBlendPurple.SelectedIndex != 2) {
-                    DrawBlackPartsOfPreview(grTarget, 2);
+                    DrawBlackPartsOfPreview(grTarget);
                 }
 
                 // Calculate control number position
@@ -451,7 +444,7 @@ namespace PurplePen
                 // Draw the black parts of the preview if we using the layer option. In the layer option, we
                 // draw the black parts after the purple parts.
                 if (comboBoxBlendPurple.SelectedIndex == 2) {
-                    DrawBlackPartsOfPreview(grTarget /* JU: Control white outline preview */, 2);
+                    DrawBlackPartsOfPreview(grTarget);
                 }
 
                 if (comboBoxBlendPurple.SelectedIndex == 1)

@@ -102,11 +102,11 @@ namespace PurplePen
             this.createCoursePdfMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createRouteReviewFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createRouteGadgetFilesMenu = new System.Windows.Forms.ToolStripMenuItem();
-            //JU: LiveLox
-            this.publishToLiveloxMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createXmlMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createGPXFileMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createKMLFileMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator25 = new System.Windows.Forms.ToolStripSeparator();
+            this.publishToLiveloxMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.printDescriptionsMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.printPunchCardsMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -115,7 +115,6 @@ namespace PurplePen
             this.printAreaThisPartMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.printAreaThisCourseMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.printAreaAllCoursesMenu = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator25 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripSeparator24 = new System.Windows.Forms.ToolStripSeparator();
             this.programLanguageMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
@@ -201,7 +200,6 @@ namespace PurplePen
             this.mapStd2000Menu = new System.Windows.Forms.ToolStripMenuItem();
             this.mapStd2017Menu = new System.Windows.Forms.ToolStripMenuItem();
             this.mapStdSpr2019Menu = new System.Windows.Forms.ToolStripMenuItem();
-            //JU: Street-O
             this.mapStdStreetOMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.customizeDescriptionsMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.customizeCourseAppearanceMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -437,7 +435,6 @@ namespace PurplePen
             this.mapViewerTopology.ShowGrid = false;
             this.mapViewerTopology.ShowSymbolBounds = false;
             this.mapViewerTopology.Viewport = ((System.Drawing.RectangleF)(resources.GetObject("mapViewerTopology.Viewport")));
-            this.mapViewerTopology.VScrollValue = 0;
             this.mapViewerTopology.ZoomFactor = 1F;
             this.mapViewerTopology.OnViewportChange += new System.EventHandler(this.mapViewerTopology_OnViewportChange);
             this.mapViewerTopology.OnPointerMove += new PurplePen.MapView.MapViewer.PointerEventHandler(this.mapViewerTopology_OnPointerMove);
@@ -456,12 +453,9 @@ namespace PurplePen
             resources.ApplyResources(this.descriptionControl, "descriptionControl");
             this.descriptionControl.BackColor = System.Drawing.Color.White;
             this.descriptionControl.CourseKind = PurplePen.CourseView.CourseViewKind.Normal;
-            this.descriptionControl.CustomSymbolText = null;
-            this.descriptionControl.Description = null;
             this.descriptionControl.HasCustomLength = false;
             this.descriptionControl.IsCoursePart = false;
             this.descriptionControl.Name = "descriptionControl";
-            this.descriptionControl.SymbolDB = null;
             this.descriptionControl.Change += new PurplePen.DescriptionControl.DescriptionChangedHandler(this.descriptionControl_Change);
             this.descriptionControl.SelectedIndexChange += new System.EventHandler(this.descriptionControl_SelectedIndexChange);
             // 
@@ -488,7 +482,6 @@ namespace PurplePen
             this.mapViewer.ShowGrid = false;
             this.mapViewer.ShowSymbolBounds = false;
             this.mapViewer.Viewport = ((System.Drawing.RectangleF)(resources.GetObject("mapViewer.Viewport")));
-            this.mapViewer.VScrollValue = 0;
             this.mapViewer.ZoomFactor = 1F;
             this.mapViewer.OnViewportChange += new System.EventHandler(this.mapViewer_OnViewportChange);
             this.mapViewer.OnPointerMove += new PurplePen.MapView.MapViewer.PointerEventHandler(this.mapViewer_OnPointerMove);
@@ -511,16 +504,13 @@ namespace PurplePen
             // 
             // coursePartBanner
             // 
-            this.coursePartBanner.AvailableVariations = null;
             this.coursePartBanner.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.coursePartBanner.CurrentVariation = null;
             resources.ApplyResources(this.coursePartBanner, "coursePartBanner");
             this.coursePartBanner.EnableParts = true;
             this.coursePartBanner.EnableProperties = true;
             this.coursePartBanner.EnableVariations = true;
             this.coursePartBanner.Name = "coursePartBanner";
             this.coursePartBanner.NumberOfParts = 1;
-            this.coursePartBanner.SelectedPart = -1;
             this.coursePartBanner.SelectedVariationChanged += new System.EventHandler(this.coursePartBanner_SelectedVariationChanged);
             this.coursePartBanner.SelectedPartChanged += new System.EventHandler(this.coursePartBanner_SelectedPartChanged);
             this.coursePartBanner.PropertiesClicked += new System.EventHandler(this.coursePartBanner_PropertiesClicked);
@@ -566,7 +556,6 @@ namespace PurplePen
             this.createXmlMenu,
             this.createGPXFileMenu,
             this.createKMLFileMenu,
-            //JU: LiveLox
             this.toolStripSeparator25,
             this.publishToLiveloxMenu,
             this.toolStripMenuItem1,
@@ -666,12 +655,6 @@ namespace PurplePen
             this.createRouteGadgetFilesMenu.Name = "createRouteGadgetFilesMenu";
             resources.ApplyResources(this.createRouteGadgetFilesMenu, "createRouteGadgetFilesMenu");
             this.createRouteGadgetFilesMenu.Click += new System.EventHandler(this.createRouteGadgetFilesMenu_Click);
-            //JU: LiveLox
-            // publishToLiveloxMenu
-            // 
-            this.publishToLiveloxMenu.Name = "publishToLiveloxMenu";
-            resources.ApplyResources(this.publishToLiveloxMenu, "publishToLiveloxMenu");
-            this.publishToLiveloxMenu.Click += new System.EventHandler(this.publishToLiveloxMenu_Click);
             // 
             // createXmlMenu
             // 
@@ -690,6 +673,17 @@ namespace PurplePen
             this.createKMLFileMenu.Name = "createKMLFileMenu";
             resources.ApplyResources(this.createKMLFileMenu, "createKMLFileMenu");
             this.createKMLFileMenu.Click += new System.EventHandler(this.createKmlFilesMenu_Click);
+            // 
+            // toolStripSeparator25
+            // 
+            this.toolStripSeparator25.Name = "toolStripSeparator25";
+            resources.ApplyResources(this.toolStripSeparator25, "toolStripSeparator25");
+            // 
+            // publishToLiveloxMenu
+            // 
+            this.publishToLiveloxMenu.Name = "publishToLiveloxMenu";
+            resources.ApplyResources(this.publishToLiveloxMenu, "publishToLiveloxMenu");
+            this.publishToLiveloxMenu.Click += new System.EventHandler(this.publishToLiveloxMenu_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -741,11 +735,6 @@ namespace PurplePen
             this.printAreaAllCoursesMenu.Name = "printAreaAllCoursesMenu";
             resources.ApplyResources(this.printAreaAllCoursesMenu, "printAreaAllCoursesMenu");
             this.printAreaAllCoursesMenu.Click += new System.EventHandler(this.printAreaAllCoursesMenu_Click);
-            // 
-            // toolStripSeparator25
-            // 
-            this.toolStripSeparator25.Name = "toolStripSeparator25";
-            resources.ApplyResources(this.toolStripSeparator25, "toolStripSeparator25");
             // 
             // toolStripSeparator24
             // 
@@ -1298,7 +1287,6 @@ namespace PurplePen
             this.mapStd2000Menu,
             this.mapStd2017Menu,
             this.mapStdSpr2019Menu,
-            //JU: Street-O
             this.mapStdStreetOMenu});
             this.iOFStandardsToolStripMenuItem.Name = "iOFStandardsToolStripMenuItem";
             resources.ApplyResources(this.iOFStandardsToolStripMenuItem, "iOFStandardsToolStripMenuItem");
@@ -1337,7 +1325,7 @@ namespace PurplePen
             this.mapStdSpr2019Menu.Name = "mapStdSpr2019Menu";
             resources.ApplyResources(this.mapStdSpr2019Menu, "mapStdSpr2019Menu");
             this.mapStdSpr2019Menu.Click += new System.EventHandler(this.mapStdSpr2019Menu_Click);
-            //JU: Street-O
+            // 
             // mapStdStreetOMenu
             // 
             this.mapStdStreetOMenu.Name = "mapStdStreetOMenu";

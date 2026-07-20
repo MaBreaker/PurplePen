@@ -1094,8 +1094,7 @@ namespace AvPurplePen {
                 return ResourceManager.GetString("ChangeText_label3_Text", resourceCulture);
             }
         }
-         
-        //JU: Rotation
+        
         /// <summary>
         ///   Looks up a localized string similar to Rotation:.
         /// </summary>
@@ -1104,8 +1103,7 @@ namespace AvPurplePen {
                 return ResourceManager.GetString("ChangeText_label4_Text", resourceCulture);
             }
         }
-         
-        //JU: Multiline
+        
         /// <summary>
         ///   Looks up a localized string similar to Multiline:.
         /// </summary>
@@ -1121,6 +1119,15 @@ namespace AvPurplePen {
         public static string ChangeText_labelFontSizeMm_Text {
             get {
                 return ResourceManager.GetString("ChangeText_labelFontSizeMm_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to deg.
+        /// </summary>
+        public static string ChangeText_labelRotationDeg_Text {
+            get {
+                return ResourceManager.GetString("ChangeText_labelRotationDeg_Text", resourceCulture);
             }
         }
         
@@ -2054,6 +2061,15 @@ namespace AvPurplePen {
         /// <summary>
         ///   Looks up a localized string similar to mm.
         /// </summary>
+        public static string CourseAppearanceDialog_label14_Text {
+            get {
+                return ResourceManager.GetString("CourseAppearanceDialog_label14_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to mm.
+        /// </summary>
         public static string CourseAppearanceDialog_label2_Text {
             get {
                 return ResourceManager.GetString("CourseAppearanceDialog_label2_Text", resourceCulture);
@@ -2174,6 +2190,15 @@ namespace AvPurplePen {
         public static string CourseAppearanceDialog_labelControlNumberStyle_Text {
             get {
                 return ResourceManager.GetString("CourseAppearanceDialog_labelControlNumberStyle_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to White outline around controls:.
+        /// </summary>
+        public static string CourseAppearanceDialog_labelCOutlineWidth_Text {
+            get {
+                return ResourceManager.GetString("CourseAppearanceDialog_labelCOutlineWidth_Text", resourceCulture);
             }
         }
         
@@ -3452,6 +3477,15 @@ namespace AvPurplePen {
         public static string EnterSymbolText_checkBoxPlural_Text {
             get {
                 return ResourceManager.GetString("EnterSymbolText_checkBoxPlural_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (unchanged).
+        /// </summary>
+        public static string EnterSymbolText_defaultCaseText {
+            get {
+                return ResourceManager.GetString("EnterSymbolText_defaultCaseText", resourceCulture);
             }
         }
         
@@ -4986,6 +5020,15 @@ namespace AvPurplePen {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Street-O Map Standard.
+        /// </summary>
+        public static string MainFrame_mapStdStreetOMenu_Text {
+            get {
+                return ResourceManager.GetString("MainFrame_mapStdStreetOMenu_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Map Tester.
         /// </summary>
         public static string MainFrame_mapTesterMenu_Text {
@@ -5207,6 +5250,15 @@ namespace AvPurplePen {
         public static string MainFrame_propertiesMenu_Text {
             get {
                 return ResourceManager.GetString("MainFrame_propertiesMenu_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Publish to &amp;Livelox.
+        /// </summary>
+        public static string MainFrame_publishToLiveloxMenu_Text {
+            get {
+                return ResourceManager.GetString("MainFrame_publishToLiveloxMenu_Text", resourceCulture);
             }
         }
         
@@ -5666,6 +5718,78 @@ namespace AvPurplePen {
         public static string MainFrame_zoomMenu_Text {
             get {
                 return ResourceManager.GetString("MainFrame_zoomMenu_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The point at which is the map is issued should be marked on the map. Where is the map given to competitors?.
+        /// </summary>
+        public static string MapIssueChoiceDialog_labelExplanation_Text {
+            get {
+                return ResourceManager.GetString("MapIssueChoiceDialog_labelExplanation_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The map is given out partially along the marked route to the start. Navigation begins at the start triangle..
+        /// </summary>
+        public static string MapIssueChoiceDialog_middleButton_DetailText {
+            get {
+                return ResourceManager.GetString("MapIssueChoiceDialog_middleButton_DetailText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Map Issue along Marked Route.
+        /// </summary>
+        public static string MapIssueChoiceDialog_middleButton_TitleText {
+            get {
+                return ResourceManager.GetString("MapIssueChoiceDialog_middleButton_TitleText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The map is given out at the beginning of the marked route to the start. Navigation begins at the start triangle..
+        /// </summary>
+        public static string MapIssueChoiceDialog_startButton_DetailText {
+            get {
+                return ResourceManager.GetString("MapIssueChoiceDialog_startButton_DetailText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Map Issue at Beginning.
+        /// </summary>
+        public static string MapIssueChoiceDialog_startButton_TitleText {
+            get {
+                return ResourceManager.GetString("MapIssueChoiceDialog_startButton_TitleText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The map is issued at the start triangle (where navigation begins)..
+        /// </summary>
+        public static string MapIssueChoiceDialog_startTriangleButton_DetailText {
+            get {
+                return ResourceManager.GetString("MapIssueChoiceDialog_startTriangleButton_DetailText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Map Issue at the Start Triangle.
+        /// </summary>
+        public static string MapIssueChoiceDialog_startTriangleButton_TitleText {
+            get {
+                return ResourceManager.GetString("MapIssueChoiceDialog_startTriangleButton_TitleText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select Map Issue Point.
+        /// </summary>
+        public static string MapIssueChoiceDialog_Text {
+            get {
+                return ResourceManager.GetString("MapIssueChoiceDialog_Text", resourceCulture);
             }
         }
         
@@ -7268,70 +7392,7 @@ namespace AvPurplePen {
                 return ResourceManager.GetString("MoveAllControls_Text", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Moving Shared Control.
-        /// </summary>
-        public static string MoveControlChoiceDialog_Text {
-            get {
-                return ResourceManager.GetString("MoveControlChoiceDialog_Text", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Control &quot;{0}&quot; is present in the following other courses. If you move it, those courses will be changed also..
-        /// </summary>
-        public static string MoveControlChoiceDialog_labelExplanation_Text {
-            get {
-                return ResourceManager.GetString("MoveControlChoiceDialog_labelExplanation_Text", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Move Control In All Courses.
-        /// </summary>
-        public static string MoveControlChoiceDialog_moveButton_TitleText {
-            get {
-                return ResourceManager.GetString("MoveControlChoiceDialog_moveButton_TitleText", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to This course and the above listed courses will all change..
-        /// </summary>
-        public static string MoveControlChoiceDialog_moveButton_DetailText {
-            get {
-                return ResourceManager.GetString("MoveControlChoiceDialog_moveButton_DetailText", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Create New Control In This Course.
-        /// </summary>
-        public static string MoveControlChoiceDialog_duplicateButton_TitleText {
-            get {
-                return ResourceManager.GetString("MoveControlChoiceDialog_duplicateButton_TitleText", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Other courses will not change, and control &quot;{0}&quot; will be replaced with a new control at the new location in this course..
-        /// </summary>
-        public static string MoveControlChoiceDialog_duplicateButton_DetailText {
-            get {
-                return ResourceManager.GetString("MoveControlChoiceDialog_duplicateButton_DetailText", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Do Nothing.
-        /// </summary>
-        public static string MoveControlChoiceDialog_cancelButton_TitleText {
-            get {
-                return ResourceManager.GetString("MoveControlChoiceDialog_cancelButton_TitleText", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Do not move this control..
         /// </summary>
@@ -7340,9 +7401,72 @@ namespace AvPurplePen {
                 return ResourceManager.GetString("MoveControlChoiceDialog_cancelButton_DetailText", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to When using an image file as a map, you must specify the resolution of the image and the map scale.
+        ///   Looks up a localized string similar to Do Nothing.
+        /// </summary>
+        public static string MoveControlChoiceDialog_cancelButton_TitleText {
+            get {
+                return ResourceManager.GetString("MoveControlChoiceDialog_cancelButton_TitleText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Other courses will not change, and control &quot;{0}&quot; will be replaced with a new control at the new location in this course..
+        /// </summary>
+        public static string MoveControlChoiceDialog_duplicateButton_DetailText {
+            get {
+                return ResourceManager.GetString("MoveControlChoiceDialog_duplicateButton_DetailText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create New Control In This Course.
+        /// </summary>
+        public static string MoveControlChoiceDialog_duplicateButton_TitleText {
+            get {
+                return ResourceManager.GetString("MoveControlChoiceDialog_duplicateButton_TitleText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Control &quot;{0}&quot; is present in the following other courses. If you move it, those courses will be changed also..
+        /// </summary>
+        public static string MoveControlChoiceDialog_labelExplanation_Text {
+            get {
+                return ResourceManager.GetString("MoveControlChoiceDialog_labelExplanation_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This course and the above listed courses will all change..
+        /// </summary>
+        public static string MoveControlChoiceDialog_moveButton_DetailText {
+            get {
+                return ResourceManager.GetString("MoveControlChoiceDialog_moveButton_DetailText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Move Control In All Courses.
+        /// </summary>
+        public static string MoveControlChoiceDialog_moveButton_TitleText {
+            get {
+                return ResourceManager.GetString("MoveControlChoiceDialog_moveButton_TitleText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Moving Shared Control.
+        /// </summary>
+        public static string MoveControlChoiceDialog_Text {
+            get {
+                return ResourceManager.GetString("MoveControlChoiceDialog_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When using an image file as a map, you must specify the resolution of the image and the map scale. 
         ///
         ///The resolution of the image indicates how may pixels or dots are in the image for each inch on the paper map; usually termed dots per inch or &quot;dpi&quot;.
         ///
@@ -7598,6 +7722,33 @@ namespace AvPurplePen {
         public static string NewEventNumbering_startingCodeLabel_Text {
             get {
                 return ResourceManager.GetString("NewEventNumbering_startingCodeLabel_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can change this later with File/Set Print Area..
+        /// </summary>
+        public static string NewEventPaperSize_changeLaterLabel_Text {
+            get {
+                return ResourceManager.GetString("NewEventPaperSize_changeLaterLabel_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Paper Size.
+        /// </summary>
+        public static string NewEventPaperSize_labelTitle_Text {
+            get {
+                return ResourceManager.GetString("NewEventPaperSize_labelTitle_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the size and orientation of the paper that you will use to print your map..
+        /// </summary>
+        public static string NewEventPaperSize_newEventPaperSizeLabel_Text {
+            get {
+                return ResourceManager.GetString("NewEventPaperSize_newEventPaperSizeLabel_Text", resourceCulture);
             }
         }
         
@@ -7947,6 +8098,114 @@ namespace AvPurplePen {
         public static string OverwritingOcadFilesDialog_Text {
             get {
                 return ResourceManager.GetString("OverwritingOcadFilesDialog_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Page Setup.
+        /// </summary>
+        public static string PageSetup_Text {
+            get {
+                return ResourceManager.GetString("PageSetup_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Landscape.
+        /// </summary>
+        public static string PaperSizeControl_checkBoxLandscape_Text {
+            get {
+                return ResourceManager.GetString("PaperSizeControl_checkBoxLandscape_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Portrait.
+        /// </summary>
+        public static string PaperSizeControl_checkBoxPortrait_Text {
+            get {
+                return ResourceManager.GetString("PaperSizeControl_checkBoxPortrait_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Margins.
+        /// </summary>
+        public static string PaperSizeControl_groupBoxMargins_Text {
+            get {
+                return ResourceManager.GetString("PaperSizeControl_groupBoxMargins_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bottom:.
+        /// </summary>
+        public static string PaperSizeControl_labelBottom_Text {
+            get {
+                return ResourceManager.GetString("PaperSizeControl_labelBottom_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Height:.
+        /// </summary>
+        public static string PaperSizeControl_labelHeight_Text {
+            get {
+                return ResourceManager.GetString("PaperSizeControl_labelHeight_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Left:.
+        /// </summary>
+        public static string PaperSizeControl_labelLeft_Text {
+            get {
+                return ResourceManager.GetString("PaperSizeControl_labelLeft_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Margin (all sides):.
+        /// </summary>
+        public static string PaperSizeControl_labelMargin_Text {
+            get {
+                return ResourceManager.GetString("PaperSizeControl_labelMargin_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Size:.
+        /// </summary>
+        public static string PaperSizeControl_labelPaper_Text {
+            get {
+                return ResourceManager.GetString("PaperSizeControl_labelPaper_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Right:.
+        /// </summary>
+        public static string PaperSizeControl_labelRight_Text {
+            get {
+                return ResourceManager.GetString("PaperSizeControl_labelRight_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Top:.
+        /// </summary>
+        public static string PaperSizeControl_labelTop_Text {
+            get {
+                return ResourceManager.GetString("PaperSizeControl_labelTop_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Width:.
+        /// </summary>
+        public static string PaperSizeControl_labelWidth_Text {
+            get {
+                return ResourceManager.GetString("PaperSizeControl_labelWidth_Text", resourceCulture);
             }
         }
         

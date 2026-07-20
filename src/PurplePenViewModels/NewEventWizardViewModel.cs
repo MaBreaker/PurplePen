@@ -273,6 +273,11 @@ namespace PurplePen.ViewModels
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(CanProceed))]
+        //JU: Street-O
+        private bool isMapStreetO;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanProceed))]
         private bool isDescriptions2004;
 
         [ObservableProperty]
@@ -583,6 +588,8 @@ namespace PurplePen.ViewModels
                 createEventInfo.mapStandard = "2017";
             else if (IsMapSpr2019)
                 createEventInfo.mapStandard = "Spr2019";
+            else if (IsMapStreetO)
+                createEventInfo.mapStandard = "StreetO";
             else
                 createEventInfo.mapStandard = "2000";
 

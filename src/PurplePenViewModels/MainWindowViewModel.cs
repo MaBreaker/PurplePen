@@ -383,7 +383,34 @@ namespace PurplePen.ViewModels
             this.MapHighlights = controller.GetHighlights(Pane.Map);
         }
 
+        // When true, the normal print-area display is suppressed. Used while the
+        // Set Print Area dialog is open, since that dialog shows its own
+        // interactive (draggable) print rectangle instead. Setting it forces a
+        // redraw so the change takes effect immediately. Centralizes what the
+        // WinForms version split between MainFrame and the dialog's Dispose.
+        public bool HidePrintArea
+        {
+            get => hidePrintArea;
+            set
+            {
+                hidePrintArea = value;
+                controller?.ForceChangeUpdate(true);
+            }
+        }
+
+        // Update the print area in the map pane.
+        void UpdatePrintArea()
+        {
+            if (controller == null || MapDisplay == null) { return; }
+
+            if (hidePrintArea || !UserSettings.Current.ShowPrintArea)
+                MapDisplay.SetPrintArea(null /* JU: Margins */, null);
+            else
+                MapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart), /* JU: margins */ null);
+        }
+
 #if !PORTING
+/*
         // Update the topology display.
         private void UpdateTopology()
         {
@@ -400,44 +427,6 @@ namespace PurplePen.ViewModels
                 return;
             // Stub for compatibility with MainFrame; nothing to update in this ViewModel.
         }
-
-        // Update the print area in the map pane
-        private void UpdatePrintArea()
-        {
-            if (controller == null || MapDisplay == null)
-                return;
-
-            if (!UserSettings.Current.ShowPrintArea)
-                MapDisplay.SetPrintArea(null /* JU: Margins */, null);
-            else
-                MapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart), /* JU: margins */ null);
-        }
-
-        // When true, the normal print-area display is suppressed. Used while the
-        // Set Print Area dialog is open, since that dialog shows its own
-        // interactive (draggable) print rectangle instead. Setting it forces a
-        // redraw so the change takes effect immediately. Centralizes what the
-        // WinForms version split between MainFrame and the dialog's Dispose.
-        public bool HidePrintArea
-        {
-            get => hidePrintArea;
-            set {
-                hidePrintArea = value;
-                controller?.ForceChangeUpdate(true);
-            }
-        }
-
-        // Update the print area in the map pane.
-        void UpdatePrintArea()
-        {
-            if (controller == null || MapDisplay == null) { return; }
-
-            if (hidePrintArea || !UserSettings.Current.ShowPrintArea)
-                MapDisplay.SetPrintArea(null);
-            else
-                MapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart));
-        }
-
 
         // Get the dictionary mapping each symbol to custom text for symbol descriptions.
         private void UpdateCustomSymbolText()
@@ -472,6 +461,7 @@ namespace PurplePen.ViewModels
             // Stub for compatibility with MainFrame; the view is expected to respond to
             // MapDisplay / MapZoomFactor changes and perform actual viewport changes.
         }
+*/
 #endif
         #endregion // State updating on idle.
 

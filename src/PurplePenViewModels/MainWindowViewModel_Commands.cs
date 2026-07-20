@@ -2610,7 +2610,7 @@ namespace PurplePen.ViewModels
         /// Executes the File/Publish to Livelox command.
         /// </summary>
         [RelayCommand]
-        private void PublishToLivelox()
+        private async Task PublishToLivelox()
         {
 #if !PORTING
             LiveloxPublishSettings settings;
@@ -2641,6 +2641,15 @@ namespace PurplePen.ViewModels
                     publishToLiveloxDialog.Dispose();
                 });
             });
+#else
+            MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel
+            {
+                Message = "Livelox publish is not yet implemented in this beta release.",
+                Buttons = MessageBoxButtons.Ok,
+                DefaultButton = MessageBoxButton.Ok,
+                Icon = MessageBoxIcon.Warning
+            };
+            await Services.DialogService.ShowDialogAsync(vm);
 #endif
         }
 

@@ -25,7 +25,7 @@
     <PackageVersion Include="XunitXml.TestLogger" Version="4.1.0" />
     <PackageVersion Include="FluentAssertions" Version="6.12.2" />
     <!-- GitVersion used for Semantic Versioning -->
-    <PackageVersion Include="GitVersion.MsBuild" Version="5.12.0" />
+    <PackageVersion Include="GitVersion.MsBuild" Version="6.8.2" />
     <!-- GitVersion 6 does not work in VS because of .NET Framework -->
     <!--<PackageVersion Include="GitVersion.MsBuild" Version="6.1.0" />-->
     <!-- Other packages -->
