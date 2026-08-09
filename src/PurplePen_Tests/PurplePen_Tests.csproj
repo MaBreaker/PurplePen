@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net48;net10.0-windows</TargetFrameworks>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsTestProject>true</IsTestProject>
@@ -44,9 +44,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" />
     <PackageReference Include="MSTest.TestAdapter" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -62,10 +60,12 @@
     <ProjectReference Include="..\MapModel\Graphics2D\Graphics2D.csproj" />
     <ProjectReference Include="..\MapModel\MapModel\MapModel.csproj" />
     <ProjectReference Include="..\MapModel\Map_GDIPlus\Map_GDIPlus.csproj" />
+    <ProjectReference Include="..\MapModel\Map_SkiaStd\Map_SkiaStd.csproj" />
     <ProjectReference Include="..\PdfConverter\PdfConverter.csproj" />
     <ProjectReference Include="..\PurplePenCore\PurplePenCore.csproj" />
     <ProjectReference Include="..\PurplePen\PurplePen.csproj" />
-    <ProjectReference Include="..\TestUtil\TestUtil.csproj" />
+    <ProjectReference Include="..\Testing\TestUtil.GdiPlus\TestUtil.GdiPlus.csproj" />
+    <ProjectReference Include="..\Testing\TestUtil\TestUtil.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Map\" />

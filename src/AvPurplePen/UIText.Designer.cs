@@ -2356,6 +2356,114 @@ namespace AvPurplePen {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Continue Working.
+        /// </summary>
+        public static string CrashDialog_continueButton_Text {
+            get {
+                return ResourceManager.GetString("CrashDialog_continueButton_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please tell us what you did immediately before this error occurred:.
+        /// </summary>
+        public static string CrashDialog_descriptionLabel_Text {
+            get {
+                return ResourceManager.GetString("CrashDialog_descriptionLabel_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Give as much detail as possible as to what you were doing and what might have triggered the error..
+        /// </summary>
+        public static string CrashDialog_descriptionTextBox_Watermark {
+            get {
+                return ResourceManager.GetString("CrashDialog_descriptionTextBox_Watermark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to In many cases, you can continue working without problem. You can also restart Purple Pen. If you restart, Purple Pen will attempt to save and restore your current work in progress..
+        /// </summary>
+        public static string CrashDialog_explanationLabel_Text {
+            get {
+                return ResourceManager.GetString("CrashDialog_explanationLabel_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Purple Pen cannot continue running and must be restarted. If you restart, Purple Pen will attempt to save and restore your current work in progress..
+        /// </summary>
+        public static string CrashDialog_fatalExplanationLabel_Text {
+            get {
+                return ResourceManager.GetString("CrashDialog_fatalExplanationLabel_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error has occurred. In order to help us fix the problem, please give us any additional information about what caused the error, and send us an error report..
+        /// </summary>
+        public static string CrashDialog_introLabel_Text {
+            get {
+                return ResourceManager.GetString("CrashDialog_introLabel_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your unsaved changes have been saved, and will be restored if you restart..
+        /// </summary>
+        public static string CrashDialog_recoveryLabel_Text {
+            get {
+                return ResourceManager.GetString("CrashDialog_recoveryLabel_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restart.
+        /// </summary>
+        public static string CrashDialog_restartButton_Text {
+            get {
+                return ResourceManager.GetString("CrashDialog_restartButton_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sending error report....
+        /// </summary>
+        public static string CrashDialog_sendingLabel_Text {
+            get {
+                return ResourceManager.GetString("CrashDialog_sendingLabel_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Send error report.
+        /// </summary>
+        public static string CrashDialog_sendReportCheckBox_Text {
+            get {
+                return ResourceManager.GetString("CrashDialog_sendReportCheckBox_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Purple Pen has crashed.
+        /// </summary>
+        public static string CrashDialog_Text {
+            get {
+                return ResourceManager.GetString("CrashDialog_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to View Error Details....
+        /// </summary>
+        public static string CrashDialog_viewDetailsButton_Text {
+            get {
+                return ResourceManager.GetString("CrashDialog_viewDetailsButton_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Courses.
         /// </summary>
         public static string CreateGpx_coursesGroupBox_Text {
@@ -3549,6 +3657,33 @@ namespace AvPurplePen {
         public static string EnterSymbolText_textColumn_HeaderText {
             get {
                 return ResourceManager.GetString("EnterSymbolText_textColumn_HeaderText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        public static string ErrorDetailsDialog_closeButton_Text {
+            get {
+                return ResourceManager.GetString("ErrorDetailsDialog_closeButton_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copy to Clipboard.
+        /// </summary>
+        public static string ErrorDetailsDialog_copyButton_Text {
+            get {
+                return ResourceManager.GetString("ErrorDetailsDialog_copyButton_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error Details.
+        /// </summary>
+        public static string ErrorDetailsDialog_Text {
+            get {
+                return ResourceManager.GetString("ErrorDetailsDialog_Text", resourceCulture);
             }
         }
         
@@ -11131,6 +11266,60 @@ namespace AvPurplePen {
         public static string YesButton {
             get {
                 return ResourceManager.GetString("YesButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Update Available.
+        /// </summary>
+        public static string UpdateAvailable_Text {
+            get {
+                return ResourceManager.GetString("UpdateAvailable_Text", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remind Me Later.
+        /// </summary>
+        public static string UpdateAvailable_remindLaterButton_Text {
+            get {
+                return ResourceManager.GetString("UpdateAvailable_remindLaterButton_Text", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Download and Install.
+        /// </summary>
+        public static string UpdateAvailable_downloadButton_Text {
+            get {
+                return ResourceManager.GetString("UpdateAvailable_downloadButton_Text", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Version {0} of Purple Pen is now available. (You are currently running version {1}.).
+        /// </summary>
+        public static string UpdateAvailable_newVersionAvailable_Text {
+            get {
+                return ResourceManager.GetString("UpdateAvailable_newVersionAvailable_Text", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The update could not be downloaded.
+        /// </summary>
+        public static string UpdateAvailable_downloadFailed_Text {
+            get {
+                return ResourceManager.GetString("UpdateAvailable_downloadFailed_Text", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The update has been downloaded to: {0}.
+        /// </summary>
+        public static string UpdateAvailable_downloadedManually_Text {
+            get {
+                return ResourceManager.GetString("UpdateAvailable_downloadedManually_Text", resourceCulture);
             }
         }
     }

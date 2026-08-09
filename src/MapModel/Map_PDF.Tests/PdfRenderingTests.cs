@@ -33,15 +33,17 @@
  */
 
 
+using Map_SkiaStd;
+using NUnit.Framework;
+using PurplePen.Graphics2D;
+using PurplePen.MapModel;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using NUnit.Framework;
 using TestingUtils;
-using PurplePen.Graphics2D;
-using PurplePen.MapModel;
 
 
 namespace Map_PDF.Tests
@@ -56,12 +58,15 @@ namespace Map_PDF.Tests
             Uri uri = new Uri(typeof(Rendering).Assembly.Location);
             string executablePath = Path.GetDirectoryName(uri.LocalPath);
             string fontPath = Path.Combine(executablePath, "fonts");
-        }
 
-
-        // Write a bitmap to a PNG.
-        void WriteBitmap(Bitmap bmp, string filename) {
-           bmp.Save(filename, ImageFormat.Png);
+            SkiaFontManager.AddFontFile("Roboto", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright, Path.Combine(fontPath, "Roboto-Regular.ttf"));
+            SkiaFontManager.AddFontFile("Roboto", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright, Path.Combine(fontPath, "Roboto-Bold.ttf"));
+            SkiaFontManager.AddFontFile("Roboto", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Italic, Path.Combine(fontPath, "Roboto-Italic.ttf"));
+            SkiaFontManager.AddFontFile("Roboto", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Italic, Path.Combine(fontPath, "Roboto-BoldItalic.ttf"));
+            SkiaFontManager.AddFontFile("Roboto", SKFontStyleWeight.Normal, SKFontStyleWidth.Condensed, SKFontStyleSlant.Upright, Path.Combine(fontPath, "RobotoCondensed-Regular.ttf"));
+            SkiaFontManager.AddFontFile("Roboto", SKFontStyleWeight.Bold, SKFontStyleWidth.Condensed, SKFontStyleSlant.Upright, Path.Combine(fontPath, "RobotoCondensed-Bold.ttf"));
+            SkiaFontManager.AddFontFile("Roboto", SKFontStyleWeight.Normal, SKFontStyleWidth.Condensed, SKFontStyleSlant.Italic, Path.Combine(fontPath, "RobotoCondensed-Italic.ttf"));
+            SkiaFontManager.AddFontFile("Roboto", SKFontStyleWeight.Bold, SKFontStyleWidth.Condensed, SKFontStyleSlant.Italic, Path.Combine(fontPath, "RobotoCondensed-BoldItalic.ttf"));
         }
 
 
@@ -70,7 +75,7 @@ namespace Map_PDF.Tests
         {
         }
 
-        static Bitmap RenderBitmap(string pdfFileName, Map map, Size bitmapSize, RectangleF mapArea, bool usePatternBitmaps)
+        static SKBitmap RenderBitmap(string pdfFileName, Map map, Size bitmapSize, RectangleF mapArea, bool usePatternBitmaps)
         {
             // Get PNG file name
             string directoryName = Path.GetDirectoryName(pdfFileName);
@@ -99,7 +104,7 @@ namespace Map_PDF.Tests
                         map.Draw(grTarget, mapArea, renderOpts, null);
                 });
 
-            return (Bitmap) Image.FromFile(pngFileName);
+            return SKBitmap.Decode(pngFileName);
         }
 
         // Verifies a test file. Returns true on success, false on failure. In the failure case, 
@@ -140,13 +145,13 @@ namespace Map_PDF.Tests
             File.Delete(ocadFileName);
 
             // Create and open the map file.
-            Map map = new Map(new GDIPlus_TextMetrics(), new GDIPlus_FileLoader(directoryName));
+            Map map = new Map(new Skia_TextMetrics(), new Skia_FileLoader(directoryName));
             InputOutput.ReadFile(mapFileName, map);
 
             // Draw into a new bitmap.
-            Bitmap bitmapNew = RenderBitmap(tempPdfFileName, map, size, mapArea, usePatternBitmaps);
+            SKBitmap bitmapNew = RenderBitmap(tempPdfFileName, map, size, mapArea, usePatternBitmaps);
 
-            TestUtil.CompareBitmapBaseline(bitmapNew, pngFileName, MAX_PIXEL_DIFF);
+            BitmapTestUtil.CompareBitmapBaseline(bitmapNew, pngFileName, MAX_PIXEL_DIFF);
             bitmapNew.Dispose();
             bitmapNew = null;
 
@@ -163,8 +168,8 @@ namespace Map_PDF.Tests
                 }
 
                 string lightenedPngFileName = Path.Combine(Path.GetDirectoryName(pngFileName), Path.GetFileNameWithoutExtension(pngFileName) + "_light.png");
-                Bitmap bitmapLight = RenderBitmap(tempPdfFileName, map, size, mapArea, usePatternBitmaps);
-                TestUtil.CompareBitmapBaseline(bitmapLight, lightenedPngFileName, MAX_PIXEL_DIFF);
+                SKBitmap bitmapLight = RenderBitmap(tempPdfFileName, map, size, mapArea, usePatternBitmaps);
+                BitmapTestUtil.CompareBitmapBaseline(bitmapLight, lightenedPngFileName, MAX_PIXEL_DIFF);
                 bitmapLight.Dispose();
                 bitmapLight = null;
             }
@@ -175,13 +180,13 @@ namespace Map_PDF.Tests
                     InputOutput.WriteFile(ocadFileName, map, new MapFileFormat(MapFileFormatKind.OCAD, version));
 
                     // Create and open the map file.
-                    map = new Map(new GDIPlus_TextMetrics(), new GDIPlus_FileLoader(TestUtil.GetTestFile("pdfrender")));
+                    map = new Map(new Skia_TextMetrics(), new Skia_FileLoader(TestUtil.GetTestFile("pdfrender")));
                     InputOutput.ReadFile(ocadFileName, map);
 
                     // Draw into a new bitmap.
                     bitmapNew = RenderBitmap(tempPdfFileName, map, size, mapArea, usePatternBitmaps);
 
-                    TestUtil.CompareBitmapBaseline(bitmapNew, pngFileName, MAX_PIXEL_DIFF);
+                    BitmapTestUtil.CompareBitmapBaseline(bitmapNew, pngFileName, MAX_PIXEL_DIFF);
 
                     File.Delete(ocadFileName);
                 }

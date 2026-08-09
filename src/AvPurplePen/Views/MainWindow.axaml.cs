@@ -37,11 +37,6 @@ namespace AvPurplePen.Views
         // Tracked so we can unsubscribe when the DataContext changes.
         private MainWindowViewModel? subscribedViewModel;
 
-        // Tracks the currently-held keyboard modifiers. Updated from window-level key events because
-        // Avalonia has no static equivalent of WinForms' Control.ModifierKeys. Used to decide whether
-        // the hidden Debug/Translate submenus should be revealed when the Help menu opens.
-        private KeyModifiers currentModifiers = KeyModifiers.None;
-
         // Has the MousePointerShape that should be used in the map viewer.
         public static readonly DirectProperty<MainWindow, MousePointerShape> MapMousePointerShapeProperty =
                 AvaloniaProperty.RegisterDirect<MainWindow, MousePointerShape>(
@@ -73,6 +68,7 @@ namespace AvPurplePen.Views
             // the ViewModel's Exit command, which prompts to save before allowing the exit.
             DataContextChanged += MainWindow_DataContextChanged;
             Closing += MainWindow_Closing;
+            Activated += MainWindow_Activated;
         }
 
         // Keep our subscription to the ViewModel's ExitRequested event in sync with the
@@ -81,13 +77,49 @@ namespace AvPurplePen.Views
         {
             if (subscribedViewModel != null) {
                 subscribedViewModel.ExitRequested -= ViewModel_ExitRequested;
+                subscribedViewModel.ReloadInitialScreenRequested -= ViewModel_ReloadInitialScreenRequested;
                 subscribedViewModel = null;
             }
 
             if (DataContext is MainWindowViewModel viewModel) {
                 viewModel.ExitRequested += ViewModel_ExitRequested;
+                viewModel.ReloadInitialScreenRequested += ViewModel_ReloadInitialScreenRequested;
                 subscribedViewModel = viewModel;
             }
+        }
+
+        // Raised by the ViewModel when the current file has been closed but a new event could not be
+        // created or loaded, so there is no open file.
+        private void ViewModel_ReloadInitialScreenRequested()
+        {
+            ShowInitialScreenInstead();
+        }
+
+        /// <summary>
+        /// Replaces this main window with the welcome screen. Used both when the ViewModel closes
+        /// the current file without opening another, and when a file named on the command line
+        /// fails to load. Bypasses the save prompt in MainWindow_Closing, because in both cases
+        /// there is nothing left to save.
+        /// </summary>
+        public void ShowInitialScreenInstead()
+        {
+            InitialScreenWindow initialScreen = new InitialScreenWindow {
+                DataContext = new InitialScreenViewModel(),
+            };
+
+            // Make the welcome screen the application's main window. This keeps the app alive when this
+            // window closes and makes the dialog service parent modal dialogs to the welcome screen.
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+                desktop.MainWindow = initialScreen;
+            }
+
+            initialScreen.Show();
+            initialScreen.Activate();
+
+            // The current file is already closed, so bypass the save prompt in the close handler and
+            // close this main window.
+            exitConfirmed = true;
+            Close();
         }
 
         // Raised by the ViewModel once the current file has been closed successfully and
@@ -116,20 +148,19 @@ namespace AvPurplePen.Views
             }
         }
 
-        // Records the current keyboard modifiers from any key event.
+        // Records the currently-held keyboard modifiers from any key event and updates whether the
+        // hidden Debug and Translate submenus in the Help menu are shown. They are revealed only while
+        // Ctrl+Shift or Ctrl+Alt is held down (matching the WinForms helpMenu_DropDownOpening behavior).
+        // The main menu is a NativeMenu, whose items are not controls and so can neither be named nor
+        // have their submenu-opening event handled; the visibility is therefore driven from the
+        // ViewModel as the modifiers change, rather than being evaluated when the Help menu opens.
         private void TrackModifiers(object? sender, KeyEventArgs e)
         {
-            currentModifiers = e.KeyModifiers;
-        }
-
-        // Called when the Help menu's submenu opens. The Debug and Translate submenus are revealed only
-        // when Ctrl+Shift or Ctrl+Alt is held down (matching the WinForms helpMenu_DropDownOpening behavior).
-        private void HelpMenu_SubmenuOpened(object? sender, RoutedEventArgs e)
-        {
-            bool show = (currentModifiers & (KeyModifiers.Control | KeyModifiers.Shift)) == (KeyModifiers.Control | KeyModifiers.Shift) ||
-                        (currentModifiers & (KeyModifiers.Control | KeyModifiers.Alt)) == (KeyModifiers.Control | KeyModifiers.Alt);
-            debugMenu.IsVisible = show;
-            translateMenu.IsVisible = show;
+            bool show = (e.KeyModifiers & (KeyModifiers.Control | KeyModifiers.Shift)) == (KeyModifiers.Control | KeyModifiers.Shift) ||
+                        (e.KeyModifiers & (KeyModifiers.Control | KeyModifiers.Alt)) == (KeyModifiers.Control | KeyModifiers.Alt);
+            if (DataContext is MainWindowViewModel viewModel) {
+                viewModel.ShowHiddenHelpMenus = show;
+            }
         }
 
         public MousePointerShape MapMousePointerShape {
@@ -167,9 +198,6 @@ namespace AvPurplePen.Views
             
             switch (e.FancyAction) {
             case MapViewer.FancyMouseAction.Move:
-#if PORTING
-                // Do we need to deal with leave here to report outside the viewport?
-#endif
                 vm.MapViewerMouseMove(location, pixelSize);
                 break;
 
@@ -216,9 +244,6 @@ namespace AvPurplePen.Views
                 break;
 
             case MapViewer.FancyMouseAction.Hover:
-#if !PORTING
-                // handle hover
-#endif
                 break;
 
             default:
@@ -262,9 +287,6 @@ namespace AvPurplePen.Views
 
             switch (e.FancyAction) {
             case MapViewer.FancyMouseAction.Move:
-#if PORTING
-                // Do we need to deal with leave here to report outside the viewport?
-#endif
                 vm.TopologyViewerMouseMove(location, pixelSize);
                 break;
 
@@ -311,9 +333,6 @@ namespace AvPurplePen.Views
                 break;
 
             case MapViewer.FancyMouseAction.Hover:
-#if !PORTING
-                // handle hover
-#endif
                 break;
 
             default:
@@ -335,6 +354,17 @@ namespace AvPurplePen.Views
                 e.MouseDownResult = MapViewer.MouseDownResult.DelayedPan; break;
             default:
                 break;
+            }
+        }
+
+        // Called when this window becomes the active window. Lets the ViewModel react to the user
+        // returning to the application (for example, to notice that the map file changed on disk).
+        private void MainWindow_Activated(object? sender, EventArgs e)
+        {
+            if (this.IsVisible) {
+                if (this.DataContext is MainWindowViewModel viewModel) {
+                    viewModel.WindowActivated();
+                }
             }
         }
 

@@ -660,7 +660,7 @@ namespace PurplePen
             dpi = this.bitmapDpi;
 
             using (Stream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write)) {
-                bitmap.WriteToStream(format, stream);
+                bitmap.WriteToStream(format, stream, 100);
             }
         }
 
@@ -790,7 +790,7 @@ namespace PurplePen
 
             DrawCourseMap(grTarget, visRect, renderOptions);
 
-            if (LowerPurpleMapLayer != null) {
+            if (mapType == MapType.OCAD && LowerPurpleMapLayer != null) {
                 // Draw the part of the map above the lower purple.
                 saveIntensity = grTarget.Intensity;
                 grTarget.Intensity = mapIntensity;

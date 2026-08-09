@@ -9,6 +9,7 @@ using PurplePen.MapModel;
 using PurplePen.Graphics2D;
 using TestingUtils;
 using System.IO;
+using SkiaSharp;
 
 
 namespace Map_PDF.Tests
@@ -25,9 +26,9 @@ namespace Map_PDF.Tests
             PdfCreation.CreatePdfAndPng(pdfFileName, pngFileName, 850, 1100, useCmyk, draw);
 
             // Load PNG
-            using (Bitmap bitmapNew = (Bitmap)(Image.FromFile(pngFileName)))
+            using (SKBitmap bitmapNew = SKBitmap.Decode(pngFileName))
             {
-                TestUtil.CompareBitmapBaseline(bitmapNew, baselineFileName);
+                BitmapTestUtil.CompareBitmapBaseline(bitmapNew, baselineFileName);
             }
 
             File.Delete(pngFileName);
@@ -42,8 +43,8 @@ namespace Map_PDF.Tests
             PdfCreation.CreatePdfAndPngUsingCopiedPage(pdfFileName, pngFileName, importedPdf, importedPage, draw);
 
             // Load PNG
-            using (Bitmap bitmapNew = (Bitmap)(Image.FromFile(pngFileName))) {
-                TestUtil.CompareBitmapBaseline(bitmapNew, baselineFileName);
+            using (SKBitmap bitmapNew = SKBitmap.Decode(pngFileName)) {
+                BitmapTestUtil.CompareBitmapBaseline(bitmapNew, baselineFileName);
             }
 
             File.Delete(pngFileName);
@@ -59,8 +60,8 @@ namespace Map_PDF.Tests
                                                               paperSize, sourceRectangleInInches, destRectangleInInches, draw);
 
             // Load PNG
-            using (Bitmap bitmapNew = (Bitmap)(Image.FromFile(pngFileName))) {
-                TestUtil.CompareBitmapBaseline(bitmapNew, baselineFileName);
+            using (SKBitmap bitmapNew = SKBitmap.Decode(pngFileName)) {
+                BitmapTestUtil.CompareBitmapBaseline(bitmapNew, baselineFileName);
             }
 
             File.Delete(pngFileName);
@@ -278,7 +279,7 @@ namespace Map_PDF.Tests
             CreatePdf("drawbitmap", false,
                 grTarget =>
                 {
-                    GDIPlus_Bitmap penguins = new GDIPlus_Bitmap((Bitmap) Image.FromFile(TestUtil.GetTestFile("pdfrender\\penguins.jpg")));
+                    Skia_Bitmap penguins = new Skia_Bitmap(SKBitmap.Decode(TestUtil.GetTestFile("pdfrender\\penguins.jpg")), GraphicsBitmapFormat.JPEG);
                     grTarget.DrawBitmap(penguins, new RectangleF(100, 100, 600, 400), BitmapScaling.MediumQuality);
                     grTarget.DrawBitmap(penguins, new RectangleF(200, 800, 150, 100), BitmapScaling.MediumQuality);
                 }
@@ -291,7 +292,7 @@ namespace Map_PDF.Tests
             CreatePdf("drawbitmappart", false,
                 grTarget =>
                 {
-                    GDIPlus_Bitmap bitmap = new GDIPlus_Bitmap((Bitmap) Image.FromFile(TestUtil.GetTestFile("pdfrender\\penguins.jpg")));
+                    Skia_Bitmap bitmap = new Skia_Bitmap(SKBitmap.Decode(TestUtil.GetTestFile("pdfrender\\penguins.jpg")), GraphicsBitmapFormat.JPEG);
                     grTarget.DrawBitmapPart(bitmap, bitmap.PixelWidth * 3 / 10, bitmap.PixelHeight * 2 / 10, bitmap.PixelWidth * 5 / 10, bitmap.PixelHeight * 4 / 10,
                                     new RectangleF(100, 500, 600, 400), BitmapScaling.NearestNeighbor);
                 }

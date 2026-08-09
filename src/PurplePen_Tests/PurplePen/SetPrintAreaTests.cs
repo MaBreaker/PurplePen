@@ -244,7 +244,7 @@ namespace PurplePen.Tests
             string dumpNewFileName = directory + @"\" + basename + @"_newdump.txt";
 
             DumpMapFile(ocadFile, dumpNewFileName);
-            TestUtil.CompareTextFileBaseline(dumpNewFileName, expectedDumpFile);
+            TextFileTestUtil.CompareTextFileBaseline(dumpNewFileName, expectedDumpFile);
             File.Delete(dumpNewFileName);
         }
 
@@ -259,7 +259,7 @@ namespace PurplePen.Tests
             Assert.IsTrue(success);
 
             for (int i = 0; i < expectedOcadFiles.Length; ++i) {
-                Map newMap = new Map(new GDIPlus_TextMetrics(), null);
+                Map newMap = new Map(new Skia_TextMetrics(), null);
                 using (newMap.Write())
                     InputOutput.ReadFile(expectedOcadFiles[i], newMap);
                 using (newMap.Read())

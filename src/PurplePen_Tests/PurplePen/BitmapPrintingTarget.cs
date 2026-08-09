@@ -2,11 +2,11 @@
 using PurplePen;
 using PurplePen.Graphics2D;
 using PurplePen.MapModel;
+using PurplePen.Tests;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
@@ -42,19 +42,14 @@ namespace PurplePen_Tests.PurplePen
         {
             Debug.Assert(pageNumber == currentPage, "Page numbers must start at 1 and be printed in order.");
 
-            Bitmap bm = new Bitmap((int) Math.Round(paperSize.SizeInHundreths.Width * 2), (int) Math.Round(paperSize.SizeInHundreths.Height * 2), GDIPlus_GraphicsTarget.NonAlphaPixelFormat);
-            bm.SetResolution(Dpi, Dpi);           
-
-            using (Graphics g = Graphics.FromImage(bm)) {
-                g.Clear(Color.White);
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.ScaleTransform(2, 2);  // Scaling must be set in 1/100 of an inch.
-
-                using (IGraphicsTarget grTarget = new GDIPlus_GraphicsTarget(g))
-                    drawPage(new GDIPlus_GraphicsTarget(g));
-            }
+            int width = (int) Math.Round(paperSize.SizeInHundreths.Width * 2);
+            int height = (int) Math.Round(paperSize.SizeInHundreths.Height * 2);
+            RectangleF drawingRectangle = new RectangleF(0, 0, width / 2F, height / 2F);  // Drawing coordinates are 1/100 of an inch.
+            Bitmap bm = TestRenderingUtils.RenderToBitmap(width, height, drawingRectangle, false, graphicsTarget => {
+                graphicsTarget.PushAntiAliasing(true);
+                drawPage(graphicsTarget);
+            });
+            bm.SetResolution(Dpi, Dpi);
 
             bitmaps.Add(bm);
 

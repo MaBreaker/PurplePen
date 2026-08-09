@@ -31,9 +31,18 @@ namespace PurplePen.ViewModels
     {
         Controller? controller = null;
         SymbolDB symbolDB = null!;
+
+        /// <summary>
+        /// The controller driving this window, or null before Initialize has been called
+        /// (for example in design mode). Exposed so that the crash handler can query the
+        /// loaded file name and dirty state, and snapshot the event database for recovery,
+        /// without having to reach through an unrelated child ViewModel.
+        /// </summary>
+        public Controller? Controller => controller;
         long changeNum = 0;         // When this changes, state information needs to be updated in the UI.
         bool updatingTabs = false;  // Guard to prevent re-entrant controller calls during UpdateTabs.
         bool hidePrintArea = false; // Guard to allow disabling print area display at times.
+        bool checkForUpdatedMapFile = false; // When set to true, check for new map file at next idle.
 
         // Settings remembered across invocations of the Create OCAD Files dialog,
         // so the user's last choices (folder, format, prefix, etc.) are preserved.
@@ -230,6 +239,20 @@ namespace PurplePen.ViewModels
 
         #region State updating on idle
 
+        /// <summary>
+        /// Called when the main window becomes the active window. This happens when the user
+        /// switches back to Purple Pen from another application, so it is a good time to notice
+        /// anything that may have changed outside the application while it was inactive.
+        /// </summary>
+        public void WindowActivated()
+        {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
+            // Check whether the map file has changed on disk; the check itself happens on the next idle.
+            checkForUpdatedMapFile = true;
+        }
+
         // This is called when the application becomes idle after processing input.
         // We can use this to update the UI in response to changes that may have occurred.
         public void UpdateStateOnIdle()
@@ -253,9 +276,8 @@ namespace PurplePen.ViewModels
                 UpdatePrintArea();
                 UpdateTopology();
                 UpdateTopologyHighlight();
-#if !PORTING
                 UpdateCustomSymbolText();
-#endif
+
                 // Warn about non-renderable objects (fire-and-forget — the controller
                 // reports the list only once per map file, so re-entry from a
                 // later idle tick while the dialog is open is harmless).
@@ -267,12 +289,10 @@ namespace PurplePen.ViewModels
                 _ = CheckForMissingFonts();
             }
 
-#if !PORTING
-            if (checkForUpdatedMapFile) {
+            if (checkForUpdatedMapFile && controller != null) {
                 checkForUpdatedMapFile = false;
-                _ = controller.CheckForChangedMapFile();
+                _ = controller.CheckForChangedMapFile();  // can't await here, but the controller will call back to UpdateStateOnIdle when it is done checking.
             }
-#endif
         }
 
         // Update the status text.
@@ -509,12 +529,10 @@ namespace PurplePen.ViewModels
             TopologyHighlights = controller.GetHighlights(Pane.Topology);
         }
 
-#if !PORTING
-        // Get the dictionary mapping each symbol to custom text for symbol descriptions.
-        private void UpdateCustomSymbolText()
+        // Get the dictionary mapping each symbol to the singular custom text for it, and give it to the description control for the popups.
+        void UpdateCustomSymbolText()
         {
-            if (controller == null || symbolDB == null)
-                return;
+            if (controller == null) return;
 
             Dictionary<string, List<SymbolText>> customSymbolText;
             Dictionary<string, bool> customSymbolKey;
@@ -524,26 +542,14 @@ namespace PurplePen.ViewModels
             string langId = controller.GetDescriptionLanguage();
             Dictionary<string, string> symbolTextDict = new Dictionary<string, string>();
 
-            foreach (var pair in customSymbolText)
-            {
+            foreach (var pair in customSymbolText) {
                 if (Symbol.ContainsLanguage(pair.Value, langId))
                     symbolTextDict.Add(pair.Key, Symbol.GetBestSymbolText(symbolDB, pair.Value, langId, false, "", ""));
             }
 
-            //JU: TODO is this custom symbol funtion even needed ?!?
-            //DescriptionViewerViewModel.CustomSymbolText = symbolTextDict;
+            this.DescriptionViewerViewModel.CustomSymbolText = symbolTextDict;
         }
 
-        // Change the viewport to show the given rectangle.
-        // MainFrame has a concrete implementation that manipulates the MapViewer control.
-        // The ViewModel has no direct access to the view, so keep a stub so calls compile
-        // and preserve compatibility with the original MainFrame implementation.
-        private void ShowRectangle(RectangleF bounds)
-        {
-            // Stub for compatibility with MainFrame; the view is expected to respond to
-            // MapDisplay / MapZoomFactor changes and perform actual viewport changes.
-        }
-#endif
         #endregion // State updating on idle.
 
 

@@ -64,7 +64,10 @@ namespace PurplePen.MapModel
         private Dictionary<object, SkiaFont> fontMap = new Dictionary<object, SkiaFont>(new IdentityComparer<object>());
         private Dictionary<object, SKPath> pathMap = new Dictionary<object, SKPath>(new IdentityComparer<object>());
         private Stack<bool> antiAliasStack = new Stack<bool>();
+        private Stack<SKBlendMode> blendModeStack = new Stack<SKBlendMode>();
+
         private bool antiAlias;
+        private SKBlendMode blendMode = SKBlendMode.SrcOver;  // default blend mode.
 
         public Skia_GraphicsTarget(SKCanvas canvas, IColorConverter colorConverter, float intensity = 1.0F)
         {
@@ -335,21 +338,43 @@ namespace PurplePen.MapModel
             antiAlias = antiAliasStack.Pop();
         }
 
-        SKPaint UpdateAntialias(SKPaint paint)
+        SKPaint UpdateAntialiasAndBlending(SKPaint paint)
         {
             paint.IsAntialias = antiAlias;
+            paint.BlendMode = blendMode;
             return paint;
         }
 
-        // Set blending mode.
-        public virtual bool PushBlending(BlendMode blendMode)
+        // Push a blending mode.
+        public virtual bool PushBlending(BlendMode requestedBlendMode)
         {
-            // Blending not supported.
-            return false;
+            SKBlendMode newBlendMode;
+
+            // Convert into Skia blend modes that we support.
+            if (requestedBlendMode == BlendMode.Darken) {
+                newBlendMode = SKBlendMode.Darken;
+            }
+            else {
+                // Not supported.
+                return false;
+            }
+
+            // This way of handling things only works for Darken because it's idempotent, so drawing
+            // multiple times with Darken is the same as drawing once.  If we supported other blend modes like
+            // multiply, we would either have to composite to an another bitmap. This is directly supported
+            // by doing SaveLayer in SkiaSharp, but that's a more expensive call.
+
+            blendModeStack.Push(blendMode);
+            blendMode = newBlendMode;
+
+            return true;  // true = supported
         }
 
         public virtual void PopBlending()
-        {}
+        {
+            blendMode = blendModeStack.Pop();
+        }
+
 
         // Draw an line with a pen.
         public void DrawLine(object penKey, PointF start, PointF finish)
@@ -472,6 +497,7 @@ namespace PurplePen.MapModel
                 paint.Color = brushPaint.Color;
                 paint.Shader = brushPaint.Shader;
                 paint.IsAntialias = antiAlias;
+                paint.BlendMode = blendMode;
 
                 // paint.UnderlineText = font.Underline;  // TODO: Underline not yet supported.
                 font.EnhancedTypeface.DrawText(canvas, text, new SKPoint(upperLeft.X, upperLeft.Y), font.EmHeight, paint);
@@ -489,6 +515,7 @@ namespace PurplePen.MapModel
 
             using (SKPaint paint = new SKPaint()) {
                 paint.IsAntialias = antiAlias;
+                paint.BlendMode = blendMode;
                 paint.IsStroke = true;
                 paint.Color = penPaint.Color;
                 paint.Shader = penPaint.Shader;
@@ -519,7 +546,7 @@ namespace PurplePen.MapModel
                     case BitmapScaling.HighQuality: samplingOptions = new SKSamplingOptions(new SKCubicResampler(1 / 3.0f, 1 / 3.0f)); break;
                 }
                 paint.IsAntialias = true;
-
+                paint.BlendMode = blendMode;
 
                 if (intensity < 1.0F) {
                     paint.ColorFilter = SKColorFilter.CreateLighting((SKColor) new SKColorF(intensity, intensity, intensity), (SKColor) new SKColorF(1.0F - intensity, 1.0F - intensity, 1.0F - intensity));
@@ -569,7 +596,7 @@ namespace PurplePen.MapModel
             SKPaint paint;
             if (brushMap.TryGetValue(brushKey, out paint)) {
                 Debug.Assert(!paint.IsStroke);
-                return UpdateAntialias(paint);
+                return UpdateAntialiasAndBlending(paint);
             }
             else {
                 Debug.Fail("Given key does not have a brush created for it");
@@ -582,7 +609,7 @@ namespace PurplePen.MapModel
             SKPaint paint;
             if (penMap.TryGetValue(penKey, out paint)) {
                 Debug.Assert(paint.IsStroke);
-                return UpdateAntialias(paint);
+                return UpdateAntialiasAndBlending(paint);
             }
             else {
                 Debug.Fail("Given key does not have a pen created for it");
@@ -951,6 +978,11 @@ namespace PurplePen.MapModel
             return SkiaFontManager.FontFamilyIsInstalled(familyName);
         }
 
+        public bool FontVariantIsInstalled(string familyName, TextEffects textEffects, bool ignorePrivateFonts)
+        {
+            return SkiaFontManager.FontVariantIsInstalled(familyName, textEffects, ignorePrivateFonts);
+        }
+
         // Returns an array of all available font family names, combining both
         // private registered fonts and system fonts. Delegates to SkiaFontManager.
         public string[] GetFontFamilies()
@@ -1049,79 +1081,6 @@ namespace PurplePen.MapModel
             return skBitmap;
         }
 
-        // Push a blending mode. For Darken mode, creates a new offscreen bitmap with a white background
-        // to draw onto. When PopBlending is called, the offscreen content is composited back using
-        // Skia's native Darken blend mode (minimum of each R, G, B component).
-        public override bool PushBlending(BlendMode blendMode)
-        {
-            blendStack.Push(blendMode);
-
-            if (blendMode == BlendMode.Darken) {
-                // Save current canvas and surface.
-                canvasStack.Push(this.canvas);
-                surfaceStack.Push(this.surface);
-                bitmapStack.Push(this.bitmap);
-
-                // Create new bitmap to hold the content to blend.
-                SKBitmap currentBitmap = this.bitmap;
-                SKBitmap newBitmap = new SKBitmap(currentBitmap.Width, currentBitmap.Height, currentBitmap.ColorType, currentBitmap.AlphaType);
-                SKSurface newSurface = GetSurface(newBitmap);
-                SKCanvas newCanvas = newSurface.Canvas;
-
-                // Copy the transform and clip from the current canvas.
-                newCanvas.SetMatrix(this.canvas.TotalMatrix);
-
-                // Clear to white -- darken blend takes the minimum of each component,
-                // so white (255,255,255) acts as the identity for undrawn areas.
-                newCanvas.Clear(SKColors.White);
-
-                this.canvas = newCanvas;
-                this.surface = newSurface;
-                this.bitmap = newBitmap;
-
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-
-        // Pop the blending mode. For Darken mode, composites the offscreen bitmap back onto the
-        // underlying bitmap using Skia's native SKBlendMode.Darken.
-        public override void PopBlending()
-        {
-            BlendMode blendMode = blendStack.Pop();
-
-            if (blendMode == BlendMode.Darken) {
-                // Get the bitmap we drew on and flush its surface.
-                SKBitmap blendFrom = this.bitmap;
-                SKSurface blendSurface = this.surface;
-                SKCanvas blendCanvas = this.canvas;
-                blendSurface.Flush();
-
-                // Restore the previous canvas, surface, and bitmap.
-                this.canvas = canvasStack.Pop();
-                this.surface = surfaceStack.Pop();
-                this.bitmap = bitmapStack.Pop();
-
-                // Draw the offscreen bitmap onto the destination using Darken blend mode.
-                // Skia's Darken blend computes: result = min(src, dst) per component.
-                using (SKPaint blendPaint = new SKPaint()) {
-                    blendPaint.BlendMode = SKBlendMode.Darken;
-
-                    // Draw in bitmap coordinates (identity transform), since both bitmaps have the same dimensions.
-                    this.canvas.Save();
-                    this.canvas.SetMatrix(SKMatrix.Identity);
-                    this.canvas.DrawBitmap(blendFrom, 0, 0, blendPaint);
-                    this.canvas.Restore();
-                }
-
-                // Dispose the offscreen resources.
-                blendCanvas.Dispose();
-                blendSurface.Dispose();
-                blendFrom.Dispose();
-            }
-        }
 
         public override void Dispose()
         {
@@ -1236,13 +1195,13 @@ namespace PurplePen.MapModel
             }
         }
 
-        public bool WriteToStream(GraphicsBitmapFormat format, Stream stream)
+        public bool WriteToStream(GraphicsBitmapFormat format, Stream stream, int quality)
         {
             SKPixmap pixmap = image.PeekPixels();
             if (pixmap != null) {
                 // PeekPixels available: write directly from the pixmap.
                 PixmapWithResolution pwr = new PixmapWithResolution(pixmap, format, horizontalResolution, verticalResolution);
-                BitmapIO.WritePixmapToStream(pwr, stream, 100);
+                BitmapIO.WritePixmapToStream(pwr, stream, quality);
                 pixmap.Dispose();
                 return true;
             }
@@ -1250,7 +1209,7 @@ namespace PurplePen.MapModel
                 // PeekPixels not available (e.g. GPU-backed image): convert to bitmap first.
                 using (SKBitmap bmp = SKBitmap.FromImage(image)) {
                     BitmapWithResolution bwr = new BitmapWithResolution(bmp, format, horizontalResolution, verticalResolution);
-                    BitmapIO.WriteBitmapToStream(bwr, stream, 100);
+                    BitmapIO.WriteBitmapToStream(bwr, stream, quality);
                     return true;
                 }
             }
@@ -1356,10 +1315,10 @@ namespace PurplePen.MapModel
         }
 
 
-        public bool WriteToStream(GraphicsBitmapFormat format, Stream stream)
+        public bool WriteToStream(GraphicsBitmapFormat format, Stream stream, int quality)
         {
             BitmapWithResolution bwr = new BitmapWithResolution(bitmap, format, horizontalResolution, verticalResolution);
-            BitmapIO.WriteBitmapToStream(bwr, stream, 100);
+            BitmapIO.WriteBitmapToStream(bwr, stream, quality);
             return true;
         }
 
@@ -1507,10 +1466,10 @@ namespace PurplePen.MapModel
         }
 
 
-        public bool WriteToStream(GraphicsBitmapFormat format, Stream stream)
+        public bool WriteToStream(GraphicsBitmapFormat format, Stream stream, int quality)
         {
             PixmapWithResolution pwr = new PixmapWithResolution(pixmap, format, horizontalResolution, verticalResolution);
-            BitmapIO.WritePixmapToStream(pwr, stream, 100);
+            BitmapIO.WritePixmapToStream(pwr, stream, quality);
             return true;
         }
 

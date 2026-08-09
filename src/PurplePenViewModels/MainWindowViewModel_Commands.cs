@@ -23,13 +23,11 @@ namespace PurplePen.ViewModels
         {
             if (controller == null) { return; }
 
-#if PORTING
-            // Still need to port more logic from MainFrame.UpdateMenusToolbarButtons.
-            // - Cancel mode vs Clear selection text
-            // - outOfBoundsToolStripMenuItem.Image,  addOutOfBoundsMenu.Image
-#endif
-
             // Update enabled status for commands.
+            bool canCancelMode = controller.CanCancelMode();
+            Debug.WriteLine($"CanCancelMode = {canCancelMode}");
+            CanCancelMode = canCancelMode;
+            CanClearSelection = !canCancelMode;
             UndoStatus undoStatus = controller.GetUndoStatus();
             CanUndo = undoStatus.CanUndo;
             CanRedo = undoStatus.CanRedo;
@@ -68,6 +66,7 @@ namespace PurplePen.ViewModels
             MapStdSpr2019Checked = (mapStandard == "Spr2019");
             MapStdStreetOChecked = (mapStandard == "StreetO"); //JU: Street-O
             IsVisibleDangerousArea = (mapStandard == "2000");
+            AddOutOfBoundsUsesDangerousIcon = (mapStandard != "2000");
 
             // Update names of certain menu items.
             if (undoStatus.CanUndo) {
@@ -200,9 +199,25 @@ namespace PurplePen.ViewModels
 
         #region File commands
 
+        /// <summary>
+        /// Raised when the current event could not be created or loaded and the
+        /// application should return to the initial "Welcome to Purple Pen"
+        /// screen, closing this main window. The View handles this by creating
+        /// and showing a fresh initial screen, then closing this window. The
+        /// ViewModel cannot reference Avalonia, so the actual window management
+        /// is performed by the View.
+        /// </summary>
+        public event Action? ReloadInitialScreenRequested;
+
+        /// <summary>
+        /// Requests that the application return to the initial welcome screen,
+        /// closing the current main window. Called from the file commands when
+        /// the old file has already been closed but a new event could not be
+        /// created or loaded, leaving no open file.
+        /// </summary>
         private void ReloadInitialScreen()
         {
-            // Not sure how to implement this?
+            ReloadInitialScreenRequested?.Invoke();
         }
 
         /// <summary>
@@ -225,11 +240,8 @@ namespace PurplePen.ViewModels
             if (result) {
                 bool success = await controller.NewEvent(vm.CreateEventInfo);
                 if (!success) {
-#if !PORTING
                     // The old file has been closed and creating the new event failed, so there
-                    // is no open file. The WinForms path returned to the InitialScreen here (see
-                    // the #if !PORTING block above); that recovery flow is not yet ported.
-#endif
+                    // is no open file. Return to the initial screen.
                     ReloadInitialScreen();
                 }
             }
@@ -339,21 +351,49 @@ namespace PurplePen.ViewModels
 
         #region Edit commands
 
+
         /// <summary>
         /// Executes the Edit/Cancel command. Cancels the current mode or clears selection.
         /// </summary>
         [RelayCommand]
         private void Cancel()
         {
-#if !PORTING
-            // Clear selection and cancel current mode use the same menu item.
+            if (controller == null) { return; }
+
+            if (controller.CanCancelMode()) {
+                controller.CancelMode();
+            }
+        }
+
+        [ObservableProperty, NotifyCanExecuteChangedFor(nameof(CancelCommand))]
+        private bool canCancelMode;
+
+        /// <summary>
+        /// Executes the Edit/Cancel command. Cancels the current mode or clears selection.
+        /// </summary>
+        [RelayCommand]
+        private void ClearSelection()
+        {
+            if (controller == null) { return; }
+
+            controller.ClearSelection();
+        }
+
+        [ObservableProperty, NotifyCanExecuteChangedFor(nameof(ClearSelectionCommand))]
+        private bool canClearSelection;
+
+        // Command for the Escape key, which does either Cancel or Clear Selection.
+        [RelayCommand]
+        private void EscapeKey()
+        {
+            if (controller == null) { return; }
+
             if (controller.CanCancelMode()) {
                 controller.CancelMode();
             }
             else {
                 controller.ClearSelection();
             }
-#endif
         }
 
         /// <summary>
@@ -1353,20 +1393,28 @@ namespace PurplePen.ViewModels
         #region Course commands
 
         /// <summary>
-        /// Shows the Add Course dialog.
+        /// Executes the Course/Add Course command. Shows the Add Course dialog,
+        /// defaulting the print scale to the All Controls print scale, and adds
+        /// the new course if the dialog is accepted.
         /// </summary>
         [RelayCommand]
         private async Task ShowAddCourseDialog()
         {
-            if (controller == null) return;
+            if (controller == null) { return; }
 
-#if PORTING
-            // TODO: Initialize ViewModel from current event data (map scale, etc.)
-            // and process the result to actually add the course.
-#endif
+            // Initialize the dialog, use all controls print scale as the default print scale.
+            DescriptionKind allControlsDescKind;
+            float allControlsPrintScale;
+            controller.GetAllControlsProperties(out allControlsPrintScale, out allControlsDescKind);
+
             AddCourseDialogViewModel vm = new AddCourseDialogViewModel();
-            bool result = await Services.DialogService.ShowDialogAsync(vm);
-            Debug.WriteLine("Dialog returned: " + result);
+            vm.InitializePrintScales(controller.MapScale);
+            vm.PrintScale = allControlsPrintScale;
+
+            if (await Services.DialogService.ShowDialogAsync(vm)) {
+                controller.NewCourse(vm.CourseKind, vm.CourseName, vm.ControlLabelKind, vm.ScoreColumn, vm.SecondaryTitlePipeDelimited,
+                    vm.PrintScale, vm.Climb, vm.Length, vm.DescKind, vm.FirstControlOrdinal, vm.HideFromReports);
+            }
         }
 
         /// <summary>
@@ -1876,8 +1924,12 @@ namespace PurplePen.ViewModels
         [ObservableProperty] private bool mapStd2017Checked;
         [ObservableProperty] private bool mapStdSpr2019Checked;
         [ObservableProperty] private bool mapStdStreetOChecked; //JU: Street-O
+
+        // Should the add dangerous area item be visible
         [ObservableProperty] private bool isVisibleDangerousArea;
 
+        // Should the add out-of-bound item have the dangerous item icon?
+        [ObservableProperty] private bool addOutOfBoundsUsesDangerousIcon;
 
         #endregion // IOF Standards commands
 
@@ -2773,11 +2825,9 @@ namespace PurplePen.ViewModels
         /// Shows the help table of contents.
         /// </summary>
         [RelayCommand]
-        private void HelpContents()
+        private async Task HelpContents()
         {
-#if !PORTING
-            ShowHelp(HelpNavigator.TableOfContents, null);
-#endif
+            await Services.WebsiteLauncher.ShowHelpTopic("TableOfContents.htm");
         }
 
         private bool TranslatedWebSiteExists()
@@ -2825,6 +2875,13 @@ namespace PurplePen.ViewModels
         {
             await Services.WebsiteLauncher.ShowWebsite("http://purple-pen.org#donate");
         }
+
+        /// <summary>
+        /// False on macOS, where the About and Program Language items belong in the application
+        /// menu rather than in Help and File. The two menu items bind their visibility to this so
+        /// they leave those menus on a Mac; the View puts them in the application menu instead.
+        /// </summary>
+        public bool IsNotMacOS => !OperatingSystem.IsMacOS();
 
         /// <summary>
         /// Shows the About dialog.
@@ -2936,55 +2993,11 @@ namespace PurplePen.ViewModels
 
         #region Debug commands
 
-
-        /// <summary>
-        /// Shows the Map Tester debug dialog.
-        /// </summary>
-        [RelayCommand]
-        private void ShowMapTester()
-        {
-#if !PORTING
-            MapTester mapTester = new MapTester();
-            mapTester.ShowDialog();
-            mapTester.Dispose();
-#endif
-        }
-
-
-        /// <summary>
-        /// Shows the Dump OCAD File debug dialog.
-        /// </summary>
-        [RelayCommand]
-        private void DumpOcadFile()
-        {
-#if !PORTING
-            OpenFileDialog openOcadFileDialog = new OpenFileDialog();
-            openOcadFileDialog.Filter = "OCAD files|*.ocd|All files|*.*";
-            openOcadFileDialog.FilterIndex = 1;
-            openOcadFileDialog.DefaultExt = "ocd";
-
-            DialogResult result = openOcadFileDialog.ShowDialog(this);
-            if (result != DialogResult.OK)
-                return;
-            string ocadFile = openOcadFileDialog.FileName;
-
-            SaveFileDialog saveDumpFileDialog = new SaveFileDialog();
-            saveDumpFileDialog.Filter = "Test file|*.txt";
-            saveDumpFileDialog.FilterIndex = 1;
-            saveDumpFileDialog.DefaultExt = "txt";
-
-            result = saveDumpFileDialog.ShowDialog(this);
-            if (result != DialogResult.OK)
-                return;
-            string dumpFile = saveDumpFileDialog.FileName;
-
-            using (TextWriter writer = new StreamWriter(dumpFile)) {
-                PurplePen.MapModel.DebugCode.OcadDump dumper = new PurplePen.MapModel.DebugCode.OcadDump();
-                dumper.DumpFile(ocadFile, writer);
-            }
-#endif
-        }
-
+        // True when the hidden Debug and Translate submenus at the bottom of the Help menu should be
+        // shown. The View sets this while Ctrl+Shift or Ctrl+Alt is held down; it is not derived from
+        // any application state.
+        [ObservableProperty]
+        private bool showHiddenHelpMenus;
 
         /// <summary>
         /// Shows the Missing Translations debug dialog.
@@ -3020,65 +3033,6 @@ namespace PurplePen.ViewModels
             int y = GetCrashValue(); // will throw DivideByZeroException
         }
 
-        /// <summary>
-        /// Test: shows a message box with OK button and Information icon.
-        /// </summary>
-        [RelayCommand]
-        private async Task TestMessageBoxOk()
-        {
-            MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel {
-                Message = "This is an informational message with an OK button.",
-                Buttons = MessageBoxButtons.Ok,
-                DefaultButton = MessageBoxButton.Ok,
-                Icon = MessageBoxIcon.Information
-            };
-            await Services.DialogService.ShowDialogAsync(vm);
-        }
-
-        /// <summary>
-        /// Test: shows a message box with OK/Cancel buttons and Warning icon.
-        /// </summary>
-        [RelayCommand]
-        private async Task TestMessageBoxOkCancel()
-        {
-            MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel {
-                Message = "This is a warning message with OK and Cancel buttons.",
-                Buttons = MessageBoxButtons.OkCancel,
-                DefaultButton = MessageBoxButton.Ok,
-                Icon = MessageBoxIcon.Warning
-            };
-            await Services.DialogService.ShowDialogAsync(vm);
-        }
-
-        /// <summary>
-        /// Test: shows a message box with Yes/No buttons and Question icon.
-        /// </summary>
-        [RelayCommand]
-        private async Task TestMessageBoxYesNo()
-        {
-            MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel {
-                Message = "This is a question message with Yes and No buttons. Do you want to proceed?",
-                Buttons = MessageBoxButtons.YesNo,
-                DefaultButton = MessageBoxButton.Yes,
-                Icon = MessageBoxIcon.Question
-            };
-            await Services.DialogService.ShowDialogAsync(vm);
-        }
-
-        /// <summary>
-        /// Test: shows a message box with Yes/No/Cancel buttons and Error icon.
-        /// </summary>
-        [RelayCommand]
-        private async Task TestMessageBoxYesNoCancel()
-        {
-            MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel {
-                Message = "This is an error message with Yes, No, and Cancel buttons.",
-                Buttons = MessageBoxButtons.YesNoCancel,
-                DefaultButton = MessageBoxButton.Yes,
-                Icon = MessageBoxIcon.Error
-            };
-            await Services.DialogService.ShowDialogAsync(vm);
-        }
 
         #endregion // Debug commands
 

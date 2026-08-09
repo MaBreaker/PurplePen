@@ -104,7 +104,7 @@ namespace PurplePen.Graphics2D
         System.Drawing.Color GetPixel(int x, int y);
 
         IGraphicsBitmap Crop(int x, int y, int width, int height);
-        bool WriteToStream(GraphicsBitmapFormat format, Stream stream);
+        bool WriteToStream(GraphicsBitmapFormat format, Stream stream, int quality);
 
         // If copyBits is false, the graphics target will draw directly to the existing bitmap. If copyBits is true,
         // the existing bitmap will be copied and the graphics target will draw to the copy. The existing bitmap will
@@ -234,6 +234,10 @@ namespace PurplePen.Graphics2D
     public interface IFontLoader
     {
         bool FontFamilyIsInstalled(string familyName);
+
+        // Determine if a font variant is installed. If ignorePrivateFonts is true, then only system fonts are considered.
+        // If ignorePrivateFonts is false, then fonts registered with AddFontFile are also considered.
+        bool FontVariantIsInstalled(string familyName, TextEffects textEffects, bool ignorePrivateFonts);
         void AddFontFile(string familyName, TextEffects textEffects, string fontFilePath);
 
         // Returns an array of all available font family names, combining both

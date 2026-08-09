@@ -29,7 +29,19 @@ namespace AvPurplePen
                 CultureInfo newCulture = new CultureInfo(value);
                 Thread.CurrentThread.CurrentUICulture = newCulture;
                 CultureInfo.DefaultThreadCurrentUICulture = newCulture;
+
+                // Save the new language code to user settings if it has changed.
+                string oldSettingsLanguage = UserSettings.Current.UILanguage;
+                if (oldSettingsLanguage != newCulture.Name) {
+                    UserSettings.Current.UILanguage = newCulture.Name;
+                    UserSettings.Current.Save();
+                }
+
                 LocalizedStringManager.Instance.NotifyLanguageChanged();
+
+                // Refreshing the bindings is not enough for the macOS menu bar: its top-level
+                // titles are only re-read when the menu is re-exported. No-op elsewhere.
+                MacMenuUtilities.RefreshMenuBar();
             }
         }
     }

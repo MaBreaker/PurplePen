@@ -73,11 +73,6 @@ public partial class DescriptionViewer : UserControl
         set => SetValue(DescriptionChangeCommandProperty, value);
     }
 
-#if !PORTING
-    // TODO: CustomSymbolText.
-#endif
-
-
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -240,7 +235,6 @@ public partial class DescriptionViewer : UserControl
     {
         if (renderer != null && drawingView  != null && DescriptionData != null) { 
             Avalonia.Size size = Bounds.Size;
-            float boxSize = Math.Max(minCellSize, (float) (size.Width - (margin * 2)) / 8F);
 
             if (DescriptionData.Description != null) {
                 renderer.Description = DescriptionData.Description;
@@ -249,8 +243,18 @@ public partial class DescriptionViewer : UserControl
                 renderer.Description = new DescriptionLine[0];
             }
 
+            float boxSize = Math.Max(minCellSize, (float)(size.Width - 0.1 - (margin * 2)) / 8F);
             renderer.CellSize = boxSize;
             SizeF descriptionSize = renderer.Measure();
+
+            if (descriptionSize.Height > size.Height - 1) {
+                // Gonna need a scroll bar. Resize again.
+                int scrollBarWidth = 8;  // I happen to know that's the width of a scroll bar in my theme.
+                boxSize = Math.Max(minCellSize, (float)(size.Width - 0.1 - scrollBarWidth - (margin * 2)) / 8F);
+                renderer.CellSize = boxSize;
+                descriptionSize = renderer.Measure();
+            }
+
             drawingView.LogicalExtent = Conv.ToAvSize(descriptionSize);
 
             drawingView.InvalidateSurface();

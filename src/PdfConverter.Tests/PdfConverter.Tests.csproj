@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48;net10.0-windows</TargetFrameworks>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
@@ -18,7 +18,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PdfConverter\PdfConverter.csproj" />
-    <ProjectReference Include="..\TestUtil\TestUtil.csproj" />
+    <ProjectReference Include="..\Testing\TestUtil.GdiPlus\TestUtil.GdiPlus.csproj" />
+    <ProjectReference Include="..\Testing\TestUtil\TestUtil.csproj" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
