@@ -463,6 +463,9 @@ namespace PurplePen.MapModel
         // Draw text with upper-left corner of text at the given locations.
         public void DrawText(string text, object fontKey, object brushKey, PointF upperLeft)
         {
+            if (string.IsNullOrEmpty(text))
+                return;
+
             SkiaFont font = GetFont(fontKey);
             SKPaint brushPaint = GetBrushPaint(brushKey);
             using (SKPaint paint = new SKPaint()) {
@@ -478,9 +481,12 @@ namespace PurplePen.MapModel
         // Draw text outline with upper-left corner of text at the given locations.
         public void DrawTextOutline(string text, object fontKey, object penKey, PointF upperLeft)
         {
+            if (string.IsNullOrEmpty(text))
+                return;
+
             SkiaFont font = GetFont(fontKey);
             SKPaint penPaint = GetPenPaint(penKey);
-            
+
             using (SKPaint paint = new SKPaint()) {
                 paint.IsAntialias = antiAlias;
                 paint.IsStroke = true;
@@ -881,10 +887,14 @@ namespace PurplePen.MapModel
         public SizeF GetTextSize(string text)
         {
             // We need to use the shaper, to take kerning into account.
-            float width = enhancedTypeface.MeasureTextAdvanceWidth(text, emHeight * 100);
-            SKRect bounds = enhancedTypeface.MeasureTextBounds(text, emHeight * 100);
+            //float width = enhancedTypeface.MeasureTextAdvanceWidth(text, emHeight * 100);
+            //SKRect bounds = enhancedTypeface.MeasureTextBounds(text, emHeight * 100);
+            
+            //JU: Measure size
+            (float width, float height) = enhancedTypeface.MeasureTextAdvanceSize(text, emHeight * 100);
 
-            return new SizeF(width / 100, Math.Max((bounds.Bottom - bounds.Top) / 100, Ascent + Descent));
+            //return new SizeF(width / 100, Math.Max((bounds.Bottom - bounds.Top) / 100, Ascent + Descent));
+            return new SizeF(width / 100, Math.Max(height / 100, Ascent + Descent));
         }
 
         public RectangleF GetTightBoundingBox(PointF startpoint, string text)

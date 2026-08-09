@@ -5254,7 +5254,7 @@ namespace AvPurplePen {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Publish to &amp;Livelox.
+        ///   Looks up a localized string similar to Publish to Livelox.
         /// </summary>
         public static string MainFrame_publishToLiveloxMenu_Text {
             get {

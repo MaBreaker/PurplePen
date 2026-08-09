@@ -372,7 +372,7 @@ namespace Map_SkiaStd
         //
         // The xOffset parameter is the accumulated advance width from prior runs, so that
         // this run's glyphs are positioned after the preceding text.
-        private ShapedRunResult ShapeRun(TextRun run, string fullText, float fontSize, float xOffset)
+        private ShapedRunResult ShapeRun(TextRun run, string fullText, float fontSize, float xOffset /*JU: Multiline */, float yOffset)
         {
             string runText = fullText.Substring(run.Start, run.Length);
             ShapedTypeface entry = run.Entry;
@@ -419,7 +419,7 @@ namespace Map_SkiaStd
                     // the ascent offset when drawing.
                     positions[i] = new SKPoint(
                         cursorX + hbPositions[i].XOffset * scale,
-                        -hbPositions[i].YOffset * scale
+                        yOffset - hbPositions[i].YOffset * scale
                     );
 
                     // Adjust cluster values to be indices into the full original text string,
@@ -446,20 +446,48 @@ namespace Map_SkiaStd
 
         // Shapes the complete text string, handling font fallback.
         // Returns a list of shaped runs (one per typeface segment) and the total advance width.
-        private (List<ShapedRunResult> runs, float totalWidth) ShapeText(string text, float fontSize)
+        private (List<ShapedRunResult> runs, float totalWidth, float totalHeight) ShapeText(string text, float fontSize)
         {
-            List<TextRun> textRuns = SegmentByTypeface(text);
             List<ShapedRunResult> shapedRuns = new List<ShapedRunResult>();
-            float xOffset = 0;
 
-            foreach (TextRun textRun in textRuns)
+            //JU: Split text by newline character
+            string[] lines = text.Split('\n');
+            
+            //JU: Calculate lie spacing for multiline text
+            float lineSpacing = 0F;
+            if (lines.Length > 1) {
+                using (SKFont skFont = new SKFont(mainEntry.Typeface, fontSize))
+                {
+                    skFont.GetFontMetrics(out SKFontMetrics metrics);
+                    lineSpacing = -metrics.Ascent + metrics.Descent + metrics.Leading;
+                }
+            }
+            float yOffset = 0;
+            float maxWidth = 0;
+
+            //JU: Loop through text lines
+            foreach (string textLine in lines)
             {
-                ShapedRunResult result = ShapeRun(textRun, text, fontSize, xOffset);
-                shapedRuns.Add(result);
-                xOffset += result.Width;
+                List<TextRun> textRuns = SegmentByTypeface(textLine);
+                float xOffset = 0;
+                foreach (TextRun textRun in textRuns)
+                {
+                    ShapedRunResult result = ShapeRun(textRun, textLine, fontSize, xOffset, yOffset);
+                    shapedRuns.Add(result);
+                    xOffset += result.Width;
+                }
+
+                //JU: Track the maximum width among all lines
+                if (xOffset > maxWidth)
+                {
+                    maxWidth = xOffset;
+                }
+
+                //JU: Add line height
+                yOffset += lineSpacing;
             }
 
-            return (shapedRuns, xOffset);
+            return (shapedRuns, maxWidth, yOffset);
         }
 
         // Builds an SKTextBlob from the shaped runs. Each run becomes a separate positioned
@@ -551,7 +579,7 @@ namespace Map_SkiaStd
                 }
             }
 #else
-            (List<ShapedRunResult> runs, float totalWidth) = ShapeText(text, fontSize);
+            (List<ShapedRunResult> runs, float totalWidth, float totalHeight) = ShapeText(text, fontSize);
             float ascent = GetMainAscent(fontSize);
 
             using (SKTextBlob blob = BuildTextBlob(runs, fontSize, ascent, paint))
@@ -578,7 +606,7 @@ namespace Map_SkiaStd
             if (string.IsNullOrEmpty(text))
                 return resultPath;
 
-            (List<ShapedRunResult> runs, float totalWidth) = ShapeText(text, fontSize);
+            (List<ShapedRunResult> runs, float totalWidth, float totalHeight) = ShapeText(text, fontSize);
             float ascent = GetMainAscent(fontSize);
 
             foreach (ShapedRunResult run in runs)
@@ -615,8 +643,32 @@ namespace Map_SkiaStd
             if (string.IsNullOrEmpty(text))
                 return 0;
 
-            (List<ShapedRunResult> runs, float totalWidth) = ShapeText(text, fontSize);
+            (List<ShapedRunResult> runs, float totalWidth, float totalHeight) = ShapeText(text, fontSize);
             return totalWidth;
+        }
+
+        // JU: Text height
+        // Returns the total advance height of the shaped text. The advance height is the
+        // vertical distance the cursor moves after drawing the full text string.
+        public float MeasureTextAdvanceHeight(string text, float fontSize)
+        {
+            if (string.IsNullOrEmpty(text))
+                return 0;
+
+            (List<ShapedRunResult> runs, float totalWidth, float totalHeight) = ShapeText(text, fontSize);
+            return totalHeight;
+        }
+        
+        // JU: Text size
+        // Returns the total advance size of the shaped text. The advance size is the
+        // distance the cursor moves after drawing the full text string.
+        public (float totalWidth, float totalHeight) MeasureTextAdvanceSize(string text, float fontSize)
+        {
+            if (string.IsNullOrEmpty(text))
+                return (0F, 0F);
+
+            (List<ShapedRunResult> runs, float totalWidth, float totalHeight) = ShapeText(text, fontSize);
+            return (totalWidth, totalHeight);
         }
 
         // Returns the tight bounding box of the shaped text. The bounds are computed from
@@ -629,7 +681,7 @@ namespace Map_SkiaStd
             if (string.IsNullOrEmpty(text))
                 return SKRect.Empty;
 
-            (List<ShapedRunResult> runs, float totalWidth) = ShapeText(text, fontSize);
+            (List<ShapedRunResult> runs, float totalWidth, float totalHeight) = ShapeText(text, fontSize);
 
             // Compute tight bounds by unioning each glyph's bounding box offset by its position.
             SKRect totalBounds = SKRect.Empty;
@@ -684,7 +736,7 @@ namespace Map_SkiaStd
             if (string.IsNullOrEmpty(text))
                 return new GlyphPosition[0];
 
-            (List<ShapedRunResult> runs, float totalWidth) = ShapeText(text, fontSize);
+            (List<ShapedRunResult> runs, float totalWidth, float totalHeight) = ShapeText(text, fontSize);
             float ascent = GetMainAscent(fontSize);
 
             List<GlyphPosition> result = new List<GlyphPosition>();

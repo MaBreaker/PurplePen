@@ -170,27 +170,27 @@ namespace PurplePen.ViewModels
                 text = TextExpander(text);
             }
             //JU: Multiline texts
-            if (TextMultiline)
-            {
-                //TODO: Skia DrawText NOT work with \n new line characters as those are removed by HarfBuzz.
-                //      Would need similar for loop approach to SumDef.cs Draw / DrawStringWithEffects / DrawSingleLineString / DrawText function
-                text = text.Replace("|", "\n"); // \u2029
+            int lineCount = 1;
+            if (TextMultiline) {
+                text = text.Replace("|", "\n");
+                lineCount = text.Split('\n').Length;
             }
+
             if (string.IsNullOrEmpty(text)) {
                 grTarget.PopAntiAliasing();
                 return;
             }
 
-            CmykColor textColor = GetCurrentCmykColor();
-
+            //JU: Multiline font height
             float emHeight;
             if (FontSizeAutomatic) {
-                emHeight = regionHeight * 0.7F;
+                emHeight = CalculateEmHeight(text, FontName, TextEffects, 0, new SizeF(regionWidth, regionHeight));
             }
             else {
                 emHeight = GetEmHeight(regionHeight, FontName, TextEffects, (float)FontSize);
             }
 
+            CmykColor textColor = GetCurrentCmykColor();
             object fontKey = new object();
             object brushKey = new object();
             grTarget.CreateFont(fontKey, FontName, emHeight, TextEffects);
@@ -201,11 +201,12 @@ namespace PurplePen.ViewModels
             ITextFaceMetrics textFaceMetrics = textMetricsProvider.GetTextFaceMetrics(FontName, emHeight, TextEffects);
             SizeF textSize = textFaceMetrics.GetTextSize(text);
 
+            // Center text horizontally, and if larger than preview box use top left corner
             float yOffset = (regionHeight - textSize.Height) / 2;
-            if (yOffset < 0) yOffset = 0;
+            if (yOffset < 0.0F) yOffset = 0.0F;
 
-            grTarget.DrawText(text, fontKey, brushKey, new PointF(0, yOffset));
-
+            grTarget.DrawText(text, fontKey, brushKey, new PointF(0.0F, yOffset));
+            
             grTarget.PopAntiAliasing();
         }
 
@@ -221,6 +222,21 @@ namespace PurplePen.ViewModels
         private static float GetEmHeight(float regionHeight, string fontName, TextEffects textEffects, float desiredDigitHeight)
         {
             return (regionHeight / 10F) * desiredDigitHeight * BasicTextCourseObj.EmHeightToDigitHeightRatio(fontName, textEffects);
+        }
+
+        //JU: Calculate em height for automatic font size
+        /// <summary>
+        /// Calculates the em height for automatic font size based on the desired size of the text in the rectangle.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="fontName"></param>
+        /// <param name="textEffects"></param>
+        /// <param name="fontDigitHeight"></param>
+        /// <param name="desiredSize"></param>
+        /// <returns></returns>
+        private static float CalculateEmHeight(string text, string fontName, TextEffects textEffects, float fontDigitHeight, SizeF desiredSize)
+        {
+            return BasicTextCourseObj.CalculateEmHeight(text, fontName, textEffects, fontDigitHeight, desiredSize);
         }
     }
 }

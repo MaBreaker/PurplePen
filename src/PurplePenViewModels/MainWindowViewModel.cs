@@ -449,8 +449,7 @@ namespace PurplePen.ViewModels
         public bool HidePrintArea
         {
             get => hidePrintArea;
-            set
-            {
+            set {
                 hidePrintArea = value;
                 controller?.ForceChangeUpdate(true);
             }
@@ -467,25 +466,50 @@ namespace PurplePen.ViewModels
                 MapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart), /* JU: margins */ null);
         }
 
+        // Update the topology pane display.
+        void UpdateTopology()
+        {
+            if (controller == null) return;
+
+            if (TopologyMapDisplay == null) {
+                TopologyMapDisplay = new MapDisplay();
+                TopologyMapDisplay.SetMapFile(MapType.None, null);
+                TopologyMapDisplay.AntiAlias = true;
+                TopologyMapDisplay.Printing = false;
+            }
+
+            CourseLayout topologyCourseLayout = controller.GetTopologyLayout();
+            TopologyMapDisplay.SetCourse(topologyCourseLayout);
+
+            if (topologyCourseLayout == null) {
+                ShowTopology = false;
+                EnableTopology = false;
+            }
+            else {
+                EnableTopology = true;
+            }
+
+            /*
+            // Get zoom factor for the width, but constrained by min/max on the mapViewerTopology
+            float desiredZoomFactor = mapViewerTopology.ZoomFactorForWorldWidth(panelTopology.Width - vScrollbarWidth, topologyMapDisplay.Bounds.Width);
+            mapViewerTopology.ZoomFactor = desiredZoomFactor;
+            mapViewerTopology.Recenter();
+            */
+            /*
+            UpdateTopologyScrollBars();
+            */
+        }
+
+        // Update the highlights in the topology pane.
+        void UpdateTopologyHighlight()
+        {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
+            TopologyHighlights = controller.GetHighlights(Pane.Topology);
+        }
+
 #if !PORTING
-/*
-        // Update the topology display.
-        private void UpdateTopology()
-        {
-            if (controller == null)
-                return;
-            // MainFrame has a full topology view; the ViewModel has no topology UI.
-            // Keep a stub so calls in UpdateStateOnIdle compile and preserve behavior.
-        }
-
-        // Update the topology pane highlights.
-        private void UpdateTopologyHighlight()
-        {
-            if (controller == null)
-                return;
-            // Stub for compatibility with MainFrame; nothing to update in this ViewModel.
-        }
-
         // Get the dictionary mapping each symbol to custom text for symbol descriptions.
         private void UpdateCustomSymbolText()
         {
@@ -509,20 +533,6 @@ namespace PurplePen.ViewModels
             //JU: TODO is this custom symbol funtion even needed ?!?
             //DescriptionViewerViewModel.CustomSymbolText = symbolTextDict;
         }
-        // Update the topology pane display.
-        void UpdateTopology()
-        {
-            if (controller == null) return;
-
-            if (TopologyMapDisplay == null) {
-                TopologyMapDisplay = new MapDisplay();
-                TopologyMapDisplay.SetMapFile(MapType.None, null);
-                TopologyMapDisplay.AntiAlias = true;
-                TopologyMapDisplay.Printing = false;
-            }
-
-            CourseLayout topologyCourseLayout = controller.GetTopologyLayout();
-            TopologyMapDisplay.SetCourse(topologyCourseLayout);
 
         // Change the viewport to show the given rectangle.
         // MainFrame has a concrete implementation that manipulates the MapViewer control.
@@ -533,36 +543,7 @@ namespace PurplePen.ViewModels
             // Stub for compatibility with MainFrame; the view is expected to respond to
             // MapDisplay / MapZoomFactor changes and perform actual viewport changes.
         }
-*/
 #endif
-            if (topologyCourseLayout == null) {
-                ShowTopology = false;
-                EnableTopology = false;
-            }
-            else {
-                EnableTopology = true;
-            }
-            
-            /*
-            // Get zoom factor for the width, but constrained by min/max on the mapViewerTopology
-            float desiredZoomFactor = mapViewerTopology.ZoomFactorForWorldWidth(panelTopology.Width - vScrollbarWidth, topologyMapDisplay.Bounds.Width);
-            mapViewerTopology.ZoomFactor = desiredZoomFactor;
-            mapViewerTopology.Recenter();
-            */
-            /*
-            UpdateTopologyScrollBars();
-            */
-        }
-
-        // Update the highlights in the topology pane.
-        void UpdateTopologyHighlight()
-        {
-            if (controller == null)
-                return;   // happens in design mode, for example.
-
-            TopologyHighlights = controller.GetHighlights(Pane.Topology);
-        }
-
         #endregion // State updating on idle.
 
 

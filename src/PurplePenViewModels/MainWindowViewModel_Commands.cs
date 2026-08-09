@@ -66,7 +66,7 @@ namespace PurplePen.ViewModels
             MapStd2000Checked = (mapStandard == "2000");
             MapStd2017Checked = (mapStandard == "2017");
             MapStdSpr2019Checked = (mapStandard == "Spr2019");
-            MapStdStreetOChecked = (mapStandard == "StreetO");
+            MapStdStreetOChecked = (mapStandard == "StreetO"); //JU: Street-O
             IsVisibleDangerousArea = (mapStandard == "2000");
 
             // Update names of certain menu items.

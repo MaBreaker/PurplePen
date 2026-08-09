@@ -194,6 +194,7 @@ namespace PurplePen.ViewModels
                         result.controlCircleSize = (float)ControlCircleDiameter / NormalCourseAppearance.controlOutsideDiameter2017;
                     else if (MapStandard == "Spr2019")
                         result.controlCircleSize = (float)ControlCircleDiameter / NormalCourseAppearance.controlOutsideDiameterSpr2019;
+                    //JU: Street-O
                     else if (MapStandard == "StreetO")
                         result.controlCircleSize = (float)ControlCircleDiameter / NormalCourseAppearance.controlOutsideDiameterStreetO;
                     else
@@ -212,7 +213,7 @@ namespace PurplePen.ViewModels
                 }
 
                 result.numberOutlineWidth = (float)OutlineWidth;
-                result.controlOutlineWidth = (float)ControlOutlineWidth;
+                result.controlOutlineWidth = (float)ControlOutlineWidth; //JU: Control white outline
                 result.autoLegGapSize = (float)LegGapSize;
 
                 switch (ScaleItemSizesIndex) {

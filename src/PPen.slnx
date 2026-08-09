@@ -41,6 +41,7 @@
       <BuildType Solution="StorePkg|Any CPU" Project="Release" />
       <BuildType Solution="StorePkg|ARM" Project="Debug" />
       <BuildType Solution="StorePkg|ARM64" Project="Debug" />
+      <BuildType Solution="StorePkg|x64" Project="Debug" />
       <BuildType Solution="StorePkg|x86" Project="Debug" />
       <Build Solution="Debug|Any CPU" Project="false" />
       <Build Solution="Release|Any CPU" Project="false" />

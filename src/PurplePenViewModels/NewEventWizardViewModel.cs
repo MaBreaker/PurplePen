@@ -588,6 +588,7 @@ namespace PurplePen.ViewModels
                 createEventInfo.mapStandard = "2017";
             else if (IsMapSpr2019)
                 createEventInfo.mapStandard = "Spr2019";
+            //JU: Street-O
             else if (IsMapStreetO)
                 createEventInfo.mapStandard = "StreetO";
             else

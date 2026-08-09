@@ -240,29 +240,53 @@ namespace PurplePen
         private void pictureBoxPreview_Paint(object sender, PaintEventArgs e)
         {
             string expandedText = textExpander(this.UserText);
+            
             //JU: Multiline texts
+            int lineCount = 1;
             if (checkBoxMultiline.Checked) {
                 expandedText = expandedText.Replace("|", "\n");
-            }
-            float emHeight = pictureBoxPreview.Height * 0.7F;
-            Color textColor = SwopColorConverter.Instance.ToColor(colorChooser.CmykColor);
-
-            if (!checkBoxAutoFontSize.Checked) {
-                emHeight = GetEmHeight(e.Graphics, this.FontName, this.TextEffects, (float)upDownFontSize.Value);
+                lineCount = expandedText.Split('\n').Length;
             }
 
+            //JU: Preview line count
+            float emHeight;
+            if (checkBoxAutoFontSize.Checked)
+            {
+                emHeight = CalculateEmHeight(expandedText, this.FontName, this.TextEffects, 0, pictureBoxPreview.Size); 
+            }
+            else {
+                emHeight = GetEmHeight((float)pictureBoxPreview.Height, this.FontName, this.TextEffects, (float)upDownFontSize.Value);
+            }
+
+            System.Drawing.Color textColor = SwopColorConverter.Instance.ToColor(colorChooser.CmykColor);
             StringFormat stringFormat = new StringFormat(StringFormat.GenericDefault);
-            stringFormat.LineAlignment = StringAlignment.Center;
+            stringFormat.LineAlignment = StringAlignment.Near; //JU: Center -> Near
             stringFormat.FormatFlags |= StringFormatFlags.NoWrap;
-            using (Font font = ((GdiplusFontLoader)Services.FontLoader).CreateFont(this.FontName, emHeight, this.TextEffects)) 
-            using (Brush brush = new SolidBrush(textColor)) {
-                e.Graphics.DrawString(expandedText, font, brush, pictureBoxPreview.ClientRectangle, stringFormat);
+            using (System.Drawing.Font font = ((GdiplusFontLoader)Services.FontLoader).CreateFont(this.FontName, emHeight, this.TextEffects))
+            {
+                SizeF textSize = e.Graphics.MeasureString(expandedText, font, new SizeF(999999F, 999999F), stringFormat);
+
+                // Center text horizontally, and if larger than preview box use top left corner
+                float yOffset = (pictureBoxPreview.Height - textSize.Height) / 2;
+                if (yOffset < 0.0F) yOffset = 0.0F;
+
+                using (System.Drawing.Brush brush = new SolidBrush(textColor))
+                {
+                    //e.Graphics.DrawString(expandedText, font, brush, pictureBoxPreview.ClientRectangle, stringFormat);
+                    e.Graphics.DrawString(expandedText, font, brush, 0F, yOffset, stringFormat);
+                }
             }
         }
 
-        private float GetEmHeight(Graphics graphics, string fontName, TextEffects textEffects, float desiredDigitHeight)
+        private float GetEmHeight(float regionHeight, string fontName, TextEffects textEffects, float desiredDigitHeight)
         {
-            return ((float)pictureBoxPreview.Height / 10) * desiredDigitHeight * BasicTextCourseObj.EmHeightToDigitHeightRatio(fontName, textEffects);
+            return (regionHeight / 10F) * desiredDigitHeight * BasicTextCourseObj.EmHeightToDigitHeightRatio(fontName, textEffects);
+        }
+
+        //JU: Calculate emHeight for auto font size
+        private float CalculateEmHeight(string text, string fontName, TextEffects textEffects, float fontDigitHeight, SizeF desiredSize)
+        {
+            return BasicTextCourseObj.CalculateEmHeight(text, fontName, textEffects, fontDigitHeight, desiredSize);
         }
 
         private void listBoxFonts_SelectedIndexChanged(object sender, EventArgs e)

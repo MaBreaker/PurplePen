@@ -606,6 +606,7 @@
   <data name="ChangeText_label3_Text" xml:space="preserve">
     <value>Size:</value>
   </data>
+  <!-- JU: Rotation and Multiline -->
   <data name="ChangeText_label4_Text" xml:space="preserve">
     <value>Rotation:</value>
   </data>
@@ -618,6 +619,7 @@
   <data name="ChangeText_labelFontSizeMm_Text" xml:space="preserve">
     <value>mm</value>
   </data>
+  <!-- JU: Rotation and Multiline -->
   <data name="ChangeText_labelRotationDeg_Text" xml:space="preserve">
     <value>deg</value>
   </data>
@@ -3822,7 +3824,7 @@ For printing competition maps, it is suggested that courses be exported to OCAD 
     <value>Landscape</value>
   </data>
   <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
-    <value>Publish to &amp;Livelox</value>
+    <value>Publish to Livelox</value>
   </data>
   <data name="CourseAppearanceDialog_label14_Text" xml:space="preserve">
     <value>mm</value>

@@ -2979,7 +2979,7 @@ namespace PurplePen
         }
 
         // Given some text in a font and a bounding rectangle, figure out the correct em-height so that the text fits in the rectangle.
-        static private float CalculateEmHeight(string text, string fontName, TextEffects textEffects, float fontDigitHeight, SizeF desiredSize)
+        public static float CalculateEmHeight(string text, string fontName, TextEffects textEffects, float fontDigitHeight, SizeF desiredSize)
         {
             if (fontDigitHeight > 0) {
                 // Specific height, but as the height of a digit. Convert to EmHeight for the given font.

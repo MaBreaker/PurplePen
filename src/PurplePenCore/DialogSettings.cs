@@ -25,6 +25,31 @@ namespace PurplePen
     // All the information needed to print courses.
     public class CoursePrintSettings
     {
+#if !PORTING
+        //JU: Printer settings
+        private PageSettings pageSettings;
+
+#pragma warning disable CA1416
+        public PageSettings PageSettings
+        {
+            get
+            {
+                if (pageSettings == null)
+                {
+                    pageSettings = new PageSettings();
+                }
+
+                pageSettings.Landscape = false;                                // Set to not landscape. We change this on a page by page basis later.
+                pageSettings.Margins = new Margins(0, 0, 0, 0);        // use no margins. We check the hard margins of the printer during layout.
+                return pageSettings;
+            }
+            set
+            {
+                pageSettings = value;
+            }
+        }
+#pragma warning restore CA1416
+#endif
         public Id<Course>[] CourseIds;          // Courses to print, None is all controls.
         public bool AllCourses = true;          // If true, overrides the course ids in CourseIds except for "all controls".
 

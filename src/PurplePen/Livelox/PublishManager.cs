@@ -195,6 +195,16 @@ namespace PurplePen.Livelox
                 map.Georeference = null;
             }
 
+            /*
+            //JU: CourseDataFileNames + CourseImageFileNames definitions in API will use scale of the first map for everything
+
+            If one would like to use different scales for individual courses other than what original map has, 
+            then instead of these simple lists of IOF.xml and course.pdf files, we woúld need to build full structure for constrols, courses etc. like 
+
+              "controls": [{ "code": "S","type": "Start","position": {"latitude": 59.758863,"longitude": 17.708028},"mapPosition": {"x": 0.4411,"y": 0.5456},], ...
+              "courses": ["name": "Course 1","controls":[] ... [{"courseImages": [{"fileName": "course-1.svg","mapScale": 7500}]},], ...
+            */
+
             var importableEvent = new ImportableEvent()
             {
                 Name = ev.title,
