@@ -129,7 +129,10 @@
                     <NativeMenuItem Header="{resx:Localize MainFrame_createGPXFileMenu_Text}" Command="{Binding CreateGpxCommand}"/>
                     <NativeMenuItem Header="{resx:Localize MainFrame_createKMLFileMenu_Text}" Command="{Binding CreateKmlFilesCommand}"/>
                     <NativeMenuItemSeparator/>
-                    <NativeMenuItem Header="{resx:Localize MainFrame_printDescriptionsMenu_Text}" Gesture="{OnPlatform Default='Ctrl+P', macOS='Cmd+P'}" Command="{Binding PrintDescriptionsCommand}"/>
+					<!-- JU: LiveLox -->
+					<NativeMenuItem Header="{resx:Localize MainFrame_publishToLiveloxMenu_Text}" Command="{Binding PublishToLiveloxCommand}"/>
+					<NativeMenuItemSeparator/>
+					<NativeMenuItem Header="{resx:Localize MainFrame_printDescriptionsMenu_Text}" Gesture="{OnPlatform Default='Ctrl+P', macOS='Cmd+P'}" Command="{Binding PrintDescriptionsCommand}"/>
                     <NativeMenuItem Header="{resx:Localize MainFrame_printPunchCardsMenu_Text}" Command="{Binding PrintPunchCardsCommand}"/>
                     <NativeMenuItem Header="{resx:Localize MainFrame_printCoursesMenu_Text}" Command="{Binding PrintCoursesCommand}"/>
                     <NativeMenuItem Header="{resx:Localize MainFrame_setPrintAreaMenu_Text}">
@@ -373,6 +376,10 @@
                             <NativeMenuItem Header="{resx:Localize MainFrame_mapStdSpr2019Menu_Text}"
                                             ToggleType="CheckBox" IsChecked="{Binding MapStdSpr2019Checked, Mode=TwoWay}"
                                             Command="{Binding SetMapStdSpr2019Command}"/>
+							<!-- JU: LiveLox -->
+							<NativeMenuItem Header="{resx:Localize MainFrame_mapStdStreetOMenu_Text}"
+                                            ToggleType="CheckBox" IsChecked="{Binding MapStdStreetOChecked, Mode=TwoWay}"
+                                            Command="{Binding SetMapStdStreetOCommand}"/>
                         </NativeMenu>
                     </NativeMenuItem>
                     <NativeMenuItem Header="{resx:Localize MainFrame_customizeDescriptionsMenu_Text}" Command="{Binding CustomizeDescriptionsCommand}"/>

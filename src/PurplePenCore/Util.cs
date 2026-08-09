@@ -482,7 +482,10 @@ namespace PurplePen
                     modifier = " " + string.Format(MiscText.Version_Alpha, (v.Revision - VersionNumber.Alpha) / 10.0);
                 else
                     modifier = string.Format(" ({0})", v.Revision);
-
+                
+                //JU: Version plus
+                modifier = "+" + modifier;
+                
                 return string.Format("{0}.{1}.{2}{3}", v.Major, v.Minor, v.Build, modifier);
             }
             else {

@@ -649,7 +649,8 @@ end;
 #define MyAppPublisher "Purple Pen Software"
 #define MyAppURL "http://purple-pen.org"
 #define MyAppExeName "PurplePen.exe"
-#define BuildDir "publish\Main"
+;#define BuildDir "publish\Main"
+#define BuildDir "..\PurplePen\bin\Release\net10.0-windows"
 
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
@@ -727,7 +728,7 @@ Source: "dxwebsetup.exe"; Flags: dontcopy noencryption
 
 Source: "{#BuildDir}\PurplePen.exe"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\PdfConverter.exe"; DestDir: "{app}"; Flags: ignoreversion 
-Source: "{#BuildDir}\createdump.exe"; DestDir: "{app}"; Flags: ignoreversion 
+;Source: "{#BuildDir}\createdump.exe"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.dll"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.config"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.json"; DestDir: "{app}"; Flags: ignoreversion 

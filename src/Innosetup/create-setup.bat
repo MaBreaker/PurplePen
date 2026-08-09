@@ -1,3 +1,4 @@
+@ECHO OFF
 set INNOSETUP_EXECUTABLE="C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
 set INNOSETUP_FILE=PurplePen.iss
 set PROJECT_FILE=..\AvPurplePen\AvPurplePen.csproj

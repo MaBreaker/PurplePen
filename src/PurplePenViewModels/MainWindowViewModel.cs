@@ -532,7 +532,7 @@ namespace PurplePen.ViewModels
         // Get the dictionary mapping each symbol to the singular custom text for it, and give it to the description control for the popups.
         void UpdateCustomSymbolText()
         {
-            if (controller == null) return;
+            if (controller == null /* JU: SymbolDB */ || symbolDB == null) return;
 
             Dictionary<string, List<SymbolText>> customSymbolText;
             Dictionary<string, bool> customSymbolKey;
@@ -547,6 +547,7 @@ namespace PurplePen.ViewModels
                     symbolTextDict.Add(pair.Key, Symbol.GetBestSymbolText(symbolDB, pair.Value, langId, false, "", ""));
             }
 
+            //JU: TODO is this custom symbol funtion even needed ?!?
             this.DescriptionViewerViewModel.CustomSymbolText = symbolTextDict;
         }
 
