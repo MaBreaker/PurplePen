@@ -193,6 +193,7 @@
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" PrivateAssets="all" />
+    <PackageReference Include="PDFiumCore" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PurplePen\PurplePen.csproj" />

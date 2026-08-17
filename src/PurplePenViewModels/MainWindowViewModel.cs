@@ -22,6 +22,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
 
+using PurplePen.Livelox;
+
 namespace PurplePen.ViewModels
 {
     /// <summary>
@@ -75,6 +77,9 @@ namespace PurplePen.ViewModels
         private CorePunchPrintSettings? punchPrintSettings;
         private PrinterNameAndSettings? punchPrinter;
         private PrintingPaperSizeWithMargins? punchPaperSizeWithMargins;
+
+        //JU: Same idea for the Livelox dialog.
+        private LiveloxPublishSettings? liveloxPublishSettingsPrevious;
 
         [ObservableProperty]
         private string windowTitle = MiscText.AppTitle;

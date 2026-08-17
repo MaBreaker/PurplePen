@@ -11,6 +11,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Text;
+using PurplePen.Livelox;
+using PurplePen.ViewModels.Livelox;
 
 namespace PurplePen.ViewModels
 {
@@ -25,7 +27,7 @@ namespace PurplePen.ViewModels
 
             // Update enabled status for commands.
             bool canCancelMode = controller.CanCancelMode();
-            Debug.WriteLine($"CanCancelMode = {canCancelMode}");
+            //Debug.WriteLine($"CanCancelMode = {canCancelMode}");
             CanCancelMode = canCancelMode;
             CanClearSelection = !canCancelMode;
             UndoStatus undoStatus = controller.GetUndoStatus();
@@ -2706,6 +2708,7 @@ namespace PurplePen.ViewModels
                 });
             });
 #else
+            /*
             MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel
             {
                 Message = "Livelox publish is not yet implemented in this beta release.",
@@ -2714,6 +2717,37 @@ namespace PurplePen.ViewModels
                 Icon = MessageBoxIcon.Warning
             };
             await Services.DialogService.ShowDialogAsync(vm);
+            */
+
+            if (controller == null) { return; }
+
+            // Load existing settings or create new ones
+            LiveloxPublishSettings settings;
+            if (liveloxPublishSettingsPrevious != null)
+            {
+                settings = liveloxPublishSettingsPrevious.Clone();
+            }
+            else
+            {
+                settings = new LiveloxPublishSettings();
+            }
+
+            // Create the ViewModel for the Livelox dialog
+            var publishViewModel = new PublishToLiveloxDialogViewModel(controller, symbolDB, settings);
+
+            // Show the dialog
+            bool dialogAccepted = await Services.DialogService.ShowDialogAsync(publishViewModel);
+
+            if (dialogAccepted)
+            {
+                // Save the updated settings
+                liveloxPublishSettingsPrevious = publishViewModel.PublishSettings;
+            }
+            else
+            {
+                // User cancelled the dialog
+                publishViewModel.Abort();
+            }
 #endif
         }
 

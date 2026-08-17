@@ -38,7 +38,8 @@ namespace PurplePen
         private static Lazy<IGraphicsBitmap> constructionBoundary_OcadToolbox = new Lazy<IGraphicsBitmap>(() => LoadBitmapFromResource("OcadToolbox.ConstructionBoundary_OcadToolbox.png"));
         private static Lazy<IGraphicsBitmap> construction_OcadToolbox = new Lazy<IGraphicsBitmap>(() => LoadBitmapFromResource("OcadToolbox.Construction_OcadToolbox.png"));
         private static Lazy<IGraphicsBitmap> descText_OcadToolbox = new Lazy<IGraphicsBitmap>(() => LoadBitmapFromResource("OcadToolbox.DescText_OcadToolbox.png"));
-
+        //JU: Livelox
+        private static Lazy<IGraphicsBitmap> liveloxImage = new Lazy<IGraphicsBitmap>(() => LoadBitmapFromResource("Livelox.Livelox64x64.png"));
 
         public static IGraphicsBitmap LogoImage => logoImage.Value;
         public static IGraphicsBitmap DescLine_OcadToolbox => descLine_OcadToolbox.Value; 
@@ -61,7 +62,9 @@ namespace PurplePen
         public static IGraphicsBitmap Dangerous_OcadToolbox => dangerous_OcadToolbox.Value; 
         public static IGraphicsBitmap ConstructionBoundary_OcadToolbox => constructionBoundary_OcadToolbox.Value; 
         public static IGraphicsBitmap Construction_OcadToolbox => construction_OcadToolbox.Value; 
-        public static IGraphicsBitmap DescText_OcadToolbox => descText_OcadToolbox.Value; 
+        public static IGraphicsBitmap DescText_OcadToolbox => descText_OcadToolbox.Value;
+        //JU: Livelox
+        public static IGraphicsBitmap LiveloxImage => liveloxImage.Value;
     }
 }
 

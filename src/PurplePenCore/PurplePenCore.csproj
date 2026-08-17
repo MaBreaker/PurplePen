@@ -29,6 +29,7 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <None Remove="Resources\Livelox\Livelox64x64.png" />
     <None Remove="swopsamples.dat" />
   </ItemGroup>
   
@@ -61,6 +62,7 @@
     <EmbeddedResource Include="..\PurplePen\Images\Start_OcadToolbox.png" Link="Resources\OcadToolbox\Start_OcadToolbox.png" />
     <EmbeddedResource Include="..\PurplePen\Images\Water_OcadToolbox.png" Link="Resources\OcadToolbox\Water_OcadToolbox.png" />
     <EmbeddedResource Include="..\PurplePen\Images\WhiteOut_OcadToolbox.png" Link="Resources\OcadToolbox\WhiteOut_OcadToolbox.png" />
+    <EmbeddedResource Include="Resources\Livelox\Livelox64x64.png" />
     <EmbeddedResource Include="Resources\logobkgd.png" />
     <EmbeddedResource Include="Resources\swopsamples.dat" />
   </ItemGroup>
@@ -79,6 +81,11 @@
     </Compile>
     <Compile Update="CommandNameText.*.Designer.cs">
       <DependentUpon>CommandNameText.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Livelox\LiveloxResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LiveloxResources.resx</DependentUpon>
     </Compile>
     <Compile Update="MiscText.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -125,6 +132,10 @@
     <EmbeddedResource Update="CoreMiscText.*.resx">
       <DependentUpon>CoreMiscText.resx</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Update="Livelox\LiveloxResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>LiveloxResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="MiscText.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>MiscText.Designer.cs</LastGenOutput>
@@ -166,6 +177,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.Drawing.Common" />
+	<PackageReference Include="Newtonsoft.Json" />
+	<PackageReference Include="System.Resources.Extensions" />
   </ItemGroup>
 
   <ItemGroup>

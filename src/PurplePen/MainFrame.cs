@@ -35,6 +35,7 @@
 using PurplePen.DebugUI;
 using PurplePen.Graphics2D;
 using PurplePen.Livelox;
+using PurplePen.Livelox.ApiContracts;
 using PurplePen.MapModel;
 using PurplePen.MapView;
 using System;
@@ -2910,10 +2911,11 @@ namespace PurplePen
             }
 
             var publishToLiveloxDialog = new PublishToLiveloxDialog(controller, symbolDB, settings);
-            publishToLiveloxDialog.InitializeImportableEvent(this, call =>
+            Action<LiveloxApiCall<ImportableEvent>> callback = call =>
             {
                 // must invoke on UI thread
-                this.InvokeOnUiThread(() => {
+                this.InvokeOnUiThread(() => // fails to open "dialog" after initial http request, hmm because of this enyways some other conflict
+                {
                     controller.EndProgressDialog();
                     if (call.Success)
                     {
@@ -2926,7 +2928,8 @@ namespace PurplePen
                     }
                     publishToLiveloxDialog.Dispose();
                 });
-            });
+            };
+            publishToLiveloxDialog.InitializeImportableEvent(this, callback);
         }
 
         private void createXmlMenu_Click(object sender, EventArgs e)

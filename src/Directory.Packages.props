@@ -17,7 +17,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.StaticFiles" Version="2.3.9" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
     <PackageVersion Include="Microsoft.Windows.SDK.Contracts" Version="10.0.26100.7463" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.1.0" />
@@ -31,10 +31,11 @@
     <PackageVersion Include="SkiaSharp.HarfBuzz" Version="3.119.4" />
     <PackageVersion Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1839" />
     <PackageVersion Include="System.Drawing.Primitives" Version="4.3.0" />
-    <PackageVersion Include="System.Drawing.Common" Version="10.0.9" />
+    <PackageVersion Include="System.Drawing.Common" Version="10.0.10" />
+    <PackageVersion Include="System.Resources.Extensions" Version="10.0.10" />
     <PackageVersion Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
     <PackageVersion Include="System.Text.Encoding.CodePages" Version="10.0.8" />
-    <PackageVersion Include="PDFiumCore" Version="150.0.7834" />
+    <PackageVersion Include="PDFiumCore" Version="152.0.7961" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="10.0.8" />
     <PackageVersion Include="Avalonia" Version="12.0.4" />
     <PackageVersion Include="Avalonia.Desktop" Version="12.0.4" />
@@ -48,7 +49,7 @@
     <PackageVersion Include="Semi.Avalonia.DataGrid" Version="12.0.0" />
     <!-- JU: Security Cryptography and DBus -->
     <PackageVersion Include="System.Security.Cryptography.Xml" Version="8.0.3" />
-    <PackageVersion Include="Tmds.DBus.Protocol" Version="0.94.1" />
+    <PackageVersion Include="Tmds.DBus.Protocol" Version="0.94.2" />
     <!-- 
     Do not upgrade ImageSharp past 2.1.3! Later versions have a stricter license. We want the Apache 2.0 license. 
     There are security vulnerabilities in ImageSharp, but only if you are decoding untrusted images. We assuming people 

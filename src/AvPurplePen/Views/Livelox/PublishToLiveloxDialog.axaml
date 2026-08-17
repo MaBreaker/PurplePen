@@ -1,0 +1,174 @@
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:vm="using:PurplePen.ViewModels.Livelox"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:assets="using:AvPurplePen.Livelox"
+		xmlns:resx="using:AvPurplePen"
+		mc:Ignorable="d" d:DesignWidth="640"
+		x:Class="AvPurplePen.Views.Livelox.PublishToLiveloxDialog"
+        x:DataType="vm:PublishToLiveloxDialogViewModel"
+        x:CompileBindings="True"
+		xmlns:avutil="using:AvUtil"
+		Title="{x:Static assets:UIText.Livelox_Publish_title_Text}"
+		Width="640" SizeToContent="Height"
+		Icon="/Assets/transparent.ico"
+		CanResize="True"
+		WindowStartupLocation="CenterOwner"
+		Background="#F0F0F0">
+
+	<DockPanel LastChildFill="False" Margin="0">
+
+		<!-- Info section -->
+		<!-- Top section with title -->
+		<StackPanel DockPanel.Dock="Top" Margin="20,20,20,15" Spacing="10">
+			<!-- Logo panel at top: white background, draws the Livelox logo.
+				 The custom drawing is done in the code-behind Paint handler. -->
+			<Grid Margin="20,0,20,0" ColumnDefinitions="Auto,*" RowDefinitions="Auto,*" ColumnSpacing="15" RowSpacing="0">
+			<avutil:SkiaDrawingView Grid.Row="0" Grid.Column="0" x:Name="liveloxPanel"
+					DockPanel.Dock="Top"
+					Height="96"
+					Width="96"
+					Paint="LiveloxPanel_Paint"/>
+			
+			<TextBlock Grid.Row="0" Grid.Column="1" Text="{x:Static assets:UIText.Livelox_Publish_informationLabel_Text}"
+						TextWrapping="Wrap"
+						Foreground="#000"
+						FontSize="12" />
+			</Grid>
+		</StackPanel>
+
+		<!-- Main content area -->
+		<Grid DockPanel.Dock="Top" Margin="20,0,20,15" RowDefinitions="Auto,Auto,Auto,Auto">
+
+			<!-- Resolution section -->
+			<Border Grid.Row="0" Background="White" CornerRadius="4" Padding="15" Margin="0,0,0,15">
+				<StackPanel Spacing="10">
+					<CheckBox Name="ShowSettingsCheckBox"
+							  IsChecked="{Binding ShowSettings}"
+							  Content="{x:Static assets:UIText.Livelox_Publish_showSettingsCheckBox_Text}" />
+
+					<StackPanel IsVisible="{Binding ShowSettings}" Spacing="8">
+						<TextBlock Text="{x:Static assets:UIText.Livelox_Publish_resolutionLabel_Text}"
+								   FontWeight="SemiBold"
+								   Foreground="#333" />
+						<TextBox Name="ResolutionTextBox"
+								 Text="{Binding Resolution}"
+								 Padding="8"
+								 BorderThickness="1"
+								 BorderBrush="#DDD" />
+					</StackPanel>
+				</StackPanel>
+			</Border>
+
+			<!-- User selection section -->
+			<Border Grid.Row="1"
+					Background="White"
+					CornerRadius="4"
+					Padding="15"
+					Margin="0,0,0,15"
+					IsVisible="{Binding ShowUserPanel}">
+				<StackPanel Spacing="10">
+					<TextBlock Text="{x:Static assets:UIText.Livelox_Publish_userLabel_Text}"
+							   FontWeight="SemiBold"
+							   Foreground="#333" />
+					<ComboBox Name="UserComboBox"
+							  ItemsSource="{Binding AvailableUsers}"
+							  SelectedItem="{Binding SelectedUser}"
+							  Padding="8"
+							  BorderThickness="1"
+							  BorderBrush="#DDD">
+						<ComboBox.ItemTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding FullName}" />
+							</DataTemplate>
+						</ComboBox.ItemTemplate>
+					</ComboBox>
+				</StackPanel>
+			</Border>
+
+			<!-- Existing event section -->
+			<Border Grid.Row="2"
+					Background="#E8F4F8"
+					BorderBrush="#4A90E2"
+					BorderThickness="1"
+					CornerRadius="4"
+					Padding="15"
+					Margin="0,0,0,15"
+					IsVisible="{Binding ShowExistingEvent}">
+				<StackPanel Spacing="8">
+					<TextBlock Text="{x:Static assets:UIText.Livelox_Publish_existingEventGroupBox_Text}"
+							   FontWeight="SemiBold"
+							   Foreground="#333" />
+					<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="15" RowSpacing="5">
+						<TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" Foreground="#666" />
+						<TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding EventName}" Foreground="#333" />
+
+						<TextBlock Grid.Row="1" Grid.Column="0" Text="Organizers:" Foreground="#666" />
+						<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding EventOrganizers}" Foreground="#333" />
+
+						<TextBlock Grid.Row="2" Grid.Column="0" Text="Time:" Foreground="#666" />
+						<TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding EventTimeInterval}" Foreground="#333" />
+					</Grid>
+				</StackPanel>
+			</Border>
+
+			<!-- Loading indicator -->
+			<Border Grid.Row="3"
+					
+					CornerRadius="4"
+					Padding="15"
+					IsVisible="True">
+				<StackPanel Spacing="15" VerticalAlignment="Center" HorizontalAlignment="Center">
+					<ProgressBar IsIndeterminate="{Binding IsLoading}" Height="4" Value="0" />
+					<TextBlock Text="{Binding LoadingMessage}"
+							   TextAlignment="Center"
+							   Foreground="#666" />
+				</StackPanel>
+			</Border>
+		</Grid>
+
+		<!-- Bottom button section -->
+		<StackPanel DockPanel.Dock="Bottom"
+					Orientation="Horizontal"
+					Spacing="10"
+					HorizontalAlignment="Right"
+					Margin="20,0,20,20">
+
+			<Button Name="UpdateButton"
+					Content="{x:Static assets:UIText.Livelox_Publish_updateEventButton_Text}"
+					IsDefault="True"
+					Padding="15,8"
+					MinWidth="80"
+					IsVisible="{Binding ShowUpdateButton}"
+					IsEnabled="{Binding CanPublish}"
+					Command="{Binding UpdateEventCommand}" />
+
+			<Button Name="PublishOtherButton"
+					Content="{x:Static assets:UIText.Livelox_Publish_publishToOtherEventButton_Text}"
+					IsDefault="True"
+					Padding="15,8"
+					MinWidth="80"
+					IsVisible="{Binding ShowPublishOtherButton}"
+					IsEnabled="{Binding CanPublish}"
+					Command="{Binding PublishCommand}" />
+
+			<Button Name="PublishButton"
+					Content="{x:Static assets:UIText.Livelox_Publish_publishButton_Text}"
+					IsDefault="True"
+					Padding="15,8"
+					MinWidth="80"
+					IsVisible="{Binding ShowPublishButton}"
+					IsEnabled="{Binding CanPublish}"
+					Command="{Binding PublishCommand}" />
+
+			<Button Name="CancelButton"
+					Content="{x:Static assets:UIText.Livelox_Publish_cancelButton_Text}"
+					IsCancel="True"
+					Padding="15,8"
+					MinWidth="80"
+					Command="{Binding CancelCommand}"
+					Click="CancelButton_Click"/>
+		</StackPanel>
+	</DockPanel>
+</Window>

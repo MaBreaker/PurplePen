@@ -76,6 +76,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Livelox\UIText.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UIText.resx</DependentUpon>
+    </Compile>
     <Compile Update="UIText.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -84,6 +89,11 @@
     <Compile Update="Views\Dialogs\SwitchLanguageDialog.axaml.cs">
       <DependentUpon>SwitchLanguageDialog.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\Livelox\LiveloxText.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LiveloxText.resx</DependentUpon>
+    </Compile>
     <Compile Update="UIText.*.Designer.cs">
       <DependentUpon>UIText.resx</DependentUpon>
     </Compile>
@@ -91,6 +101,21 @@
 
   <ItemGroup>
     <EmbeddedResource Update="UIText.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>UIText.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Livelox\ConsentRedirectionDialogText.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Livelox\LiveloxText.resx">
+      <SubType>Designer</SubType>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>LiveloxText.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Livelox\PublishToLiveloxDialogText.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Livelox\UIText.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>UIText.Designer.cs</LastGenOutput>
     </EmbeddedResource>

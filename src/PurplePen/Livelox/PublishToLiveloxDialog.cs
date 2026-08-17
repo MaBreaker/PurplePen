@@ -96,16 +96,15 @@ namespace PurplePen.Livelox
                 {
                     StartExecuting(LiveloxResources.LoadingLiveloxEvent, closeDialogOnAbort: false);
                     var liveloxApiClient = CreateLiveloxApiClient(user.TokenInformation);
-                    liveloxApiClient.GetImportableEvent(importableEventId, call =>
+                    Action<LiveloxApiCall<ImportableEvent>> eventCallback = call =>
                     {
                         existingImportableEvent = call.Result;
-                        
+
                         var statusCodeException = call.Exception as StatusCodeException;
-                        
+
                         if (statusCodeException?.StatusCode == HttpStatusCode.NotFound /* the event, or its uploaded files, has been removed */ ||
-                            statusCodeException?.StatusCode == HttpStatusCode.Forbidden /* the user doesn't have access to the event */ ) 
+                            statusCodeException?.StatusCode == HttpStatusCode.Forbidden /* the user doesn't have access to the event */ )
                         {
-                            
                             // pretend the event hasn't been published
                             nullCallback();
                             return;
@@ -121,7 +120,8 @@ namespace PurplePen.Livelox
                         StopExecuting();
                         dialogParent = null;
                         callback(call);
-                    });
+                    };
+                    liveloxApiClient.GetImportableEvent(importableEventId, eventCallback);
                 }
                 else
                 {
@@ -261,6 +261,15 @@ namespace PurplePen.Livelox
             StartExecuting(LiveloxResources.RedirectingToLivelox);
 
             var liveloxApiClient = CreateLiveloxApiClient(null);
+
+            Action activateAppCallback = () =>
+            {
+                // Marshal back to UI thread to avoid cross-thread operation exceptions
+                this.InvokeOnUiThread(() => {
+                    this.Activate();
+                });
+            };
+
             Action<LiveloxApiCall<User>> callback = call =>
             {
                 SetProgressInfo(null);
@@ -271,7 +280,7 @@ namespace PurplePen.Livelox
                 }
 
                 var user = call.Result;
-                
+
                 // only save the user if it checked the "remember me" checkbox
                 if (rememberConsent)
                 {
@@ -281,11 +290,10 @@ namespace PurplePen.Livelox
                         .ToArray();
                     settingsProvider.SaveSettings(s);
                 }
-                
+
                 nextStep(user);
             };
-
-            liveloxApiClient.AskForUserConsent(this, refreshTokenLifeLength, callback, SetProgressInfo);
+            liveloxApiClient.AskForUserConsent(activateAppCallback, refreshTokenLifeLength, callback, SetProgressInfo);
         }
 
         private void CreateImportableEvent(User user)
@@ -297,11 +305,35 @@ namespace PurplePen.Livelox
                 StartExecuting(LiveloxResources.AssemblingCourseSettingInformation);
                 UpdateSettings();
                 temporaryDirectory = manager.CreateTemporaryDirectory();
-                var importableEvent = manager.CreateImportableEvent(controller, symbolDB, PublishSettings.GetResolution(controller.MapScale), temporaryDirectory);
+
+                ImportableEvent importableEvent = null;
+                // Marshalling the creation of the importable event to the UI thread to avoid cross-thread operation exceptions
+                // - Overlapping threads were using the same background "mapDisplay.bitmap" object and hence exported PNG was blank
+                /*
+                    PublishToLiveloxDialog.cs
+                    - CreateImportableEvent
+                     ->CreateMapImage
+
+                    PublishManager.cs
+                    - CreateMapImage
+                     ->CreateBitmap
+
+                    ExportBitmap.cs
+                    - CreateBitmap
+                     ->Draw
+
+                    MapDisplay.cs
+                    - Draw
+                      - DrawHelper
+                        - DrawBitmapMap
+                */
+                InvokeOnUiThread(() =>
+                    importableEvent = manager.CreateImportableEvent(controller, symbolDB, PublishSettings.GetResolution(controller.MapScale), temporaryDirectory)
+                );
 
                 SetProgressInfo(LiveloxResources.UploadingCourseSettingInformation);
                 var liveloxApiClient = CreateLiveloxApiClient(user.TokenInformation);
-                liveloxApiClient.CreateImportableEvent(importableEvent, call =>
+                Action<LiveloxApiCall<ImportableEventLink>> callback = call =>
                 {
                     if (!call.Success)
                     {
@@ -316,7 +348,7 @@ namespace PurplePen.Livelox
                     // zip all files and upload them
                     var zipBytes = CreateZipFileBytes(temporaryDirectory, importableEvent);
 
-                    liveloxApiClient.UploadFile(importableEventLink.Id, "files.zip", zipBytes, uploadFilesCall =>
+                    Action<LiveloxApiCall<LiveloxApiNullResponse>> uploadCallback = uploadFilesCall =>
                     {
                         if (!uploadFilesCall.Success)
                         {
@@ -332,8 +364,11 @@ namespace PurplePen.Livelox
                         manager.DeleteTemporatyDirectory(temporaryDirectory);
                         StopExecuting();
                         ShowImportableEventCreatedDialog(importableEventLink);
-                    });
-                });
+                    };
+
+                    liveloxApiClient.UploadFile(importableEventLink.Id, "files.zip", zipBytes, uploadCallback);
+                };
+                liveloxApiClient.CreateImportableEvent(importableEvent, callback);
             }
             catch (Exception ex)
             {
@@ -352,75 +387,86 @@ namespace PurplePen.Livelox
                 StartExecuting(LiveloxResources.AssemblingCourseSettingInformation);
                 UpdateSettings();
                 temporaryDirectory = manager.CreateTemporaryDirectory();
-                var importableEvent = manager.CreateImportableEvent(controller, symbolDB, PublishSettings.GetResolution(controller.MapScale), temporaryDirectory);
+
+                ImportableEvent importableEvent = null;
+                // Marshalling the creation of the importable event to the UI thread to avoid cross-thread operation exceptions
+                // - Overlapping threads were using the same background "mapDisplay.bitmap" object and hence exported PNG was blank
+                InvokeOnUiThread(() =>
+                    importableEvent = manager.CreateImportableEvent(controller, symbolDB, PublishSettings.GetResolution(controller.MapScale), temporaryDirectory)
+                );
 
                 SetProgressInfo(LiveloxResources.UploadingCourseSettingInformation);
                 var liveloxApiClient = CreateLiveloxApiClient(user.TokenInformation);
-                liveloxApiClient.UpdateImportableEvent(existingImportableEvent.Link.Id, importableEvent,
-                    updateImportableEventCall =>
+
+                Action<LiveloxApiCall<ImportableEventLink>> callback = updateImportableEventCall =>
+                {
+                    if (!updateImportableEventCall.Success)
                     {
-                        if (!updateImportableEventCall.Success)
+                        manager.DeleteTemporatyDirectory(temporaryDirectory);
+                        StopExecuting();
+                        if ((updateImportableEventCall.Exception as StatusCodeException)?.StatusCode == HttpStatusCode.Forbidden)
+                        {
+                            ShowErrorBox(new Exception(LiveloxResources.AccessDeniedToLiveloxEvent), true);
+                        }
+                        else
+                        {
+                            ShowErrorBox(updateImportableEventCall, true);
+                        }
+                        return;
+                    }
+
+                    var importableEventLink = updateImportableEventCall.Result;
+
+                    // zip all files and upload them
+                    var zipBytes = CreateZipFileBytes(temporaryDirectory, importableEvent);
+
+                    Action<LiveloxApiCall<LiveloxApiNullResponse>> uploadCallback = uploadFilesCall =>
+                    {
+                        if (!uploadFilesCall.Success)
                         {
                             manager.DeleteTemporatyDirectory(temporaryDirectory);
                             StopExecuting();
-                            if ((updateImportableEventCall.Exception as StatusCodeException)?.StatusCode == HttpStatusCode.Forbidden)
-                            {
-                                ShowErrorBox(new Exception(LiveloxResources.AccessDeniedToLiveloxEvent), true);
-                            }
-                            else
-                            {
-                                ShowErrorBox(updateImportableEventCall, true);
-                            }
+                            ShowErrorBox(uploadFilesCall, true);
                             return;
                         }
 
-                        var importableEventLink = updateImportableEventCall.Result;
+                        PersistUserList(user);
 
-                        // zip all files and upload them
-                        var zipBytes = CreateZipFileBytes(temporaryDirectory, importableEvent);
-                        liveloxApiClient.UploadFile(importableEventLink.Id, "files.zip", zipBytes, uploadFilesCall =>
+                        if (importableEventLink.LiveloxImportEventUrl != null)
                         {
-                            if (!uploadFilesCall.Success)
+                            manager.DeleteTemporatyDirectory(temporaryDirectory);
+                            PersistLiveloxEventIdToDB(importableEventLink.Id);
+                            StopExecuting();
+                            ShowImportableEventCreatedDialog(importableEventLink);
+                        }
+                        else
+                        {
+                            SetProgressInfo(LiveloxResources.UpdatingLiveloxEvent);
+                                    
+                            Action<LiveloxApiCall<ImportableEventLink>> importCallback = importImportableEventCall =>
                             {
-                                manager.DeleteTemporatyDirectory(temporaryDirectory);
-                                StopExecuting();
-                                ShowErrorBox(uploadFilesCall, true);
-                                return;
-                            }
-
-                            PersistUserList(user);
-                            
-                            if (importableEventLink.LiveloxImportEventUrl != null)
-                            {
-                                manager.DeleteTemporatyDirectory(temporaryDirectory);
-                                PersistLiveloxEventIdToDB(importableEventLink.Id);
-                                StopExecuting();
-                                ShowImportableEventCreatedDialog(importableEventLink);
-                            }
-                            else
-                            {
-                                SetProgressInfo(LiveloxResources.UpdatingLiveloxEvent);
-                                liveloxApiClient.ImportImportableEvent(existingImportableEvent.Link.Id, importImportableEventCall =>
+                                if (!importImportableEventCall.Success)
                                 {
-                                    if (!importImportableEventCall.Success)
-                                    {
-                                        manager.DeleteTemporatyDirectory(temporaryDirectory);
-                                        StopExecuting();
-                                        ShowErrorBox(importImportableEventCall, true);
-                                        return;
-                                    }
-
-                                    importableEventLink = importImportableEventCall.Result;
-
-                                    PersistLiveloxEventIdToDB(importableEventLink.Id);
-
                                     manager.DeleteTemporatyDirectory(temporaryDirectory);
                                     StopExecuting();
-                                    ShowImportableEventUpdatedDialog(importableEventLink);
-                                });
-                            }
-                        });
-                    });
+                                    ShowErrorBox(importImportableEventCall, true);
+                                    return;
+                                }
+
+                                importableEventLink = importImportableEventCall.Result;
+
+                                PersistLiveloxEventIdToDB(importableEventLink.Id);
+
+                                manager.DeleteTemporatyDirectory(temporaryDirectory);
+                                StopExecuting();
+                                ShowImportableEventUpdatedDialog(importableEventLink);
+                            };
+                            liveloxApiClient.ImportImportableEvent(existingImportableEvent.Link.Id, importCallback);
+                        }
+                    };
+                    liveloxApiClient.UploadFile(importableEventLink.Id, "files.zip", zipBytes, uploadCallback);
+                };
+                liveloxApiClient.UpdateImportableEvent(existingImportableEvent.Link.Id, importableEvent, callback);
             }
             catch (Exception ex)
             {
@@ -788,7 +834,14 @@ namespace PurplePen.Livelox
         {
             try
             {
-                DialogParent.InvokeOnUiThread(action);
+                if (this.Created)
+                {
+                    this.Invoke(action);
+                }
+                else
+                {
+                    DialogParent.InvokeOnUiThread(action);
+                }
             }
             catch
             {
