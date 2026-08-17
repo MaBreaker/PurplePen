@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="IncrementButton" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="AboutForm_copyrightLabel_Text" xml:space="preserve">
     <value>Copyright © Peter Golde</value>
   </data>
@@ -138,7 +142,7 @@
   <data name="MissingFonts_okButton_Text" xml:space="preserve">
     <value>Rendben</value>
   </data>
-  <data name="OkCancelDialog_okButton_Text" xml:space="preserve">
+  <data name="OKButton" xml:space="preserve">
     <value>Rendben</value>
   </data>
   <data name="AboutForm_creditsButton_Text" xml:space="preserve">
@@ -1062,10 +1066,7 @@
   <data name="NonPrintableObjects_cancelButton_Text" xml:space="preserve">
     <value>Mégsem</value>
   </data>
-  <data name="OkCancelDialog_cancelButton_Text" xml:space="preserve">
-    <value>Mégsem</value>
-  </data>
-  <data name="OperationInProgress_cancelButton_Text" xml:space="preserve">
+  <data name="CancelButton" xml:space="preserve">
     <value>Mégsem</value>
   </data>
   <data name="OverwritingOcadFilesDialog_buttonCancel_Text" xml:space="preserve">
@@ -3489,5 +3490,8 @@ A versenytérképek nyomtatásához javasolt a pályákat OCAD formátumba expor
   </data>
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>További pályák megtekintése</value>
+  </data>
+  <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
+    <value>Be_fejezés</value>
   </data>
 </root>

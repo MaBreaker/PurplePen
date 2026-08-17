@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="IncrementButton" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="AboutForm_freeLabel_Text" xml:space="preserve">
     <value>Purple Pen programvare kan kopieres og deles fritt</value>
   </data>
@@ -135,7 +139,7 @@
   <data name="MissingFonts_okButton_Text" xml:space="preserve">
     <value>Greitt</value>
   </data>
-  <data name="OkCancelDialog_okButton_Text" xml:space="preserve">
+  <data name="OKButton" xml:space="preserve">
     <value>Greitt</value>
   </data>
   <data name="AboutForm_creditsButton_Text" xml:space="preserve">
@@ -813,10 +817,7 @@
   <data name="NonPrintableObjects_cancelButton_Text" xml:space="preserve">
     <value>Avbryt</value>
   </data>
-  <data name="OkCancelDialog_cancelButton_Text" xml:space="preserve">
-    <value>Avbryt</value>
-  </data>
-  <data name="OperationInProgress_cancelButton_Text" xml:space="preserve">
+  <data name="CancelButton" xml:space="preserve">
     <value>Avbryt</value>
   </data>
   <data name="OverwritingOcadFilesDialog_buttonCancel_Text" xml:space="preserve">
@@ -2393,5 +2394,8 @@ Til å skrive ut konkuranskekart anbefales at løypene eksporteres til OCAD file
   </data>
   <data name="UnusedControls_unusedControlsLabel_Text" xml:space="preserve">
     <value>Følgende poster er i "Alle poster" men ingen av dem benyttes i nokon løype. Klikk ta bort for å slette alle markerte poster.</value>
+  </data>
+  <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
+    <value>_Fullfør</value>
   </data>
 </root>

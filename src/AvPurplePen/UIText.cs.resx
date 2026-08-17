@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="IncrementButton" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="AboutForm_copyrightLabel_Text" xml:space="preserve">
     <value>Copyright © Peter Golde</value>
   </data>
@@ -138,7 +142,7 @@
   <data name="MissingFonts_okButton_Text" xml:space="preserve">
     <value>OK</value>
   </data>
-  <data name="OkCancelDialog_okButton_Text" xml:space="preserve">
+  <data name="OKButton" xml:space="preserve">
     <value>OK</value>
   </data>
   <data name="AboutForm_creditsButton_Text" xml:space="preserve">
@@ -1074,10 +1078,7 @@
   <data name="NonPrintableObjects_cancelButton_Text" xml:space="preserve">
     <value>Zrušit</value>
   </data>
-  <data name="OkCancelDialog_cancelButton_Text" xml:space="preserve">
-    <value>Zrušit</value>
-  </data>
-  <data name="OperationInProgress_cancelButton_Text" xml:space="preserve">
+  <data name="CancelButton" xml:space="preserve">
     <value>Zrušit</value>
   </data>
   <data name="OverwritingOcadFilesDialog_buttonCancel_Text" xml:space="preserve">
@@ -1627,7 +1628,7 @@
     <value>_Smazat</value>
   </data>
   <data name="MainFrame_editMenu_Text" xml:space="preserve">
-    <value>&amp;Úpravy</value>
+    <value>_Úpravy</value>
   </data>
   <data name="MainFrame_entireCourseMenu_Text" xml:space="preserve">
     <value>_Celá trať</value>
@@ -3529,5 +3530,8 @@ Pro tisk závodních map se doporučuje exportovat tratě do souborů OCAD (vybe
   </data>
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>Zobrazit další Tratě</value>
+  </data>
+  <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
+    <value>_Cíl</value>
   </data>
 </root>

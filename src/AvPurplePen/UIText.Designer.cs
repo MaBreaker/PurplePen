@@ -8090,6 +8090,15 @@ namespace AvPurplePen {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to _Finish.
+        /// </summary>
+        public static string NewEventWizard_finishButton_Text {
+            get {
+                return ResourceManager.GetString("NewEventWizard_finishButton_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Next &gt;.
         /// </summary>
         public static string NewEventWizard_nextButton_Text {
@@ -8161,33 +8170,6 @@ namespace AvPurplePen {
         public static string OKButton {
             get {
                 return ResourceManager.GetString("OKButton", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cancel.
-        /// </summary>
-        public static string OkCancelDialog_cancelButton_Text {
-            get {
-                return ResourceManager.GetString("OkCancelDialog_cancelButton_Text", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to OK.
-        /// </summary>
-        public static string OkCancelDialog_okButton_Text {
-            get {
-                return ResourceManager.GetString("OkCancelDialog_okButton_Text", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cancel.
-        /// </summary>
-        public static string OperationInProgress_cancelButton_Text {
-            get {
-                return ResourceManager.GetString("OperationInProgress_cancelButton_Text", resourceCulture);
             }
         }
         
@@ -11243,6 +11225,66 @@ namespace AvPurplePen {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Download and Install.
+        /// </summary>
+        public static string UpdateAvailable_downloadButton_Text {
+            get {
+                return ResourceManager.GetString("UpdateAvailable_downloadButton_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The update has been downloaded to:
+        ///
+        ///{0}
+        ///
+        ///Purple Pen cannot install this kind of file for you. Open it yourself to install the update..
+        /// </summary>
+        public static string UpdateAvailable_downloadedManually_Text {
+            get {
+                return ResourceManager.GetString("UpdateAvailable_downloadedManually_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The update could not be downloaded.
+        ///
+        ///{0}.
+        /// </summary>
+        public static string UpdateAvailable_downloadFailed_Text {
+            get {
+                return ResourceManager.GetString("UpdateAvailable_downloadFailed_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version {0} of Purple Pen is now available. (You are currently running version {1}.).
+        /// </summary>
+        public static string UpdateAvailable_newVersionAvailable_Text {
+            get {
+                return ResourceManager.GetString("UpdateAvailable_newVersionAvailable_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remind Me Later.
+        /// </summary>
+        public static string UpdateAvailable_remindLaterButton_Text {
+            get {
+                return ResourceManager.GetString("UpdateAvailable_remindLaterButton_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update Available.
+        /// </summary>
+        public static string UpdateAvailable_Text {
+            get {
+                return ResourceManager.GetString("UpdateAvailable_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Choose additional courses to view with course &quot;{0}&quot;..
         /// </summary>
         public static string ViewAdditionalCourses_labelInstructions_Text {
@@ -11266,60 +11308,6 @@ namespace AvPurplePen {
         public static string YesButton {
             get {
                 return ResourceManager.GetString("YesButton", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Update Available.
-        /// </summary>
-        public static string UpdateAvailable_Text {
-            get {
-                return ResourceManager.GetString("UpdateAvailable_Text", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Remind Me Later.
-        /// </summary>
-        public static string UpdateAvailable_remindLaterButton_Text {
-            get {
-                return ResourceManager.GetString("UpdateAvailable_remindLaterButton_Text", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Download and Install.
-        /// </summary>
-        public static string UpdateAvailable_downloadButton_Text {
-            get {
-                return ResourceManager.GetString("UpdateAvailable_downloadButton_Text", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Version {0} of Purple Pen is now available. (You are currently running version {1}.).
-        /// </summary>
-        public static string UpdateAvailable_newVersionAvailable_Text {
-            get {
-                return ResourceManager.GetString("UpdateAvailable_newVersionAvailable_Text", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to The update could not be downloaded.
-        /// </summary>
-        public static string UpdateAvailable_downloadFailed_Text {
-            get {
-                return ResourceManager.GetString("UpdateAvailable_downloadFailed_Text", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to The update has been downloaded to: {0}.
-        /// </summary>
-        public static string UpdateAvailable_downloadedManually_Text {
-            get {
-                return ResourceManager.GetString("UpdateAvailable_downloadedManually_Text", resourceCulture);
             }
         }
     }

@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="IncrementButton" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="AboutForm_freeLabel_Text" xml:space="preserve">
     <value>Purple Pen este software gratuit și poate fi copiat și distribuit.</value>
   </data>
@@ -135,7 +139,7 @@
   <data name="MissingFonts_okButton_Text" xml:space="preserve">
     <value>OK</value>
   </data>
-  <data name="OkCancelDialog_okButton_Text" xml:space="preserve">
+  <data name="OKButton" xml:space="preserve">
     <value>OK</value>
   </data>
   <data name="AboutForm_creditsButton_Text" xml:space="preserve">
@@ -813,10 +817,7 @@
   <data name="NonPrintableObjects_cancelButton_Text" xml:space="preserve">
     <value>Anulare</value>
   </data>
-  <data name="OkCancelDialog_cancelButton_Text" xml:space="preserve">
-    <value>Anulare</value>
-  </data>
-  <data name="OperationInProgress_cancelButton_Text" xml:space="preserve">
+  <data name="CancelButton" xml:space="preserve">
     <value>Anulare</value>
   </data>
   <data name="OverwritingOcadFilesDialog_buttonCancel_Text" xml:space="preserve">
@@ -1138,10 +1139,10 @@
     <value>_Refacere</value>
   </data>
   <data name="MainFrame_deleteMenu_Text" xml:space="preserve">
-    <value>&amp;Ștergere</value>
+    <value>_Ștergere</value>
   </data>
   <data name="MainFrame_deleteItemMenu_Text" xml:space="preserve">
-    <value>&amp;Ștergere</value>
+    <value>_Ștergere</value>
   </data>
   <data name="MainFrame_editMenu_Text" xml:space="preserve">
     <value>_Editare</value>
@@ -1321,13 +1322,13 @@
     <value>_Adaugare Traseu...</value>
   </data>
   <data name="MainFrame_deleteCourseMenu_Text" xml:space="preserve">
-    <value>&amp;Ștergere Traseu</value>
+    <value>_Ștergere Traseu</value>
   </data>
   <data name="MainFrame_propertiesMenu_Text" xml:space="preserve">
     <value>_Proprietăți...</value>
   </data>
   <data name="MainFrame_courseLoadMenu_Text" xml:space="preserve">
-    <value>&amp;Încărcare Participanți...</value>
+    <value>_Încărcare Participanți...</value>
   </data>
   <data name="MainFrame_courseMenu_Text" xml:space="preserve">
     <value>_Traseu</value>
@@ -1381,7 +1382,7 @@
     <value>Referințe Încrucișate Posturi</value>
   </data>
   <data name="MainFrame_controlAndLegLoadMenu_Text" xml:space="preserve">
-    <value>&amp;Încărcare Post de control si Secțiune</value>
+    <value>_Încărcare Post de control si Secțiune</value>
   </data>
   <data name="MainFrame_reportMenu_Text" xml:space="preserve">
     <value>_Rapoarte</value>
@@ -1850,7 +1851,7 @@ Pentru a încăpea în tabelul de descriere, titlul ar trebui sa aibă o lungime
     <value>Titlul Evenimentului:</value>
   </data>
   <data name="NewEventWizard_backButton_Text" xml:space="preserve">
-    <value>&lt; &amp;Înapoi</value>
+    <value>&lt; _Înapoi</value>
   </data>
   <data name="NonPrintableObjects_labelWarning_Text" xml:space="preserve">
     <value>Fișierul hartă "{0}" conține obiecte sau simboluri care nu sunt suportate de Purple Pen, și e posibil să nu fie tipărite corect. Obiectele care e posibil să nu fie tipărite corect sunt listate mai jos.
@@ -2394,5 +2395,8 @@ Pentru a tipări hărți de concurs, se recomandă exportul traseelor în fișie
   </data>
   <data name="UnusedControls_unusedControlsLabel_Text" xml:space="preserve">
     <value>Următoarele posturi de control sunt în colecția de posturi dar nu sunt utilizare în nici un traseu. Click Ștergere pentru a elimina toate posturile de control selectate.</value>
+  </data>
+  <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
+    <value>_Finalizare</value>
   </data>
 </root>
