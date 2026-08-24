@@ -13,11 +13,18 @@ namespace PurplePen.Livelox
         public LiveloxApiClient Client { get; set; }
         public bool TimedOut { get; private set; }
 
+        private bool isDisposed = false;
+
         public Action<LiveloxApiCall<T>> Callback { get; set; }
 
         public bool Success => Exception == null;
 
         public CancellationTokenSource CancellationSource { get; set; } = new CancellationTokenSource();
+
+        ~LiveloxApiCall()
+        {
+            Dispose(false);
+        }
 
         public void Abort()
         {
@@ -25,11 +32,25 @@ namespace PurplePen.Livelox
             CancellationSource?.Cancel();
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (isDisposed) return;
+
+            if (disposing)
+            {
+                // free managed resources
+                CancellationSource?.Dispose();
+                CancellationSource = null;
+            }
+
+            isDisposed = true;
+        }
+
         // Dispose managed resources.
         public void Dispose()
         {
-            CancellationSource?.Dispose();
-            CancellationSource = null;
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public void RegisterTimeout(TimeSpan timeout)

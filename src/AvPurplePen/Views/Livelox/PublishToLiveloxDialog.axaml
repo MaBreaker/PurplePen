@@ -48,16 +48,45 @@
 							  IsChecked="{Binding ShowSettings}"
 							  Content="{x:Static assets:UIText.Livelox_Publish_showSettingsCheckBox_Text}" />
 
-					<StackPanel IsVisible="{Binding ShowSettings}" Spacing="8">
+					<!--
+					<StackPanel IsVisible="{Binding ShowSettings}" Orientation="Horizontal" Spacing="8">
+						<TextBlock Text="{x:Static assets:UIText.Livelox_Publish_resolutionLabel_Text}"
+								   FontWeight="SemiBold"
+								   Foreground="#333"
+								   DockPanel.Dock="Left" />
+						<TextBox Name="ResolutionTextBox"
+								 Text="{Binding Resolution}"
+								 DockPanel.Dock="Right"
+								 Padding="8"
+								 BorderThickness="1"
+								 BorderBrush="#DDD" />
+					</StackPanel>
+				    <DockPanel IsVisible="{Binding ShowSettings}" LastChildFill="False" VerticalSpacing="8" HorizontalSpacing="8">
+
+						<TextBlock Text="{x:Static assets:UIText.Livelox_Publish_resolutionLabel_Text}"
+								   FontWeight="SemiBold"
+								   Foreground="#333"
+								   DockPanel.Dock="Left" />
+						<TextBox Name="ResolutionTextBox"
+								 Text="{Binding Resolution}"
+								 DockPanel.Dock="Right"
+								 Padding="8"
+								 BorderThickness="1"
+								 BorderBrush="#DDD" />
+					</DockPanel>
+					-->
+					<Panel IsVisible="{Binding ShowSettings}">
 						<TextBlock Text="{x:Static assets:UIText.Livelox_Publish_resolutionLabel_Text}"
 								   FontWeight="SemiBold"
 								   Foreground="#333" />
 						<TextBox Name="ResolutionTextBox"
 								 Text="{Binding Resolution}"
+								 HorizontalAlignment="Right"
+								 MinWidth="80" 
 								 Padding="8"
 								 BorderThickness="1"
 								 BorderBrush="#DDD" />
-					</StackPanel>
+					</Panel>
 				</StackPanel>
 			</Border>
 
@@ -69,21 +98,24 @@
 					Margin="0,0,0,15"
 					IsVisible="{Binding ShowUserPanel}">
 				<StackPanel Spacing="10">
-					<TextBlock Text="{x:Static assets:UIText.Livelox_Publish_userLabel_Text}"
-							   FontWeight="SemiBold"
-							   Foreground="#333" />
-					<ComboBox Name="UserComboBox"
-							  ItemsSource="{Binding AvailableUsers}"
-							  SelectedItem="{Binding SelectedUser}"
-							  Padding="8"
-							  BorderThickness="1"
-							  BorderBrush="#DDD">
-						<ComboBox.ItemTemplate>
-							<DataTemplate>
-								<TextBlock Text="{Binding FullName}" />
-							</DataTemplate>
-						</ComboBox.ItemTemplate>
-					</ComboBox>
+					<Panel>
+						<TextBlock Text="{x:Static assets:UIText.Livelox_Publish_userLabel_Text}"
+								   FontWeight="SemiBold"
+								   Foreground="#333" />
+						<ComboBox Name="UserComboBox"
+								  ItemsSource="{Binding AvailableUsers}"
+								  SelectedItem="{Binding SelectedUser}"
+								  HorizontalAlignment="Right"
+								  Padding="8"
+								  BorderThickness="1"
+								  BorderBrush="#DDD">
+							<ComboBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding FullName}" />
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</ComboBox>
+					</Panel>
 				</StackPanel>
 			</Border>
 

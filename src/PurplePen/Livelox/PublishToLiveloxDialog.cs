@@ -74,14 +74,14 @@ namespace PurplePen.Livelox
 
         public void InitializeImportableEvent(Form form, Action<LiveloxApiCall<ImportableEvent>> callback)
         {
-            dialogParent = form;
+            dialogParent = form; // Use Main form as ProgressDialog parent, because PublishToLiveloxDialog is not yet available
 
             var importableEventId = controller.GetEventDB().GetEvent().liveloxImportableEventId;
 
             Action nullCallback = () =>
             {
                 StopExecuting();
-                dialogParent = null;
+                dialogParent = null; // Set dialog parent to null to get access through DialogParent property (form or this)
                 callback(new LiveloxApiCall<ImportableEvent>()
                 {
                     Result = null
@@ -94,28 +94,62 @@ namespace PurplePen.Livelox
                 var user = settings.Users.FirstOrDefault();
                 if (user != null)
                 {
+                    // Random excetions thrown from this process, mostly because of async function calls in it
+                    // Related to ProgressDialog which is now opened from here before main publishToLiveloxDialog is created
+                    // Proper Marshaling and Invokation is needed here to avoid cross-thread operation exceptions and other issues
+
+                    /*
+					publishToLiveloxMenu_Click <<MainFrame>>
+						+ void InitializeImportableEvent <<PublishToLiveloxDialog>>
+						  o if User exists
+							- StartExecuting -> ShowProgressDialog -> operationInProgressDialog
+							- LiveloxApiClient CreateLiveloxApiClient
+							+ ImportableEvent GetImportableEvent <<LiveloxApiClient>>
+								+ CallApi CreateGetRequest [ HTTP ] -> GetResponse -> ResponseCallback -> call.Callback(call)
+									+ eventCallback(HTTP.results) [GetImportableEvent]
+										- StopExecuting -> EndProgressDialog -> operationInProgressDialog (-> throws EXCEPTION)
+										+ callback(HTTP.results) [InitializeImportableEvent] <<MainFrame>>
+											- controller.EndProgressDialog (-> throws EXCEPTION)
+											- publishToLiveloxDialog.ShowDialog
+											- MessageBox.Show (-> throws EXCEPTION)
+											- publishToLiveloxDialog.Dispose
+						  o else User NOT exists
+							+ callback(null) [InitializeImportableEvent] <<MainFrame>>
+								- controller.EndProgressDialog (OK)
+								- publishToLiveloxDialog.ShowDialog
+								- MessageBox.Show (OK)
+								- publishToLiveloxDialog.Dispose
+                    */
+
                     StartExecuting(LiveloxResources.LoadingLiveloxEvent, closeDialogOnAbort: false);
                     var liveloxApiClient = CreateLiveloxApiClient(user.TokenInformation);
                     Action<LiveloxApiCall<ImportableEvent>> eventCallback = call =>
                     {
-                        existingImportableEvent = call.Result;
-
                         var statusCodeException = call.Exception as StatusCodeException;
 
                         if (statusCodeException?.StatusCode == HttpStatusCode.NotFound /* the event, or its uploaded files, has been removed */ ||
-                            statusCodeException?.StatusCode == HttpStatusCode.Forbidden /* the user doesn't have access to the event */ )
+                            statusCodeException?.StatusCode == HttpStatusCode.Forbidden /* the user doesn't have access to the event */ ||
+                            statusCodeException?.StatusCode == HttpStatusCode.Unauthorized)
                         {
                             // pretend the event hasn't been published
                             nullCallback();
                             return;
                         }
-
-                        if (call.Exception is OAuth2Exception)
+                        else if (call.Exception is OAuth2Exception)
                         {
                             // an authorization problem - remove the user from the saved user list
                             settings.Users = settings.Users.Skip(1).ToArray();
                             settingsProvider.SaveSettings(settings);
+                            call.Result = null;
+                            //call.Exception = null;
                         }
+                        else if(call.Exception != null)
+                        {
+                            // unknown error
+                            call.Result = null; // Goto MainFrame and show message box error there if Exception is not null
+                        }
+                        
+                        existingImportableEvent = call.Result;
 
                         StopExecuting();
                         dialogParent = null;
@@ -151,6 +185,7 @@ namespace PurplePen.Livelox
         }
 
         private Control DialogParent => dialogParent ?? (IsHandleCreated ? this : Parent);
+        //private Control DialogParent { get { return (IsHandleCreated ? this : Parent); } }
 
         private void UpdateDialog()
         {
@@ -307,8 +342,6 @@ namespace PurplePen.Livelox
                 temporaryDirectory = manager.CreateTemporaryDirectory();
 
                 ImportableEvent importableEvent = null;
-                // Marshalling the creation of the importable event to the UI thread to avoid cross-thread operation exceptions
-                // - Overlapping threads were using the same background "mapDisplay.bitmap" object and hence exported PNG was blank
                 /*
                     PublishToLiveloxDialog.cs
                     - CreateImportableEvent
@@ -327,9 +360,7 @@ namespace PurplePen.Livelox
                       - DrawHelper
                         - DrawBitmapMap
                 */
-                InvokeOnUiThread(() =>
-                    importableEvent = manager.CreateImportableEvent(controller, symbolDB, PublishSettings.GetResolution(controller.MapScale), temporaryDirectory)
-                );
+                importableEvent = manager.CreateImportableEvent(controller, symbolDB, PublishSettings.GetResolution(controller.MapScale), temporaryDirectory);
 
                 SetProgressInfo(LiveloxResources.UploadingCourseSettingInformation);
                 var liveloxApiClient = CreateLiveloxApiClient(user.TokenInformation);
@@ -389,11 +420,7 @@ namespace PurplePen.Livelox
                 temporaryDirectory = manager.CreateTemporaryDirectory();
 
                 ImportableEvent importableEvent = null;
-                // Marshalling the creation of the importable event to the UI thread to avoid cross-thread operation exceptions
-                // - Overlapping threads were using the same background "mapDisplay.bitmap" object and hence exported PNG was blank
-                InvokeOnUiThread(() =>
-                    importableEvent = manager.CreateImportableEvent(controller, symbolDB, PublishSettings.GetResolution(controller.MapScale), temporaryDirectory)
-                );
+                importableEvent = manager.CreateImportableEvent(controller, symbolDB, PublishSettings.GetResolution(controller.MapScale), temporaryDirectory);
 
                 SetProgressInfo(LiveloxResources.UploadingCourseSettingInformation);
                 var liveloxApiClient = CreateLiveloxApiClient(user.TokenInformation);
@@ -834,14 +861,17 @@ namespace PurplePen.Livelox
         {
             try
             {
-                if (this.Created)
-                {
+                // DialogParent should be pointing to THIS or its parent if THIS is not created yet
+                // - hence this if clause here should NOT be needed
+
+                //DialogParent.InvokeOnUiThread(action);
+                // - InvokeOnUiThread in case of Parent points to Controls / Invoke which does not work with Windows Forms throws an error
+                /*
+                if (this.IsHandleCreated)
                     this.Invoke(action);
-                }
                 else
-                {
-                    DialogParent.InvokeOnUiThread(action);
-                }
+                */
+                DialogParent.Invoke(action);
             }
             catch
             {

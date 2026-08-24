@@ -2708,17 +2708,6 @@ namespace PurplePen.ViewModels
                 });
             });
 #else
-            /*
-            MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel
-            {
-                Message = "Livelox publish is not yet implemented in this beta release.",
-                Buttons = MessageBoxButtons.Ok,
-                DefaultButton = MessageBoxButton.Ok,
-                Icon = MessageBoxIcon.Warning
-            };
-            await Services.DialogService.ShowDialogAsync(vm);
-            */
-
             if (controller == null) { return; }
 
             // Load existing settings or create new ones

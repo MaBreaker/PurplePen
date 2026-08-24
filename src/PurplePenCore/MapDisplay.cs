@@ -583,7 +583,7 @@ namespace PurplePen
         }
 
         // Set the print area to display, or null to not display print area.
-        public void SetPrintArea(RectangleF? printArea /* JU: Margins */ , int? margins)
+        public void SetPrintArea(RectangleF? printArea /* JU: Difficult to get margins value from PageLayout */, int? margins = null )
         {
             if (!this.printArea.Equals(printArea)) {
                 this.printArea = printArea;
@@ -696,7 +696,7 @@ namespace PurplePen
         // the given clip region is applied.
         public void Draw(IGraphicsBitmap bitmap, Matrix transform, RectangleF? clipRect = null)
         {
-            Debug.Assert(colorModel == ColorModel.CMYK || colorModel == ColorModel.RGB || colorModel == ColorModel.OCADCompatible, "Unknówn color model selected");
+            Debug.Assert(colorModel == ColorModel.CMYK || colorModel == ColorModel.RGB || colorModel == ColorModel.OCADCompatible, "Unknown color model selected");
             IColorConverter colorConverter = (colorModel == ColorModel.CMYK) ? (IColorConverter) SwopColorConverter.Instance : (IColorConverter) DefaultColorConverter.Instance;
 
             if (bitmap.PixelHeight == 0 || bitmap.PixelWidth == 0)

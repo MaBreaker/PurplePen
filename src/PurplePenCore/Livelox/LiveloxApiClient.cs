@@ -63,7 +63,7 @@ namespace PurplePen.Livelox
         public OAuth2TokenInformation TokenInformation { get; private set; }
         public bool Aborted { get; private set; }
         
-        private bool isDisposed;
+        private bool isDisposed = false;
 
         private readonly Action<IAbortable> requestCreatedCallback;
         private readonly Action<IAbortable> requestCompletedCallback;
@@ -84,18 +84,16 @@ namespace PurplePen.Livelox
             httpClient = new HttpClient();
         }
 
+        ~LiveloxApiClient()
+        {
+            Dispose(false);
+        }
+
         public void Abort()
         {
             Aborted = true;
         }
 
-        // Dispose managed resources.
-        public void Dispose()
-        {
-            //httpClient?.Dispose();
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
         protected virtual void Dispose(bool disposing)
         {
             if (isDisposed) return;
@@ -107,6 +105,14 @@ namespace PurplePen.Livelox
             }
 
             isDisposed = true;
+        }
+
+        // Dispose managed resources.
+        public void Dispose()
+        {
+            //httpClient?.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public void AskForUserConsent(Action activateAppCallback, TimeSpan? refreshTokenLifeLength, Action<LiveloxApiCall<User>> callback, Action<string> progressReportCallback)
@@ -429,7 +435,7 @@ namespace PurplePen.Livelox
                     {
                         IEnumerable<string> wwwAuthValues;
                         bool hasWwwAuth = call.Response.Headers.TryGetValues("WWW-Authenticate", out wwwAuthValues);
-                        if (hasWwwAuth && string.Join(" ", wwwAuthValues).Contains("The access token expired"))
+                        if (hasWwwAuth && wwwAuthValues.Any(v => v.Contains("The access token expired")))
                         {
                             if (call.RequestContext.RetryCount > 0) // safety mechanism to prevent infinite loop
                             {
@@ -449,6 +455,7 @@ namespace PurplePen.Livelox
                     }
                     else
                     {
+                        // Event not found etc.
                         call.Exception = new StatusCodeException(call.Response.StatusCode);
                     }
 

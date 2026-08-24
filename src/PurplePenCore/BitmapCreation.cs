@@ -175,7 +175,7 @@ namespace PurplePen
 
             // Set the course layout into the map display
             currentMapDisplay.SetCourse(layout);
-            currentMapDisplay.SetPrintArea(null /* JU */ , null);
+            currentMapDisplay.SetPrintArea(null);
 
             CoordinateMapper coordinateMapper = bitmapCreationSettings.WorldFile ? currentMapDisplay.CoordinateMapper : null;
 

@@ -32,13 +32,16 @@
  * OF SUCH DAMAGE.
  */
 
+using PurplePen.Graphics2D;
+using PurplePen.Livelox.ApiContracts;
 using System;
+using System.ComponentModel.Design;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using PurplePen.Graphics2D;
-using PurplePen.Livelox.ApiContracts;
+using System.Runtime.Intrinsics.Arm;
+using System.Threading.Tasks;
 
 namespace PurplePen.Livelox
 {
@@ -50,13 +53,55 @@ namespace PurplePen.Livelox
         public ImportableEvent CreateImportableEvent(Controller controller, SymbolDB symbolDB, double resolution, string temporaryDirectory)
         {
             var eventDB = controller.GetEventDB();
-            Size mapSize = new Size(-1, -1); // Default map size in pixels
 
-            mapSize = CreateMapImage(controller.MapDisplay, resolution, temporaryDirectory);
-            CreateCourseDataXml(eventDB, controller.MapDisplay, temporaryDirectory);
-            CreateCourseImages(controller, eventDB, symbolDB, controller.MapDisplay, temporaryDirectory);
+            MapDisplay clonedMapDisplay = controller.MapDisplay.CloneToFullIntensity();
 
-            var importableEvent = CreateImportableEventObject(eventDB, controller.MapDisplay, temporaryDirectory, mapSize);
+            //clonedMapDisplay.AntiAlias = false; // mapExporter.CreateBitmap override this value anyways
+            clonedMapDisplay.ColorModel = ColorModel.CMYK;
+            clonedMapDisplay.SetCourse(null);
+            clonedMapDisplay.SetPrintArea(null);
+
+            var dpi = (float)(resolution /* in pixels per real-world meter */ * controller.MapScale * 0.0254);
+            if (clonedMapDisplay.MapType == MapType.Bitmap)
+            {
+                // no need to export in higher resolution than the bitmap's resolution
+                dpi = Math.Min(dpi, clonedMapDisplay.Dpi);
+            }
+            //JU: Set static DPI value for PDF map
+            else if (clonedMapDisplay.MapType == MapType.PDF)
+            {
+                //dpi = 300;
+
+                // TODO: PDF clonedMapDisplay is not always ready at this point !?! Redrawing ongoing maybe ?
+                // "Parameter exception thrown" in CreateMapImage process and and PNG is blank
+                // OCAD and JPG works fine every time !!! PDF mostly fails
+
+                // TODO: How to wait here (withou re-reading source map file) and ensure that the cloned bitmap and exported PNG is NOT blank ?
+
+                //JU: Dirty hack to get the PDF background map visible, otherwise CreateMapImage generates blank PNG
+                clonedMapDisplay.SetMapFile(MapType.PDF, clonedMapDisplay.FileName);
+            }
+
+            // Size calculation used for georeferencing only
+            // This must match to ExportBitmap.CreateBitmap() function, which use the same mapDisplay.Bounds and DPI values
+            Size mapSize = new Size((int)Math.Ceiling((clonedMapDisplay.Bounds.Width / 25.4F) * dpi), (int)Math.Ceiling((clonedMapDisplay.Bounds.Height / 25.4F) * dpi));
+
+            // Notice: mapExporter.CreateBitmap override Alias and Printing and MapIntensity values
+            CreateMapImage(clonedMapDisplay, dpi, temporaryDirectory);
+            
+            CreateCourseDataXml(eventDB, clonedMapDisplay, temporaryDirectory);
+
+            // Notice: Livelox service has problems with non georeferenced maps and course overlay images (Error: image must have positive width and height)
+            if (clonedMapDisplay.CoordinateMapper != null)
+            {
+                // Do not render the actual map, just the courses.
+                clonedMapDisplay.SetMapFile(MapType.None, null);
+                CreateCourseImages(controller, eventDB, symbolDB, clonedMapDisplay, temporaryDirectory);
+            }
+
+            var importableEvent = CreateImportableEventObject(eventDB, clonedMapDisplay, mapSize, temporaryDirectory);
+
+            clonedMapDisplay.Dispose();
 
             return importableEvent;
         }
@@ -80,43 +125,19 @@ namespace PurplePen.Livelox
             }
         }
 
-        private static Size CreateMapImage(MapDisplay mapDisplay, double resolution, string temporaryDirectory)
+        private static void CreateMapImage(MapDisplay mapDisplay, float exportDpi, /* double resolution, */ string temporaryDirectory)
         {
-            var dpi = (float)(resolution /* in pixels per real-world meter */ * mapDisplay.MapScale * 0.0254);
+            var mapExporter = new ExportBitmap(mapDisplay);
+            
+            // TODO: PDF mapDisplay is not always ready at this point !?! Redraw still ongoing ?
 
-            if (mapDisplay.MapType == MapType.Bitmap)
-            {
-                // no need to export in higher resolution than the bitmap's resolution
-                dpi = Math.Min(dpi, mapDisplay.Dpi);
-            }
-
-            var clonedMapDisplay = mapDisplay.CloneToFullIntensity();
-            clonedMapDisplay.AntiAlias = false;
-            clonedMapDisplay.SetCourse(null);
-            clonedMapDisplay.SetPrintArea(null /* JU: Margin and Bleed */ , null);
-            clonedMapDisplay.ColorModel = ColorModel.CMYK;
-
-            //JU: Set for PDF map type
-            if (mapDisplay.MapType == MapType.PDF)
-            {
-                dpi = 300;
-            }
-
-            var mapExporter = new ExportBitmap(clonedMapDisplay);
             mapExporter.CreateBitmap(
                 Path.Combine(temporaryDirectory, mapFileName),
-                clonedMapDisplay.Bounds,
+                mapDisplay.MapBounds,
                 GraphicsBitmapFormat.PNG,
-                dpi,
-                clonedMapDisplay.CoordinateMapper
+                exportDpi,
+                mapDisplay.CoordinateMapper
             );
-
-            // These calculations must match to ExportBitmap
-            Size mapSize = new Size(
-                (int)Math.Ceiling((clonedMapDisplay.Bounds.Width / 25.4F) * dpi), 
-                (int)Math.Ceiling((clonedMapDisplay.Bounds.Height / 25.4F) * dpi)
-            );
-            return mapSize;
         }
 
         private static void CreateCourseDataXml(EventDB eventDB, MapDisplay mapDisplay, string temporaryDirectory)
@@ -146,36 +167,27 @@ namespace PurplePen.Livelox
                 ShowProgressDialog = false
             };
 
-            // Do not render the actual map, just the courses.
-            var clonedMapDisplay = mapDisplay.Clone();
-            clonedMapDisplay.SetMapFile(MapType.None, null);
-
             var ev = eventDB.GetEvent();
             var courseAppearance = (CourseAppearance)ev.courseAppearance.Clone();
 
-            var coursePdf = new CoursePdf(eventDB, symbolDB, controller, clonedMapDisplay, coursePdfSettings, courseAppearance);
+            var coursePdf = new CoursePdf(eventDB, symbolDB, controller, mapDisplay, coursePdfSettings, courseAppearance);
             coursePdf.CreatePdfs();
         }
 
-        private static ImportableEvent CreateImportableEventObject(EventDB eventDB, MapDisplay mapDisplay, string temporaryDirectory, Size mapSize)
+        private static ImportableEvent CreateImportableEventObject(EventDB eventDB, MapDisplay mapDisplay, Size mapImageRectangle, string temporaryDirectory)
         {
             var ev = eventDB.GetEvent();
 
-            //JU: Disable not multiplatform compatible code, as System.Drawing.Common is not supported on Linux and MacOS
-            Rectangle mapImageRectangle;
+            //JU: Disable this Image.FromFile block as System.Drawing.Common is not compatible with Linux and MacOS
+            //    use mapImageRectangle from CreateMapImage() instead
+            //Rectangle mapImageRectangle;
             //using (var mapImage = Image.FromFile(Path.Combine(temporaryDirectory, mapFileName)))
             //{ mapImageRectangle = new Rectangle(0, 0, mapImage.Width, mapImage.Height); }
-            mapImageRectangle = new Rectangle(0, 0, mapSize.Width, mapSize.Height);
 
-            var map = new Map()
+            Georeference mapGeoreference = null;
+            if (mapDisplay.CoordinateMapper != null)
             {
-                Name = Path.GetFileNameWithoutExtension(ev.mapFileName),
-                FileName = "map.png",
-                MapScale = ev.mapScale,
-                // note the order of Top and Bottom; Top has a lower value than Bottom
-                BottomLeftCornerPosition = new MapCoordinate() { X = mapDisplay.Bounds.Left / 1000, Y = mapDisplay.Bounds.Top / 1000 }, 
-                TopRightCornerPosition = new MapCoordinate() { X = mapDisplay.Bounds.Right / 1000, Y = mapDisplay.Bounds.Bottom / 1000 },
-                Georeference = new Georeference()
+                mapGeoreference = new Georeference()
                 {
                     CoordinateMapping = new CoordinateMapping()
                     {
@@ -195,19 +207,32 @@ namespace PurplePen.Livelox
                             new ImageCoordinate() {X = 0, Y = 0}                                                // top left
                         }
                     }
+                };
+
+                if (mapGeoreference.CoordinateMapping.Positions.Any(o => o == null))
+                {
+                    // there is no georeference present
+                    mapGeoreference = null;
                 }
-            };
-            if (map.Georeference.CoordinateMapping.Positions.Any(o => o == null))
-            {
-                // there is no georeference present
-                map.Georeference = null;
             }
 
-            /*
-            //JU: CourseDataFileNames + CourseImageFileNames definitions in API will use the scale of the first map for everything
 
-            If one would like to use different scales for individual courses other that original map has, 
-            then instead of this simple list of IOF.xml and course.pdf files, one must create full structure for constrols, courses etc. like 
+
+            var map = new Map()
+            {
+                Name = Path.GetFileNameWithoutExtension(ev.mapFileName),
+                FileName = "map.png",
+                MapScale = ev.mapScale,
+                // note the order of Top and Bottom; Top has a lower value than Bottom
+                BottomLeftCornerPosition = new MapCoordinate() { X = mapDisplay.Bounds.Left / 1000, Y = mapDisplay.Bounds.Top / 1000 }, 
+                TopRightCornerPosition = new MapCoordinate() { X = mapDisplay.Bounds.Right / 1000, Y = mapDisplay.Bounds.Bottom / 1000 },
+                Georeference = mapGeoreference
+            };
+
+            //JU: CourseDataFileNames + CourseImageFileNames definitions in API will use the scale of the first map for everything
+            /*
+            If one would like to use different scales for individual courses other than original map has, 
+            then instead of this simple list of IOF.xml and course.pdf files, one must build full IOF XML structure for constrols, courses etc. like 
 
               "controls": [{ "code": "S","type": "Start","position": {"latitude": 59.758863,"longitude": 17.708028},"mapPosition": {"x": 0.4411,"y": 0.5456},], ...
               "courses": ["name": "Course 1","controls":[] ... [{"courseImages": [{"fileName": "course-1.svg","mapScale": 7500}]},], ...
@@ -218,6 +243,7 @@ namespace PurplePen.Livelox
                 Name = ev.title,
                 Maps = new[] { map },
                 CourseDataFileNames = new[] { "coursedata.xml" },
+                //JU: Notice! Livelox service has problems with non georeferenced maps and course overlay images, hence no PDF is generated in such cases
                 CourseImageFileNames = new DirectoryInfo(temporaryDirectory)
                     .GetFiles("*.pdf")
                     .Select(file => file.Name)

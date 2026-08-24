@@ -481,9 +481,9 @@ namespace PurplePen
         void UpdatePrintArea()
         {
             if (hidePrintArea || !UserSettings.Current.ShowPrintArea)
-                mapDisplay.SetPrintArea(null /* JU: Margins */ , null);
+                mapDisplay.SetPrintArea(null);
             else
-                mapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart), /* JU: It is very difficult to get margins value from PageLayout */ null);
+                mapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart));
         }
 
         // Update the part banner in the map pane.
@@ -2914,7 +2914,9 @@ namespace PurplePen
             Action<LiveloxApiCall<ImportableEvent>> callback = call =>
             {
                 // must invoke on UI thread
-                this.InvokeOnUiThread(() => // fails to open "dialog" after initial http request, hmm because of this enyways some other conflict
+                // TODO: random issues with asyncronous callbacks, InvokeOnUIThread fails
+                // e.g. System.InvalidOperationException and below MessageBox not getting visible etc.
+                this.Invoke(() => 
                 {
                     controller.EndProgressDialog();
                     if (call.Success)

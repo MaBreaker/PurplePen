@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -120,13 +121,23 @@ namespace PurplePen.ViewModels.Livelox
                          statusEx.StatusCode == HttpStatusCode.Forbidden))
                     {
                         // Event has been removed or user lost access
+                        // Pretend the event hasn't been published
                         existingImportableEvent = null;
                     }
-                    else if (call?.Exception is OAuth2Exception)
+                    else if (call?.Exception is OAuth2Exception ||
+                         (call?.Exception is StatusCodeException statusEx2 &&
+                          statusEx2.StatusCode == HttpStatusCode.Unauthorized))
                     {
                         // Authorization problem - remove user
+                        // Remove the event ID from the database so that we don't try to update it again.
                         settings.Users = settings.Users.Skip(1).ToArray();
                         settingsProvider.SaveSettings(settings);
+                        LoadAvailableUsers();
+                    }
+                    else if (call?.Exception != null)
+                    {
+                        // Unknown error
+                        throw call.Exception ?? new Exception("Failed to get importable event");
                     }
 
                     IsLoading = false;
@@ -159,7 +170,7 @@ namespace PurplePen.ViewModels.Livelox
                 }
                 */
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 IsLoading = false;
                 LoadingMessage = "";
@@ -199,14 +210,24 @@ namespace PurplePen.ViewModels.Livelox
             var ev = existingImportableEvent?.ImportedEvent;
             if (ev != null)
             {
-                var startTime = ev.TimeInterval.Start.Value.ToLocalTime();
-                var endTime = ev.TimeInterval.End.Value.ToLocalTime();
                 EventName = ev.Name;
                 EventOrganizers = string.Join(", ", ev.Organisers.Select(o => o.Name));
-                EventTimeInterval = startTime.ToShortDateString() + " " + startTime.ToShortTimeString() +
-                    " - " +
-                    (endTime.Date == startTime.Date ? "" : endTime.ToShortDateString() + " ") + 
-                    endTime.ToShortTimeString();
+
+                if (ev.TimeInterval.Start == null || ev.TimeInterval.End == null)
+                {
+                    EventTimeInterval = "";
+                }
+                else
+                {
+                    var startTime = ev.TimeInterval.Start.Value.ToLocalTime();
+                    var endTime = ev.TimeInterval.End.Value.ToLocalTime();
+
+                    EventTimeInterval = startTime.ToShortDateString() + " " + startTime.ToShortTimeString() +
+                        " - " +
+                        (endTime.Date == startTime.Date ? "" : endTime.ToShortDateString() + " ") +
+                        endTime.ToShortTimeString();
+                }
+
                 ShowExistingEvent = true;
             }
         }
@@ -341,7 +362,7 @@ namespace PurplePen.ViewModels.Livelox
                 */
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 IsLoading = false;
                 throw;
@@ -351,7 +372,7 @@ namespace PurplePen.ViewModels.Livelox
         private async Task PublishToLiveloxAsync(User user)
         {
             var manager = new PublishManager();
-            string temporaryDirectory = null;
+            string? temporaryDirectory = null;
 
             try
             {
@@ -369,14 +390,14 @@ namespace PurplePen.ViewModels.Livelox
                 LoadingMessage = LiveloxResources.UploadingCourseSettingInformation;
                 var liveloxApiClient = CreateLiveloxApiClient(user.TokenInformation);
 
-                Action<LiveloxApiCall<ImportableEventLink>> callback = call =>
+                Action<LiveloxApiCall<ImportableEventLink>> callback = createCall =>
                 {
-                    if (!call.Success)
+                    if (!createCall.Success)
                     {
-                        throw call.Exception ?? new Exception("Failed to create importable event");
+                        throw createCall.Exception ?? new Exception("Failed to create importable event");
                     }
 
-                    var importableEventLink = call.Result;
+                    var importableEventLink = createCall.Result;
 
                     PersistUserList(user);
 
@@ -400,11 +421,14 @@ namespace PurplePen.ViewModels.Livelox
                         IsLoading = false;
                         CanPublish = true;
 
-                        // TODO: Yes/No dialog, show import user interface in Livelox in browser
-                        //ShowDialogBox(LiveloxResources.ImportableEventCreatedInformation, MiscText.AppTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        // Show imported event in Livelox
                         LoadingMessage = LiveloxResources.ImportableEventCreatedInformation;
+                        // TODO: Show OK dialog
+                        //await InfoMessage(LiveloxResources.ImportableEventUpdatedInformation);
                         ShowUrlInBrowser(importableEventLink.LiveloxImportEventUrl);
-                        //await Services.WebsiteLauncher.ShowWebsite(importableEventLink.LiveloxImportEventUrl);
+                        //Services.WebsiteLauncher.ShowWebsite(importableEventLink.LiveloxImportEventUrl);
+
+                        // TODO: How to reach PublishToLiveloxDialog window and Close if from here?
                     };
                     liveloxApiClient.UploadFile(importableEventLink.Id, "files.zip", zipBytes, uploadCallback);
                 };
@@ -445,7 +469,7 @@ namespace PurplePen.ViewModels.Livelox
                 }
                 */
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 if (temporaryDirectory != null)
                 {
@@ -461,7 +485,7 @@ namespace PurplePen.ViewModels.Livelox
         private async Task UpdateLiveloxEventAsync(User user)
         {
             var manager = new PublishManager();
-            string temporaryDirectory = null;
+            string? temporaryDirectory = null;
 
             try
             {
@@ -478,15 +502,17 @@ namespace PurplePen.ViewModels.Livelox
 
                 LoadingMessage = LiveloxResources.UploadingCourseSettingInformation;
                 var liveloxApiClient = CreateLiveloxApiClient(user.TokenInformation);
+                ImportableEventLink? existingImportableEventLink = existingImportableEvent?.Link;
+                string? existingImportableEventLinkId = existingImportableEventLink?.Id;
 
-                Action<LiveloxApiCall<ImportableEventLink>> callback = call =>
+                Action <LiveloxApiCall<ImportableEventLink>> callback = updateCall =>
                 {
-                    if (!call.Success)
+                    if (!updateCall.Success)
                     {
-                        throw call.Exception ?? new Exception("Failed to update importable event");
+                        throw updateCall.Exception ?? new Exception("Failed to update importable event");
                     }
 
-                    var importableEventLink = call.Result;
+                    var importableEventLink = updateCall.Result;
 
                     PersistUserList(user);
 
@@ -513,11 +539,15 @@ namespace PurplePen.ViewModels.Livelox
                             IsLoading = false;
                             CanPublish = true;
 
-                            // TODO: Yes/No dialog
                             // Show imported event in Livelox
                             LoadingMessage = LiveloxResources.ImportableEventCreatedInformation;
-                            ShowUrlInBrowser(importableEventLink.LiveloxImportEventUrl);
+                            // TODO: Show OK dialog
+                            //await InfoMessage(LiveloxResources.ImportableEventUpdatedInformation);
+                            //ShowUrlInBrowser(importableEventLink.LiveloxImportEventUrl);
+
                             //await Services.WebsiteLauncher.ShowWebsite(importableEventLink.LiveloxImportEventUrl);
+
+                            // TODO: How to reach PublishToLiveloxDialog window and Close if from here?
                         }
                         else
                         {
@@ -533,11 +563,6 @@ namespace PurplePen.ViewModels.Livelox
                                 importableEventLink = importImportableEventCall.Result;
                                 PersistLiveloxEventIdToDB(importableEventLink.Id);
 
-                                // TODO: Yes/No dialog, show import user interface in Livelox in browser
-                                LoadingMessage = LiveloxResources.ImportableEventUpdatedInformation;
-                                ShowUrlInBrowser(importableEventLink.LiveloxImportEventUrl);
-                                //await Services.WebsiteLauncher.ShowWebsite(importableEventLink.LiveloxImportEventUrl);
-
                                 if (temporaryDirectory != null)
                                 {
                                     var manager2 = new PublishManager();
@@ -545,13 +570,24 @@ namespace PurplePen.ViewModels.Livelox
                                 }
                                 IsLoading = false;
                                 CanPublish = true;
+
+                                // Show updated event in Livelox
+                                LoadingMessage = LiveloxResources.ImportableEventUpdatedInformation;
+                                // TODO: Yes/No dialog to show import user interface in Livelox in browser
+                                //if (YesNoQuestion(LiveloxResources.ImportableEventUpdatedInformation, true))
+                                //{
+                                    ShowUrlInBrowser(importableEventLink.LiveloxEditEventUrl);
+                                    //await Services.WebsiteLauncher.ShowWebsite(importableEventLink.LiveloxEditEventUrl);
+                                //}
+
+                                // TODO: How to reach PublishToLiveloxDialog window and Close if from here?
                             };
-                            liveloxApiClient.ImportImportableEvent(existingImportableEvent.Link.Id, importCallback);
+                            liveloxApiClient.ImportImportableEvent(importableEventLink.Id, importCallback);
                         }
                     };
                     liveloxApiClient.UploadFile(importableEventLink.Id, "files.zip", zipBytes, uploadCallback);
                 };
-                liveloxApiClient.UpdateImportableEvent(existingImportableEvent.Link.Id, importableEvent, callback);
+                _ = liveloxApiClient.UpdateImportableEvent(existingImportableEventLinkId, importableEvent, callback);
 
                 /*
                 // AI generated code not work like this, as it continues immediately
@@ -598,7 +634,7 @@ namespace PurplePen.ViewModels.Livelox
                 }
                 */
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 if (temporaryDirectory != null)
                 {
@@ -676,13 +712,16 @@ namespace PurplePen.ViewModels.Livelox
         private void PersistUserList(User user)
         {
             var settings = settingsProvider.LoadSettings();
+            
+            // the user is to be remembered,
+            // place it first in the list
             settings.Users = new[] { user }
                 .Concat(settings.Users.Where(o => o.PersonId != user.PersonId))
                 .ToArray();
             settingsProvider.SaveSettings(settings);
         }
 
-        private User GetSelectedUser()
+        private User? GetSelectedUser()
         {
             if (SelectedUser == null || SelectedUser.PersonId == -1)
             {
@@ -691,21 +730,55 @@ namespace PurplePen.ViewModels.Livelox
             return SelectedUser;
         }
 
-        private LiveloxApiClient CreateLiveloxApiClient(OAuth2TokenInformation tokenInformation)
+        private LiveloxApiClient CreateLiveloxApiClient(OAuth2TokenInformation? tokenInformation)
         {
             currentApiClient?.Dispose();
-            currentApiClient = new LiveloxApiClient(tokenInformation, null, null);
+            currentApiClient = new LiveloxApiClient(tokenInformation, OnApiClientRequestCreated, OnApiClientRequestCompleted);
             return currentApiClient;
+        }
+
+        public static void InfoMessage(string message)
+        {
+            MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel
+            {
+                Message = message,
+                Buttons = MessageBoxButtons.Ok,
+                DefaultButton = MessageBoxButton.Ok,
+                Icon = MessageBoxIcon.Information
+            };
+            _ = Services.DialogService.ShowDialogAsync(vm);
+            //var success = Dispatcher.UIThread.InvokeAsync(() => {
+            //    return Services.DialogService.ShowDialogAsync(vm);
+            //});
+        }
+
+        public static bool YesNoQuestion(string message, bool yesDefault)
+        {
+            MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel
+            {
+                Message = message,
+                Buttons = MessageBoxButtons.YesNo,
+                DefaultButton = yesDefault ? MessageBoxButton.Yes : MessageBoxButton.No,
+                Icon = MessageBoxIcon.Question
+            };
+            _ = Services.DialogService.ShowDialogAsync(vm);
+            return vm.ChosenButton == MessageBoxButton.Yes;
         }
 
         private void ShowEvent()
         {
-            ShowUrlInBrowser(existingImportableEvent.Link.LiveloxShowEventUrl);
+            if (existingImportableEvent?.Link != null)
+            {
+                ShowUrlInBrowser(existingImportableEvent.Link.LiveloxShowEventUrl);
+            }
         }
 
         private void EditEvent()
         {
-            ShowUrlInBrowser(existingImportableEvent.Link.LiveloxEditEventUrl);
+            if (existingImportableEvent?.Link != null)
+            {
+                ShowUrlInBrowser(existingImportableEvent.Link.LiveloxEditEventUrl);
+            }
         }
 
         private static void ShowUrlInBrowser(string url)
@@ -717,6 +790,16 @@ namespace PurplePen.ViewModels.Livelox
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(processInfo);
+        }
+
+        private void OnApiClientRequestCreated(IAbortable call)
+        {
+            ongoingCalls.Add(call);
+        }
+
+        private void OnApiClientRequestCompleted(IAbortable call)
+        {
+            ongoingCalls.Remove(call);
         }
 
         public void Abort()

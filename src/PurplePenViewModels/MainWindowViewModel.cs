@@ -490,9 +490,9 @@ namespace PurplePen.ViewModels
             if (controller == null || MapDisplay == null) { return; }
 
             if (hidePrintArea || !UserSettings.Current.ShowPrintArea)
-                MapDisplay.SetPrintArea(null /* JU: Margins */, null);
+                MapDisplay.SetPrintArea(null);
             else
-                MapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart), /* JU: margins */ null);
+                MapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart));
         }
 
         // Update the topology pane display.
