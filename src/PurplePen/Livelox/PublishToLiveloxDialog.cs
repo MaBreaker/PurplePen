@@ -128,20 +128,20 @@ namespace PurplePen.Livelox
                         var statusCodeException = call.Exception as StatusCodeException;
 
                         if (statusCodeException?.StatusCode == HttpStatusCode.NotFound /* the event, or its uploaded files, has been removed */ ||
-                            statusCodeException?.StatusCode == HttpStatusCode.Forbidden /* the user doesn't have access to the event */ ||
-                            statusCodeException?.StatusCode == HttpStatusCode.Unauthorized)
+                            statusCodeException?.StatusCode == HttpStatusCode.Forbidden /* the user doesn't have access to the event */)
                         {
                             // pretend the event hasn't been published
                             nullCallback();
                             return;
                         }
-                        else if (call.Exception is OAuth2Exception)
+                        else if (call.Exception is OAuth2Exception ||
+                                 statusCodeException?.StatusCode == HttpStatusCode.Unauthorized)
                         {
                             // an authorization problem - remove the user from the saved user list
                             settings.Users = settings.Users.Skip(1).ToArray();
                             settingsProvider.SaveSettings(settings);
-                            call.Result = null;
-                            //call.Exception = null;
+                            nullCallback();
+                            return;
                         }
                         else if(call.Exception != null)
                         {

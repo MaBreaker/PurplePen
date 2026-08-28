@@ -46,6 +46,7 @@ using TestingUtils;
 namespace PurplePen.MapModel.Tests
 {
     using PurplePen.Graphics2D;
+    using System.Globalization;
 
     [TestFixture, Parallelizable(ParallelScope.Children)]
     public class Rendering 
@@ -293,7 +294,7 @@ namespace PurplePen.MapModel.Tests
                 float left, right, top, bottom;
                 string area = reader.ReadLine();
                 string[] coords = area.Split(',');
-                left = float.Parse(coords[0]); bottom = float.Parse(coords[1]); right = float.Parse(coords[2]); top = float.Parse(coords[3]);
+                left = float.Parse(coords[0], CultureInfo.InvariantCulture); bottom = float.Parse(coords[1], CultureInfo.InvariantCulture); right = float.Parse(coords[2], CultureInfo.InvariantCulture); top = float.Parse(coords[3], CultureInfo.InvariantCulture);
                 mapArea = new RectangleF(left, top, right - left, bottom - top);
                 string sizeLine = reader.ReadLine();
                 coords = sizeLine.Split(',');

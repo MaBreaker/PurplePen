@@ -32,12 +32,13 @@
  * OF SUCH DAMAGE.
  */
 
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using NUnit.Framework;
 using PurplePen;
 using PurplePen.ViewModels;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
 
 namespace PurplePenViewModels.Tests
 {
@@ -347,12 +348,12 @@ namespace PurplePenViewModels.Tests
         /// <summary>
         /// Climb at boundary values should be valid.
         /// </summary>
-        [TestCase("0")]
-        [TestCase("9999")]
-        [TestCase("500.5")]
-        public void ClimbValidation_BoundaryValuesAreValid(string value)
+        [TestCase(0)]
+        [TestCase(9999)]
+        [TestCase(500.5)]
+        public void ClimbValidation_BoundaryValuesAreValid(float value)
         {
-            vm.ClimbText = value;
+            vm.ClimbText = string.Format("{0:0.0}", value); //JU: Localization for UI
             Assert.That(vm.HasErrors, Is.False);
         }
 
@@ -384,7 +385,7 @@ namespace PurplePenViewModels.Tests
         [Test]
         public void LengthValidation_ValidNumberIsAccepted()
         {
-            vm.LengthText = "5.2";
+            vm.LengthText = string.Format("{0:0.0}", 5.2F); //JU: TODO InvariantCulture for UI
             Assert.That(vm.HasErrors, Is.False);
         }
 
@@ -479,7 +480,7 @@ namespace PurplePenViewModels.Tests
             vm.LengthText = "bad";
             Assert.That(vm.HasErrors, Is.True);
 
-            vm.LengthText = "5.0";
+            vm.LengthText = string.Format("{0:0.0}", 5.0F); //JU: TODO InvariantCulture for UI
             Assert.That(vm.HasErrors, Is.False);
         }
 
@@ -655,7 +656,7 @@ namespace PurplePenViewModels.Tests
         [Test]
         public void Length_GetConvertsKmToMeters()
         {
-            vm.LengthText = "5.2";
+            vm.LengthText = string.Format("{0:0.0}", 5.2F); //JU: Localization for UI
             Assert.That(vm.Length, Is.EqualTo(5200f));
         }
 
@@ -666,7 +667,7 @@ namespace PurplePenViewModels.Tests
         public void Length_SetConvertsMetersToKm()
         {
             vm.Length = 3500;
-            Assert.That(vm.LengthText, Is.EqualTo("3.5"));
+            Assert.That(vm.LengthText, Is.EqualTo(string.Format("{0:0.0}", 3.5F))); //JU: Localization for UI
         }
 
         /// <summary>

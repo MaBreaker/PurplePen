@@ -43,6 +43,7 @@ using TestingUtils;
 
 namespace PurplePen.Tests
 {
+    using System.Globalization;
     using System.Linq;
     using PurplePen.MapModel;
 
@@ -97,7 +98,7 @@ namespace PurplePen.Tests
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual;
 
             eventDB.Load(TestUtil.GetTestFile(testFileName));
@@ -119,9 +120,9 @@ namespace PurplePen.Tests
         [TestMethod]
         public void NormalCourseFormatter()
         {
-            TestCourseFormatter("descformatter\\sampleevent1.coursescribe", CourseId(4), false, 
+            TestCourseFormatter("descformatter\\sampleevent1.coursescribe", CourseId(4), false,
 @"      | Sample Event 1                                |   [Sample Event 1]
-      |SampleCourse4    |4.7 km           |175 m      |   [Length 4.7 km, climb 175 m]
+      |SampleCourse4    |" + string.Format("{0:0.0}", 4.7F) + @" km           |175 m      |   [Length " + string.Format("{0:0.0}", 4.7F) + @" km, climb 175 m]
 (  1) |start|     |     |  2.8|  8.5|     |     |     |   [Start: open bare rock]
 ( 11) |    1|  191|     |  5.2|  5.2| 10.1|11.15|     |   [Between path crossings]
 ( 22) |                 13.4:                         |   [Mandatory passage]
@@ -174,7 +175,7 @@ namespace PurplePen.Tests
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("descformatter\\sampleevent3.coursescribe"));
@@ -210,7 +211,7 @@ namespace PurplePen.Tests
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("descformatter\\sampleevent4.coursescribe"));
@@ -247,7 +248,7 @@ namespace PurplePen.Tests
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("descformatter\\sampleevent5.coursescribe"));
@@ -281,9 +282,9 @@ namespace PurplePen.Tests
         [TestMethod]
         public void EmptyCourseFormatter()
         {
-            TestCourseFormatter("descformatter\\sampleevent1.coursescribe", CourseId(2), false, 
+            TestCourseFormatter("descformatter\\sampleevent1.coursescribe", CourseId(2), false,
 @"      | Sample Event 1                                |   [Sample Event 1]
-      |Yellow           |0.0 km           |           |   [Length 0.0 km]
+      |Yellow           |" + string.Format("{0:0.0}", 0.0F) + @" km           |           |   [Length " + string.Format("{0:0.0}", 0.0F) + @" km]
 ");
         }
 
@@ -294,10 +295,10 @@ namespace PurplePen.Tests
 @"      | Sample Event 1                                |   [Sample Event 1]
       |All controls     |17 controls                  |   [17 controls]
 (  1) |start|     |     |  2.8|  8.5|     |     |     |   [Start: open bare rock]
-( 23) |start|     |0.2NW|  1.7|     |  2.5|     |     |   [Start: NW gully, 2.5m deep]
+( 23) |start|     |0.2NW|  1.7|     |  2.5|     |     |   [Start: NW gully, " + string.Format("{0:0.0}", 2.5F) + @"m deep]
 (  2) |     |   31|  0.3|  2.4|     |   2m|     |     |   [Upper boulder, 2m high]
 (  4) |     |   32|     |  3.7|     |     |     | 12.1|   [very marshy spot]
-( 12) |     |   74|     |  2.4|     |0.5/2.5|11.15|     |   [Between boulders, 0.5m to 2.5m high]
+( 12) |     |   74|     |  2.4|     |0.5/2.5|11.15|     |   [Between boulders, " + string.Format("{0:0.0}", 0.5F) + @"m to " + string.Format("{0:0.0}", 2.5F) + @"m high]
 (  7) |     |  189|     |  1.8|  1.8| 10.2|     |     |   [Small gully junction]
 ( 10) |     |  190|     |  5.1|  5.5| 10.1|11.1N|     |   [N side of road and power line crossing]
 ( 11) |     |  191|     |  5.2|  5.2| 10.1|11.15|     |   [Between path crossings]
@@ -323,9 +324,9 @@ namespace PurplePen.Tests
         [TestMethod]
         public void SpecialLegsFormatter()
         {
-            TestCourseFormatter("descformatter\\speciallegs.coursescribe", CourseId(1), false, 
+            TestCourseFormatter("descformatter\\speciallegs.coursescribe", CourseId(1), false,
 @"      | SpecialLegs                                   |   [SpecialLegs]
-      |Leggy            |2.3 km           |           |   [Length 2.3 km]
+      |Leggy            |" + string.Format("{0:0.0}", 2.3F) + @" km           |           |   [Length " + string.Format("{0:0.0}", 2.3F) + @" km]
 (  1) |start|     |     |     |     |     |     |     |   [Start: ]
 (  2) |    1|   31|     |     |     |     |     |     |   []
 (  2) |                 13.2: 420 m                   |   [Follow tapes 420 m between controls]
@@ -342,7 +343,7 @@ namespace PurplePen.Tests
         {
             TestCourseFormatter("descformatter\\speciallegs.coursescribe", CourseId(2), false,
 @"      | SpecialLegs                                   |   [SpecialLegs]
-      |Crossings        |2.5 km           |           |   [Length 2.5 km]
+      |Crossings        |" + string.Format("{0:0.0}", 2.5F) + @" km           |           |   [Length " + string.Format("{0:0.0}", 2.5F) + @" km]
 (  1) |start|     |     |     |     |     |     |     |   [Start: ]
 (  5) |    1|   34|     |     |     |     |     |     |   []
 (  7) |                 13.3:                         |   [Mandatory crossing point]
@@ -362,7 +363,7 @@ namespace PurplePen.Tests
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("descformatter\\sampleevent1.coursescribe"));
@@ -393,9 +394,9 @@ namespace PurplePen.Tests
         [TestMethod]
         public void CustomSymbolKey()
         {
-            TestCourseFormatter("descformatter\\sampleevent2.coursescribe", CourseId(6), true, 
+            TestCourseFormatter("descformatter\\sampleevent2.coursescribe", CourseId(6), true,
 @"      | Sample Event 1                                |   [Sample Event 1]
-      |Green Y          |9.4 km           |           |   [Length 9.4 km]
+      |Green Y          |" + string.Format("{0:0.0}", 9.4F) + @" km           |           |   [Length " + string.Format("{0:0.0}", 9.4F) + @" km]
 (  1) |start|     |     |  2.8|  8.5|     |     |     |   [Start: open bare rock]
 ( 20) |    1|  305|     |  2.7|     |  6x7|     | 12.4|   [Stony ground, 6m by 7m (manned)]
 (  9) |    2|  211|     |  3.7|  3.7|4x4|5x6|11.15|     |   [Between marshes, 4m by 4m and 5m by 6m]
@@ -404,7 +405,7 @@ namespace PurplePen.Tests
 ( 25) |    5|  309|     |  6.1|  8.7|     |     |     |   [Wet man-made object]
 (  5) |    6|   GO| 0.1N|  5.5|  5.2| 10.1|11.1N| 12.3|   [N side of N power line and path crossing (radio)]
 ( 18) |    7|  303|     |  1.3|     |    4|     |     |   [Reentrant, 4m deep]
-( 12) |    8|   74|     |  2.4|     |0.5/2.5|11.15|     |   [Between boulders, 0.5m to 2.5m high]
+( 12) |    8|   74|     |  2.4|     |0.5/2.5|11.15|     |   [Between boulders, " + string.Format("{0:0.0}", 0.5F) + @"m to " + string.Format("{0:0.0}", 2.5F) + @"m high]
 ( 11) |    9|  191|     |  5.2|  5.2| 10.1|11.15|     |   [Between path crossings]
 (  7) |   10|  189|     |  1.8|  1.8| 10.2|     |     |   [Small gully junction]
 ( 10) |   11|  190|     |  5.1|  5.5| 10.1|11.1N|     |   [N side of road and power line crossing]
@@ -417,9 +418,9 @@ namespace PurplePen.Tests
         [TestMethod]
         public void DescriptionText()
         {
-            TestCourseFormatter("descformatter\\desctext.ppen", CourseId(6), true, 
+            TestCourseFormatter("descformatter\\desctext.ppen", CourseId(6), true,
 @"      | Sample Event 1                                |   [Sample Event 1]
-      |Green Y          |9.5 km           |           |   [Length 9.5 km]
+      |Green Y          |" + string.Format("{0:0.0}", 9.5F) + @" km           |           |   [Length " + string.Format("{0:0.0}", 9.5F) + @" km]
 (  1) | Get ready to go!                              |   [Get ready to go!]
 (  1) |start|     |     |  2.8|  8.5|     |     |     |   [Start: open bare rock]
 ( 20) |    1|  305|     |  2.7|     |  6x7|     | 12.4|   [Stony ground, 6m by 7m (manned)]
@@ -434,7 +435,7 @@ namespace PurplePen.Tests
 ( 18) |    7|  303|     |  1.3|     |    4|     |     |   [Reentrant, 4m deep]
 ( 18) | Course Control 303 after                      |   [Course Control 303 after]
 ( 18) | Control 303 after                             |   [Control 303 after]
-( 12) |    8|   74|     |  2.4|     |0.5/2.5|11.15|     |   [Between boulders, 0.5m to 2.5m high]
+( 12) |    8|   74|     |  2.4|     |0.5/2.5|11.15|     |   [Between boulders, " + string.Format("{0:0.0}", 0.5F) + @"m to " + string.Format("{0:0.0}", 2.5F) + @"m high]
 ( 11) |    9|  191|     |  5.2|  5.2| 10.1|11.15|     |   [Between path crossings]
 ( 11) | Path crossing was easy!                       |   [Path crossing was easy!]
 (  7) |   10|  189|     |  1.8|  1.8| 10.2|     |     |   [Small gully junction]
@@ -449,7 +450,7 @@ namespace PurplePen.Tests
         {
             TestCourseFormatter("descformatter\\mapexchange1.ppen", CourseId(6), true,
 @"      | Marymoor WIOL 2                               |   [Marymoor WIOL 2]
-      |Course 5         |5.0 km           |           |   [Length 5.0 km]
+      |Course 5         |" + string.Format("{0:0.0}", 5.0F) + @" km           |           |   [Length " + string.Format("{0:0.0}", 5.0F) + @" km]
 (  1) |start|     |     |  4.4|     |     |     |     |   [Start: clearing]
 ( 59) |    1|   59|     |  4.5|     |     |11.1N|     |   [N side of thicket]
 ( 51) |    2|   51|     |  4.5|     |     |11.1NW|     |   [NW side of thicket]
@@ -481,7 +482,7 @@ namespace PurplePen.Tests
         {
             TestCourseFormatter("descformatter\\mapexchange1.ppen", new CourseDesignator(CourseId(6), 0), true,
 @"      | Marymoor WIOL 2                               |   [Marymoor WIOL 2]
-      |Course 5-1       |5.0 km           |           |   [Length 5.0 km]
+      |Course 5-1       |" + string.Format("{0:0.0}", 5.0F) + @" km           |           |   [Length " + string.Format("{0:0.0}", 5.0F) + @" km]
 (  1) |start|     |     |  4.4|     |     |     |     |   [Start: clearing]
 ( 59) |    1|   59|     |  4.5|     |     |11.1N|     |   [N side of thicket]
 ( 51) |    2|   51|     |  4.5|     |     |11.1NW|     |   [NW side of thicket]
@@ -501,7 +502,7 @@ namespace PurplePen.Tests
         {
             TestCourseFormatter("descformatter\\mapexchange1.ppen", new CourseDesignator(CourseId(6), 1), true,
 @"      | Marymoor WIOL 2                               |   [Marymoor WIOL 2]
-      |Course 5-2       |5.0 km           |           |   [Length 5.0 km]
+      |Course 5-2       |" + string.Format("{0:0.0}", 5.0F) + @" km           |           |   [Length " + string.Format("{0:0.0}", 5.0F) + @" km]
 ( 35) |start|     | 0.1E|  4.5|     |     |11.2E|     |   [Start: E edge of E thicket]
 ( 37) |   10|   37|     |  4.5|     |     |11.6NW|     |   [NW tip of thicket]
 ( 36) |   11|   36|     |  4.9|     |     |     |     |   [Lone tree]
@@ -516,7 +517,7 @@ namespace PurplePen.Tests
         {
             TestCourseFormatter("descformatter\\mapexchange1.ppen", new CourseDesignator(CourseId(6), 2), true,
 @"      | Marymoor WIOL 2                               |   [Marymoor WIOL 2]
-      |Course 5-3       |5.0 km           |           |   [Length 5.0 km]
+      |Course 5-3       |" + string.Format("{0:0.0}", 5.0F) + @" km           |           |   [Length " + string.Format("{0:0.0}", 5.0F) + @" km]
 ( 43) |   13|   43| 0.1E|  3.5|  4.5| 10.1|     |     |   [E ditch and thicket crossing]
 ( 54) |   14|   54|     |  3.5|  4.5| 10.1|11.2NW|     |   [NW edge of ditch and thicket crossing]
 ( 54) |          13.5control: 0 m                     |   [Map exchange at the control]
@@ -528,7 +529,7 @@ namespace PurplePen.Tests
         {
             TestCourseFormatter("descformatter\\mapexchange1.ppen", new CourseDesignator(CourseId(6), 3), true,
 @"      | Marymoor WIOL 2                               |   [Marymoor WIOL 2]
-      |Course 5-4       |5.0 km           |           |   [Length 5.0 km]
+      |Course 5-4       |" + string.Format("{0:0.0}", 5.0F) + @" km           |           |   [Length " + string.Format("{0:0.0}", 5.0F) + @" km]
 ( 54) |   14|   54|     |  3.5|  4.5| 10.1|11.2NW|     |   [NW edge of ditch and thicket crossing]
 ( 41) |   15|   41|     |  4.5|     |     |11.2NW|     |   [NW edge of thicket]
 ( 42) |   16|   42|     |  4.7|  4.7| 10.2|     |     |   [Vegetation boundary junction]
@@ -542,7 +543,7 @@ namespace PurplePen.Tests
         {
             TestCourseFormatter("descformatter\\mapexchange2.ppen", CourseId(6), true,
 @"      | Marymoor WIOL 2                               |   [Marymoor WIOL 2]
-      |Course 5         |5.0 km           |           |   [Length 5.0 km]
+      |Course 5         |" + string.Format("{0:0.0}", 5.0F) + @" km           |           |   [Length " + string.Format("{0:0.0}", 5.0F) + @" km]
 (  1) |start|     |     |  4.4|     |     |     |     |   [Start: clearing]
 (  1) |                 13.2: 190 m                   |   [Follow tapes 190 m between controls]
 ( 59) |    1|   59|     |  4.5|     |     |11.1N|     |   [N side of thicket]

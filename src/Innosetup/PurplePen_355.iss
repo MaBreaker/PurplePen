@@ -642,15 +642,14 @@ end;
 
 ;#define UseWebView2
 
-#define MyAppSetupName 'Purple Pen'
+#define MyAppSetupName 'Purple Pen Win'
 #define MyAppName "Purple Pen"
 ;JU: plus version
-#define MyAppVersion "4.0.0.210+"
+#define MyAppVersion "4.0.3.210+"
 #define MyAppPublisher "Purple Pen Software"
 #define MyAppURL "http://purple-pen.org"
 #define MyAppExeName "PurplePen.exe"
-;#define BuildDir "publish\Main"
-#define BuildDir "..\PurplePen\bin\Release\net10.0-windows"
+#define BuildDir "publish\Main_355"
 
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
@@ -705,9 +704,10 @@ DisableReadyMemo=no
 #include "scripts\lang\french.iss"
 #include "scripts\lang\italian.iss"
 #include "scripts\lang\dutch.iss"
+#include "scripts\lang\finnish.iss"
 
 #ifdef UNICODE
-#include "scripts\lang\chinese.iss"
+;#include "scripts\lang\chinese.iss"
 #include "scripts\lang\polish.iss"
 #include "scripts\lang\russian.iss"
 #include "scripts\lang\japanese.iss"
@@ -728,7 +728,7 @@ Source: "dxwebsetup.exe"; Flags: dontcopy noencryption
 
 Source: "{#BuildDir}\PurplePen.exe"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\PdfConverter.exe"; DestDir: "{app}"; Flags: ignoreversion 
-;Source: "{#BuildDir}\createdump.exe"; DestDir: "{app}"; Flags: ignoreversion 
+Source: "{#BuildDir}\createdump.exe"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.dll"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.config"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.json"; DestDir: "{app}"; Flags: ignoreversion 

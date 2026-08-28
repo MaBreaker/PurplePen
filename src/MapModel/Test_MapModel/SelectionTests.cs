@@ -1,13 +1,14 @@
-﻿using System;
+﻿using NUnit.Framework;
+using PurplePen.Graphics2D;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using NUnit.Framework;
-using PurplePen.Graphics2D;
 using TestingUtils;
 
 namespace PurplePen.MapModel.Tests
@@ -393,7 +394,8 @@ namespace PurplePen.MapModel.Tests
                 float left, right, top, bottom;
                 string area = reader.ReadLine();
                 string[] coords = area.Split(',');
-                left = float.Parse(coords[0]); bottom = float.Parse(coords[1]); right = float.Parse(coords[2]); top = float.Parse(coords[3]);
+                //JU: InvariantCulture for decimal formating
+                left = float.Parse(coords[0], CultureInfo.InvariantCulture); bottom = float.Parse(coords[1], CultureInfo.InvariantCulture); right = float.Parse(coords[2], CultureInfo.InvariantCulture); top = float.Parse(coords[3], CultureInfo.InvariantCulture);
                 mapArea = new RectangleF(left, top, right - left, bottom - top);
                 string sizeLine = reader.ReadLine();
                 coords = sizeLine.Split(',');

@@ -35,14 +35,15 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.IO;
-using System.Text;
 using System.Drawing;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace PurplePen.MapModel
 {
     using PurplePen.Graphics2D;
+    using System.Globalization;
 
     public delegate void Operation();
 
@@ -311,7 +312,8 @@ namespace PurplePen.MapModel
             int decimals;
             number = RoundToSignificant(number, sigDigits, out decimals);
             string format = "{0:N" + decimals + "} {1}";
-            return string.Format(format, number, suffix);
+            //JU: InvariantCulture for decimal formating
+            return string.Format(CultureInfo.InvariantCulture, format, number, suffix);
         }
 
         public static string GetRelativePathTo(this FileSystemInfo from, FileSystemInfo to)

@@ -126,7 +126,7 @@ namespace PurplePen.Tests
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("courseview\\sampleevent1.coursescribe"));
@@ -169,7 +169,7 @@ Description 6 (Course 4)
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("courseview\\sampleevent2.coursescribe"));
@@ -211,7 +211,7 @@ Description 6 (Course 4)
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("courseview\\sampleevent1.coursescribe"));
@@ -251,7 +251,7 @@ Description 6 (Course 4)
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("courseview\\sampleevent1.coursescribe"));
@@ -295,7 +295,7 @@ Special 4 (OOB)
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("courseview\\sampleevent3.coursescribe"));
@@ -336,7 +336,7 @@ Special 4 (OOB)
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("courseview\\sampleevent4.coursescribe"));
@@ -377,7 +377,7 @@ Special 4 (OOB)
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("courseview\\sampleevent5.coursescribe"));
@@ -419,7 +419,7 @@ Special 4 (OOB)
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("courseview\\sampleevent1.coursescribe"));
@@ -457,7 +457,7 @@ Total Length=0  Part Length=0  Total Climb=-1  ScoreColumn=0  Total Score=155  T
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("courseview\\sampleevent1.coursescribe"));
@@ -506,7 +506,7 @@ Special 4 (OOB)
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("courseview\\sampleevent1.coursescribe"));
@@ -542,7 +542,7 @@ Total Length=0  Part Length=0  Total Climb=-1  ScoreColumn=-1  Total Score=0  To
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("courseview\\speciallegs.coursescribe"));
@@ -575,7 +575,7 @@ Total Length=2242.8  Part Length=2242.8  Total Climb=-1  ScoreColumn=-1  Total S
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
             CourseView courseView;
 
@@ -612,7 +612,7 @@ Total Length=5002.4  Part Length=2643.7  Total Climb=-1  ScoreColumn=-1  Total S
 ";
             Assert.AreEqual(expected, actual);
 
-            writer = new StringWriter();
+            writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             courseView = CourseView.CreateViewingCourseView(eventDB, new CourseDesignator(CourseId(6), 1));
             DumpCourseView(courseView, writer);
             actual = writer.ToString();
@@ -631,7 +631,7 @@ Total Length=5002.4  Part Length=1195.6  Total Climb=-1  ScoreColumn=-1  Total S
 ";
             Assert.AreEqual(expected, actual);
 
-            writer = new StringWriter();
+            writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             courseView = CourseView.CreateViewingCourseView(eventDB, new CourseDesignator(CourseId(6), 2));
             DumpCourseView(courseView, writer);
             actual = writer.ToString();
@@ -645,7 +645,7 @@ Extra course control 620
 ";
             Assert.AreEqual(expected, actual);
 
-            writer = new StringWriter();
+            writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             courseView = CourseView.CreateViewingCourseView(eventDB, new CourseDesignator(CourseId(6), 3));
             DumpCourseView(courseView, writer);
             actual = writer.ToString();
@@ -753,7 +753,7 @@ Total Length=5002.4  Part Length=761.76  Total Climb=-1  ScoreColumn=-1  Total S
             UndoMgr undomgr = new UndoMgr(5);
             EventDB eventDB = new EventDB(undomgr);
             SymbolDB symbolDB = new SymbolDB(Util.GetFileInAppDirectory("symbols.xml"));
-            StringWriter writer = new StringWriter();
+            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture); //JU: InvariantCulture for decimal formating
             string actual, expected;
 
             eventDB.Load(TestUtil.GetTestFile("queryevent\\variations.ppen"));

@@ -33,15 +33,16 @@
  */
 
 #if TEST
+using NUnit.Framework;
+using PurplePen.Graphics2D;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Globalization;
 using System.IO;
-using NUnit.Framework;
+using System.Text;
 using TestingUtils;
-using PurplePen.Graphics2D;
 
 namespace PurplePen.MapModel.Tests
 {
@@ -128,7 +129,7 @@ namespace PurplePen.MapModel.Tests
 
         void DumpMapFile(string mapFileName, string outputDump)
         {
-            using (TextWriter writer = new StreamWriter(outputDump, false, System.Text.Encoding.UTF8)) {
+            using (TextWriter writer = new FormattingStreamWriter(outputDump, false, System.Text.Encoding.UTF8, CultureInfo.InvariantCulture)) {
                 DebugCode.OcadDump dump = new DebugCode.OcadDump(TestUtil.GetTestFileDirectory());
                 dump.DumpFile(mapFileName, writer);
             }

@@ -2227,7 +2227,7 @@ namespace PurplePen.MapModel
                         
                         //JU: Custom images above whiteout, but below courses objects and custom texts
                         if (!layoutHidden && templateRecursionCount == -1 && curColor.OcadId == 44 && curColor.Name == "White" && curColor.Layer == SymLayer.Normal) {
-                            // Draw cuatom images.
+                            // Draw custom images.
                             DrawColor(g, this.LayoutColor, rect, renderOpts, throwOnCancel);
                             if (throwOnCancel != null)
                                 throwOnCancel();

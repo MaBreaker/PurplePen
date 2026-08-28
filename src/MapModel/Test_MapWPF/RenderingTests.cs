@@ -176,7 +176,7 @@ namespace TestWpfMap
                 float left, right, top, bottom;
                 string area = reader.ReadLine();
                 string[] coords = area.Split(',');
-                left = float.Parse(coords[0]); bottom = float.Parse(coords[1]); right = float.Parse(coords[2]); top = float.Parse(coords[3]);
+                left = float.Parse(coords[0], System.Globalization.CultureInfo.InvariantCulture); bottom = float.Parse(coords[1], System.Globalization.CultureInfo.InvariantCulture); right = float.Parse(coords[2], System.Globalization.CultureInfo.InvariantCulture); top = float.Parse(coords[3], System.Globalization.CultureInfo.InvariantCulture);
                 mapArea = new RectangleF(left, top, right - left, bottom - top);
                 string sizeLine = reader.ReadLine();
                 coords = sizeLine.Split(',');

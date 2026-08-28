@@ -37,6 +37,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 
 // Several fields in the below structures are not used.
 #pragma warning disable 649
@@ -1536,7 +1537,7 @@ namespace PurplePen.MapModel
             if ((yFlags & 4) != 0)  flags += ", NoRight";
             if ((yFlags & 8) != 0)  flags += ", DashPt";
 
-            return string.Format("({0:F2},{1:F2}{2})", xCoord, yCoord, flags);
+            return string.Format(CultureInfo.InvariantCulture, "({0:F2},{1:F2}{2})", xCoord, yCoord, flags); //JU: InvariantCulture for decimal formating
         }
 
         public void Read(FastBinaryReader reader) {

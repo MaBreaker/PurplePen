@@ -649,7 +649,8 @@ end;
 #define MyAppPublisher "Purple Pen Software"
 #define MyAppURL "http://purple-pen.org"
 #define MyAppExeName "PurplePen.exe"
-#define BuildDir "publish\Main"
+;#define BuildDir "publish\Main"
+#define BuildDir "..\AvPurplePen\bin\Release\net10.0"
 
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
@@ -731,7 +732,12 @@ Source: "{#BuildDir}\PdfConverter.exe"; DestDir: "{app}"; Flags: ignoreversion
 ;Source: "{#BuildDir}\createdump.exe"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.dll"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.config"; DestDir: "{app}"; Flags: ignoreversion 
-Source: "{#BuildDir}\*.json"; DestDir: "{app}"; Flags: ignoreversion 
+Source: "{#BuildDir}\*.json"; DestDir: "{app}"; Flags: ignoreversion
+
+Source: "{#BuildDir}\runtimes\win\lib\net10.0\*.dll"; DestDir: "{app}\runtimes\win\lib\net10.0"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#BuildDir}\runtimes\win-x64\native\*.dll"; DestDir: "{app}\runtimes\win-x64\native"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#BuildDir}\runtimes\win-x86\native\*.dll"; DestDir: "{app}\runtimes\win-x86\native"; Flags: ignoreversion recursesubdirs createallsubdirs
+	
 Source: "{#BuildDir}\symbols.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BuildDir}\Samples\*"; DestDir: "{app}\Samples"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#BuildDir}\bg\*"; DestDir: "{app}\bg"; Flags: ignoreversion recursesubdirs createallsubdirs

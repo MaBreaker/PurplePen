@@ -651,6 +651,10 @@ namespace PurplePen.Livelox
                     using (var reader = new StreamReader(call.Response.Content.ReadAsStreamAsync().Result))
                     {
                         var responseText = reader.ReadToEnd();
+                        
+                        if (responseText.Length < 1)
+                            responseText = call.Response.ReasonPhrase;
+
                         oauth2Exception = new OAuth2Exception(call.Response.StatusCode, responseText, new HttpRequestException($"Response status code does not indicate success: {(int)call.Response.StatusCode} ({call.Response.ReasonPhrase})."));
                     }
                     call.Response.Dispose();

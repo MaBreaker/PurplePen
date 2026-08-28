@@ -33,18 +33,17 @@
  */
 
 #if TEST
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PurplePen.Graphics2D;
+using PurplePen.MapModel;
+using PurplePen.MapView;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Windows.Forms;
-
-using PurplePen.MapView;
-using PurplePen.MapModel;
-
-using TestingUtils;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PurplePen.Graphics2D;
+using System.Globalization;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using TestingUtils;
 
 namespace PurplePen.Tests
 {

@@ -260,7 +260,8 @@ namespace PurplePen
                 result += string.Format("course-control:{0}  ", courseControlId);
             if (specialId.IsNotNone)
                 result += string.Format("special:{0}  ", specialId);
-            result += string.Format("scale:{0}  ", courseObjRatio);
+            //JU: InvariantCulture for decimal formating
+            result += string.Format(CultureInfo.InvariantCulture, "scale:{0}  ", courseObjRatio);
 
             return result;
         }
@@ -367,7 +368,8 @@ namespace PurplePen
         public override string ToString()
         {
             string result = base.ToString();
-            result += string.Format("location:({0:0.##},{1:0.##})", location.X, location.Y);
+            //JU: InvariantCulture for decimal formating
+            result += string.Format(CultureInfo.InvariantCulture, "location:({0:0.##},{1:0.##})", location.X, location.Y);
             return result;
         }
 
@@ -528,7 +530,8 @@ namespace PurplePen
             if (gaps != null) {
                 result += "  gaps:";
                 foreach (LegGap gap in gaps)
-                    result += string.Format(" (s:{0:0.##},l:{1:0.##})", gap.distanceFromStart, gap.length);
+                    //JU: InvariantCulture for decimal formating
+                    result += string.Format(CultureInfo.InvariantCulture, " (s:{0:0.##},l:{1:0.##})", gap.distanceFromStart, gap.length);
             }
 
             return result;
@@ -847,7 +850,8 @@ namespace PurplePen
         public override string ToString()
         {
             string result = base.ToString();
-            result += string.Format("rect:{{X={0:0.##},Y={1:0.##},Width={2:0.##},Height={3:0.##}}}", rect.X, rect.Y, rect.Width, rect.Height);
+            //JU: InvariantCulture for decimal formating
+            result += string.Format(CultureInfo.InvariantCulture, "rect:{{X={0:0.##},Y={1:0.##},Width={2:0.##},Height={3:0.##}}}", rect.X, rect.Y, rect.Width, rect.Height);
             return result;
         }
 
@@ -1250,7 +1254,8 @@ namespace PurplePen
         public override string ToString()
         {
             string result = base.ToString();
-            result += string.Format("text:{0}  top-left:({1:0.##},{2:0.##})\r\n                font-name:{3}  font-style:{4}  font-height:{5:0.####}", text, topLeft.X, topLeft.Y, fontName, textEffects, emHeight);
+            //JU: InvariantCulture for decimal formating
+            result += string.Format(CultureInfo.InvariantCulture, "text:{0}  top-left:({1:0.##},{2:0.##})\r\n                font-name:{3}  font-style:{4}  font-height:{5:0.####}", text, topLeft.X, topLeft.Y, fontName, textEffects, emHeight);
             return result;
         }
 
@@ -1471,7 +1476,8 @@ namespace PurplePen
         public override string ToString()
         {
             string result = base.ToString();
-            result += string.Format("  orientation:{0:0.##}", orientation);
+            //JU: InvariantCulture for decimal formating
+            result += string.Format(CultureInfo.InvariantCulture, "  orientation:{0:0.##}", orientation);
             return result;
         }
 
@@ -1490,10 +1496,23 @@ namespace PurplePen
                 return new PointF[] { first, second, third };
         }
 
-        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor)
+        protected override SymDef CreateSymDef(Map map, SymColor symColor, SymColor lower_symColor /* JU: Control white outline */, SymColor whiteColor)
         {
             Glyph glyph = new Glyph();
-            glyph.AddCircle(lower_symColor, new PointF(0.0F, 0.0F), LineThickness, Diameter);
+
+            //JU: Control white outline
+            if (appearance.controlOutlineWidth > 0.0F)
+            {
+                // No blending with white outline (fill control circle background with outwhite)
+                float outlineWidth = courseObjRatio * appearance.controlOutlineWidth;
+                glyph.AddCircle(whiteColor, new PointF(0.0F, 0.0F), LineThickness + outlineWidth, Diameter + outlineWidth * 2);
+                glyph.AddCircle(symColor, new PointF(0.0F, 0.0F), LineThickness, Diameter);
+            }
+            else
+            {
+                glyph.AddCircle(lower_symColor, new PointF(0.0F, 0.0F), LineThickness, Diameter);
+            }
+
             if (appearance.centerDotDiameter > 0.0F) {
                 // The center dot is drawn in the upper purple color.
                 glyph.AddFilledCircle(symColor, new PointF(0.0F, 0.0F), appearance.centerDotDiameter * courseObjRatio);
@@ -1624,7 +1643,8 @@ namespace PurplePen
         public override string ToString()
         {
             string result = base.ToString();
-            result += string.Format("  orientation:{0:0.##}", orientation);
+            //JU: InvariantCulture for decimal formating
+            result += string.Format(CultureInfo.InvariantCulture, "  orientation:{0:0.##}", orientation);
             return result;
         }
 
@@ -1715,7 +1735,8 @@ namespace PurplePen
         public override string ToString()
         {
             string result = base.ToString();
-            result += string.Format("  orientation:{0:0.##}", orientation);
+            //JU: InvariantCulture for decimal formating
+            result += string.Format(CultureInfo.InvariantCulture, "  orientation:{0:0.##}", orientation);
             return result;
         }
 
@@ -2195,10 +2216,12 @@ namespace PurplePen
         {
             string result = base.ToString();
             if (stretch <= 0) {
-                result += string.Format("  orientation:{0:0.##}", orientation);
+                //JU: InvariantCulture for decimal formating
+                result += string.Format(CultureInfo.InvariantCulture, "  orientation:{0:0.##}", orientation);
             }
             else {
-                result += string.Format("  orientation:{0:0.##}  stretch:{1:0.##}", orientation, stretch);
+                //JU: InvariantCulture for decimal formating
+                result += string.Format(CultureInfo.InvariantCulture, "  orientation:{0:0.##}  stretch:{1:0.##}", orientation, stretch);
             }
             return result;
         }
@@ -3361,7 +3384,8 @@ namespace PurplePen
 
         public override string ToString()
         {
-            return base.ToString() + string.Format("  rect:({0:0.##},{1:0.##})-({2:0.##},{3:0.##})", rectBounding.Left, rectBounding.Bottom, rectBounding.Right, rectBounding.Top);
+            //JU: InvariantCulture for decimal formating
+            return base.ToString() + string.Format(CultureInfo.InvariantCulture, "  rect:({0:0.##},{1:0.##})-({2:0.##},{3:0.##})", rectBounding.Left, rectBounding.Bottom, rectBounding.Right, rectBounding.Top);
         }
     }
 

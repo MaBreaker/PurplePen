@@ -2910,6 +2910,8 @@ namespace PurplePen
                 settings = new LiveloxPublishSettings();
             }
 
+            var form = this;
+
             var publishToLiveloxDialog = new PublishToLiveloxDialog(controller, symbolDB, settings);
             Action<LiveloxApiCall<ImportableEvent>> callback = call =>
             {
@@ -2921,17 +2923,17 @@ namespace PurplePen
                     controller.EndProgressDialog();
                     if (call.Success)
                     {
-                        publishToLiveloxDialog.ShowDialog(this);
+                        publishToLiveloxDialog.ShowDialog(form);
                         liveloxPublishSettingsPrevious = publishToLiveloxDialog.PublishSettings;
                     }
                     else
                     {
-                        MessageBox.Show(this, call.Exception?.Message, MiscText.AppTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(form, call.Exception?.Message, MiscText.AppTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                     publishToLiveloxDialog.Dispose();
                 });
             };
-            publishToLiveloxDialog.InitializeImportableEvent(this, callback);
+            publishToLiveloxDialog.InitializeImportableEvent(form, callback);
         }
 
         private void createXmlMenu_Click(object sender, EventArgs e)
@@ -2977,7 +2979,7 @@ namespace PurplePen
                 return;
             string dumpFile = saveDumpFileDialog.FileName;
 
-            using (TextWriter writer = new StreamWriter(dumpFile)) {
+            using (TextWriter writer = new FormattingStreamWriter(dumpFile, CultureInfo.InvariantCulture)) {
                 PurplePen.MapModel.DebugCode.OcadDump dumper = new PurplePen.MapModel.DebugCode.OcadDump();
                 dumper.DumpFile(ocadFile, writer);
             }

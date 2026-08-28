@@ -35,12 +35,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Drawing;
+using System.Text;
 
 namespace PurplePen.MapModel
 {
     using PurplePen.Graphics2D;
+    using System.Globalization;
 
     // PointKind.Interpolated is only for use within the "flatpoints" array, and indicates 
     // a point on a bezier that was interpolated.
@@ -1869,7 +1870,8 @@ namespace PurplePen.MapModel
                 }
 
                 // sanitize zeros so we don't get negative zeros.
-                builder.AppendFormat("({0:0.##},{1:0.##})", SanitizeZero(points[i].X), SanitizeZero(points[i].Y));
+                //JU: InvariantCulture for decimal formating
+                builder.AppendFormat(CultureInfo.InvariantCulture, "({0:0.##},{1:0.##})", SanitizeZero(points[i].X), SanitizeZero(points[i].Y));
 
                 if (startStopFlags != null && i < startStopFlags.Length && startStopFlags[i] != 0)
                     builder.AppendFormat("/{0:X}", startStopFlags[i]);
