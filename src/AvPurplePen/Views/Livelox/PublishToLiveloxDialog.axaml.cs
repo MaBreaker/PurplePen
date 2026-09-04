@@ -50,22 +50,6 @@ namespace AvPurplePen.Views.Livelox
             Close();
         }
 
-        private async Task<bool> ShowConsentDialogAsync(ConsentRedirectionDialogViewModel viewModel)
-        {
-            var consentDialog = new ConsentRedirectionDialog();
-            consentDialog.DataContext = viewModel;
-
-            bool? result = await consentDialog.ShowDialog<bool?>(this);
-            return result == true;
-        }
-
-        private void CancelButton_Click(object? sender, RoutedEventArgs e)
-        {
-
-            //if (DataContext is PublishToLiveloxDialogViewModel vm) vm.Abort();
-            //PublishToLiveloxDialog_Close(sender, e);
-        }
-
         /// <summary>
         /// Repaint the logo panel with the Livelox logo.
         /// </summary>
