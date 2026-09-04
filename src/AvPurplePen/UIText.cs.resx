@@ -3531,6 +3531,9 @@ Pro tisk závodních map se doporučuje exportovat tratě do souborů OCAD (vybe
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>Zobrazit další Tratě</value>
   </data>
+  <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
+    <value>Publikovat na Livelox</value>
+  </data>
   <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
     <value>_Cíl</value>
   </data>

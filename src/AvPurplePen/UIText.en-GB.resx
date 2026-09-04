@@ -3661,4 +3661,7 @@ For printing competition maps, it is suggested that courses be exported to OCAD 
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>View Additional Courses</value>
   </data>
+  <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
+    <value>Publish to Livelox</value>
+  </data>
 </root>

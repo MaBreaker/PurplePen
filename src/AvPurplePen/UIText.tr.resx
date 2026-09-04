@@ -3667,6 +3667,9 @@ Yarışma haritalarını yazdırmak için kursların OCAD dosyalarına aktarılm
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>Ek parkurları görüntüleyin</value>
   </data>
+  <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
+    <value>Livelox'ta yayınla</value>
+  </data>
   <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
     <value>_Bitiş</value>
   </data>

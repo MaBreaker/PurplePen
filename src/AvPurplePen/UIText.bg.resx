@@ -3665,6 +3665,9 @@
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>Преглед на допълнителни маршрути</value>
   </data>
+  <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
+    <value>Публикувай в Livelox</value>
+  </data>
   <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
     <value>_Финал</value>
   </data>

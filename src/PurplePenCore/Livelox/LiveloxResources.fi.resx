@@ -118,59 +118,59 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AssemblingCourseSettingInformation" xml:space="preserve">
-    <value>Packaging course setting information...</value>
+    <value>Kootaan tapahtuman tietoja...</value>
   </data>
   <data name="CreatingTokens" xml:space="preserve">
-    <value>Authorizing...</value>
+    <value>Varmennetaan...</value>
   </data>
   <data name="ImportableEventCreatedInformation" xml:space="preserve">
-    <value>The course setting information has been uploaded.
-You will now be redirected to Livelox to finish the publishing process.</value>
+    <value>Tapahtuman tiedot on nyt ladattu.
+Sinut ohjataan Livelox-palveluun, jotta voit viimeistellä julkaisuprosessin.</value>
   </data>
   <data name="ImportableEventUpdatedInformation" xml:space="preserve">
-    <value>The Livelox event has been updated with new course setting information.
-Would you like to open the event's administration overview page in Livelox?</value>
+    <value>Livelox-tapahtuma on päivitetty uusilla tiedoilla.
+Haluatko avata tapahtuman hallintasivun Livelox-palvelussa?</value>
   </data>
   <data name="LoadingLiveloxEvent" xml:space="preserve">
-    <value>Loading Livelox event...</value>
+    <value>Ladataan Livelox-tapahtumaa...</value>
   </data>
   <data name="LoadingUserInfo" xml:space="preserve">
-    <value>Loading user information...</value>
+    <value>Ladataan käyttäjätietoja...</value>
   </data>
   <data name="PleaseReturnToPurplePen" xml:space="preserve">
-    <value>This window can now be closed. Please return to Purple Pen.</value>
+    <value>Tämä ikkuna voidaan nyt sulkea. Palaa takaisin Purple Pen ohjelmaan.</value>
   </data>
   <data name="ProcessingLiveloxConsentResponse" xml:space="preserve">
-    <value>Processing your approval...</value>
+    <value>Käsitellään hyväksyntää...</value>
   </data>
   <data name="RedirectingToLivelox" xml:space="preserve">
-    <value>Redirecting to Livelox...</value>
+    <value>Ohjataan Livelox palveluun...</value>
   </data>
   <data name="RemovingUser" xml:space="preserve">
-    <value>Removing user...</value>
+    <value>Poistetaan käyttäjää...</value>
   </data>
   <data name="UpdatingLiveloxEvent" xml:space="preserve">
-    <value>Updating Livelox event...</value>
+    <value>Päivitetään Livelox-tapahtumaa...</value>
   </data>
   <data name="UploadingCourseSettingInformation" xml:space="preserve">
-    <value>Uploading course setting information...</value>
+    <value>Ladataan tapahtuman tietoja...</value>
   </data>
   <data name="WaitingForLiveloxConsentResponse" xml:space="preserve">
-    <value>Waiting for your approval in the browser window...</value>
+    <value>Odotetaan hyväksyntää selainikkunasta...</value>
   </data>
   <data name="AnotherUser" xml:space="preserve">
-    <value>another user</value>
+    <value>toinen käyttäjä</value>
   </data>
   <data name="AccessDeniedToLiveloxEvent" xml:space="preserve">
-    <value>You are not allowed to administer this Livelox event. Please contact the event administrators.</value>
+    <value>Sinulla ei ole oikeutta hallinnoida tätä Livelox-tapahtumaa. Ota yhteyttä tapahtuman ylläpitäjiin.</value>
   </data>
   <data name="Timeout" xml:space="preserve">
-    <value>It looks like Livelox is taking a long time to respond. This can be caused by either poor connectivity or an error with the Livelox servers. Please try again in a while.</value>
+    <value>Livelox näyttää reagoivan hitaasti. Tämä voi johtua huonoista yhteyksistä tai virheestä Livelox palvelussa. Yritä hetken kuluttua uudelleen.</value>
   </data>
   <data name="UnauthorizedMessage" xml:space="preserve">
-    <value>The request was not authorized. Livelox permissions for PurplePen may have been revoked. Please remove the user under the Settings section or select another user, and try again.</value>
+    <value>Pyyntöä ei hyväksytty. Purple Pen ohjelman käyttöoikeudet Livelox palveluun on saatettu peruuttaa. Poista nykyinen käyttäjä asetuksista tai valitse toinen käyttäjä ja yritä uudelleen.</value>
   </data>
   <data name="UnknownError" xml:space="preserve">
-    <value>Unknown error occurred !</value>
+    <value>Tunnistamaton virhe !</value>
   </data>
 </root>

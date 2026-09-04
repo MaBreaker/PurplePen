@@ -121,6 +121,12 @@
   <data name="IncrementButton" type="System.Resources.ResXNullRef, System.Windows.Forms">
     <value />
   </data>
+  <data name="YesButton" xml:space="preserve">
+    <value>Kyllä</value>
+  </data>
+  <data name="NoButton" xml:space="preserve">
+    <value>Ei</value>
+  </data>
   <data name="AboutForm_copyrightLabel_Text" xml:space="preserve">
     <value>Copyright © Peter Golde</value>
   </data>
@@ -3634,6 +3640,9 @@ Kilpailukarttojen tulostamiseksi on suositeltavaa viedä radat OCAD-tiedostoihin
   </data>
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>Näytä muut radat</value>
+  </data>
+  <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
+    <value>Julkaise Liveloxissa</value>
   </data>
   <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
     <value>_Maali</value>

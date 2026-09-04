@@ -3651,4 +3651,7 @@ Per la stampa delle mappe di gara, si consiglia di esportare i percorsi su file 
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>Visualizza percorsi aggiuntivi</value>
   </data>
+  <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
+    <value>Pubblica su Livelox</value>
+  </data>
 </root>

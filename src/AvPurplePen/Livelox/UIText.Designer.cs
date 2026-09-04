@@ -164,6 +164,24 @@ namespace AvPurplePen.Livelox {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        public static string Livelox_Publish_okButton_Text {
+            get {
+                return ResourceManager.GetString("Livelox_Publish_okButton_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open.
+        /// </summary>
+        public static string Livelox_Publish_openButton_Text {
+            get {
+                return ResourceManager.GetString("Livelox_Publish_openButton_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Publish.
         /// </summary>
         public static string Livelox_Publish_publishButton_Text {
@@ -173,7 +191,7 @@ namespace AvPurplePen.Livelox {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Publish to another event.
+        ///   Looks up a localized string similar to Publish new event.
         /// </summary>
         public static string Livelox_Publish_publishToOtherEventButton_Text {
             get {

@@ -171,7 +171,7 @@ namespace PurplePen.Livelox
 
                     // Sends an HTTP response to the browser.
                     var response = context.Response;
-                    var responseString = $"<!doctype html><html><head><meta charset=\"UTF-8\"></head><body>{LiveloxResources.PleaseReturnToPurplePen}</body></html>";
+                    var responseString = $"<!doctype html><html><head><meta charset=\"UTF-8\"></head><body><strong>{LiveloxResources.PleaseReturnToPurplePen}</strong></body></html>";
                     var buffer = Encoding.UTF8.GetBytes(responseString);
                     response.ContentLength64 = buffer.Length;
                     response.ContentEncoding = Encoding.UTF8;

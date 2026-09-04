@@ -3644,6 +3644,9 @@ För att skriva ut tävlingskartor är det rekommenderat att banorna exporteras 
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>Visa ytterligare banor</value>
   </data>
+  <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
+    <value>Publicera till LiveLox</value>
+  </data>
   <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
     <value>Slut_för</value>
   </data>

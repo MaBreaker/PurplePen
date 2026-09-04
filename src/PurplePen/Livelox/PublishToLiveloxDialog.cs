@@ -368,7 +368,7 @@ namespace PurplePen.Livelox
                 {
                     if (!call.Success)
                     {
-                        manager.DeleteTemporatyDirectory(temporaryDirectory);
+                        //manager.DeleteTemporatyDirectory(temporaryDirectory);
                         StopExecuting();
                         ShowErrorBox(call, true);
                         return;
@@ -383,7 +383,7 @@ namespace PurplePen.Livelox
                     {
                         if (!uploadFilesCall.Success)
                         {
-                            manager.DeleteTemporatyDirectory(temporaryDirectory);
+                            //manager.DeleteTemporatyDirectory(temporaryDirectory);
                             StopExecuting();
                             ShowErrorBox(uploadFilesCall, true);
                             return;
@@ -392,7 +392,7 @@ namespace PurplePen.Livelox
                         PersistLiveloxEventIdToDB(importableEventLink.Id);
                         PersistUserList(user);
 
-                        manager.DeleteTemporatyDirectory(temporaryDirectory);
+                        //manager.DeleteTemporatyDirectory(temporaryDirectory);
                         StopExecuting();
                         ShowImportableEventCreatedDialog(importableEventLink);
                     };
@@ -403,9 +403,13 @@ namespace PurplePen.Livelox
             }
             catch (Exception ex)
             {
-                manager.DeleteTemporatyDirectory(temporaryDirectory);
+                //manager.DeleteTemporatyDirectory(temporaryDirectory);
                 StopExecuting();
                 ShowErrorBox(ex, true);
+            }
+            finally
+            {
+                manager.DeleteTemporatyDirectory(temporaryDirectory);
             }
         }
 
@@ -429,7 +433,7 @@ namespace PurplePen.Livelox
                 {
                     if (!updateImportableEventCall.Success)
                     {
-                        manager.DeleteTemporatyDirectory(temporaryDirectory);
+                        //manager.DeleteTemporatyDirectory(temporaryDirectory);
                         StopExecuting();
                         if ((updateImportableEventCall.Exception as StatusCodeException)?.StatusCode == HttpStatusCode.Forbidden)
                         {
@@ -451,7 +455,7 @@ namespace PurplePen.Livelox
                     {
                         if (!uploadFilesCall.Success)
                         {
-                            manager.DeleteTemporatyDirectory(temporaryDirectory);
+                            //manager.DeleteTemporatyDirectory(temporaryDirectory);
                             StopExecuting();
                             ShowErrorBox(uploadFilesCall, true);
                             return;
@@ -461,7 +465,7 @@ namespace PurplePen.Livelox
 
                         if (importableEventLink.LiveloxImportEventUrl != null)
                         {
-                            manager.DeleteTemporatyDirectory(temporaryDirectory);
+                            //manager.DeleteTemporatyDirectory(temporaryDirectory);
                             PersistLiveloxEventIdToDB(importableEventLink.Id);
                             StopExecuting();
                             ShowImportableEventCreatedDialog(importableEventLink);
@@ -474,7 +478,7 @@ namespace PurplePen.Livelox
                             {
                                 if (!importImportableEventCall.Success)
                                 {
-                                    manager.DeleteTemporatyDirectory(temporaryDirectory);
+                                    //manager.DeleteTemporatyDirectory(temporaryDirectory);
                                     StopExecuting();
                                     ShowErrorBox(importImportableEventCall, true);
                                     return;
@@ -484,7 +488,7 @@ namespace PurplePen.Livelox
 
                                 PersistLiveloxEventIdToDB(importableEventLink.Id);
 
-                                manager.DeleteTemporatyDirectory(temporaryDirectory);
+                                //manager.DeleteTemporatyDirectory(temporaryDirectory);
                                 StopExecuting();
                                 ShowImportableEventUpdatedDialog(importableEventLink);
                             };
@@ -497,9 +501,13 @@ namespace PurplePen.Livelox
             }
             catch (Exception ex)
             {
-                manager.DeleteTemporatyDirectory(temporaryDirectory);
+                //manager.DeleteTemporatyDirectory(temporaryDirectory);
                 StopExecuting();
                 ShowErrorBox(ex, true);
+            }
+            finally
+            {
+                manager.DeleteTemporatyDirectory(temporaryDirectory);
             }
         }
 

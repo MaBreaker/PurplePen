@@ -151,7 +151,7 @@
     <value>Uppdatera aktiviteten</value>
   </data>
   <data name="Livelox_Publish_publishToOtherEventButton_Text" xml:space="preserve">
-    <value>Publicera till en annan aktivitet</value>
+    <value>Publicera ny aktivitet</value>
   </data>
   <data name="Livelox_Publish_publishButton_Text" xml:space="preserve">
     <value>Publicera</value>
@@ -172,6 +172,9 @@ När du klickar på Fortsätt-knappen nedan omdirigeras du till Livelox för att
 
 Om du bara vill ge tillstånd för denna tävling avmarkerar du kryssrutan "Kom ihåg mitt val på den här datorn" nedan.</value>
   </data>
+  <data name="Livelox_Consent_okButton_Text" xml:space="preserve">
+    <value>Fortsätt</value>
+  </data>
   <data name="Livelox_Consent_title_Text" xml:space="preserve">
     <value>Ge tillåtelse att interagera med ditt Livelox-konto</value>
   </data>
@@ -180,5 +183,8 @@ Om du bara vill ge tillstånd för denna tävling avmarkerar du kryssrutan "Kom 
   </data>
   <data name="Livelox_Consent_continueButton_Text" xml:space="preserve">
     <value>Fortsätt</value>
+  </data>
+  <data name="Livelox_Publish_openButton_Text" xml:space="preserve">
+    <value>Öpna</value>
   </data>
 </root>

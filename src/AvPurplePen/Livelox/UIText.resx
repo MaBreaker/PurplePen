@@ -151,7 +151,7 @@
     <value>Update the event</value>
   </data>
   <data name="Livelox_Publish_publishToOtherEventButton_Text" xml:space="preserve">
-    <value>Publish to another event</value>
+    <value>Publish new event</value>
   </data>
   <data name="Livelox_Publish_publishButton_Text" xml:space="preserve">
     <value>Publish</value>
@@ -183,5 +183,11 @@ If you just want to give permission for a single event, uncheck the "Remember my
   </data>
   <data name="Livelox_Consent_continueButton_Text" xml:space="preserve">
     <value>Continue</value>
+  </data>
+  <data name="Livelox_Publish_openButton_Text" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Livelox_Publish_okButton_Text" xml:space="preserve">
+    <value>OK</value>
   </data>
 </root>

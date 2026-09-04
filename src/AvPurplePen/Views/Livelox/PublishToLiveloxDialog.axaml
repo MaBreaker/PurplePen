@@ -19,8 +19,7 @@
 
 	<DockPanel LastChildFill="False" Margin="0">
 
-		<!-- Info section -->
-		<!-- Top section with title -->
+		<!-- Info section with title, always visible -->
 		<StackPanel DockPanel.Dock="Top" Margin="20,20,20,15" Spacing="10">
 			<!-- Logo panel at top: white background, draws the Livelox logo.
 				 The custom drawing is done in the code-behind Paint handler. -->
@@ -39,10 +38,39 @@
 		</StackPanel>
 
 		<!-- Main content area -->
-		<Grid DockPanel.Dock="Top" Margin="20,0,20,15" RowDefinitions="Auto,Auto,Auto,Auto">
+		<Grid DockPanel.Dock="Top" Margin="20,0,20,15" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
 
+			<!-- Consent section -->
+			<Border Grid.Row="0"
+					Background="#E8F4F8"
+					BorderBrush="#4A90E2"
+					BorderThickness="1"
+					CornerRadius="4"
+					Padding="15"
+					Margin="0,0,0,15"
+					IsVisible="{Binding ShowConsentPanel}">
+				<StackPanel Spacing="8">
+					<TextBlock TextWrapping="Wrap"
+							   Text="{x:Static assets:UIText.Livelox_Consent_informationLabel_Text}"
+							   Foreground="#000"
+							   FontSize="14" />
+
+					<!-- Remember consent option -->
+					<CheckBox Name="RememberConsentCheckBox"
+							  IsChecked="{Binding RememberConsent}"
+							  Content="{x:Static assets:UIText.Livelox_Consent_rememberConsentCheckBox_Text}"
+							  Foreground="#333"
+							  Margin="0,10,0,0" />
+				</StackPanel>
+			</Border>
+			
 			<!-- Resolution section -->
-			<Border Grid.Row="0" Background="White" CornerRadius="4" Padding="15" Margin="0,0,0,15">
+			<Border Grid.Row="1"
+					Background="White"
+					CornerRadius="4"
+					Padding="15"
+					Margin="0,0,0,15"
+					IsVisible="{Binding ShowSettingsPanel}">
 				<StackPanel Spacing="10">
 					<CheckBox Name="ShowSettingsCheckBox"
 							  IsChecked="{Binding ShowSettings}"
@@ -91,7 +119,7 @@
 			</Border>
 
 			<!-- User selection section -->
-			<Border Grid.Row="1"
+			<Border Grid.Row="2"
 					Background="White"
 					CornerRadius="4"
 					Padding="15"
@@ -120,14 +148,14 @@
 			</Border>
 
 			<!-- Existing event section -->
-			<Border Grid.Row="2"
+			<Border Grid.Row="3"
 					Background="#E8F4F8"
 					BorderBrush="#4A90E2"
 					BorderThickness="1"
 					CornerRadius="4"
 					Padding="15"
 					Margin="0,0,0,15"
-					IsVisible="{Binding ShowExistingEvent}">
+					IsVisible="{Binding ShowExistingEventPanel}">
 				<StackPanel Spacing="8">
 					<TextBlock Text="{x:Static assets:UIText.Livelox_Publish_existingEventGroupBox_Text}"
 							   FontWeight="SemiBold"
@@ -146,15 +174,22 @@
 			</Border>
 
 			<!-- Loading indicator -->
-			<Border Grid.Row="3"
-					
+			<Border Grid.Row="4"
 					CornerRadius="4"
 					Padding="15"
 					IsVisible="True">
 				<StackPanel Spacing="15" VerticalAlignment="Center" HorizontalAlignment="Center">
-					<ProgressBar IsIndeterminate="{Binding IsLoading}" Height="4" Value="0" />
-					<TextBlock Text="{Binding LoadingMessage}"
+					<ProgressBar IsIndeterminate="{Binding ProgressLoading}" 
+								 Height="4"
+								 Minimum="0"
+								 Maximum="1"
+								 Value="{Binding ProgressValue}" 
+								 Foreground="{Binding ProgressColor}" 
+								 ShowProgressText="{Binding ProgressError}"
+								 ProgressTextFormat="ERROR"/>
+					<TextBlock Text="{Binding ProgressMessage}"
 							   TextAlignment="Center"
+							   TextWrapping="Wrap"
 							   Foreground="#666" />
 				</StackPanel>
 			</Border>
@@ -166,7 +201,15 @@
 					Spacing="10"
 					HorizontalAlignment="Right"
 					Margin="20,0,20,20">
-
+			
+			<Button Name="ContinueButton"
+					Content="{x:Static assets:UIText.Livelox_Consent_continueButton_Text}"
+					IsCancel="True"
+					Padding="15,8"
+					MinWidth="80"
+					IsVisible="{Binding ShowContinueButton}"
+					Command="{Binding ContinueCommand}" />
+			
 			<Button Name="UpdateButton"
 					Content="{x:Static assets:UIText.Livelox_Publish_updateEventButton_Text}"
 					IsDefault="True"
@@ -194,13 +237,23 @@
 					IsEnabled="{Binding CanPublish}"
 					Command="{Binding PublishCommand}" />
 
+			<Button Name="OkButton"
+					Content="{x:Static assets:UIText.Livelox_Publish_okButton_Text}"
+					IsDefault="True"
+					Padding="15,8"
+					MinWidth="80"
+					IsVisible="{Binding ShowOkButton}"
+					Command="{Binding OkCommand}" />
+					<!-- Click="CancelButton_Click" -->
+			
 			<Button Name="CancelButton"
 					Content="{x:Static assets:UIText.Livelox_Publish_cancelButton_Text}"
 					IsCancel="True"
 					Padding="15,8"
 					MinWidth="80"
-					Command="{Binding CancelCommand}"
-					Click="CancelButton_Click"/>
+					IsVisible="{Binding ShowCancelButton}"
+					Command="{Binding CancelCommand}" />
+					<!-- Click="CancelButton_Click" -->
 		</StackPanel>
 	</DockPanel>
 </Window>

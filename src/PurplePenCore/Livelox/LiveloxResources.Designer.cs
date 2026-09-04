@@ -97,7 +97,8 @@ namespace PurplePen.Livelox {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The course setting information has been uploaded. You will now be redirected to Livelox to finish the publishing process..
+        ///   Looks up a localized string similar to The course setting information has been uploaded.
+        ///You will now be redirected to Livelox to finish the publishing process..
         /// </summary>
         public static string ImportableEventCreatedInformation {
             get {
@@ -106,7 +107,8 @@ namespace PurplePen.Livelox {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The Livelox event has been updated with new course setting information. Would you like to open the event&apos;s administration overview page in Livelox?.
+        ///   Looks up a localized string similar to The Livelox event has been updated with new course setting information.
+        ///Would you like to open the event&apos;s administration overview page in Livelox?.
         /// </summary>
         public static string ImportableEventUpdatedInformation {
             get {
@@ -178,11 +180,20 @@ namespace PurplePen.Livelox {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request was not authorized. Livelox permissions for PurplePen may have been revoked. Please remove the user under the Settings section, and try again..
+        ///   Looks up a localized string similar to The request was not authorized. Livelox permissions for PurplePen may have been revoked. Please remove the user under the Settings section or select another user, and try again..
         /// </summary>
         public static string UnauthorizedMessage {
             get {
                 return ResourceManager.GetString("UnauthorizedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown error occurred !.
+        /// </summary>
+        public static string UnknownError {
+            get {
+                return ResourceManager.GetString("UnknownError", resourceCulture);
             }
         }
         

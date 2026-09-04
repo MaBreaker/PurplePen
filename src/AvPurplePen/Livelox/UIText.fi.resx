@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,60 +117,74 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AssemblingCourseSettingInformation" xml:space="preserve">
-    <value>Packaging course setting information...</value>
+  <data name="Livelox_Publish_learnMoreLink_Text" xml:space="preserve">
+    <value>Tutustu tarkemmin Livelox palveluun</value>
   </data>
-  <data name="CreatingTokens" xml:space="preserve">
-    <value>Authorizing...</value>
+  <data name="Livelox_Publish_informationLabel_Text" xml:space="preserve">
+    <value>Livelox on verkkopohjainen sovellus suunnistustapahtumien reittien analysointiin. Osallistujat tallentavat reittinsä reaaliajassa mobiilisovelluksella tai lataavat ne palveluun jälkikäteen GPS-laitteesta. Suunnistusharjoitusten tai -kilpailujen järjestäjänä voit julkaista karttoja ja ratoja Livelox palvelussa, jolloin katsojat voivat seurata kilpailijoita reaaliajassa ja osallistujat voivat analysoida reitinvalintojaan kilpailun jälkeen.</value>
   </data>
-  <data name="ImportableEventCreatedInformation" xml:space="preserve">
-    <value>The course setting information has been uploaded.
-You will now be redirected to Livelox to finish the publishing process.</value>
+  <data name="Livelox_Publish_removeUserLink_Text" xml:space="preserve">
+    <value>Poista käyttäjä Purple Pen ohjelmasta</value>
   </data>
-  <data name="ImportableEventUpdatedInformation" xml:space="preserve">
-    <value>The Livelox event has been updated with new course setting information.
-Would you like to open the event's administration overview page in Livelox?</value>
+  <data name="Livelox_Publish_userLabel_Text" xml:space="preserve">
+    <value>Livelox käyttäjä</value>
   </data>
-  <data name="LoadingLiveloxEvent" xml:space="preserve">
-    <value>Loading Livelox event...</value>
+  <data name="Livelox_Publish_resolutionLabel_Text" xml:space="preserve">
+    <value>Resoluutio (pikseliä per metri maastossa):</value>
   </data>
-  <data name="LoadingUserInfo" xml:space="preserve">
-    <value>Loading user information...</value>
+  <data name="Livelox_Publish_settingsGroupBox_Text" xml:space="preserve">
+    <value>Asetukset</value>
   </data>
-  <data name="PleaseReturnToPurplePen" xml:space="preserve">
-    <value>This window can now be closed. Please return to Purple Pen.</value>
+  <data name="Livelox_Publish_showSettingsCheckBox_Text" xml:space="preserve">
+    <value>Näytä asetukset</value>
   </data>
-  <data name="ProcessingLiveloxConsentResponse" xml:space="preserve">
-    <value>Processing your approval...</value>
+  <data name="Livelox_Publish_editEventLink_Text" xml:space="preserve">
+    <value>Muokkaa Livelox palvelussa</value>
   </data>
-  <data name="RedirectingToLivelox" xml:space="preserve">
-    <value>Redirecting to Livelox...</value>
+  <data name="Livelox_Publish_showEventLink_Text" xml:space="preserve">
+    <value>Näytä Livelox palvelussa</value>
   </data>
-  <data name="RemovingUser" xml:space="preserve">
-    <value>Removing user...</value>
+  <data name="Livelox_Publish_existingEventGroupBox_Text" xml:space="preserve">
+    <value>Kartta ja radat on julkaistu oheiseen Livelox tapahtumaan</value>
   </data>
-  <data name="UpdatingLiveloxEvent" xml:space="preserve">
-    <value>Updating Livelox event...</value>
+  <data name="Livelox_Publish_updateEventButton_Text" xml:space="preserve">
+    <value>Päivitä tapahtuma</value>
   </data>
-  <data name="UploadingCourseSettingInformation" xml:space="preserve">
-    <value>Uploading course setting information...</value>
+  <data name="Livelox_Publish_publishToOtherEventButton_Text" xml:space="preserve">
+    <value>Uusi tapahtuma</value>
   </data>
-  <data name="WaitingForLiveloxConsentResponse" xml:space="preserve">
-    <value>Waiting for your approval in the browser window...</value>
+  <data name="Livelox_Publish_publishButton_Text" xml:space="preserve">
+    <value>Julkaise</value>
   </data>
-  <data name="AnotherUser" xml:space="preserve">
-    <value>another user</value>
+  <data name="Livelox_Publish_cancelButton_Text" xml:space="preserve">
+    <value>Peruuta</value>
   </data>
-  <data name="AccessDeniedToLiveloxEvent" xml:space="preserve">
-    <value>You are not allowed to administer this Livelox event. Please contact the event administrators.</value>
+  <data name="Livelox_Publish_title_Text" xml:space="preserve">
+    <value>Julkaise Livelox palveluun</value>
   </data>
-  <data name="Timeout" xml:space="preserve">
-    <value>It looks like Livelox is taking a long time to respond. This can be caused by either poor connectivity or an error with the Livelox servers. Please try again in a while.</value>
+  <data name="Livelox_Consent_rememberConsentCheckBox_Text" xml:space="preserve">
+    <value>Muista valintani tällä laitteella</value>
   </data>
-  <data name="UnauthorizedMessage" xml:space="preserve">
-    <value>The request was not authorized. Livelox permissions for PurplePen may have been revoked. Please remove the user under the Settings section or select another user, and try again.</value>
+  <data name="Livelox_Consent_informationLabel_Text" xml:space="preserve">
+    <value>Jatkaaksesi seuraavaan vaiheeseen sinun on ensin annettava Purple Pen ohjelmalle lupa käyttää Livelox-tiliäsi.
+
+Kun painat alla olevaa Jatka-painiketta, sinut ohjataan Livelox palveluun hyväksymään kyseinen lupa. Jos et ole vielä kirjautunut sisään, anna Livelox-tilisi tiedot tai luo uusi Livelox-tili. Hyväksynnän jälkeen palaat takaisin Purple Pen ohjelmaan ja prosessi jatkuu seuraavaan vaiheeseen.
+
+Mikäli haluat antaa luvan vain yksittäistä tapahtumaa varten, poista valinta kohdasta "Muista valintani tällä laitteella".</value>
   </data>
-  <data name="UnknownError" xml:space="preserve">
-    <value>Unknown error occurred !</value>
+  <data name="Livelox_Consent_okButton_Text" xml:space="preserve">
+    <value>Jatka</value>
+  </data>
+  <data name="Livelox_Consent_title_Text" xml:space="preserve">
+    <value>Anna lupa yhdistää Livelox tunnukseesi</value>
+  </data>
+  <data name="Livelox_Consent_cancelButton_Text" xml:space="preserve">
+    <value>Peruuta</value>
+  </data>
+  <data name="Livelox_Consent_continueButton_Text" xml:space="preserve">
+    <value>Jatka</value>
+  </data>
+  <data name="Livelox_Publish_openButton_Text" xml:space="preserve">
+    <value>Avaa</value>
   </data>
 </root>

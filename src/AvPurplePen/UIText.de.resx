@@ -3632,6 +3632,9 @@ Zum Drucken der Wettkampfdateien wird empfohlen, sie nach OCAD zu exportieren (�
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>Zusätzliche Bahnen anzeigen</value>
   </data>
+  <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
+    <value>Auf Livelox veröffentlichen</value>
+  </data>
   <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
     <value>_Ziel</value>
   </data>

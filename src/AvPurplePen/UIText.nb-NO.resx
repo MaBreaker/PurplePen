@@ -3623,6 +3623,9 @@ Til å skrive ut konkuranskekart anbefales at løypene eksporteres til OCAD file
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>Vis flere løyper</value>
   </data>
+  <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
+    <value>Publiser til Livelox</value>
+  </data>
   <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
     <value>_Fullfør</value>
   </data>

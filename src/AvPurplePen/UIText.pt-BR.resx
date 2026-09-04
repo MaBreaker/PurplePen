@@ -3564,6 +3564,9 @@ Para a impressão dos mapas da competição, sugere-se exportar os percursos par
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>Visualizar Percursos Adicionais</value>
   </data>
+  <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
+    <value>Publicado em Livelox</value>
+  </data>
   <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
     <value>_Finalizar</value>
   </data>

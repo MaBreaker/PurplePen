@@ -124,10 +124,12 @@
     <value>Auktoriserar...</value>
   </data>
   <data name="ImportableEventCreatedInformation" xml:space="preserve">
-    <value>Banläggningsinformationen har laddats upp. Du kommer nu att omdirigeras till Livelox för att slutföra publiceringsprocessen.</value>
+    <value>Banläggningsinformationen har laddats upp.
+Du kommer nu att omdirigeras till Livelox för att slutföra publiceringsprocessen.</value>
   </data>
   <data name="ImportableEventUpdatedInformation" xml:space="preserve">
-    <value>Livelox-aktiviteten har uppdaterats med ny banläggningsinformation. Vill du öppna aktivitetens administrationsöversiktssida i Livelox?</value>
+    <value>Livelox-aktiviteten har uppdaterats med ny banläggningsinformation.
+Vill du öppna aktivitetens administrationsöversiktssida i Livelox?</value>
   </data>
   <data name="LoadingLiveloxEvent" xml:space="preserve">
     <value>Hämtar Livelox-aktivitet...</value>
@@ -166,6 +168,9 @@
     <value>Det ser ut som Livelox tar lång tid på sig att svara. Det kan bero på en långsam internetanslutning eller ett fel med Livelox-servrarna. Försök igen om ett tag.</value>
   </data>
   <data name="UnauthorizedMessage" xml:space="preserve">
-    <value>Anropet nekades. Det kan bero på att användaren har dragit tillbaka sitt godkännande för Purple Pen att använda Livelox. Ta bort användaren under avdelningen Inställningar och försök igen.</value>
+    <value>Anropet nekades. Det kan bero på att användaren har dragit tillbaka sitt godkännande för Purple Pen att använda Livelox. Ta bort användaren under avdelningen Inställningar eller välj en annan användare och försök igen.</value>
+  </data>
+  <data name="UnknownError" xml:space="preserve">
+    <value>Ett okänt fel inträffade !</value>
   </data>
 </root>

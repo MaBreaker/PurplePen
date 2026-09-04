@@ -3615,6 +3615,9 @@
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>查看附加线路</value>
   </data>
+  <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
+    <value>发布到Livelox</value>
+  </data>
   <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
     <value>完成(_F)</value>
   </data>

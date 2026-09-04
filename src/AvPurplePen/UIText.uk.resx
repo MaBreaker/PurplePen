@@ -3452,6 +3452,9 @@
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>Відображення додатковх дистанцій</value>
   </data>
+  <data name="MainFrame_publishToLiveloxMenu_Text" xml:space="preserve">
+    <value>Опублікувати в Livelox</value>
+  </data>
   <data name="NewEventWizard_finishButton_Text" xml:space="preserve">
     <value>_Фініш</value>
   </data>
