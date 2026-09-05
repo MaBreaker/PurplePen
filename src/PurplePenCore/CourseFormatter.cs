@@ -564,7 +564,7 @@ namespace PurplePen
             case SpecialKind.OptCrossing:
                 courseObj = new CrossingCourseObj(Id<ControlPoint>.None, Id<CourseControl>.None, specialId, courseObjRatio, appearance, special.orientation, special.stretch, special.locations[0]); break;
             case SpecialKind.Forbidden:
-                courseObj = new ForbiddenCourseObj(specialId, courseObjRatio, appearance, special.locations[0]); break;
+                courseObj = new ForbiddenCourseObj(specialId, courseObjRatio, appearance /* JU: Rotated forbidden route marks */, special.orientation, special.locations[0]); break;
             case SpecialKind.RegMark:
                 courseObj = new RegMarkCourseObj(specialId, courseObjRatio, appearance, special.locations[0]); break;
             case SpecialKind.Boundary:

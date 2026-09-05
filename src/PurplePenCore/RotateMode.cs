@@ -45,12 +45,18 @@ namespace PurplePen
     class RotateMode: BaseMode
     {
         Controller controller;
-        CrossingCourseObj courseObj;            // object to modify.
+        //JU: Generic course object to rotate any oject type
+        CourseObj courseObj;                    // object to modify.
+        PointF rotationPoint;                   // center point for rotation calculation
 
-        public RotateMode(Controller controller, CrossingCourseObj courseObj)
+
+        public RotateMode(Controller controller, CourseObj courseObj)
         {
             this.controller = controller;
-            this.courseObj = (CrossingCourseObj) courseObj.Clone();
+            this.courseObj = (CourseObj) courseObj.Clone();
+
+            // Get the rotation center point based on object type
+            this.rotationPoint = GetRotationPoint(courseObj);
         }
 
         // Mouse cursor looks like a crosshair
@@ -85,7 +91,7 @@ namespace PurplePen
 
             // Create the new corner
             RotateToAngle(location);
-            controller.Rotate(courseObj.orientation);
+            controller.Rotate(GetOrientation(courseObj));
             controller.DefaultCommandMode();
             return DragAction.None;
         }
@@ -102,10 +108,87 @@ namespace PurplePen
         // Change the orientation of the crossing point course object to the given angle in degrees.
         private void RotateToAngle(PointF point)
         {
-            double angleInRadians = Math.Atan2(point.Y - courseObj.location.Y, point.X - courseObj.location.X);
+            double angleInRadians = Math.Atan2(point.Y - rotationPoint.Y, point.X - rotationPoint.X);
             float angleInDegrees = (float) Geometry.RadiansToDegrees(angleInRadians);
-            courseObj = (CrossingCourseObj) courseObj.Clone();
-            courseObj.ChangeOrientation(angleInDegrees);
+            courseObj = (CourseObj) courseObj.Clone();
+            //courseObj.ChangeOrientation(angleInDegrees);
+            SetOrientation(courseObj, angleInDegrees);
+        }
+
+        // Get the rotation center point based on the object type
+        private PointF GetRotationPoint(CourseObj obj)
+        {
+            // TextCourseObj, rotate around topLeft corner
+            if (obj is TextCourseObj textObj)
+            {
+                //return textObj.GetHighlightBounds().Center();
+                return textObj.topLeft;
+            }
+
+            // PointCourseObj like CrossingCourseObj and ForbiddenCourseObj, rotate around ref point
+            if (obj is PointCourseObj pointObj)
+            {
+                return pointObj.location;
+            }
+
+            if (obj is RectCourseObj rectObj)
+            {
+                return rectObj.rect.Center();
+            }
+
+            // Default: return approximate center
+            return obj.GetHighlightBounds().Center();
+        }
+
+        // Get current orientation from any rotatable object
+        private float GetOrientation(CourseObj obj)
+        {
+            // TextCourseObj
+            if (obj is TextCourseObj textObj)
+            {
+                return textObj.orientation;
+            }
+
+            // PointCourseObj like CrossingCourseObj and ForbiddenCourseObj
+            if (obj is PointCourseObj pointObj)
+            {
+                return pointObj.orientation;
+            }
+
+            /*
+            if (obj is RectCourseObj rectObj)
+            {
+                return rectObj.orientation;
+            }
+            */
+
+            return 0F;
+        }
+
+        // Set orientation for any rotatable object using reflection
+        private void SetOrientation(CourseObj obj, float angle)
+        {
+            // TextCourseObj
+            if (obj is TextCourseObj textObj)
+            {
+                textObj.orientation = angle;
+                return;
+            }
+
+            // PointCourseObj like CrossingCourseObj and ForbiddenCourseObj
+            if (obj is PointCourseObj pointObj)
+            {
+                pointObj.orientation = angle;
+                return;
+            }
+
+            /*
+            if (obj is RectCourseObj rectObj)
+            {
+                rectObj.orientation = angle;
+                return;
+            }
+            */
         }
     }
 }

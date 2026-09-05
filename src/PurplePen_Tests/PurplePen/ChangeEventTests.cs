@@ -3632,6 +3632,11 @@ namespace PurplePen.Tests
                 Assert.AreEqual(Math.IEEERemainder(oldSpecial.orientation + rotation, 360.0), Math.IEEERemainder(newSpecial.orientation, 360.0), 0.001);
                 Assert.AreEqual(oldSpecial.stretch * scale, newSpecial.stretch, 0.001);
             }
+            //JU: Rotated forbidden route marks
+            else if (oldSpecial.kind == SpecialKind.Forbidden)
+            {
+                Assert.AreEqual(Math.IEEERemainder(oldSpecial.orientation + rotation, 360.0), Math.IEEERemainder(newSpecial.orientation, 360.0), 0.001);
+            }
         }
 
         private void CheckChangesLegLocation(Leg newLeg, Leg oldLeg, Matrix matrix, float rotation, float scale)

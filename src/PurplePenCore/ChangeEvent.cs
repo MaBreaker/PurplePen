@@ -875,12 +875,12 @@ namespace PurplePen
             eventDB.ReplaceSpecial(specialId, special);
         }
 
-        // Change the orientation associated with a special. Must be an optional crossing point.
+        // Change the orientation associated with a special. Must be an optional crossing point. //JU: Rotated and Multiline texts
         public static void ChangeSpecialOrientation(EventDB eventDB, Id<Special> specialId, float newOrientation)
         {
             Special special = eventDB.GetSpecial(specialId);
 
-            Debug.Assert(special.kind == SpecialKind.OptCrossing);
+            Debug.Assert(special.kind == SpecialKind.OptCrossing /* JU: Rotated forbidden route marks and texts */ || special.kind == SpecialKind.Forbidden || special.kind == SpecialKind.Text);
 
             special = (Special) special.Clone();
             special.orientation = newOrientation;

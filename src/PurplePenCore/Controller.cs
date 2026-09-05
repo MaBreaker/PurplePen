@@ -2793,11 +2793,14 @@ namespace PurplePen
             else if (selection.SelectionKind == SelectionKind.Control && eventDB.GetControl(selection.SelectedControl).kind == ControlPointKind.CrossingPoint) {
                 return CommandStatus.Enabled;
             }
-            //JU: Enable text menu rotation
-            //else if (selection.SelectionKind == SelectionMgr.SelectionKind.Special && eventDB.GetSpecial(selection.SelectedSpecial).kind == SpecialKind.Text)
-            //{
-            //    return CommandStatus.Enabled;
-            //}
+            //JU: Rotated texts
+            else if (selection.SelectionKind == SelectionKind.Special && eventDB.GetSpecial(selection.SelectedSpecial).kind == SpecialKind.Text) {
+                return CommandStatus.Enabled;
+            }
+            //JU: Rotated forbidden route marks
+            else if (selection.SelectionKind == SelectionKind.Special && eventDB.GetSpecial(selection.SelectedSpecial).kind == SpecialKind.Forbidden) {
+                return CommandStatus.Enabled;
+            }
             else {
                 return CommandStatus.Disabled;
             }
@@ -2812,7 +2815,16 @@ namespace PurplePen
             //  Only crossing points (optional or mandatory) can be rotated.
             if ((selection.SelectionKind == SelectionKind.Special && eventDB.GetSpecial(selection.SelectedSpecial).kind == SpecialKind.OptCrossing) ||
                 (selection.SelectionKind == SelectionKind.Control && eventDB.GetControl(selection.SelectedControl).kind == ControlPointKind.CrossingPoint)) {
-                SetCommandMode(new RotateMode(this, (CrossingCourseObj)selectionMgr.SelectedCourseObjects[0]));
+                SetCommandMode(new RotateMode(this, selectionMgr.SelectedCourseObjects[0]));
+            }
+            //JU: Rotated texts
+            else if (selection.SelectionKind == SelectionKind.Special && eventDB.GetSpecial(selection.SelectedSpecial).kind == SpecialKind.Text)
+            {
+                SetCommandMode(new RotateMode(this, selectionMgr.SelectedCourseObjects[0]));
+            }
+            //JU: Rotated forbidden route marks
+            else if (selection.SelectionKind == SelectionKind.Special && eventDB.GetSpecial(selection.SelectedSpecial).kind == SpecialKind.Forbidden) {
+                SetCommandMode(new RotateMode(this, selectionMgr.SelectedCourseObjects[0]));
             }
         }
 
@@ -2835,6 +2847,22 @@ namespace PurplePen
                 undoMgr.BeginCommand(8813, CommandNameText.Rotate);
                 ChangeEvent.ChangeControlOrientation(eventDB, controlId, newOrientation);
                 undoMgr.EndCommand(8813);
+            }
+            //JU: Rotated texts
+            else if (selection.SelectionKind == SelectionKind.Special && eventDB.GetSpecial(selection.SelectedSpecial).kind == SpecialKind.Text)
+            {
+                Id<Special> specialId = selection.SelectedSpecial;
+                undoMgr.BeginCommand(8814, CommandNameText.Rotate);
+                ChangeEvent.ChangeSpecialOrientation(eventDB, specialId, newOrientation);
+                undoMgr.EndCommand(8814);
+            }
+            //JU: Rotated forbidden route marks
+            else if (selection.SelectionKind == SelectionKind.Special && eventDB.GetSpecial(selection.SelectedSpecial).kind == SpecialKind.Forbidden)
+            {
+                Id<Special> specialId = selection.SelectedSpecial;
+                undoMgr.BeginCommand(8815, CommandNameText.Rotate);
+                ChangeEvent.ChangeSpecialOrientation(eventDB, specialId, newOrientation);
+                undoMgr.EndCommand(8815);
             }
         }
 

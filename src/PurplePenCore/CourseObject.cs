@@ -2104,12 +2104,6 @@ namespace PurplePen
             }
         }
 
-        // Change the orientation of this crossing point.
-        public void ChangeOrientation(float newOrientation)
-        {
-            orientation = newOrientation;
-        }
-
         // Change the stretch of this crossing point.
         public void ChangeStretch(float newStretch)
         {
@@ -2290,8 +2284,8 @@ namespace PurplePen
         PointKind[] kinds2 = { PointKind.Normal, PointKind.Normal };
         PointF[] coords2 = { new PointF(1.06F, -1.06F), new PointF(-1.06F, 1.06F) };
 
-        public ForbiddenCourseObj(Id<Special> specialId, float courseObjRatio, CourseAppearance appearance, PointF location)
-            : base(Id<ControlPoint>.None, Id<CourseControl>.None, specialId, courseObjRatio, appearance, null, 0, 1.5F, location)
+        public ForbiddenCourseObj(Id<Special> specialId, float courseObjRatio, CourseAppearance appearance /* JU: Rotate forbidden route marks */, float orientation, PointF location)
+            : base(Id<ControlPoint>.None, Id<CourseControl>.None, specialId, courseObjRatio, appearance, null, /* JU: Rotate forbidden route marks */ orientation, 1.5F, location)
         {
         }
 
@@ -2327,8 +2321,14 @@ namespace PurplePen
             thickness = TransformDistance(NormalCourseAppearance.lineThickness * courseObjRatio * appearance.controlCircleSize, xformWorldToPixel);
 
             // Get the paths.
-            path1 = new SymPath(OffsetCoords(ScaleCoords((PointF[])coords1.Clone()), location.X, location.Y), kinds1);
-            path2 = new SymPath(OffsetCoords(ScaleCoords((PointF[])coords2.Clone()), location.X, location.Y), kinds2);
+            //JU: Move and rotate the paths to the correct position.
+            path1 = new SymPath(ScaleCoords((PointF[])coords1.Clone()), kinds1);
+            path2 = new SymPath(ScaleCoords((PointF[])coords2.Clone()), kinds2);
+            Matrix moveAndRotate = new Matrix();
+            moveAndRotate.Rotate(orientation);
+            moveAndRotate.Translate(location.X, location.Y, MatrixOrder.Append);
+            path1 = path1.Transform(moveAndRotate);
+            path2 = path2.Transform(moveAndRotate);
 
             // Draw the paths
             object penKey = new object();
@@ -2336,6 +2336,14 @@ namespace PurplePen
 
             path1.DrawTransformed(grTarget, penKey, xformWorldToPixel);
             path2.DrawTransformed(grTarget, penKey, xformWorldToPixel);
+        }
+
+        //JU: Rotate frobidden route marks
+        public override string ToString()
+        {
+            string result = base.ToString();
+            result += string.Format(CultureInfo.InvariantCulture, "  orientation:{0:0.##}", orientation);
+            return result;
         }
     }
 

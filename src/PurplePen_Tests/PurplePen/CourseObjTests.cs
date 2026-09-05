@@ -537,14 +537,14 @@ namespace PurplePen.Tests
         [TestMethod]
         public void Forbidden()
         {
-            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, defaultCourseAppearance, new PointF(0, 0));
+            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, defaultCourseAppearance, 0, new PointF(0, 0));
             SingleObject(courseobj, "forbidden");
         }
 
         [TestMethod]
         public void ForbiddenSpecial()
         {
-            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, specialAppearance, new PointF(0, 0));
+            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, specialAppearance, 0, new PointF(0, 0));
             SingleObject(courseobj, "forbidden_special");
         }
 
@@ -1153,10 +1153,10 @@ namespace PurplePen.Tests
         [TestMethod]
         public void ForbiddenDistance()
         {
-            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, defaultCourseAppearance, new PointF(1, 1));
+            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, defaultCourseAppearance, 0, new PointF(1, 1));
             Assert.AreEqual(5.0 - 1.5, Math.Round(courseobj.DistanceFromPoint(new PointF(4, -3)), 3));
             Assert.AreEqual(0.0, courseobj.DistanceFromPoint(new PointF(1.5F, 0.5F)));
-            courseobj = new ForbiddenCourseObj(SpecialId(0), 0.5F, defaultCourseAppearance, new PointF(1, 1));
+            courseobj = new ForbiddenCourseObj(SpecialId(0), 0.5F, defaultCourseAppearance, 0, new PointF(1, 1));
             Assert.AreEqual(5.0 - 1.5 / 2.0, Math.Round(courseobj.DistanceFromPoint(new PointF(4, -3)), 4));
             Assert.AreEqual(0.0, courseobj.DistanceFromPoint(new PointF(1.2F, 0.3F)));
         }
@@ -1350,7 +1350,7 @@ namespace PurplePen.Tests
         [TestMethod]
         public void ForbiddenDump()
         {
-            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, defaultCourseAppearance, new PointF(1, 1));
+            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, defaultCourseAppearance, 0, new PointF(1, 1));
             AssertDump(courseobj, @"Forbidden:      scale:1  location:(1,1)");
         }
 
@@ -2004,14 +2004,14 @@ namespace PurplePen.Tests
         [TestMethod]
         public void ForbiddenHighlight()
         {
-            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, defaultCourseAppearance, new PointF(0.1F, 0.4F));
+            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, defaultCourseAppearance, 0, new PointF(0.1F, 0.4F));
             SingleObjectHighlight(courseobj, "forbidden_highlight");
         }
 
         [TestMethod]
         public void ForbiddenHighlightSpecial()
         {
-            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, specialAppearance, new PointF(0.1F, 0.4F));
+            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, specialAppearance, 0, new PointF(0.1F, 0.4F));
             SingleObjectHighlight(courseobj, "forbidden_highlight_special");
         }
 
@@ -2404,7 +2404,7 @@ namespace PurplePen.Tests
         [TestMethod]
         public void ForbiddenOffset()
         {
-            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, defaultCourseAppearance, new PointF(0.1F, 0.4F));
+            CourseObj courseobj = new ForbiddenCourseObj(SpecialId(0), 1.0F, defaultCourseAppearance, 0, new PointF(0.1F, 0.4F));
             SingleObjectOffset(courseobj, "forbidden_offset");
         }
 

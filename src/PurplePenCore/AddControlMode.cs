@@ -603,7 +603,7 @@ namespace PurplePen
                 highlight = new CrossingCourseObj(Id<ControlPoint>.None, Id<CourseControl>.None, Id<Special>.None, courseObjRatio, appearance, 0, 0, highlightLocation);
                 break;
             case SpecialKind.Forbidden:
-                highlight = new ForbiddenCourseObj(Id<Special>.None, courseObjRatio, appearance, highlightLocation);
+                highlight = new ForbiddenCourseObj(Id<Special>.None, courseObjRatio, appearance, 0, highlightLocation);
                 break;
             case SpecialKind.RegMark:
                 highlight = new RegMarkCourseObj(Id<Special>.None, courseObjRatio, appearance, highlightLocation);

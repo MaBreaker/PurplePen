@@ -521,7 +521,7 @@ namespace PurplePen
         public string code;             // The code for the control.
         public PointF location;         // The location of the control.
         public PunchPattern punches;  // The punch pattern. Null means no punch pattern set yet.
-        public float orientation;       // For crossing points only, the orientation in degress
+        public float orientation;       // For crossing points only, the orientation in degress //JU: Rotate forbidden route mark and texts also
         public float stretch;           // For crossing points only, the mm of stretch (0.0 is normal, <0.0 not allowed)
         public string descriptionText;  // null for auto-text, or custom description text
         public string[] symbolIds;      // Array of six symbols ids for column C-H (or one for Finish, CrossingPoint)
@@ -2173,6 +2173,11 @@ namespace PurplePen
             if (kind == SpecialKind.Text) {
                 orientation = xmlinput.GetAttributeFloat("orientation", 0.0F);
             }
+            //JU: Rotated forbidden route mark
+            if (kind == SpecialKind.Forbidden)
+            {
+                orientation = xmlinput.GetAttributeFloat("orientation", 0.0F);
+            }
 
             text = null;
             locations = null;
@@ -2317,8 +2322,16 @@ namespace PurplePen
                     xmloutput.WriteAttributeString("stretch", XmlConvert.ToString(stretch));
                 }
             }
-            //JU: Rotated text
+            //JU: Rotated texts
             if (kind == SpecialKind.Text)
+            {
+                if (orientation > 0.0F)
+                {
+                    xmloutput.WriteAttributeString("orientation", XmlConvert.ToString(orientation));
+                }
+            }
+            //JU: Rotated forbidden route marks
+            if (kind == SpecialKind.Forbidden)
             {
                 if (orientation > 0.0F)
                 {
