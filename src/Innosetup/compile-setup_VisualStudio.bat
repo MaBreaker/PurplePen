@@ -1,1 +1,1 @@
-"C:\Program Files (x86)\Inno Setup 6\iscc" "PurplePen_VisualStudio.iss" 
+"C:\Program Files (x86)\Inno Setup 6\iscc" "PurplePen.iss" /DVisualStudio=1 /DBuildDir="..\AvPurplePen\bin\Release\net10.0"

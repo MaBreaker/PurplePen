@@ -692,7 +692,9 @@ end;
 #define MyAppPublisher "Purple Pen Software"
 #define MyAppURL "http://purple-pen.org"
 #define MyAppExeName "PurplePen.exe"
-#define BuildDir "publish\Main"
+#ifndef BuildDir
+  #define BuildDir "publish\Main"
+#endif
 #ifndef MyAppVersion
   #define MyAppVersion GetVersionNumbersString(BuildDir + "\PurplePen.exe")
 #endif
@@ -788,6 +790,11 @@ Source: "{#BuildDir}\PdfConverter.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BuildDir}\*.dll"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.config"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.json"; DestDir: "{app}"; Flags: ignoreversion 
+#ifdef VisualStudio
+Source: "{#BuildDir}\runtimes\win\lib\net10.0\*.dll"; DestDir: "{app}\runtimes\win\lib\net10.0"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#BuildDir}\runtimes\win-x64\native\*.dll"; DestDir: "{app}\runtimes\win-x64\native"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#BuildDir}\runtimes\win-x86\native\*.dll"; DestDir: "{app}\runtimes\win-x86\native"; Flags: ignoreversion recursesubdirs createallsubdirs
+#endif
 Source: "{#BuildDir}\symbols.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BuildDir}\Samples\*"; DestDir: "{app}\Samples"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#BuildDir}\bg\*"; DestDir: "{app}\bg"; Flags: ignoreversion recursesubdirs createallsubdirs

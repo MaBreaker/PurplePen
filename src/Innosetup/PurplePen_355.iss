@@ -584,9 +584,26 @@ begin
   end;
 end;
 
+// Returns True if the pv value at the given registry location indicates an installed
+// WebView2 Evergreen Runtime. Microsoft documents that a missing, empty or 0.0.0.0
+// value all mean the runtime is not installed, so RegValueExists is not enough.
+function Dependency_WebView2VersionPresent(const RootKey: Integer; const SubKeyName: String): Boolean;
+var
+  Version: String;
+begin
+  Result := RegQueryStringValue(RootKey, SubKeyName, 'pv', Version) and (Version <> '') and (Version <> '0.0.0.0');
+end;
+
 procedure Dependency_AddWebView2;
 begin
-  if not RegValueExists(HKLM, Dependency_String('SOFTWARE', 'SOFTWARE\WOW6432Node') + '\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv') then begin
+  // The runtime registers itself either per-machine (HKLM, 32-bit registry view) or
+  // per-user (HKCU), so both locations have to be checked. Using HKLM32 explicitly
+  // avoids depending on whether the installer is running in 64-bit install mode. See
+  // https://learn.microsoft.com/microsoft-edge/webview2/concepts/distribution
+  if not (Dependency_WebView2VersionPresent(HKLM32, 'SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}') or
+          Dependency_WebView2VersionPresent(HKCU, 'Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}')) then begin
+    // The bootstrapper auto-detects the device architecture and downloads the matching
+    // runtime, so no per-architecture URL or checksum needs maintaining here.
     Dependency_Add('MicrosoftEdgeWebview2Setup.exe',
       '/silent /install',
       'WebView2 Runtime',
@@ -640,16 +657,47 @@ end;
 ;#define UseSql2017Express
 ;#define UseSql2019Express
 
-;#define UseWebView2
+; We need WebView2 for the NativeWebView control, used in Reports.
+#define UseWebView2
 
-#define MyAppSetupName 'Purple Pen Win'
-#define MyAppName "Purple Pen"
-;JU: plus version
-#define MyAppVersion "4.0.3.210+"
+; Beta, MyOutputBase and MyAppVersion are normally supplied on the ISCC command
+; line by create-setup.bat, which derives all three from the version number
+; compiled into the application (see Installer\GetVersion.cs). The definitions
+; below are the fallbacks used when this script is compiled directly from the
+; Inno Setup IDE, where there is no command line to supply them.
+;
+; NOTE: a value that arrives via /D is a string, and ISPP considers the string
+; "0" to be true. So Beta has to be tested with Int(), not as a bare #if, or a
+; stable build would be packaged as a beta.
+#ifndef Beta
+  #define Beta 0
+#endif
+#if Int(Beta) != 0
+  #define MyAppName "Purple Pen Beta"
+  #define MyAppId "{{E0070449-77A7-447C-A377-4A891577DD1E}"
+  #define MyProgId "PurplePen.PurplePenEventBeta"
+  #ifndef MyOutputBase
+    #define MyOutputBase "purplepen-beta-setup-355"
+  #endif
+#else
+  #define MyAppName "Purple Pen"
+  #define MyAppId "{{347D1E62-7134-4827-9679-4952BEC91C95}"
+  #define MyProgId "PurplePen.PurplePenEvent"
+  #ifndef MyOutputBase
+    #define MyOutputBase "purplepen-setup-355"
+  #endif
+#endif
+
+
 #define MyAppPublisher "Purple Pen Software"
 #define MyAppURL "http://purple-pen.org"
 #define MyAppExeName "PurplePen.exe"
-#define BuildDir "publish\Main_355"
+#ifndef BuildDir
+  #define BuildDir "publish\Main_355"
+#endif
+#ifndef MyAppVersion
+  #define MyAppVersion GetVersionNumbersString(BuildDir + "\PurplePen.exe")
+#endif
 
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
@@ -670,8 +718,9 @@ AppUpdatesURL={#MyAppURL}
 UninstallDisplayName={#MyAppName}
 DefaultDirName={commonpf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
+VersionInfoVersion={#MyAppVersion}
 OutputDir=output
-OutputBaseFilename=purplepen-setup
+OutputBaseFilename={#MyOutputBase}
 Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
@@ -692,7 +741,15 @@ PrivilegesRequired=admin
 
 ;These were turned on in the sample for the bootstrapper, but I turned them off again.
 ;ArchitecturesAllowed=x86 x64 ia64
-;ArchitecturesInstallIn64BitMode=x64 ia64
+
+; ArchitecturesInstallIn64BitMode is deliberately NOT set. Staying in 32-bit
+; install mode keeps the uninstall entry in the 32-bit registry view, which is
+; where Purple Pen 3.x registered its own — so upgrades are still detected and
+; performed in place. Install mode does not affect how the app itself runs.
+; Consequence: Is64BitInstallMode is False, so {commonpf}/{sys}/HKLM all resolve
+; to the 32-bit view. Use {commonpf64} explicitly for the install directory, and
+; do not rely on Dependency_IsX64 if an architecture-specific dependency is
+; ever added here (use IsWin64 / ProcessorArchitecture instead).
 
 ; downloading and installing dependencies will only work if the memo/ready page is enabled (default and current behaviour)
 DisableReadyPage=no
@@ -728,7 +785,9 @@ Source: "dxwebsetup.exe"; Flags: dontcopy noencryption
 
 Source: "{#BuildDir}\PurplePen.exe"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\PdfConverter.exe"; DestDir: "{app}"; Flags: ignoreversion 
+#ifndef VisualStudio
 Source: "{#BuildDir}\createdump.exe"; DestDir: "{app}"; Flags: ignoreversion 
+#endif
 Source: "{#BuildDir}\*.dll"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.config"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.json"; DestDir: "{app}"; Flags: ignoreversion 
@@ -743,6 +802,7 @@ Source: "{#BuildDir}\et\*"; DestDir: "{app}\et"; Flags: ignoreversion recursesub
 Source: "{#BuildDir}\fi\*"; DestDir: "{app}\fi"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#BuildDir}\fr\*"; DestDir: "{app}\fr"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#BuildDir}\hu\*"; DestDir: "{app}\hu"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#BuildDir}\it\*"; DestDir: "{app}\it"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#BuildDir}\ja\*"; DestDir: "{app}\ja"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#BuildDir}\nb-NO\*"; DestDir: "{app}\nb-NO"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#BuildDir}\nl\*"; DestDir: "{app}\nl"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -765,6 +825,7 @@ Source: "{#BuildDir}\fonts\RobotoCondensed-Regular.ttf"; DestDir: "{app}\fonts";
 Source: "{#BuildDir}\fonts\RobotoCondensed-Bold.ttf"; DestDir: "{app}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs 
 Source: "{#BuildDir}\fonts\RobotoCondensed-Italic.ttf"; DestDir: "{app}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs 
 Source: "{#BuildDir}\fonts\RobotoCondensed-BoldItalic.ttf"; DestDir: "{app}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs 
+Source: "{#BuildDir}\fonts\texgyrepagella-bolditalic.otf"; DestDir: "{app}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs 
 
 Source: "{#BuildDir}\fonts\Roboto-Regular.ttf"; DestDir: "{commonfonts}"; FontInstall: "Roboto"; Flags: onlyifdoesntexist uninsneveruninstall 
 Source: "{#BuildDir}\fonts\Roboto-Bold.ttf"; DestDir: "{commonfonts}"; FontInstall: "Roboto Bold"; Flags: onlyifdoesntexist uninsneveruninstall 
@@ -794,10 +855,10 @@ Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [Registry]
-Root: HKCR; SubKey: ".ppen"; ValueType: string; ValueData: "PurplePen.PurplePenEvent"; Flags: uninsdeletekey
-Root: HKCR; SubKey: "PurplePen.PurplePenEvent"; ValueType: string; ValueData: "Purple Pen Event File"; Flags: uninsdeletekey
-Root: HKCR; SubKey: "PurplePen.PurplePenEvent\Shell\Open\Command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey
-Root: HKCR; Subkey: "PurplePen.PurplePenEvent\DefaultIcon"; ValueType: string; ValueData: "{app}\{#MyAppExeName},0"; Flags: uninsdeletevalue
+Root: HKCR; SubKey: ".ppen"; ValueType: string; ValueData: "{#MyProgId}"; Flags: uninsdeletekey
+Root: HKCR; SubKey: "{#MyProgId}"; ValueType: string; ValueData: "Purple Pen Event File"; Flags: uninsdeletekey
+Root: HKCR; SubKey: "{#MyProgId}\Shell\Open\Command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey
+Root: HKCR; Subkey: "{#MyProgId}\DefaultIcon"; ValueType: string; ValueData: "{app}\{#MyAppExeName},0"; Flags: uninsdeletekey
 
 [CustomMessages]
 DependenciesDir=MyProgramDependencies

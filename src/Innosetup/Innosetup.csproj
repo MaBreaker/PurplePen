@@ -22,6 +22,10 @@
     <OutputFile>output\purplepen-setup.exe</OutputFile>
     <!-- Define the log file -->
     <LogFile>output\InnoBuild.log</LogFile>
+	<!-- Old PurplePen non-Avalonia build -->
+	<InnoProjectFile355>PurplePen_355.iss</InnoProjectFile355>
+	<OutputFile355>output\purplepen-setup-355.exe</OutputFile355>
+	<LogFile355>output\InnoBuild-355.log</LogFile355>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,6 +43,7 @@
 
   <ItemGroup>
     <None Include="$(InnoProjectFile)" />
+    <None Include="$(InnoProjectFile355)" />
     <None Include="CodeDependencies.iss" />
     <None Include="compile-setup.bat" />
     <None Include="create-setup.bat" />
@@ -53,10 +58,14 @@
   </ItemGroup>
 
   <Target Name="RunInnoSetup" AfterTargets="Build" DependsOnTargets="PrepareOutputDirectory" Inputs="@(InputFile)" Outputs="$(OutputFile)">
-
     <Message Importance="high" Text="Running Inno Setup; log in $(LogFile)" />
     <Exec Command="&quot;$(InnoCompiler)&quot; &quot;$(InnoProjectFile)&quot; &gt; &quot;$(LogFile)&quot;" />
   </Target>
+
+	<Target Name="RunInnoSetup" AfterTargets="Build" DependsOnTargets="PrepareOutputDirectory" Inputs="@(InputFile)" Outputs="$(OutputFile355)">
+		<Message Importance="high" Text="Running Inno Setup; log in $(LogFile355)" />
+		<Exec Command="&quot;$(InnoCompiler)&quot; &quot;$(InnoProjectFile355)&quot; &gt; &quot;$(LogFile355)&quot;" />
+	</Target>
 
   <Target Name="PrepareOutputDirectory">
     <MakeDir Directories="output" />

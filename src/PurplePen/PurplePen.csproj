@@ -211,7 +211,6 @@
     <EmbeddedResource Remove="ViewAdditionalCourses.sl.resx" />
     <EmbeddedResource Remove="ViewAdditionalCourses.ru.resx" />
     <EmbeddedResource Remove="ViewAdditionalCourses.ku.resx" />
-    <EmbeddedResource Remove="ViewAdditionalCourses.it.resx" />
     <EmbeddedResource Remove="ViewAdditionalCourses.id.resx" />
     <EmbeddedResource Remove="ViewAdditionalCourses.he.resx" />
     <EmbeddedResource Remove="ViewAdditionalCourses.en-GB.resx" />
@@ -221,7 +220,6 @@
     <EmbeddedResource Remove="UnusedControls.sl.resx" />
     <EmbeddedResource Remove="UnusedControls.ru.resx" />
     <EmbeddedResource Remove="UnusedControls.ku.resx" />
-    <EmbeddedResource Remove="UnusedControls.it.resx" />
     <EmbeddedResource Remove="UnusedControls.id.resx" />
     <EmbeddedResource Remove="UnusedControls.he.resx" />
     <EmbeddedResource Remove="UnusedControls.en-GB.resx" />
@@ -231,7 +229,6 @@
     <EmbeddedResource Remove="TitleDetailButton.sl.resx" />
     <EmbeddedResource Remove="TitleDetailButton.ru.resx" />
     <EmbeddedResource Remove="TitleDetailButton.ku.resx" />
-    <EmbeddedResource Remove="TitleDetailButton.it.resx" />
     <EmbeddedResource Remove="TitleDetailButton.id.resx" />
     <EmbeddedResource Remove="TitleDetailButton.he.resx" />
     <EmbeddedResource Remove="TitleDetailButton.en-GB.resx" />
@@ -241,7 +238,6 @@
     <EmbeddedResource Remove="TeamVariationsForm.sl.resx" />
     <EmbeddedResource Remove="TeamVariationsForm.ru.resx" />
     <EmbeddedResource Remove="TeamVariationsForm.ku.resx" />
-    <EmbeddedResource Remove="TeamVariationsForm.it.resx" />
     <EmbeddedResource Remove="TeamVariationsForm.id.resx" />
     <EmbeddedResource Remove="TeamVariationsForm.he.resx" />
     <EmbeddedResource Remove="TeamVariationsForm.en-GB.resx" />
@@ -251,7 +247,6 @@
     <EmbeddedResource Remove="StatusBarText.sl.resx" />
     <EmbeddedResource Remove="StatusBarText.ru.resx" />
     <EmbeddedResource Remove="StatusBarText.ku.resx" />
-    <EmbeddedResource Remove="StatusBarText.it.resx" />
     <EmbeddedResource Remove="StatusBarText.id.resx" />
     <EmbeddedResource Remove="StatusBarText.he.resx" />
     <EmbeddedResource Remove="StatusBarText.en-GB.resx" />
@@ -261,7 +256,6 @@
     <EmbeddedResource Remove="SetUILanguage.sl.resx" />
     <EmbeddedResource Remove="SetUILanguage.ru.resx" />
     <EmbeddedResource Remove="SetUILanguage.ku.resx" />
-    <EmbeddedResource Remove="SetUILanguage.it.resx" />
     <EmbeddedResource Remove="SetUILanguage.id.resx" />
     <EmbeddedResource Remove="SetUILanguage.he.resx" />
     <EmbeddedResource Remove="SetUILanguage.en-GB.resx" />
@@ -271,7 +265,6 @@
     <EmbeddedResource Remove="SetPrintAreaDialog.sl.resx" />
     <EmbeddedResource Remove="SetPrintAreaDialog.ru.resx" />
     <EmbeddedResource Remove="SetPrintAreaDialog.ku.resx" />
-    <EmbeddedResource Remove="SetPrintAreaDialog.it.resx" />
     <EmbeddedResource Remove="SetPrintAreaDialog.id.resx" />
     <EmbeddedResource Remove="SetPrintAreaDialog.he.resx" />
     <EmbeddedResource Remove="SetPrintAreaDialog.en-GB.resx" />
@@ -281,7 +274,6 @@
     <EmbeddedResource Remove="SelectVariations.sl.resx" />
     <EmbeddedResource Remove="SelectVariations.ru.resx" />
     <EmbeddedResource Remove="SelectVariations.ku.resx" />
-    <EmbeddedResource Remove="SelectVariations.it.resx" />
     <EmbeddedResource Remove="SelectVariations.id.resx" />
     <EmbeddedResource Remove="SelectVariations.he.resx" />
     <EmbeddedResource Remove="SelectVariations.en-GB.resx" />
@@ -291,7 +283,6 @@
     <EmbeddedResource Remove="SelectLocationsForMove.sl.resx" />
     <EmbeddedResource Remove="SelectLocationsForMove.ru.resx" />
     <EmbeddedResource Remove="SelectLocationsForMove.ku.resx" />
-    <EmbeddedResource Remove="SelectLocationsForMove.it.resx" />
     <EmbeddedResource Remove="SelectLocationsForMove.id.resx" />
     <EmbeddedResource Remove="SelectLocationsForMove.he.resx" />
     <EmbeddedResource Remove="SelectLocationsForMove.en-GB.resx" />
@@ -301,7 +292,6 @@
     <EmbeddedResource Remove="SelectionDescriptionText.sl.resx" />
     <EmbeddedResource Remove="SelectionDescriptionText.ru.resx" />
     <EmbeddedResource Remove="SelectionDescriptionText.ku.resx" />
-    <EmbeddedResource Remove="SelectionDescriptionText.it.resx" />
     <EmbeddedResource Remove="SelectionDescriptionText.id.resx" />
     <EmbeddedResource Remove="SelectionDescriptionText.he.resx" />
     <EmbeddedResource Remove="SelectionDescriptionText.en-GB.resx" />
@@ -311,7 +301,6 @@
     <EmbeddedResource Remove="ReportText.sl.resx" />
     <EmbeddedResource Remove="ReportText.ru.resx" />
     <EmbeddedResource Remove="ReportText.ku.resx" />
-    <EmbeddedResource Remove="ReportText.it.resx" />
     <EmbeddedResource Remove="ReportText.id.resx" />
     <EmbeddedResource Remove="ReportText.he.resx" />
     <EmbeddedResource Remove="ReportText.en-GB.resx" />
@@ -321,7 +310,6 @@
     <EmbeddedResource Remove="ReportForm.sl.resx" />
     <EmbeddedResource Remove="ReportForm.ru.resx" />
     <EmbeddedResource Remove="ReportForm.ku.resx" />
-    <EmbeddedResource Remove="ReportForm.it.resx" />
     <EmbeddedResource Remove="ReportForm.id.resx" />
     <EmbeddedResource Remove="ReportForm.he.resx" />
     <EmbeddedResource Remove="ReportForm.en-GB.resx" />
@@ -331,7 +319,6 @@
     <EmbeddedResource Remove="PunchPatternDialog.sl.resx" />
     <EmbeddedResource Remove="PunchPatternDialog.ru.resx" />
     <EmbeddedResource Remove="PunchPatternDialog.ku.resx" />
-    <EmbeddedResource Remove="PunchPatternDialog.it.resx" />
     <EmbeddedResource Remove="PunchPatternDialog.id.resx" />
     <EmbeddedResource Remove="PunchPatternDialog.he.resx" />
     <EmbeddedResource Remove="PunchPatternDialog.en-GB.resx" />
@@ -342,7 +329,6 @@
     <EmbeddedResource Remove="PunchcardLayoutDialog.sl.resx" />
     <EmbeddedResource Remove="PunchcardLayoutDialog.ru.resx" />
     <EmbeddedResource Remove="PunchcardLayoutDialog.ku.resx" />
-    <EmbeddedResource Remove="PunchcardLayoutDialog.it.resx" />
     <EmbeddedResource Remove="PunchcardLayoutDialog.id.resx" />
     <EmbeddedResource Remove="PunchcardLayoutDialog.he.resx" />
     <EmbeddedResource Remove="PunchcardLayoutDialog.en-GB.resx" />
@@ -353,7 +339,6 @@
     <EmbeddedResource Remove="PrintPunches.sl.resx" />
     <EmbeddedResource Remove="PrintPunches.ru.resx" />
     <EmbeddedResource Remove="PrintPunches.ku.resx" />
-    <EmbeddedResource Remove="PrintPunches.it.resx" />
     <EmbeddedResource Remove="PrintPunches.id.resx" />
     <EmbeddedResource Remove="PrintPunches.he.resx" />
     <EmbeddedResource Remove="PrintPunches.en-GB.resx" />
@@ -363,7 +348,6 @@
     <EmbeddedResource Remove="PrinterMargins.sl.resx" />
     <EmbeddedResource Remove="PrinterMargins.ru.resx" />
     <EmbeddedResource Remove="PrinterMargins.ku.resx" />
-    <EmbeddedResource Remove="PrinterMargins.it.resx" />
     <EmbeddedResource Remove="PrinterMargins.id.resx" />
     <EmbeddedResource Remove="PrinterMargins.he.resx" />
     <EmbeddedResource Remove="PrinterMargins.en-GB.resx" />
@@ -373,7 +357,6 @@
     <EmbeddedResource Remove="PrintDescriptions.sl.resx" />
     <EmbeddedResource Remove="PrintDescriptions.ru.resx" />
     <EmbeddedResource Remove="PrintDescriptions.ku.resx" />
-    <EmbeddedResource Remove="PrintDescriptions.it.resx" />
     <EmbeddedResource Remove="PrintDescriptions.id.resx" />
     <EmbeddedResource Remove="PrintDescriptions.he.resx" />
     <EmbeddedResource Remove="PrintDescriptions.en-GB.resx" />
@@ -383,7 +366,6 @@
     <EmbeddedResource Remove="PrintCourses.sl.resx" />
     <EmbeddedResource Remove="PrintCourses.ru.resx" />
     <EmbeddedResource Remove="PrintCourses.ku.resx" />
-    <EmbeddedResource Remove="PrintCourses.it.resx" />
     <EmbeddedResource Remove="PrintCourses.id.resx" />
     <EmbeddedResource Remove="PrintCourses.he.resx" />
     <EmbeddedResource Remove="PrintCourses.en-GB.resx" />
@@ -393,7 +375,6 @@
     <EmbeddedResource Remove="PdfConversionInProgress.sl.resx" />
     <EmbeddedResource Remove="PdfConversionInProgress.ru.resx" />
     <EmbeddedResource Remove="PdfConversionInProgress.ku.resx" />
-    <EmbeddedResource Remove="PdfConversionInProgress.it.resx" />
     <EmbeddedResource Remove="PdfConversionInProgress.id.resx" />
     <EmbeddedResource Remove="PdfConversionInProgress.he.resx" />
     <EmbeddedResource Remove="PdfConversionInProgress.en-GB.resx" />
@@ -403,7 +384,6 @@
     <EmbeddedResource Remove="PaperSizeControl.sl.resx" />
     <EmbeddedResource Remove="PaperSizeControl.ru.resx" />
     <EmbeddedResource Remove="PaperSizeControl.ku.resx" />
-    <EmbeddedResource Remove="PaperSizeControl.it.resx" />
     <EmbeddedResource Remove="PaperSizeControl.id.resx" />
     <EmbeddedResource Remove="PaperSizeControl.he.resx" />
     <EmbeddedResource Remove="PaperSizeControl.en-GB.resx" />
@@ -413,7 +393,6 @@
     <EmbeddedResource Remove="OverwritingOcadFilesDialog.sl.resx" />
     <EmbeddedResource Remove="OverwritingOcadFilesDialog.ru.resx" />
     <EmbeddedResource Remove="OverwritingOcadFilesDialog.ku.resx" />
-    <EmbeddedResource Remove="OverwritingOcadFilesDialog.it.resx" />
     <EmbeddedResource Remove="OverwritingOcadFilesDialog.id.resx" />
     <EmbeddedResource Remove="OverwritingOcadFilesDialog.he.resx" />
     <EmbeddedResource Remove="OverwritingOcadFilesDialog.en-GB.resx" />
@@ -423,7 +402,6 @@
     <EmbeddedResource Remove="OperationInProgress.sl.resx" />
     <EmbeddedResource Remove="OperationInProgress.ru.resx" />
     <EmbeddedResource Remove="OperationInProgress.ku.resx" />
-    <EmbeddedResource Remove="OperationInProgress.it.resx" />
     <EmbeddedResource Remove="OperationInProgress.id.resx" />
     <EmbeddedResource Remove="OperationInProgress.he.resx" />
     <EmbeddedResource Remove="OperationInProgress.en-GB.resx" />
@@ -433,7 +411,6 @@
     <EmbeddedResource Remove="OkCancelDialog.sl.resx" />
     <EmbeddedResource Remove="OkCancelDialog.ru.resx" />
     <EmbeddedResource Remove="OkCancelDialog.ku.resx" />
-    <EmbeddedResource Remove="OkCancelDialog.it.resx" />
     <EmbeddedResource Remove="OkCancelDialog.id.resx" />
     <EmbeddedResource Remove="OkCancelDialog.he.resx" />
     <EmbeddedResource Remove="OkCancelDialog.en-GB.resx" />
@@ -443,7 +420,6 @@
     <EmbeddedResource Remove="NonPrintableObjects.sl.resx" />
     <EmbeddedResource Remove="NonPrintableObjects.ru.resx" />
     <EmbeddedResource Remove="NonPrintableObjects.ku.resx" />
-    <EmbeddedResource Remove="NonPrintableObjects.it.resx" />
     <EmbeddedResource Remove="NonPrintableObjects.id.resx" />
     <EmbeddedResource Remove="NonPrintableObjects.he.resx" />
     <EmbeddedResource Remove="NonPrintableObjects.en-GB.resx" />
@@ -453,7 +429,6 @@
     <EmbeddedResource Remove="NewEventWizard.sl.resx" />
     <EmbeddedResource Remove="NewEventWizard.ru.resx" />
     <EmbeddedResource Remove="NewEventWizard.ku.resx" />
-    <EmbeddedResource Remove="NewEventWizard.it.resx" />
     <EmbeddedResource Remove="NewEventWizard.id.resx" />
     <EmbeddedResource Remove="NewEventWizard.he.resx" />
     <EmbeddedResource Remove="NewEventWizard.en-GB.resx" />
@@ -463,7 +438,6 @@
     <EmbeddedResource Remove="NewEventTitle.sl.resx" />
     <EmbeddedResource Remove="NewEventTitle.ru.resx" />
     <EmbeddedResource Remove="NewEventTitle.ku.resx" />
-    <EmbeddedResource Remove="NewEventTitle.it.resx" />
     <EmbeddedResource Remove="NewEventTitle.id.resx" />
     <EmbeddedResource Remove="NewEventTitle.he.resx" />
     <EmbeddedResource Remove="NewEventTitle.en-GB.resx" />
@@ -473,7 +447,6 @@
     <EmbeddedResource Remove="NewEventStandards.sl.resx" />
     <EmbeddedResource Remove="NewEventStandards.ru.resx" />
     <EmbeddedResource Remove="NewEventStandards.ku.resx" />
-    <EmbeddedResource Remove="NewEventStandards.it.resx" />
     <EmbeddedResource Remove="NewEventStandards.id.resx" />
     <EmbeddedResource Remove="NewEventStandards.he.resx" />
     <EmbeddedResource Remove="NewEventStandards.en-GB.resx" />
@@ -483,7 +456,6 @@
     <EmbeddedResource Remove="NewEventPrintScale.sl.resx" />
     <EmbeddedResource Remove="NewEventPrintScale.ru.resx" />
     <EmbeddedResource Remove="NewEventPrintScale.ku.resx" />
-    <EmbeddedResource Remove="NewEventPrintScale.it.resx" />
     <EmbeddedResource Remove="NewEventPrintScale.id.resx" />
     <EmbeddedResource Remove="NewEventPrintScale.he.resx" />
     <EmbeddedResource Remove="NewEventPrintScale.en-GB.resx" />
@@ -493,7 +465,6 @@
     <EmbeddedResource Remove="NewEventPaperSize.sl.resx" />
     <EmbeddedResource Remove="NewEventPaperSize.ru.resx" />
     <EmbeddedResource Remove="NewEventPaperSize.ku.resx" />
-    <EmbeddedResource Remove="NewEventPaperSize.it.resx" />
     <EmbeddedResource Remove="NewEventPaperSize.id.resx" />
     <EmbeddedResource Remove="NewEventPaperSize.he.resx" />
     <EmbeddedResource Remove="NewEventPaperSize.en-GB.resx" />
@@ -503,7 +474,6 @@
     <EmbeddedResource Remove="NewEventNumbering.sl.resx" />
     <EmbeddedResource Remove="NewEventNumbering.ru.resx" />
     <EmbeddedResource Remove="NewEventNumbering.ku.resx" />
-    <EmbeddedResource Remove="NewEventNumbering.it.resx" />
     <EmbeddedResource Remove="NewEventNumbering.id.resx" />
     <EmbeddedResource Remove="NewEventNumbering.he.resx" />
     <EmbeddedResource Remove="NewEventNumbering.en-GB.resx" />
@@ -513,7 +483,6 @@
     <EmbeddedResource Remove="NewEventMapFile.sl.resx" />
     <EmbeddedResource Remove="NewEventMapFile.ru.resx" />
     <EmbeddedResource Remove="NewEventMapFile.ku.resx" />
-    <EmbeddedResource Remove="NewEventMapFile.it.resx" />
     <EmbeddedResource Remove="NewEventMapFile.id.resx" />
     <EmbeddedResource Remove="NewEventMapFile.he.resx" />
     <EmbeddedResource Remove="NewEventMapFile.en-GB.resx" />
@@ -523,7 +492,6 @@
     <EmbeddedResource Remove="NewEventFinal.sl.resx" />
     <EmbeddedResource Remove="NewEventFinal.ru.resx" />
     <EmbeddedResource Remove="NewEventFinal.ku.resx" />
-    <EmbeddedResource Remove="NewEventFinal.it.resx" />
     <EmbeddedResource Remove="NewEventFinal.id.resx" />
     <EmbeddedResource Remove="NewEventFinal.he.resx" />
     <EmbeddedResource Remove="NewEventFinal.en-GB.resx" />
@@ -533,7 +501,6 @@
     <EmbeddedResource Remove="NewEventDirectory.sl.resx" />
     <EmbeddedResource Remove="NewEventDirectory.ru.resx" />
     <EmbeddedResource Remove="NewEventDirectory.ku.resx" />
-    <EmbeddedResource Remove="NewEventDirectory.it.resx" />
     <EmbeddedResource Remove="NewEventDirectory.id.resx" />
     <EmbeddedResource Remove="NewEventDirectory.he.resx" />
     <EmbeddedResource Remove="NewEventDirectory.en-GB.resx" />
@@ -543,7 +510,6 @@
     <EmbeddedResource Remove="NewEventBitmapScale.sl.resx" />
     <EmbeddedResource Remove="NewEventBitmapScale.ru.resx" />
     <EmbeddedResource Remove="NewEventBitmapScale.ku.resx" />
-    <EmbeddedResource Remove="NewEventBitmapScale.it.resx" />
     <EmbeddedResource Remove="NewEventBitmapScale.id.resx" />
     <EmbeddedResource Remove="NewEventBitmapScale.he.resx" />
     <EmbeddedResource Remove="NewEventBitmapScale.en-GB.resx" />
@@ -553,7 +519,6 @@
     <EmbeddedResource Remove="MoveControlChoiceDialog.sl.resx" />
     <EmbeddedResource Remove="MoveControlChoiceDialog.ru.resx" />
     <EmbeddedResource Remove="MoveControlChoiceDialog.ku.resx" />
-    <EmbeddedResource Remove="MoveControlChoiceDialog.it.resx" />
     <EmbeddedResource Remove="MoveControlChoiceDialog.id.resx" />
     <EmbeddedResource Remove="MoveControlChoiceDialog.he.resx" />
     <EmbeddedResource Remove="MoveControlChoiceDialog.en-GB.resx" />
@@ -563,7 +528,6 @@
     <EmbeddedResource Remove="MoveAllControls.sl.resx" />
     <EmbeddedResource Remove="MoveAllControls.ru.resx" />
     <EmbeddedResource Remove="MoveAllControls.ku.resx" />
-    <EmbeddedResource Remove="MoveAllControls.it.resx" />
     <EmbeddedResource Remove="MoveAllControls.id.resx" />
     <EmbeddedResource Remove="MoveAllControls.he.resx" />
     <EmbeddedResource Remove="MoveAllControls.en-GB.resx" />
@@ -573,7 +537,6 @@
     <EmbeddedResource Remove="MissingFonts.sl.resx" />
     <EmbeddedResource Remove="MissingFonts.ru.resx" />
     <EmbeddedResource Remove="MissingFonts.ku.resx" />
-    <EmbeddedResource Remove="MissingFonts.it.resx" />
     <EmbeddedResource Remove="MissingFonts.id.resx" />
     <EmbeddedResource Remove="MissingFonts.he.resx" />
     <EmbeddedResource Remove="MissingFonts.en-GB.resx" />
@@ -583,7 +546,6 @@
     <EmbeddedResource Remove="MiscText.sl.resx" />
     <EmbeddedResource Remove="MiscText.ru.resx" />
     <EmbeddedResource Remove="MiscText.ku.resx" />
-    <EmbeddedResource Remove="MiscText.it.resx" />
     <EmbeddedResource Remove="MiscText.id.resx" />
     <EmbeddedResource Remove="MiscText.he.resx" />
     <EmbeddedResource Remove="MiscText.en-GB.resx" />
@@ -593,7 +555,6 @@
     <EmbeddedResource Remove="MapIssueChoiceDialog.sl.resx" />
     <EmbeddedResource Remove="MapIssueChoiceDialog.ru.resx" />
     <EmbeddedResource Remove="MapIssueChoiceDialog.ku.resx" />
-    <EmbeddedResource Remove="MapIssueChoiceDialog.it.resx" />
     <EmbeddedResource Remove="MapIssueChoiceDialog.id.resx" />
     <EmbeddedResource Remove="MapIssueChoiceDialog.he.resx" />
     <EmbeddedResource Remove="MapIssueChoiceDialog.en-GB.resx" />
@@ -603,7 +564,6 @@
     <EmbeddedResource Remove="MainFrame.sl.resx" />
     <EmbeddedResource Remove="MainFrame.ru.resx" />
     <EmbeddedResource Remove="MainFrame.ku.resx" />
-    <EmbeddedResource Remove="MainFrame.it.resx" />
     <EmbeddedResource Remove="MainFrame.id.resx" />
     <EmbeddedResource Remove="MainFrame.he.resx" />
     <EmbeddedResource Remove="MainFrame.en-GB.resx" />
@@ -614,7 +574,6 @@
     <EmbeddedResource Remove="LinePropertiesDialog.sl.resx" />
     <EmbeddedResource Remove="LinePropertiesDialog.ru.resx" />
     <EmbeddedResource Remove="LinePropertiesDialog.ku.resx" />
-    <EmbeddedResource Remove="LinePropertiesDialog.it.resx" />
     <EmbeddedResource Remove="LinePropertiesDialog.id.resx" />
     <EmbeddedResource Remove="LinePropertiesDialog.he.resx" />
     <EmbeddedResource Remove="LinePropertiesDialog.en-GB.resx" />
@@ -624,7 +583,6 @@
     <EmbeddedResource Remove="LicenseForm.sl.resx" />
     <EmbeddedResource Remove="LicenseForm.ru.resx" />
     <EmbeddedResource Remove="LicenseForm.ku.resx" />
-    <EmbeddedResource Remove="LicenseForm.it.resx" />
     <EmbeddedResource Remove="LicenseForm.id.resx" />
     <EmbeddedResource Remove="LicenseForm.he.resx" />
     <EmbeddedResource Remove="LicenseForm.en-GB.resx" />
@@ -634,7 +592,6 @@
     <EmbeddedResource Remove="LegAssignmentsDialog.sl.resx" />
     <EmbeddedResource Remove="LegAssignmentsDialog.ru.resx" />
     <EmbeddedResource Remove="LegAssignmentsDialog.ku.resx" />
-    <EmbeddedResource Remove="LegAssignmentsDialog.it.resx" />
     <EmbeddedResource Remove="LegAssignmentsDialog.id.resx" />
     <EmbeddedResource Remove="LegAssignmentsDialog.he.resx" />
     <EmbeddedResource Remove="LegAssignmentsDialog.en-GB.resx" />
@@ -644,7 +601,6 @@
     <EmbeddedResource Remove="InitialScreen.sl.resx" />
     <EmbeddedResource Remove="InitialScreen.ru.resx" />
     <EmbeddedResource Remove="InitialScreen.ku.resx" />
-    <EmbeddedResource Remove="InitialScreen.it.resx" />
     <EmbeddedResource Remove="InitialScreen.id.resx" />
     <EmbeddedResource Remove="InitialScreen.he.resx" />
     <EmbeddedResource Remove="InitialScreen.en-GB.resx" />
@@ -654,7 +610,6 @@
     <EmbeddedResource Remove="EnterSymbolText.sl.resx" />
     <EmbeddedResource Remove="EnterSymbolText.ru.resx" />
     <EmbeddedResource Remove="EnterSymbolText.ku.resx" />
-    <EmbeddedResource Remove="EnterSymbolText.it.resx" />
     <EmbeddedResource Remove="EnterSymbolText.id.resx" />
     <EmbeddedResource Remove="EnterSymbolText.he.resx" />
     <EmbeddedResource Remove="EnterSymbolText.en-GB.resx" />
@@ -664,7 +619,6 @@
     <EmbeddedResource Remove="DownloadProgressDialog.sl.resx" />
     <EmbeddedResource Remove="DownloadProgressDialog.ru.resx" />
     <EmbeddedResource Remove="DownloadProgressDialog.ku.resx" />
-    <EmbeddedResource Remove="DownloadProgressDialog.it.resx" />
     <EmbeddedResource Remove="DownloadProgressDialog.id.resx" />
     <EmbeddedResource Remove="DownloadProgressDialog.he.resx" />
     <EmbeddedResource Remove="DownloadProgressDialog.en-GB.resx" />
@@ -674,7 +628,6 @@
     <EmbeddedResource Remove="DotGrid.sl.resx" />
     <EmbeddedResource Remove="DotGrid.ru.resx" />
     <EmbeddedResource Remove="DotGrid.ku.resx" />
-    <EmbeddedResource Remove="DotGrid.it.resx" />
     <EmbeddedResource Remove="DotGrid.id.resx" />
     <EmbeddedResource Remove="DotGrid.he.resx" />
     <EmbeddedResource Remove="DotGrid.en-GB.resx" />
@@ -684,7 +637,6 @@
     <EmbeddedResource Remove="DescriptionControl.sl.resx" />
     <EmbeddedResource Remove="DescriptionControl.ru.resx" />
     <EmbeddedResource Remove="DescriptionControl.ku.resx" />
-    <EmbeddedResource Remove="DescriptionControl.it.resx" />
     <EmbeddedResource Remove="DescriptionControl.id.resx" />
     <EmbeddedResource Remove="DescriptionControl.he.resx" />
     <EmbeddedResource Remove="DescriptionControl.en-GB.resx" />
@@ -694,7 +646,6 @@
     <EmbeddedResource Remove="CustomSymbolText.sl.resx" />
     <EmbeddedResource Remove="CustomSymbolText.ru.resx" />
     <EmbeddedResource Remove="CustomSymbolText.ku.resx" />
-    <EmbeddedResource Remove="CustomSymbolText.it.resx" />
     <EmbeddedResource Remove="CustomSymbolText.id.resx" />
     <EmbeddedResource Remove="CustomSymbolText.he.resx" />
     <EmbeddedResource Remove="CustomSymbolText.en-GB.resx" />
@@ -704,7 +655,6 @@
     <EmbeddedResource Remove="CreateRouteGadget.sl.resx" />
     <EmbeddedResource Remove="CreateRouteGadget.ru.resx" />
     <EmbeddedResource Remove="CreateRouteGadget.ku.resx" />
-    <EmbeddedResource Remove="CreateRouteGadget.it.resx" />
     <EmbeddedResource Remove="CreateRouteGadget.id.resx" />
     <EmbeddedResource Remove="CreateRouteGadget.he.resx" />
     <EmbeddedResource Remove="CreateRouteGadget.en-GB.resx" />
@@ -714,7 +664,6 @@
     <EmbeddedResource Remove="CreatePdfCourses.sl.resx" />
     <EmbeddedResource Remove="CreatePdfCourses.ru.resx" />
     <EmbeddedResource Remove="CreatePdfCourses.ku.resx" />
-    <EmbeddedResource Remove="CreatePdfCourses.it.resx" />
     <EmbeddedResource Remove="CreatePdfCourses.id.resx" />
     <EmbeddedResource Remove="CreatePdfCourses.he.resx" />
     <EmbeddedResource Remove="CreatePdfCourses.en-GB.resx" />
@@ -724,7 +673,6 @@
     <EmbeddedResource Remove="CreateOcadFiles.sl.resx" />
     <EmbeddedResource Remove="CreateOcadFiles.ru.resx" />
     <EmbeddedResource Remove="CreateOcadFiles.ku.resx" />
-    <EmbeddedResource Remove="CreateOcadFiles.it.resx" />
     <EmbeddedResource Remove="CreateOcadFiles.id.resx" />
     <EmbeddedResource Remove="CreateOcadFiles.he.resx" />
     <EmbeddedResource Remove="CreateOcadFiles.en-GB.resx" />
@@ -734,7 +682,6 @@
     <EmbeddedResource Remove="CreateKmlFiles.sl.resx" />
     <EmbeddedResource Remove="CreateKmlFiles.ru.resx" />
     <EmbeddedResource Remove="CreateKmlFiles.ku.resx" />
-    <EmbeddedResource Remove="CreateKmlFiles.it.resx" />
     <EmbeddedResource Remove="CreateKmlFiles.id.resx" />
     <EmbeddedResource Remove="CreateKmlFiles.he.resx" />
     <EmbeddedResource Remove="CreateKmlFiles.en-GB.resx" />
@@ -744,7 +691,6 @@
     <EmbeddedResource Remove="CreateImageFiles.sl.resx" />
     <EmbeddedResource Remove="CreateImageFiles.ru.resx" />
     <EmbeddedResource Remove="CreateImageFiles.ku.resx" />
-    <EmbeddedResource Remove="CreateImageFiles.it.resx" />
     <EmbeddedResource Remove="CreateImageFiles.id.resx" />
     <EmbeddedResource Remove="CreateImageFiles.he.resx" />
     <EmbeddedResource Remove="CreateImageFiles.en-GB.resx" />
@@ -754,7 +700,6 @@
     <EmbeddedResource Remove="CreateGpx.sl.resx" />
     <EmbeddedResource Remove="CreateGpx.ru.resx" />
     <EmbeddedResource Remove="CreateGpx.ku.resx" />
-    <EmbeddedResource Remove="CreateGpx.it.resx" />
     <EmbeddedResource Remove="CreateGpx.id.resx" />
     <EmbeddedResource Remove="CreateGpx.he.resx" />
     <EmbeddedResource Remove="CreateGpx.en-GB.resx" />
@@ -764,7 +709,6 @@
     <EmbeddedResource Remove="CourseSelector.sl.resx" />
     <EmbeddedResource Remove="CourseSelector.ru.resx" />
     <EmbeddedResource Remove="CourseSelector.ku.resx" />
-    <EmbeddedResource Remove="CourseSelector.it.resx" />
     <EmbeddedResource Remove="CourseSelector.id.resx" />
     <EmbeddedResource Remove="CourseSelector.he.resx" />
     <EmbeddedResource Remove="CourseSelector.en-GB.resx" />
@@ -774,7 +718,6 @@
     <EmbeddedResource Remove="CoursePartProperties.sl.resx" />
     <EmbeddedResource Remove="CoursePartProperties.ru.resx" />
     <EmbeddedResource Remove="CoursePartProperties.ku.resx" />
-    <EmbeddedResource Remove="CoursePartProperties.it.resx" />
     <EmbeddedResource Remove="CoursePartProperties.id.resx" />
     <EmbeddedResource Remove="CoursePartProperties.he.resx" />
     <EmbeddedResource Remove="CoursePartProperties.en-GB.resx" />
@@ -784,7 +727,6 @@
     <EmbeddedResource Remove="CoursePartBanner.sl.resx" />
     <EmbeddedResource Remove="CoursePartBanner.ru.resx" />
     <EmbeddedResource Remove="CoursePartBanner.ku.resx" />
-    <EmbeddedResource Remove="CoursePartBanner.it.resx" />
     <EmbeddedResource Remove="CoursePartBanner.id.resx" />
     <EmbeddedResource Remove="CoursePartBanner.he.resx" />
     <EmbeddedResource Remove="CoursePartBanner.en-GB.resx" />
@@ -794,7 +736,6 @@
     <EmbeddedResource Remove="CourseLoad.sl.resx" />
     <EmbeddedResource Remove="CourseLoad.ru.resx" />
     <EmbeddedResource Remove="CourseLoad.ku.resx" />
-    <EmbeddedResource Remove="CourseLoad.it.resx" />
     <EmbeddedResource Remove="CourseLoad.id.resx" />
     <EmbeddedResource Remove="CourseLoad.he.resx" />
     <EmbeddedResource Remove="CourseLoad.en-GB.resx" />
@@ -804,7 +745,6 @@
     <EmbeddedResource Remove="CourseAppearanceDialog.sl.resx" />
     <EmbeddedResource Remove="CourseAppearanceDialog.ru.resx" />
     <EmbeddedResource Remove="CourseAppearanceDialog.ku.resx" />
-    <EmbeddedResource Remove="CourseAppearanceDialog.it.resx" />
     <EmbeddedResource Remove="CourseAppearanceDialog.id.resx" />
     <EmbeddedResource Remove="CourseAppearanceDialog.he.resx" />
     <EmbeddedResource Remove="CourseAppearanceDialog.en-GB.resx" />
@@ -814,7 +754,6 @@
     <EmbeddedResource Remove="CommandNameText.sl.resx" />
     <EmbeddedResource Remove="CommandNameText.ru.resx" />
     <EmbeddedResource Remove="CommandNameText.ku.resx" />
-    <EmbeddedResource Remove="CommandNameText.it.resx" />
     <EmbeddedResource Remove="CommandNameText.id.resx" />
     <EmbeddedResource Remove="CommandNameText.he.resx" />
     <EmbeddedResource Remove="CommandNameText.en-GB.resx" />
@@ -824,7 +763,6 @@
     <EmbeddedResource Remove="ColorChooserDialog.sl.resx" />
     <EmbeddedResource Remove="ColorChooserDialog.ru.resx" />
     <EmbeddedResource Remove="ColorChooserDialog.ku.resx" />
-    <EmbeddedResource Remove="ColorChooserDialog.it.resx" />
     <EmbeddedResource Remove="ColorChooserDialog.id.resx" />
     <EmbeddedResource Remove="ColorChooserDialog.he.resx" />
     <EmbeddedResource Remove="ColorChooserDialog.en-GB.resx" />
@@ -834,7 +772,6 @@
     <EmbeddedResource Remove="ChangeText.sl.resx" />
     <EmbeddedResource Remove="ChangeText.ru.resx" />
     <EmbeddedResource Remove="ChangeText.ku.resx" />
-    <EmbeddedResource Remove="ChangeText.it.resx" />
     <EmbeddedResource Remove="ChangeText.id.resx" />
     <EmbeddedResource Remove="ChangeText.he.resx" />
     <EmbeddedResource Remove="ChangeText.en-GB.resx" />
@@ -844,7 +781,6 @@
     <EmbeddedResource Remove="ChangeSpecialCourses.sl.resx" />
     <EmbeddedResource Remove="ChangeSpecialCourses.ru.resx" />
     <EmbeddedResource Remove="ChangeSpecialCourses.ku.resx" />
-    <EmbeddedResource Remove="ChangeSpecialCourses.it.resx" />
     <EmbeddedResource Remove="ChangeSpecialCourses.id.resx" />
     <EmbeddedResource Remove="ChangeSpecialCourses.he.resx" />
     <EmbeddedResource Remove="ChangeSpecialCourses.en-GB.resx" />
@@ -854,7 +790,6 @@
     <EmbeddedResource Remove="ChangeMapFile.sl.resx" />
     <EmbeddedResource Remove="ChangeMapFile.ru.resx" />
     <EmbeddedResource Remove="ChangeMapFile.ku.resx" />
-    <EmbeddedResource Remove="ChangeMapFile.it.resx" />
     <EmbeddedResource Remove="ChangeMapFile.id.resx" />
     <EmbeddedResource Remove="ChangeMapFile.he.resx" />
     <EmbeddedResource Remove="ChangeMapFile.en-GB.resx" />
@@ -864,7 +799,6 @@
     <EmbeddedResource Remove="ChangeCourseOrder.sl.resx" />
     <EmbeddedResource Remove="ChangeCourseOrder.ru.resx" />
     <EmbeddedResource Remove="ChangeCourseOrder.ku.resx" />
-    <EmbeddedResource Remove="ChangeCourseOrder.it.resx" />
     <EmbeddedResource Remove="ChangeCourseOrder.id.resx" />
     <EmbeddedResource Remove="ChangeCourseOrder.he.resx" />
     <EmbeddedResource Remove="ChangeCourseOrder.en-GB.resx" />
@@ -874,7 +808,6 @@
     <EmbeddedResource Remove="ChangeAllCodes.sl.resx" />
     <EmbeddedResource Remove="ChangeAllCodes.ru.resx" />
     <EmbeddedResource Remove="ChangeAllCodes.ku.resx" />
-    <EmbeddedResource Remove="ChangeAllCodes.it.resx" />
     <EmbeddedResource Remove="ChangeAllCodes.id.resx" />
     <EmbeddedResource Remove="ChangeAllCodes.he.resx" />
     <EmbeddedResource Remove="ChangeAllCodes.en-GB.resx" />
@@ -884,7 +817,6 @@
     <EmbeddedResource Remove="BaseDialog.sl.resx" />
     <EmbeddedResource Remove="BaseDialog.ru.resx" />
     <EmbeddedResource Remove="BaseDialog.ku.resx" />
-    <EmbeddedResource Remove="BaseDialog.it.resx" />
     <EmbeddedResource Remove="BaseDialog.id.resx" />
     <EmbeddedResource Remove="BaseDialog.he.resx" />
     <EmbeddedResource Remove="BaseDialog.en-GB.resx" />
@@ -894,7 +826,6 @@
     <EmbeddedResource Remove="AutoNumbering.sl.resx" />
     <EmbeddedResource Remove="AutoNumbering.ru.resx" />
     <EmbeddedResource Remove="AutoNumbering.ku.resx" />
-    <EmbeddedResource Remove="AutoNumbering.it.resx" />
     <EmbeddedResource Remove="AutoNumbering.id.resx" />
     <EmbeddedResource Remove="AutoNumbering.he.resx" />
     <EmbeddedResource Remove="AutoNumbering.en-GB.resx" />
@@ -904,7 +835,6 @@
     <EmbeddedResource Remove="AllControlsProperties.sl.resx" />
     <EmbeddedResource Remove="AllControlsProperties.ru.resx" />
     <EmbeddedResource Remove="AllControlsProperties.ku.resx" />
-    <EmbeddedResource Remove="AllControlsProperties.it.resx" />
     <EmbeddedResource Remove="AllControlsProperties.id.resx" />
     <EmbeddedResource Remove="AllControlsProperties.he.resx" />
     <EmbeddedResource Remove="AllControlsProperties.en-GB.resx" />
@@ -914,7 +844,6 @@
     <EmbeddedResource Remove="AddTextLine.sl.resx" />
     <EmbeddedResource Remove="AddTextLine.ru.resx" />
     <EmbeddedResource Remove="AddTextLine.ku.resx" />
-    <EmbeddedResource Remove="AddTextLine.it.resx" />
     <EmbeddedResource Remove="AddTextLine.id.resx" />
     <EmbeddedResource Remove="AddTextLine.he.resx" />
     <EmbeddedResource Remove="AddTextLine.en-GB.resx" />
@@ -924,7 +853,6 @@
     <EmbeddedResource Remove="AddForkDialog.sl.resx" />
     <EmbeddedResource Remove="AddForkDialog.ru.resx" />
     <EmbeddedResource Remove="AddForkDialog.ku.resx" />
-    <EmbeddedResource Remove="AddForkDialog.it.resx" />
     <EmbeddedResource Remove="AddForkDialog.id.resx" />
     <EmbeddedResource Remove="AddForkDialog.he.resx" />
     <EmbeddedResource Remove="AddForkDialog.en-GB.resx" />
@@ -934,7 +862,6 @@
     <EmbeddedResource Remove="AddCourse.sl.resx" />
     <EmbeddedResource Remove="AddCourse.ru.resx" />
     <EmbeddedResource Remove="AddCourse.ku.resx" />
-    <EmbeddedResource Remove="AddCourse.it.resx" />
     <EmbeddedResource Remove="AddCourse.id.resx" />
     <EmbeddedResource Remove="AddCourse.he.resx" />
     <EmbeddedResource Remove="AddCourse.en-GB.resx" />
@@ -944,7 +871,6 @@
     <EmbeddedResource Remove="AboutForm.sl.resx" />
     <EmbeddedResource Remove="AboutForm.ru.resx" />
     <EmbeddedResource Remove="AboutForm.ku.resx" />
-    <EmbeddedResource Remove="AboutForm.it.resx" />
     <EmbeddedResource Remove="AboutForm.id.resx" />
     <EmbeddedResource Remove="AboutForm.he.resx" />
     <EmbeddedResource Remove="AboutForm.en-GB.resx" />
@@ -955,8 +881,8 @@
     <Reference Include="System.Net.Http" />
     <!-- JU: Statis exe.config instead of app.config for net48, while app.config does not work for net10, NOT NEEDED -->
     <!--
-	<None Include="PurplePen.exe.config" />
-	-->
+    <None Include="PurplePen.exe.config" />
+    -->
   </ItemGroup>
   <!-- JU: Enable PageSize config serialization for net10, NOT WORK -->
   <!--

@@ -340,7 +340,7 @@ namespace AvUtil
             {
                 // Open a file stream to write the PNG file
                 using (var stream = System.IO.File.OpenWrite(filePath)) {
-                    task.Result.Bitmap.Save(stream);
+                    task.Result.Bitmap.Save(stream, new PngBitmapEncoderOptions());
                 }
             }
 

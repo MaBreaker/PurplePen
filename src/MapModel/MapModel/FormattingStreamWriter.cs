@@ -45,7 +45,7 @@ namespace PurplePen.MapModel
         /// <param name="append"></param>
         /// <param name="encoding"></param>
         /// <param name="formatProvider"></param>
-        public FormattingStreamWriter(string path, bool append, Encoding? encoding, IFormatProvider formatProvider)
+        public FormattingStreamWriter(string path, bool append, Encoding encoding, IFormatProvider formatProvider)
             : base(path, append, encoding)
         {
             _internalFormatProvider = formatProvider;
