@@ -348,9 +348,9 @@ namespace PurplePenViewModels.Tests
         /// <summary>
         /// Climb at boundary values should be valid.
         /// </summary>
-        [TestCase(0)]
-        [TestCase(9999)]
-        [TestCase(500.5)]
+        [TestCase(0f)]
+        [TestCase(9999f)]
+        [TestCase(500.5f)]
         public void ClimbValidation_BoundaryValuesAreValid(float value)
         {
             vm.ClimbText = string.Format("{0:0.0}", value); //JU: Localization for UI
