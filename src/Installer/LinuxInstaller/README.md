@@ -24,10 +24,11 @@ not the others.
 | File | Purpose |
 |---|---|
 | `build-linux-packages.sh` | The build script. Run this. |
-| `publish-linux-repos.sh` | Files the built packages into signed apt and dnf repositories. Run this after the build, when releasing. |
+| `publish-linux-repos.sh` | Files the built packages into signed apt and dnf repositories, publishes the AppImage, and records everything in the download tree's `manifest.json`. Run this after the build, when releasing. |
 | `config.sh` | Settings — package identity, dependencies, architecture, versioning, AppImage options, and repository publishing. Every value can be overridden by an environment variable of the same name. |
 | `purplepen-archive-keyring.asc` | The **public** half of the repository signing key, shipped inside the packages so they can configure the repository. Safe in version control; the build fails if it does not match `SIGNING_KEY_FINGERPRINT`. |
 | `publish-exclude.txt` | rsync exclusion list controlling exactly which published files go into the packages. |
+| `default_message.txt` | The release notes recorded for a packaged installation, which has to update through apt or dnf rather than from inside Purple Pen. |
 | `purplepen.desktop.template` | Desktop menu entry. |
 | `purplepen-mime.xml.template` | shared-mime-info definition registering `.ppen` files. |
 | `AppRun.template` | The AppImage entry point, which sets up the bundled-library path. |
@@ -47,6 +48,7 @@ the build if any are left over.
 | `rpmbuild` | the `.rpm` | `sudo apt install rpm` / `sudo dnf install rpm-build` |
 | `curl`, `ldconfig` | the AppImage | base system |
 | `desktop-file-validate` | recommended | `desktop-file-utils` — the build validates both menu entries when present |
+| `appstreamcli` | recommended | `appstream` — the build validates the AppStream metadata with it. Without it the file is only checked for being well-formed XML (`xmllint` or `python3`, whichever is present) |
 | `lintian` | optional | reports Debian policy notes, informational only |
 | `apt-ftparchive`, `createrepo_c`, `rpmsign`, `gpg` | publishing repositories | `sudo apt install apt-utils gnupg createrepo-c rpm xz-utils` — only needed by `publish-linux-repos.sh`, not by the build |
 
@@ -227,6 +229,11 @@ Downloading a file by hand gets a user one version and no upgrade path.
 signed apt repository and a signed dnf repository, so that `apt install
 purplepen` works and updates arrive with the rest of the system.
 
+The same run also publishes the AppImage, which belongs to no package manager,
+and records all of it in the download tree's `manifest.json` — the file Purple
+Pen reads to find out whether a newer version exists. See *The update manifest*
+below.
+
 ```bash
 sudo apt install apt-utils gnupg createrepo-c rpm xz-utils
 ./publish-linux-repos.sh ~/ppdownload /mnt/e/PurplePenSigning
@@ -246,13 +253,21 @@ or asking for the passphrase. Run it first.
 ```
 ~/ppdownload/
 ├── root/          upload this to the web site
+│   ├── manifest.json                          update manifest, shared with the
+│   │                                          Windows and macOS builds
 │   └── linux/
-│       ├── purplepen-archive-keyring.asc   the public key users install
-│       ├── README.md                       generated install instructions
-│       ├── deb/    pool/<channel>/… and dists/<channel>/…
-│       └── rpm/    purplepen.repo and <channel>/<arch>/…
+│       ├── purplepen-archive-keyring.asc      the public key users install
+│       ├── README.md                          generated install instructions
+│       ├── deb/       pool/<channel>/… and dists/<channel>/…
+│       ├── rpm/       purplepen.repo and <channel>/<arch>/…
+│       └── appimage/  <arch>/PurplePen-<version>-linux-<arch>.AppImage
 └── data/          do NOT upload this
 ```
+
+Windows and macOS publish into this same tree — see
+`Innosetup/publish-setup.bat` and `Installer/MacInstaller/publish-mac-app.sh`,
+which put their installers under `windows/` and `mac/` and write their entries
+into the same `manifest.json`.
 
 `data/` holds the index cache and a log of what was published. Nothing in it is
 secret and nothing is irreplaceable — the repositories can be rebuilt from the
@@ -272,6 +287,43 @@ The two channels are independent and additive rather than nested: someone who
 wants betas subscribes to both, exactly as Debian's backports and Fedora's
 `updates-testing` work. The `.repo` file ships the beta section disabled, so a
 single file can be given to everyone.
+
+### The update manifest
+
+`root/manifest.json` is what a running copy of Purple Pen reads to find out
+whether a newer version exists. Each entry is added or replaced on its own, so
+the three platforms' publish scripts never have to be run together or in any
+particular order.
+
+Linux gets **two** entries, because a Linux installation is one of two rather
+different things:
+
+| Platform | What it is | What the entry offers |
+|---|---|---|
+| `linux-x64` | installed from the `.deb` or `.rpm` | release notes and **no download** |
+| `linux-appimage-x64` | running from an AppImage | the AppImage published above |
+
+The split is not cosmetic. A packaged installation belongs to apt or dnf, and
+replacing those files from inside the application would leave the package
+manager describing a version that is no longer on disk — so that entry carries
+nothing but the text in `default_message.txt`, telling the user to update the
+way they installed. An AppImage belongs to nobody but whoever downloaded it, so
+Purple Pen fetches a newer one and moves it over the running file.
+`UpdateManager.GetPlatformName` reports which of the two it is, so neither is
+ever offered the update it cannot use.
+
+The version and title in both entries — `4.0.0.210`, "Purple Pen 4.0.0 Beta 1" —
+are read out of `PurplePenCore.dll`, extracted from one of the packages being
+published, by the same `Installer/GetVersion.cs` that the Windows and macOS
+scripts use. Nothing converts `4.0.0~beta1` back into a four-part version
+number, and nothing composes that title a second time.
+
+Because the manifest names one version per platform, everything in `output/` has
+to be one release: two builds side by side stop the run rather than publishing
+files that the manifest does not mention. An AppImage is required for the same
+reason — its entry has to name a file that exists — so `--deb-only` and
+`--rpm-only` publish it too. Set `MANIFEST_MESSAGE_FILE` for a release that
+needs to say something other than the default.
 
 ### How the two repositories differ
 
@@ -298,6 +350,17 @@ loopback pinentry. That is not a shortcut: `rpmsign` runs gpg without any way to
 prompt, so a protected key otherwise fails outright. Set
 `SIGNING_PASSPHRASE_FILE` to run unattended.
 
+**`rpmsign` cannot be handed a file name containing a space.** It signs nothing
+itself — it expands rpm's `%__gpg_sign_cmd` macro and runs the result — and that
+macro does not quote the file names it passes to gpg. rpm 4.17's ends `-sbo
+%{__signature_filename} %{__plaintext_filename}`, quoting only the key name, so
+a publishing directory such as `OneDrive/Purple Pen/Downloads` reaches gpg as
+two truncated paths and fails with `No such file or directory`. Each `.rpm` is
+therefore signed in the scratch directory and copied into the tree afterwards,
+which also means a failure leaves nothing unsigned in the published tree. The
+one requirement this puts on the machine is that `TMPDIR` must not contain a
+space either; the script checks and says so.
+
 **`rpmsign` is broken out of the box on Ubuntu.** Ubuntu's `rpm` package
 hardcodes the gpg path to `/usr/bin/gpg2`, and Ubuntu's `gnupg` package installs
 only `/usr/bin/gpg`, so signing fails with `Could not exec gpg: No such file or
@@ -307,6 +370,32 @@ knowing if you ever sign an RPM by hand.
 **Old versions are kept.** Nothing is pruned, so the direct download URL of
 every package ever published keeps working. That is deliberate: the pool is also
 the download site.
+
+**Republishing one version twice needs `AlwaysStat`, which is why it is set.**
+`apt-ftparchive` will not even stat a package it already holds a `--db` cache
+entry for, so rebuilding `4.0.0~beta1-1` and publishing it again would index the
+*previous* build's size and checksums while the pool holds the new file — and
+every download would then fail its hash check. `APT::FTPArchive::AlwaysStat` is
+passed on every run to stop that; apt defaults it off on the grounds that
+republishing a version is not recommended. The check is on mtime, which is why
+nothing here preserves timestamps when staging.
+
+The dnf side has no equivalent trap: `createrepo_c --update` re-reads a package
+whose size or mtime changed, and `stage_and_sign_rpms` compares `%{PKGID}` so a
+genuine rebuild is re-signed rather than skipped.
+
+Even with all that correct, republishing a version is worth avoiding: apt and
+dnf both compare version strings, so nobody who already installed
+`4.0.0~beta1-1` is *offered* the rebuild, and any CDN or `apt-cacher-ng` in the
+way may go on serving the old bytes from the same URL. Bumping `PACKAGE_RELEASE`
+to 2 — giving `4.0.0~beta1-2` — costs nothing and avoids both.
+
+**The AppImage is renamed on the way in.** `output/` holds
+`PurplePen-4.0.0~beta1-x86_64.AppImage`; the tree gets
+`PurplePen-4.0.0-beta1-linux-x64.AppImage`. A tilde has no business in a URL,
+and the architecture is spelled the way the manifest and the rest of the
+download tree spell it — matching `PurplePen-4.0.0-beta1-osx-arm64.dmg` sitting
+beside it.
 
 **The script only prepares the directory.** Getting `root/` onto the web site is
 a separate step.
@@ -320,6 +409,11 @@ chmod +x PurplePen-4.0.0~beta1-x86_64.AppImage
 ./PurplePen-4.0.0~beta1-x86_64.AppImage
 ./PurplePen-4.0.0~beta1-x86_64.AppImage ~/events/national.ppen
 ```
+
+Unlike the `.deb` and `.rpm`, an AppImage has no package manager watching over
+it, so it keeps itself up to date: Purple Pen finds a newer AppImage in the
+manifest, downloads it, and replaces its own file. See *The update manifest*
+above.
 
 ### What it carries for desktop integration
 
@@ -342,11 +436,32 @@ The desktop entry also carries `X-AppImage-Version`, which managers display.
 This key is added *only* to the AppImage's copy; the `.deb` and `.rpm` entries
 must not claim to be AppImages, and the build keeps them separate.
 
-Note the AppStream file is named after the *desktop entry*, not after the
+Note the AppStream file is named after the *desktop entry* here, not after the
 component id, because that is what appimagetool looks for — it reports metadata
-as missing otherwise, however correct the file inside is. The id stays
-reverse-DNS (`org.purple-pen.PurplePen`, the same identity as the macOS bundle)
-and `<launchable>` ties it back to the desktop entry.
+as missing otherwise, however correct the file inside is (verified against the
+pinned appimagetool 1.9.1). The id stays reverse-DNS
+(`org.purple-pen.PurplePen`, the same identity as the macOS bundle) and
+`<launchable>` ties it back to the desktop entry.
+
+**The `.deb` and `.rpm` name the same file after the component id instead**, as
+AppStream requires. The two conventions cannot both be satisfied in one file
+name, and the disagreement is not academic: appimagetool runs `appstreamcli` on
+the AppDir, appstreamcli reports `metainfo-filename-cid-mismatch` as a
+*warning*, and appimagetool treats any warning as fatal — so once `appstreamcli`
+is installed, the build fails on a file that is perfectly correct.
+
+The build therefore passes `--no-appstream` to appimagetool and validates the
+metadata itself, in `render_appstream_metainfo`, against the copy whose name
+AppStream is happy with. Nothing is lost: it is the same content, and validating
+it once covers both copies.
+
+Two informational findings remain, and neither fails a build, since
+`appstreamcli` fails only on warnings and errors:
+
+| Finding | Why it stays |
+|---|---|
+| `cid-contains-hyphen` | The component id must stay stable across releases and match the macOS bundle identifier. Renaming it would make every store treat Purple Pen as a new and unrelated application |
+| `url-not-secure` | `PACKAGE_URL` is `http://purple-pen.org`. The site also serves https, so this one is fixable whenever you care to change the setting |
 
 ### What is bundled, and why that is the whole design problem
 
@@ -438,6 +553,7 @@ automatically rather than failing with a confusing libfuse error.
 /opt/purplepen/                                    the self-contained payload
 /usr/bin/purplepen                    -> /opt/purplepen/PurplePen
 /usr/share/applications/purplepen.desktop
+/usr/share/metainfo/org.purple-pen.PurplePen.metainfo.xml
 /usr/share/icons/hicolor/<N>x<N>/apps/purplepen.png    9 sizes, 16 to 512
 /usr/share/icons/hicolor/scalable/apps/purplepen.svg
 /usr/share/pixmaps/purplepen.png                       48px legacy fallback
@@ -448,6 +564,21 @@ automatically rather than failing with a confusing libfuse error.
 `/opt` is the conventional home for third-party bundles that ship their own
 runtime; it keeps ~145 MB of .NET out of `/usr/lib`, which is meant for
 distribution-managed libraries.
+
+The `metainfo` file is AppStream data: what GNOME Software, KDE Discover and
+Ubuntu's App Center read to describe an installed application — its name,
+summary, description and category. Without it an application still installs,
+runs and appears in the menu, but shows in those tools as a bare name and icon,
+or not at all. It is the same content the AppImage carries, rendered from the
+same template, but named after the component id rather than after the desktop
+entry: that is the AppStream convention and what distribution tooling expects,
+while appimagetool insists on the other name. Both copies are checked for
+well-formedness as they are written.
+
+Note this describes Purple Pen once it is *installed*. Having it listed in those
+tools before installing, straight from the apt repository, would additionally
+need the repository to publish generated catalogue metadata, which
+`publish-linux-repos.sh` does not do.
 
 `/usr/bin/purplepen` is a **symlink**, not a wrapper script. .NET's apphost
 finds its assemblies by resolving `/proc/self/exe`, which follows symlinks, so
