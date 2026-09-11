@@ -2169,7 +2169,7 @@ namespace PurplePen
                 orientation = xmlinput.GetAttributeFloat("orientation");
                 stretch = xmlinput.GetAttributeFloat("stretch", 0.0F);
             }
-            //JU: Rotated text
+            //JU: Rotated texts
             if (kind == SpecialKind.Text) {
                 orientation = xmlinput.GetAttributeFloat("orientation", 0.0F);
             }

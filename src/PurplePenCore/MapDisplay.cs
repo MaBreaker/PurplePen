@@ -36,12 +36,17 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Drawing.Printing;
 using System.Diagnostics;
 using PurplePen.MapModel;
 using ColorMatrix = PurplePen.MapModel.ColorMatrix;
 using PurplePen.Graphics2D;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Xml.Linq;
+using System.Xml.Schema;
+using Newtonsoft.Json.Linq;
 
 
 namespace PurplePen
@@ -96,8 +101,7 @@ namespace PurplePen
         RectangleF? printArea;          // print area to display, or null for none.
         private bool disposed = false;
 
-
-        //int? margins; //JU: Margins / Bleed
+        private int margins = 0; //JU: Margins / Bleed
 
         // Clones this map display.
         public MapDisplay Clone()
@@ -583,10 +587,11 @@ namespace PurplePen
         }
 
         // Set the print area to display, or null to not display print area.
-        public void SetPrintArea(RectangleF? printArea /* JU: Difficult to get margins value from PageLayout */, int? margins = null )
+        public void SetPrintArea(RectangleF? printArea /* JU: Margins / Bleed */, int margins = 0)
         {
-            if (!this.printArea.Equals(printArea)) {
+            if (!this.printArea.Equals(printArea) /* JU: Margins / Bleed */ || this.margins != margins) {
                 this.printArea = printArea;
+                this.margins = margins; //JU: Margins / Bleed
                 RaiseChanged();
             }
         }
@@ -864,6 +869,30 @@ namespace PurplePen
                 if (printArea.Value.Right < visRect.Right) {
                     RectangleF draw = RectangleF.FromLTRB(printArea.Value.Right, printArea.Value.Top, visRect.Right, printArea.Value.Bottom);
                     grTargetCourses.FillRectangle(printAreaOutline, draw);
+                }
+
+                //JU: Draw rectangle line if margins are negative (bleed)
+                if (margins > 4 || margins < -4)
+                {
+                    // TODO: rectangle size is way too big compare to actual mm margin value
+                    object printOutlinePen = new object();
+                    grTargetCourses.CreatePen(printOutlinePen, CmykColor.FromCmyka(0, 0, 0, 1, 0.12F), 1.0F, LineCapMode.Flat, LineJoinMode.Miter, 5F);
+
+                    float marginsPt = margins * 25.4F / 100F; // convert pt to pixels
+
+                    RectangleF draw = RectangleF.FromLTRB(printArea.Value.Left - marginsPt, printArea.Value.Top - marginsPt, printArea.Value.Right + marginsPt, printArea.Value.Bottom + marginsPt);
+                    grTargetCourses.DrawRectangle(printOutlinePen, draw);
+
+                    //Not implemented into this class, DrawDashedLine(grTargetCourses, draw.TopLeft(), draw.TopRight(), CmykColor.FromCmyka(0, 0, 0, 1, 0.12F), 1F, 5F, 2F);
+
+                    // edge lines would need complex locig like if (xx < visRect.Right ....
+                    /*
+                    draw.Intersect(visRect);
+                    grTargetCourses.DrawLine(printOutlinePen, draw.TopLeft(), draw.TopRight());
+                    grTargetCourses.DrawLine(printOutlinePen, draw.BottomLeft(), draw.BottomRight());
+                    grTargetCourses.DrawLine(printOutlinePen, draw.TopLeft(), draw.BottomLeft());
+                    grTargetCourses.DrawLine(printOutlinePen, draw.TopRight(), draw.BottomRight());
+                    */
                 }
             }
 

@@ -39,9 +39,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using Matrix = PurplePen.Graphics2D.Matrix;
@@ -3195,7 +3197,7 @@ namespace PurplePen
 
             // Automatic sizing of text -- calculate reverse rectangle size
             if (fontDigitHeight < 0) {
-                //JU: Below is impossible to achieve as is with other than 0 & 90deg angles because
+                //JU: Impossible to get working with other than 0 & 90deg angles because
                 //    location coordinates are stored that way in xml config text "special-object" and
                 //    used in import fucntions.
                 //    Like size is 0 deg text rect, there is no separate "bounding rect" coordinates
@@ -3359,13 +3361,13 @@ namespace PurplePen
         // The boolean params indicate how the rectangle changed.
         public virtual void RectangleUpdating(ref RectangleF newRect, bool dragAll, bool dragLeft, bool dragTop, bool dragRight, bool dragBottom)
         {
-            //JU: Dragging HiLight - Get topleft and maximum rotated content size for autosize font
+            //JU: Dragging HighLight - Get topleft and maximum rotated content size for autosize font
             RectangleF textRect = RotatedContentRect(newRect, orientation);
             
             base.topLeft = textRect.BottomLeft();
             base.EmHeight = CalculateEmHeight(text, SafeFontName, textEffects, fontDigitHeight, textRect.Size);
 
-            //JU: TODO Dragging HiLight - Relocate topleft properly while dragging
+            //JU: TODO Dragging HighLight - Relocate topleft properly while dragging
             /*
                         //JU: TopLeft for rotated text
                         if (orientation > 0.0F) {
@@ -3412,7 +3414,7 @@ namespace PurplePen
             renderer.Description = description;
             renderer.DescriptionKind = kind;
             renderer.ColumnHScore = columnHScore;
-            renderer.Margin = cellSize / 20;   // about the thickness of the thick lines.
+            renderer.Margin = cellSize / 4;   //JU: Margin 1/20 -> 1/4, about the thickness of the thick lines.
             renderer.CellSize = cellSize;
             renderer.NumberOfColumns = numColumns;
             aspectAnglesByColumns = ComputeAspectAngles();
@@ -3425,7 +3427,7 @@ namespace PurplePen
             DescriptionRenderer renderer = new DescriptionRenderer(symbolDB);
             renderer.Description = description;
             renderer.DescriptionKind = kind;
-            renderer.Margin = cellSize / 20;   // about the thickness of the thick lines.
+            renderer.Margin = cellSize / 4;   //JU: Margin 1/20  -> 1/4, about the thickness of the thick lines.
             renderer.CellSize = cellSize;
             renderer.NumberOfColumns = numColumns;
 

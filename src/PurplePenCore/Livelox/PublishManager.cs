@@ -178,7 +178,7 @@ namespace PurplePen.Livelox
         {
             var ev = eventDB.GetEvent();
 
-            //JU: Disable this Image.FromFile block as System.Drawing.Common is not compatible with Linux and MacOS
+            //JU: Disabled this Image.FromFile block as System.Drawing.Common is not compatible with Linux and MacOS
             //    use mapImageRectangle from CreateMapImage() instead
             //Rectangle mapImageRectangle;
             //using (var mapImage = Image.FromFile(Path.Combine(temporaryDirectory, mapFileName)))

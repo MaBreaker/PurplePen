@@ -2102,6 +2102,8 @@ namespace PurplePen
                 rectSelectMode.Rectangle = GetPrintAreaRectangle(CourseDesignatorFromPrintAreaKind(printAreaKind), printArea);
                 rectSelectMode.AllowDragging = true;
                 rectSelectMode.AllowResize = !printArea.restrictToPageSize;
+                //JU: Margins and Bleed
+                rectSelectMode.Margins = printArea.pageMargins;
 
                 ForceChangeUpdate();
             }

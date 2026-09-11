@@ -35,7 +35,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-
+using PurplePen.Graphics2D;
 using PurplePen.MapModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -137,17 +137,19 @@ namespace PurplePen
             int numColumns = currentObj.NumberOfColumns;
 
             // Create the new description, unless it's ridiculously small.
-            if (cellSize > 0.5F) {
-                CourseDesignator[] courses = null;
-                courses = new CourseDesignator[] { courseDesignator.WithAllVariations()};
-
-                undoMgr.BeginCommand(1522, CommandNameText.AddObject);
-                Id<Special> specialId = ChangeEvent.AddDescription(eventDB, false, courses, upperLeft, cellSize, numColumns);
-                undoMgr.EndCommand(1522);
-
-                selectionMgr.SelectSpecial(specialId);
+            if (cellSize < 0.5F) {
+                //JU: Too small. Default size
+                cellSize = 6F;
             }
 
+            CourseDesignator[] courses = null;
+            courses = new CourseDesignator[] { courseDesignator.WithAllVariations() };
+
+            undoMgr.BeginCommand(1522, CommandNameText.AddObject);
+            Id<Special> specialId = ChangeEvent.AddDescription(eventDB, false, courses, upperLeft, cellSize, numColumns);
+            undoMgr.EndCommand(1522);
+
+            selectionMgr.SelectSpecial(specialId);
 
             controller.DefaultCommandMode();
             return true;

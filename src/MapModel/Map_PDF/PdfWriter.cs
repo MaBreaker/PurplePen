@@ -75,7 +75,7 @@ namespace PurplePen.MapModel
         }
 
         // Get a page.
-        public IGraphicsTarget BeginPage(SizeF sizeInInches /* JU: Margin */, int margin)
+        public IGraphicsTarget BeginPage(SizeF sizeInInches /* JU: Margin */, int margins)
         {
             // Create an empty page
             PdfPage page = document.AddPage();
@@ -83,8 +83,8 @@ namespace PurplePen.MapModel
             // Set the sizes
             //JU: Crop and Bleed
             //var pageSize = new PdfRectangle(new XRect(0, 0, sizeInInches.Width * 72.0F, sizeInInches.Height * 72.0F));
-            //float marginInInches = (margin > 0 ? margin / 100F : 0F);
-            float bleedInInches = (margin < 0 ? Math.Abs(margin) / 100F : 0F);
+            //float marginInInches = (margins > 0 ? margins / 100F : 0F);
+            float bleedInInches = (margins < 0 ? Math.Abs(margins) / 100F : 0F);
             var fullSize = new PdfRectangle(new XRect(0, 0, sizeInInches.Width * 72F + 2 * bleedInInches * 72F, sizeInInches.Height * 72F + 2 * bleedInInches * 72F));
             //var cropSize = new PdfRectangle(new XPoint(marginInInches * 72F, marginInInches * 72F), new XPoint(fullSize.X2 - marginInInches * 72F, fullSize.Y2 - marginInInches * 72F));
             var cropSize = fullSize;
@@ -93,17 +93,17 @@ namespace PurplePen.MapModel
             page.CropBox = page.BleedBox = cropSize;
             page.TrimBox = page.ArtBox = viewSize;
             /*
-            if (margin > 0)
+            if (margins > 0)
             {
-                float marginInInches = margin / 100F;
+                float marginInInches = margins / 100F;
                 var fullSize = new PdfRectangle(new XRect(0, 0, sizeInInches.Width * 72.0F, sizeInInches.Height * 72.0F));
                 var cropSize = new PdfRectangle(new XPoint(fullSize.X1 + marginInInches * 72.0F, fullSize.Y1 + marginInInches * 72.0F), new XPoint(fullSize.X2 - marginInInches * 72.0F, fullSize.Y2 - marginInInches * 72.0F));
                 page.MediaBox = fullSize;
                 page.CropBox = page.BleedBox = page.TrimBox = page.ArtBox = cropSize;
             }
-            else if (margin < 0)
+            else if (margins < 0)
             {
-                float bleedInInches = Math.Abs(margin) / 100F;
+                float bleedInInches = Math.Abs(margins) / 100F;
                 var fullSize = new PdfRectangle(new XRect(0, 0, sizeInInches.Width * 72.0F + 2 * bleedInInches * 72.0F, sizeInInches.Height * 72.0F + 2 * bleedInInches * 72.0F));
                 var viewSize = new PdfRectangle(new XPoint(fullSize.X1 + bleedInInches * 72.0F, fullSize.Y1 + bleedInInches * 72.0F), new XSize(sizeInInches.Width * 72.0F, sizeInInches.Height * 72.0F));
                 page.MediaBox = page.CropBox = page.BleedBox = fullSize;

@@ -161,18 +161,24 @@ namespace AvPurplePen.Views
             int decimalPlaces;
             decimal increment;
             decimal maximum;
+            //JU: Bleed and Margins
+            decimal minimum_margin;
 
             if (Util.IsCurrentCultureMetric()) {
                 units = "mm";
                 decimalPlaces = 1;
                 increment = 1.0M;
                 maximum = 5000;
+                //JU: Bleed and Margins
+                minimum_margin = -5.1M;
             }
             else {
                 units = "in";
                 decimalPlaces = 2;
                 increment = 0.05M;
                 maximum = 100;
+                //JU: Bleed and Margins
+                minimum_margin = -0.20M;
             }
 
             string format = "0." + new string('0', decimalPlaces);
@@ -182,7 +188,16 @@ namespace AvPurplePen.Views
                 upDown.FormatString = format;
                 upDown.Increment = increment;
                 upDown.Maximum = maximum;
-                upDown.Minimum = 0;
+                //JU: Bleed and Margins
+                if (upDown == upDownMargin || upDown == upDownMarginTop || upDown == upDownMarginBottom ||
+                    upDown == upDownMarginLeft || upDown == upDownMarginRight)
+                {
+                    upDown.Minimum = minimum_margin;
+                }
+                else
+                {
+                    upDown.Minimum = 0;
+                }
             }
 
             labelUnitsWidth.Text = labelUnitsHeight.Text = labelUnitsMargin.Text = units;

@@ -35,11 +35,13 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.Diagnostics;
 
 using PurplePen.MapModel;
 using PurplePen.Graphics2D;
 using System.Threading.Tasks;
+using static PurplePen.MapModel.TextSymDef;
 
 namespace PurplePen
 {
@@ -79,6 +81,12 @@ namespace PurplePen
                 selectingCourseObj = (SelectingRectangleCourseObj) selectingCourseObj.Clone();
                 selectingCourseObj.rect = value;
             }
+        }
+
+        public int Margins
+        {
+            get { return selectingCourseObj.Margins; }
+            set { selectingCourseObj.Margins = value; }
         }
 
         public bool AllowDragging
@@ -276,11 +284,51 @@ namespace PurplePen
     class SelectingRectangleCourseObj: RectCourseObj
     {
         public bool showHandles = true;               // Should drag handles be shown?
+        private int margins = 0;          //JU: Margin and Bleed, updated by main controller
 
         public SelectingRectangleCourseObj(RectangleF rect) :
             base(Id<ControlPoint>.None, Id<CourseControl>.None, Id<Special>.None, 1.0F, new CourseAppearance(), rect)
         {}
 
+        public int Margins {
+            get { return margins; }
+            set { margins = value; } 
+        }
+
+        // Draw the highlight. Everything must be draw in pixel coords so fast erase works correctly.
+        public override void Highlight(IGraphicsTarget g, Matrix xformWorldToPixel, object brush, bool erasing)
+        {
+            DrawBorderedRectangle(g, xformWorldToPixel, rect, brush, erasing);
+
+            //JU: Margin / Bleed for Print Area highlight only
+
+            //TODO how to recognize that this is a Print Area hilight? (not a course object)
+            //     how to get access to MapDisplay and PrintArea margins
+
+            // RectCourseObj <-SelectingRectangleCourseObj <- RectangleSelectMode.controller.printArea.mapDisplay.GetCurrentPrintArea(PrintAreaKind.OnePart).pageMargins;
+
+            if (this.controlId.id == 0 && this.courseControlId.id == 0 && this.specialId.id == 0)
+            {
+                //JU: Draw second border for "set print page size rectangle" in case of margins or bleed 
+                // printArea.pageMargins is not updated until print size dialog is close. Hence using controller.MapDisplay.Margins instead.
+                if (margins > 4 || margins < -4)
+                {
+                    float marginsPt = margins * 25.4F / 100F; // convert pt to pixels
+
+                    RectangleF marginRect = new RectangleF(rect.X - marginsPt, rect.Y - marginsPt, rect.Width + marginsPt * 2, rect.Height + marginsPt * 2);
+                    RectangleF xformedRect = Geometry.TransformRectangle(xformWorldToPixel, marginRect);
+
+                    object penKey = new object();
+                    if (erasing)
+                        penKey = brush;
+                    else
+                        g.CreatePen(penKey, CmykColor.FromRgba(0F, 255F, 0F, 0.25F), 2, LineCapMode.Flat, LineJoinMode.Miter, 5);
+
+                    g.DrawRectangle(penKey, new RectangleF(xformedRect.Left, xformedRect.Top, xformedRect.Width, xformedRect.Height));
+
+                }
+            }
+        }
         public override PointF[] GetHandles()
         {
             if (showHandles)
