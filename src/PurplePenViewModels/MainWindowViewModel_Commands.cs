@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using PurplePen.Livelox;
@@ -273,19 +274,50 @@ namespace PurplePen.ViewModels
                 bool result = await Services.DialogService.ShowDialogAsync(fileOpenVM);
 
                 if (result && fileOpenVM.SelectedFile != null) {
-                    string newFilename = fileOpenVM.SelectedFile;
-                    bool success = await controller.LoadNewFile(newFilename);
-                    if (!success) {
-                        // This is bad news. The old file is gone, and we don't have a new file. Go back to initial screen is the best solution, 
-                        // I guess.
-                        ReloadInitialScreen();
-                    }
-                    else {
-                        // Display the default view on the map.
-                        if (MapDisplay != null) {
-                            ShowMapRectangle(MapDisplay.MapBounds);
-                        }
-                    }
+                    await LoadNewFileAfterClose(fileOpenVM.SelectedFile);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Opens the named Purple Pen file in place of the current one, prompting to save the
+        /// current file first. Used when the operating system asks Purple Pen to open a file
+        /// (e.g. a .ppen file double-clicked in the macOS Finder) while an event is open.
+        /// Asking for the file that is already open does nothing, rather than reloading it.
+        /// </summary>
+        /// <param name="fileName">Path of the .ppen file to open.</param>
+        public async Task OpenPurplePenFile(string fileName)
+        {
+            if (controller == null) return;
+
+            if (string.Equals(Path.GetFullPath(fileName), controller.FileName, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            if (await controller.TryCloseFile()) {
+                await LoadNewFileAfterClose(fileName);
+            }
+        }
+
+        /// <summary>
+        /// Loads a new file once the current one has been closed (via Controller.TryCloseFile),
+        /// then shows its default view. If the load fails, returns to the initial screen, since
+        /// the old file is gone and there is no new one.
+        /// </summary>
+        /// <param name="fileName">Path of the .ppen file to load.</param>
+        private async Task LoadNewFileAfterClose(string fileName)
+        {
+            if (controller == null) return;
+
+            bool success = await controller.LoadNewFile(fileName);
+            if (!success) {
+                // This is bad news. The old file is gone, and we don't have a new file. Go back to initial screen is the best solution,
+                // I guess.
+                ReloadInitialScreen();
+            }
+            else {
+                // Display the default view on the map.
+                if (MapDisplay != null) {
+                    ShowMapRectangle(MapDisplay.MapBounds);
                 }
             }
         }
@@ -2896,7 +2928,7 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task OpenSupportWebSite()
         {
-            await Services.WebsiteLauncher.ShowWebsite("http://purple-pen.org#support");
+            await Services.WebsiteLauncher.ShowWebsite("https://discuss.purple-pen.org");
         }
 
         /// <summary>
@@ -2926,7 +2958,9 @@ namespace PurplePen.ViewModels
         }
 
         /// <summary>
-        /// Shows the Switch Language dialog and applies the selected language.
+        /// Shows the Switch Language dialog and applies the selected language. If the current description
+        /// language differs from the new program language, and the event has a description language matching
+        /// it, offers to switch the description language too.
         /// </summary>
         [RelayCommand]
         private async Task ShowSwitchLanguageDialog()
@@ -2936,7 +2970,25 @@ namespace PurplePen.ViewModels
             bool result = await Services.DialogService.ShowDialogAsync(vm);
 
             if (result && vm.SelectedLanguage != null) {
-                Services.UILanguage.LanguageCode = vm.SelectedLanguage.Code;
+                CultureInfo newCulture = new CultureInfo(vm.SelectedLanguage.Code);
+                Services.UILanguage.LanguageCode = newCulture.Name;
+
+                if (controller != null) {
+                    string descriptionLanguage = controller.GetDescriptionLanguage();
+                    if (descriptionLanguage != newCulture.Name && controller.HasDescriptionLanguage(newCulture.Name)) {
+                        // The current description language does not match the new program language. Offer to change it to match.
+                        // Setting LanguageCode applies the new culture on a later dispatcher turn, so CurrentUICulture is still
+                        // the old language here. Fetch the question text explicitly in the new language.
+                        string format = MiscText.ResourceManager.GetString(nameof(MiscText.ChangeDescriptionLanguage), newCulture) ?? MiscText.ChangeDescriptionLanguage;
+                        string question = string.Format(format,
+                                                        CultureInfo.GetCultureInfo(descriptionLanguage).NativeName,
+                                                        CultureInfo.GetCultureInfo(newCulture.Name).NativeName);
+                        if (await YesNoQuestion(question, true)) {
+                            controller.SetDescriptionLanguage(newCulture.Name);
+                            controller.DefaultDescriptionLanguage = newCulture.Name;
+                        }
+                    }
+                }
             }
         }
 

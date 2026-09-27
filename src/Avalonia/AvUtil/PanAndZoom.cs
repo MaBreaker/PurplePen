@@ -52,6 +52,7 @@ namespace AvUtil
         private Matrix xformLogPixelToWorld;				    // transformation logical pixel->world coord
         private Matrix xformWorldToPhysPixel;					// transformation world->physical pixel coord
         private Matrix xformPhysPixelToWorld;				    // transformation physical pixel->world coord
+        private double layoutScale = 1.0;                       // ratio between physical and logical pixels, as of last transform calculation.
 
 
         bool panningInProgress = false;					        // Are we panning the map around by holding a button down?
@@ -273,15 +274,14 @@ namespace AvUtil
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
 
-                double scale = LayoutHelper.GetLayoutScale(this);
-                int pixelWidth = (int)Math.Ceiling(drawingArea.Width * scale);
-                int pixelHeight = (int)Math.Ceiling(drawingArea.Height * scale);
+                int pixelWidth = (int)Math.Ceiling(drawingArea.Width * layoutScale);
+                int pixelHeight = (int)Math.Ceiling(drawingArea.Height * layoutScale);
                 PixelSize pixelSize = new PixelSize(pixelWidth, pixelHeight);
 
                 // Clip to the drawing area so the map doesn't draw underneath the scroll bars.
                 using (context.PushClip(drawingArea))
                 using (context.PushTransform(xformWorldToLogPixel)) {
-                    drawing.Draw(context, viewport, pixelSize, xformWorldToPhysPixel);
+                    drawing.Draw(context, viewport, pixelSize, xformWorldToPhysPixel, layoutScale);
                 }
 
                 watch.Stop();
@@ -491,6 +491,19 @@ namespace AvUtil
             RaiseEvent(eventArgs);
         }
 
+        // Returns true if the given mouse button is currently pressed, according to the pointer properties.
+        private static bool IsButtonPressed(PointerPointProperties props, MouseButton button)
+        {
+            switch (button) {
+                case MouseButton.Left: return props.IsLeftButtonPressed;
+                case MouseButton.Right: return props.IsRightButtonPressed;
+                case MouseButton.Middle: return props.IsMiddleButtonPressed;
+                case MouseButton.XButton1: return props.IsXButton1Pressed;
+                case MouseButton.XButton2: return props.IsXButton2Pressed;
+                default: return false;
+            }
+        }
+
         protected override void OnPointerMoved(PointerEventArgs e)
         {
             base.OnPointerMoved(e);
@@ -504,11 +517,21 @@ namespace AvUtil
             PointerPointProperties props = pointer.Properties;
             Point worldPos = PixelToWorld(pointer.Position);
 
+            // If the button that ends panning is no longer held down, we missed its release (for example,
+            // a modal dialog appeared while it was down and received the release). Stop panning now.
+            if (panningInProgress && !IsButtonPressed(props, endPanningButton)) {
+                EndPanning(pointer.Position);
+                if (IsFromScrollBar(e))
+                    return;
+            }
+
             if (panningInProgress) {
                 PanMove(pointer.Position);
             }
             else {
                 BasicMouseEventArgs eventArgs = new BasicMouseEventArgs(BasicMouseActivityEvent, this, MouseButton.None, BasicMouseAction.Move, pointer.Position, worldPos, e.Timestamp);
+                eventArgs.LeftButtonPressed = props.IsLeftButtonPressed;
+                eventArgs.RightButtonPressed = props.IsRightButtonPressed;
                 RaiseEvent(eventArgs);
             }
         }
@@ -602,7 +625,7 @@ namespace AvUtil
 
         void CalculateWorldTransform()
         {
-            double layoutScale = LayoutHelper.GetLayoutScale(this);  // ratio between logical and physical pixels.
+            layoutScale = LayoutHelper.GetLayoutScale(this);  // ratio between logical and physical pixels.
 
             // Get size, midpoint of the drawing area (the window minus any scroll bars).
             Size sizeInPixels = GetDrawingAreaSize();
@@ -885,21 +908,15 @@ namespace AvUtil
             if (drawing == null)
                 return;
 
-            double newCenterX;
             if (e.ScrollEventType == ScrollEventType.SmallIncrement || e.ScrollEventType == ScrollEventType.SmallDecrement) {
                 // Always step by a small increment, even when the scroll bar value is pinned at an extreme
                 // (or there is no thumb because the viewport is larger than the drawing). SmallIncrement
                 // scrolls right (increasing world X).
-                double delta = viewport.Width * SmallScrollFraction;
-                if (e.ScrollEventType == ScrollEventType.SmallDecrement)
-                    delta = -delta;
-                newCenterX = centerPoint.X + delta;
+                ScrollBySmallIncrements(e.ScrollEventType == ScrollEventType.SmallIncrement ? 1 : -1, 0);
             }
             else {
-                newCenterX = e.NewValue + viewport.Width / 2.0;
+                CenterPoint = new Point(e.NewValue + viewport.Width / 2.0, centerPoint.Y);
             }
-
-            CenterPoint = new Point(newCenterX, centerPoint.Y);
         }
 
         // The user moved the vertical scroll bar: pan the view vertically. The scroll bar value increases
@@ -909,25 +926,35 @@ namespace AvUtil
             if (drawing == null)
                 return;
 
-            Rect vp = viewport;
-            double newCenterY;
             if (e.ScrollEventType == ScrollEventType.SmallIncrement || e.ScrollEventType == ScrollEventType.SmallDecrement) {
                 // Always step by a small increment, even when the scroll bar value is pinned at an extreme
                 // (or there is no thumb because the viewport is larger than the drawing). SmallIncrement
-                // scrolls down (decreasing world Y, since world Y increases upward).
-                double delta = vp.Height * SmallScrollFraction;
-                if (e.ScrollEventType == ScrollEventType.SmallIncrement)
-                    delta = -delta;
-                newCenterY = centerPoint.Y + delta;
+                // scrolls down.
+                ScrollBySmallIncrements(0, e.ScrollEventType == ScrollEventType.SmallIncrement ? 1 : -1);
             }
             else {
+                Rect vp = viewport;
                 Rect bounds = drawing.Bounds;
                 double contentTopY = Math.Max(bounds.Bottom, vp.Bottom);  // largest world Y (top of content)
                 double newTopY = contentTopY - e.NewValue;                // world Y at the top of the viewport
-                newCenterY = newTopY - vp.Height / 2.0;
+                CenterPoint = new Point(centerPoint.X, newTopY - vp.Height / 2.0);
             }
+        }
 
-            CenterPoint = new Point(centerPoint.X, newCenterY);
+        // Scroll the viewport by a number of small increments in each direction, the same step as clicking a
+        // scroll bar arrow. Does nothing if there is no drawing. Any ConstrainedScrolling handler on
+        // ViewportChanging still applies.
+        //   horizontalSteps: number of steps to scroll right (negative scrolls left).
+        //   verticalSteps: number of steps to scroll down (negative scrolls up). World Y increases upward,
+        //                  so scrolling down decreases the center's world Y.
+        public void ScrollBySmallIncrements(int horizontalSteps, int verticalSteps)
+        {
+            if (drawing == null || (horizontalSteps == 0 && verticalSteps == 0))
+                return;
+
+            double newCenterX = centerPoint.X + horizontalSteps * viewport.Width * SmallScrollFraction;
+            double newCenterY = centerPoint.Y - verticalSteps * viewport.Height * SmallScrollFraction;
+            CenterPoint = new Point(newCenterX, newCenterY);
         }
 
         // Always be hittable, even if we don't draw anything. This is needed to get
@@ -958,7 +985,6 @@ namespace AvUtil
         }
 
         // The information sent with a mouse event. 
-        // Note that PanUntilReleased is an OUT -- it is set by the handler of the event to begin panning.
         public class BasicMouseEventArgs: RoutedEventArgs
         {
             public BasicMouseEventArgs(RoutedEvent? routedEvent, object? source, MouseButton button, BasicMouseAction action, Point logicalPixelLocation, Point worldLocation, ulong timeStamp)
@@ -976,6 +1002,8 @@ namespace AvUtil
             public Point LogicalPixelLocation;      // location in logical pixels in the control
             public Point WorldLocation;             // location in world coordinates in the control.
             public ulong TimeStamp;                 // When the event occured, in milliseconds
+            public bool LeftButtonPressed;          // Move only: is the left button actually held down?
+            public bool RightButtonPressed;         // Move only: is the right button actually held down?
         }
 
         // Information sent with a ViewportChanging or ViewportChanged event.

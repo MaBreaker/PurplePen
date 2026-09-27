@@ -55,6 +55,7 @@ namespace PurplePen.MapModel
     {
         private string fileName;
         private PdfDocument document;
+        private PdfGlyphSubstituter glyphSubstituter;
 
         static PdfDocumentWriter()
         {
@@ -68,10 +69,26 @@ namespace PurplePen.MapModel
         {
             this.fileName = fileName;
             document = new PdfDocument();
+
+            // Declare PDF 1.4 rather than PdfSharp's default of 1.7. Everything we emit is within
+            // 1.4 -- transparency groups, blend modes and soft masks were all introduced there, and
+            // we never write the object or cross-reference streams that would require 1.5. Some
+            // print-shop RIPs are conservative about the version in the header, and Purple Pen 3.5.5
+            // produced 1.4 files that printed without trouble, so there is nothing to gain by
+            // claiming a higher version than we use.
+            document.Version = 14;
+
             document.Info.Title = title;
             document.Options.NoCompression = false;
             document.Options.CompressContentStreams = true;
             document.Options.ColorMode = cmykMode ? PdfColorMode.Cmyk : PdfColorMode.Rgb;
+
+            // Hook text rendering so the graphics targets can hand PDFsharp the glyphs that
+            // HarfBuzz shaped, rather than letting PDFsharp map characters to glyphs itself.
+            // The event belongs to the document, so it is hooked once here and the substituter
+            // is shared by every page's graphics target.
+            glyphSubstituter = new PdfGlyphSubstituter();
+            document.RenderEvents.RenderTextEvent += glyphSubstituter.OnRenderText;
         }
 
         // Get a page.
@@ -121,7 +138,7 @@ namespace PurplePen.MapModel
             XGraphics gfx = XGraphics.FromPdfPage(page);
 
             // Get a graphics target
-            IGraphicsTarget target = new Pdf_GraphicsTarget(gfx, document.Options.ColorMode == PdfColorMode.Cmyk);
+            IGraphicsTarget target = new Pdf_GraphicsTarget(gfx, document.Options.ColorMode == PdfColorMode.Cmyk, glyphSubstituter);
 
             // Change units to hundreths of inch from points.
             Matrix matrix = new Matrix();
@@ -156,7 +173,7 @@ namespace PurplePen.MapModel
                 XGraphics gfx = XGraphics.FromPdfPage(page);
 
                 // Get a graphics target
-                IGraphicsTarget target = new Pdf_GraphicsTarget(gfx, document.Options.ColorMode == PdfColorMode.Cmyk);
+                IGraphicsTarget target = new Pdf_GraphicsTarget(gfx, document.Options.ColorMode == PdfColorMode.Cmyk, glyphSubstituter);
 
 //JU: TODO Crop and Bleed
 
