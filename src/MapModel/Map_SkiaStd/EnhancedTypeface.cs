@@ -659,7 +659,6 @@ namespace Map_SkiaStd
         {
             text = NormalizeForShaping(text);
 
-            List<TextRun> textRuns = SegmentByTypeface(text);
             List<ShapedRunResult> shapedRuns = new List<ShapedRunResult>();
 
             //JU: Split text by newline character
@@ -866,7 +865,7 @@ namespace Map_SkiaStd
             if (string.IsNullOrEmpty(text))
                 return 0;
 
-            (List<ShapedRunResult> runs, float totalWidth, float totalHeight) = ShapeText(text, fontSize);
+            (List<ShapedRunResult> runs, float totalWidth, float totalHeight) = ShapeText(ref text, fontSize);
             return totalHeight;
         }
         
@@ -878,7 +877,7 @@ namespace Map_SkiaStd
             if (string.IsNullOrEmpty(text))
                 return (0F, 0F);
 
-            (List<ShapedRunResult> runs, float totalWidth, float totalHeight) = ShapeText(text, fontSize);
+            (List<ShapedRunResult> runs, float totalWidth, float totalHeight) = ShapeText(ref text, fontSize);
             return (totalWidth, totalHeight);
         }
 
