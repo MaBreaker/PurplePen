@@ -998,6 +998,7 @@ namespace PurplePen.ViewModels
 
             TextPropertiesDialogViewModel vm = new TextPropertiesDialogViewModel {
                 DialogTitle = MiscText.AddTextSpecialTitle,
+                HelpTopic = "EditAddText.htm",
                 UsageText = MiscText.AddTextSpecialExplanation,
                 AllowSpecialTextInsert = true,
                 TextExpander = controller.ExpandText,
@@ -1059,6 +1060,7 @@ namespace PurplePen.ViewModels
 
             LinePropertiesDialogViewModel vm = new LinePropertiesDialogViewModel {
                 DialogTitle = MiscText.AddLineTitle,
+                HelpTopic = "EditAddLine.htm",
                 UsageText = MiscText.AddLineExplanation,
                 ShowRadius = false,
                 ShowLineKind = true,
@@ -1098,6 +1100,7 @@ namespace PurplePen.ViewModels
 
             LinePropertiesDialogViewModel vm = new LinePropertiesDialogViewModel {
                 DialogTitle = MiscText.AddRectangleTitle,
+                HelpTopic = "EditAddRectangle.htm",
                 UsageText = MiscText.AddRectangleExplanation,
                 ShowRadius = true,
                 ShowLineKind = false,
@@ -1138,6 +1141,7 @@ namespace PurplePen.ViewModels
 
             LinePropertiesDialogViewModel vm = new LinePropertiesDialogViewModel {
                 DialogTitle = MiscText.AddEllipseTitle,
+                HelpTopic = "EditAddEllipse.htm",
                 UsageText = MiscText.AddEllipseExplanation,
                 ShowRadius = false,
                 ShowLineKind = true,
@@ -1270,6 +1274,7 @@ namespace PurplePen.ViewModels
 
             TextPropertiesDialogViewModel vm = new TextPropertiesDialogViewModel {
                 DialogTitle = MiscText.ChangeTextTitle,
+                HelpTopic = "ItemChangeText.htm",
                 UsageText = MiscText.ChangeTextSpecialExplanation,
                 AllowSpecialTextInsert = true,
                 TextExpander = controller.ExpandText,
@@ -1317,6 +1322,7 @@ namespace PurplePen.ViewModels
 
             LinePropertiesDialogViewModel vm = new LinePropertiesDialogViewModel {
                 DialogTitle = MiscText.ChangeLineAppearanceTitle,
+                HelpTopic = "ItemChangeLineAppearance.htm",
                 UsageText = MiscText.ChangeLineAppearanceExplanation,
                 ShowRadius = showRadius,
                 ShowLineKind = !showRadius,
@@ -1451,6 +1457,7 @@ namespace PurplePen.ViewModels
             controller.GetAllControlsProperties(out allControlsPrintScale, out allControlsDescKind);
 
             AddCourseDialogViewModel vm = new AddCourseDialogViewModel();
+            vm.HelpTopic = "CourseAddCourse.htm";
             vm.InitializePrintScales(controller.MapScale);
             vm.PrintScale = allControlsPrintScale;
 
@@ -1500,6 +1507,7 @@ namespace PurplePen.ViewModels
 
                 AddCourseDialogViewModel vm = new AddCourseDialogViewModel {
                     DialogTitle = MiscText.DuplicateCourseTitle,
+                    HelpTopic = "CourseDuplicate.htm",
                     CourseKind = courseKind,
                     CourseName = "",
                     CanChangeCourseKind = false,
@@ -1552,6 +1560,7 @@ namespace PurplePen.ViewModels
 
                 AddCourseDialogViewModel vm = new AddCourseDialogViewModel {
                     DialogTitle = MiscText.CoursePropertiesTitle,
+                    HelpTopic = "CourseProperties.htm",
                     CourseKind = courseKind,
                     CourseName = courseName,
                     ControlLabelKind = labelKind,
@@ -2076,25 +2085,44 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task PrintDescriptions()
         {
-#if !PORTING
-            // Initialize dialog
-            PrintDescriptions printDescDialog = new PrintDescriptions(controller.GetEventDB(), false);
-            printDescDialog.controller = controller;
-            printDescDialog.PrintSettings = descPrintSettings;
-            printDescDialog.PrinterPageSettings = descPrintPageSettings;
+            if (controller == null) { return; }
 
-            // show the dialog, on success, print.
-            if (printDescDialog.ShowDialog(this) == DialogResult.OK) {
-                // Save the settings for the next invocation of the dialog.
-                descPrintSettings = printDescDialog.PrintSettings;
-                descPrintPageSettings = printDescDialog.PrinterPageSettings;
-                controller.PrintDescriptions(WindowsUtil.GetWinFormsPrintTarget(descPrintPageSettings, this, false),
-                    descPrintSettings, WindowsUtil.PrintingPaperSizeWithMarginsFromPageSettings(descPrintPageSettings));
+            IDocumentPrinting? documentPrinting = Services.DocumentPrinting;
+            if (documentPrinting == null) {
+                await ShowDirectPrintingUnavailable();
+                return;
             }
 
-            // And the dialog is done.
-            printDescDialog.Dispose();
-#else
+            // Seed from previous settings or build defaults.
+            DescriptionPrintSettings settings = descPrintSettings ?? new DescriptionPrintSettings();
+            PrintingPaperSizeWithMargins paperSizeWithMargins =
+                descPaperSizeWithMargins ?? BuildDefaultPaperSizeWithMargins();
+
+            PrintDescriptionsDialogViewModel vm = new PrintDescriptionsDialogViewModel {
+                EventDB = controller.GetEventDB(),
+                Controller = controller,
+                IsPdfCreation = false,
+                DocumentPrinting = documentPrinting,
+                PaperSizeWithMargins = paperSizeWithMargins,
+                Settings = settings,
+            };
+
+            if (!await Services.DialogService.ShowDialogAsync(vm))
+                return;
+
+            // Save the settings for the next invocation of the dialog, then print.
+            descPrintSettings = vm.Settings;
+            descPaperSizeWithMargins = vm.PaperSizeWithMargins;
+
+            controller.PrintDescriptions(documentPrinting.GetPrintingTarget(ColorModel.RGB),
+                                         descPrintSettings,
+                                         descPaperSizeWithMargins);
+        }
+
+        // Tells the user that direct printing isn't available on this platform, and to
+        // create a PDF instead. Used when no IDocumentPrinting service is registered.
+        private async Task ShowDirectPrintingUnavailable()
+        {
             MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel {
                 Message = "Direct printing is not yet implemented in this beta release. For now, please use the PDF creation feature.",
                 Buttons = MessageBoxButtons.Ok,
@@ -2102,7 +2130,6 @@ namespace PurplePen.ViewModels
                 Icon = MessageBoxIcon.Warning
             };
             await Services.DialogService.ShowDialogAsync(vm);
-#endif
         }
 
         /// <summary>
@@ -2114,18 +2141,15 @@ namespace PurplePen.ViewModels
             if (controller == null) { return; }
 
             // Seed from previous settings or build defaults. The printer
-            // isn't shown in PDF mode but we still pass one through (empty)
-            // so the dialog's ViewModel has a non-null Printer; only the
-            // paper-size-with-margins is meaningful here.
+            // isn't shown in PDF mode, so no DocumentPrinting is passed.
             DescriptionPrintSettings settings = descPrintSettings ?? new DescriptionPrintSettings();
-            PrinterNameAndSettings printer = descPrinter ?? new PrinterNameAndSettings();
             PrintingPaperSizeWithMargins paperSizeWithMargins =
                 descPaperSizeWithMargins ?? BuildDefaultPaperSizeWithMargins();
 
             PrintDescriptionsDialogViewModel vm = new PrintDescriptionsDialogViewModel {
                 EventDB = controller.GetEventDB(),
+                Controller = controller,
                 IsPdfCreation = true,
-                Printer = printer,
                 PaperSizeWithMargins = paperSizeWithMargins,
                 Settings = settings,
             };
@@ -2150,7 +2174,6 @@ namespace PurplePen.ViewModels
 
             // Persist the user's choices for next time, then create the PDF.
             descPrintSettings = vm.Settings;
-            descPrinter = vm.Printer;
             descPaperSizeWithMargins = vm.PaperSizeWithMargins;
 
             controller.CreateDescriptionsPdf(descPrintSettings,
@@ -2167,7 +2190,7 @@ namespace PurplePen.ViewModels
             bool metric = Util.IsCurrentCultureMetric();
             PrintingPaperSize paperSize = PrintingStandards.StandardPaperSizes[
                 metric ? PrintingStandards.DefaultMetricPaperSizeindex
-                       : PrintingStandards.DefaultEnglighPaperSizeIndex];
+                       : PrintingStandards.DefaultEnglishPaperSizeIndex];
             int margin = metric ? PrintingStandards.DefaultDescriptionsMetricMarginInHundreths
                                 : PrintingStandards.DefaultDescriptionsEnglishMarginInHundreths;
             return new PrintingPaperSizeWithMargins(paperSize, new PrintingMarginSize(margin));
@@ -2179,34 +2202,47 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task PrintPunchCards()
         {
-#if !PORTING
-            PrintPunches printPunchesDialog = new PrintPunches(controller.GetEventDB(), false);
-            printPunchesDialog.controller = controller;
-            printPunchesDialog.PrintSettings = punchPrintSettings;
-            printPunchesDialog.PrinterPageSettings = punchPrintPageSettings;
-            printPunchesDialog.PrintSettings.Count = 1;
+            if (controller == null) { return; }
 
-            // show the dialog, on success, print.
-            if (printPunchesDialog.ShowDialog(this) == DialogResult.OK) {
-                // Save the settings for the next invocation of the dialog.
-                punchPrintSettings = printPunchesDialog.PrintSettings;
-                punchPrintPageSettings = printPunchesDialog.PrinterPageSettings;
-                controller.PrintPunches(WindowsUtil.GetWinFormsPrintTarget(punchPrintPageSettings, this, false),
-                                        punchPrintSettings,
-                                        WindowsUtil.PrintingPaperSizeWithMarginsFromPageSettings(punchPrintPageSettings));
+            IDocumentPrinting? documentPrinting = Services.DocumentPrinting;
+            if (documentPrinting == null) {
+                await ShowDirectPrintingUnavailable();
+                return;
             }
 
-            // And the dialog is done.
-            printPunchesDialog.Dispose();
-#else
-            MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel {
-                Message = "Direct printing is not yet implemented in this beta release. For now, please use the PDF creation feature.",
-                Buttons = MessageBoxButtons.Ok,
-                DefaultButton = MessageBoxButton.Ok,
-                Icon = MessageBoxIcon.Warning
+            // Seed from previous settings or build defaults.
+            CorePunchPrintSettings settings = punchPrintSettings ?? new CorePunchPrintSettings();
+            settings.Count = 1;
+            PrintingPaperSizeWithMargins paperSizeWithMargins =
+                punchPaperSizeWithMargins ?? BuildDefaultPaperSizeWithMargins();
+
+            PunchcardFormat punchcardFormat = controller.GetPunchcardFormat();
+
+            PrintPunchesDialogViewModel vm = new PrintPunchesDialogViewModel {
+                EventDB = controller.GetEventDB(),
+                Controller = controller,
+                IsPdfCreation = false,
+                DocumentPrinting = documentPrinting,
+                PaperSizeWithMargins = paperSizeWithMargins,
+                PunchcardFormat = punchcardFormat,
+                Settings = settings,
             };
-            await Services.DialogService.ShowDialogAsync(vm);
-#endif
+
+            if (!await Services.DialogService.ShowDialogAsync(vm))
+                return;
+
+            // The Punch Card Layout… button edits an event-wide setting; apply
+            // it through the controller if the user changed it.
+            if (vm.PunchcardFormat != null && !vm.PunchcardFormat.Equals(punchcardFormat))
+                controller.SetPunchcardFormat(vm.PunchcardFormat);
+
+            // Save the settings for the next invocation of the dialog, then print.
+            punchPrintSettings = vm.Settings;
+            punchPaperSizeWithMargins = vm.PaperSizeWithMargins;
+
+            controller.PrintPunches(documentPrinting.GetPrintingTarget(ColorModel.RGB),
+                                    punchPrintSettings,
+                                    punchPaperSizeWithMargins);
         }
 
         /// <summary>
@@ -2218,12 +2254,9 @@ namespace PurplePen.ViewModels
             if (controller == null) { return; }
 
             // Seed from previous settings or build defaults. The printer
-            // isn't shown in PDF mode but we still pass one through (empty)
-            // so the dialog's ViewModel has a non-null Printer; only the
-            // paper-size-with-margins is meaningful here.
+            // isn't shown in PDF mode, so no DocumentPrinting is passed.
             CorePunchPrintSettings settings = punchPrintSettings ?? new CorePunchPrintSettings();
             settings.Count = 1;
-            PrinterNameAndSettings printer = punchPrinter ?? new PrinterNameAndSettings();
             PrintingPaperSizeWithMargins paperSizeWithMargins =
                 punchPaperSizeWithMargins ?? BuildDefaultPaperSizeWithMargins();
 
@@ -2231,8 +2264,8 @@ namespace PurplePen.ViewModels
 
             PrintPunchesDialogViewModel vm = new PrintPunchesDialogViewModel {
                 EventDB = controller.GetEventDB(),
+                Controller = controller,
                 IsPdfCreation = true,
-                Printer = printer,
                 PaperSizeWithMargins = paperSizeWithMargins,
                 PunchcardFormat = punchcardFormat,
                 Settings = settings,
@@ -2263,7 +2296,6 @@ namespace PurplePen.ViewModels
 
             // Persist the user's choices for next time, then create the PDF.
             punchPrintSettings = vm.Settings;
-            punchPrinter = vm.Printer;
             punchPaperSizeWithMargins = vm.PaperSizeWithMargins;
 
             controller.CreatePunchesPdf(punchPrintSettings,
@@ -2277,46 +2309,37 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task PrintCourses()
         {
-#if !PORTING
+            if (controller == null) { return; }
+
+            IDocumentPrinting? documentPrinting = Services.DocumentPrinting;
+            if (documentPrinting == null) {
+                await ShowDirectPrintingUnavailable();
+                return;
+            }
+
             if (! await CheckForNonRenderableObjects(false, true))
                 return;
 
-            PrintCourses printCoursesDialog = new PrintCourses(controller.GetEventDB(), controller.AnyMultipart());
-            printCoursesDialog.controller = controller;
-            printCoursesDialog.PrintSettings = coursePrintSettings;
+            // Seed from previous settings or build defaults. Always start with one copy.
+            CoursePrintSettings settings = coursePrintSettings ?? new CoursePrintSettings();
+            settings.Count = 1;
 
-#if XPS_PRINTING
-            if (controller.MustRasterizePrinting) {
-                // Force rasterization.
-                coursePrintSettings.UseXpsPrinting = false;
-                printCoursesDialog.PrintSettings = coursePrintSettings;
-                printCoursesDialog.EnableRasterizeChoice = false;
-            }
-#endif // XPS_PRINTING
-
-            printCoursesDialog.PrintSettings.Count = 1;
-
-            // show the dialog, on success, print.
-            if (printCoursesDialog.ShowDialog(this) == DialogResult.OK) {
-                // Save the settings for the next invocation of the dialog.
-                coursePrintSettings = printCoursesDialog.PrintSettings;
-                coursePrintPageSettings = printCoursesDialog.PageSettings;
-                controller.PrintCourses(WindowsUtil.GetWinFormsPrintTarget(coursePrintPageSettings, this, false),
-                                        coursePrintSettings,
-                                        WindowsUtil.PrintingPaperSizeWithMarginsFromPageSettings(coursePrintPageSettings));
-            }
-
-            // And the dialog is done.
-            printCoursesDialog.Dispose();
-#else
-            MessageBoxDialogViewModel vm = new MessageBoxDialogViewModel {
-                Message = "Direct printing is not yet implemented in this beta release. For now, please use the PDF creation feature.",
-                Buttons = MessageBoxButtons.Ok,
-                DefaultButton = MessageBoxButton.Ok,
-                Icon = MessageBoxIcon.Warning
+            PrintCoursesDialogViewModel vm = new PrintCoursesDialogViewModel {
+                EventDB = controller.GetEventDB(),
+                Controller = controller,
+                DocumentPrinting = documentPrinting,
+                ShowMergeParts = controller.AnyMultipart(),
+                Settings = settings,
             };
-            await Services.DialogService.ShowDialogAsync(vm);
-#endif
+
+            if (!await Services.DialogService.ShowDialogAsync(vm))
+                return;
+
+            // Save the settings for the next invocation of the dialog, then print.
+            coursePrintSettings = vm.Settings;
+
+            controller.PrintCourses(documentPrinting.GetPrintingTarget(coursePrintSettings.PrintingColorModel),
+                                    coursePrintSettings);
         }
 
         /// <summary>
@@ -2353,6 +2376,7 @@ namespace PurplePen.ViewModels
 
             CreatePdfCoursesDialogViewModel vm = new CreatePdfCoursesDialogViewModel {
                 EventDB = controller.GetEventDB(),
+                Controller = controller,
                 ShowMergeParts = controller.AnyMultipart(),
                 EnableChangeCropping = !isPdfMap,
                 Settings = settings,
@@ -2598,7 +2622,7 @@ namespace PurplePen.ViewModels
             FileSaveViewModel saveVm = new FileSaveViewModel {
                 Title = MiscText.SaveXmlFileDialog_Title,
                 FileFilters = MiscText.SaveXmlFileDialog_Filter,
-                FileFilterIndex = 2,
+                FileFilterIndex = 1,
                 DefaultExtension = "xml",
                 ShowOverwritePrompt = true,
                 InitialDirectory = Path.GetDirectoryName(xmlFileName),

@@ -852,6 +852,14 @@ Source: "{#BuildDir}\fonts\RobotoCondensed-LightItalic.ttf"; DestDir: "{commonfo
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
+[InstallDelete]
+; PdfConverter used to be a separate helper executable; it is now a library loaded by PurplePen itself.
+; Remove the helper's leftover files from earlier installs.
+Type: files; Name: "{app}\PdfConverter.exe"
+Type: files; Name: "{app}\PdfConverter.dll.config"
+Type: files; Name: "{app}\PdfConverter.deps.json"
+Type: files; Name: "{app}\PdfConverter.runtimeconfig.json"
+
 [Icons]
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 

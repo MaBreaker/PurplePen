@@ -143,6 +143,8 @@ PurplePen is being ported from WinForms (PurplePen/) to Avalonia (AvPurplePen/) 
 - LocalizeExtension.cs: Custom XAML markup extension for localization with live language switching (see Localization section below).
 - App.axaml.cs: Application startup, creates MainWindow, registers ViewLocator as a DataTemplate.
 - Program.cs: Entry point. DI container is set up before the Avalonia builder line (safe because DI is plain .NET, not Avalonia-dependent).
+- **Target framework depends on the build OS**: `net10.0-windows` (with `UseWindowsForms`) when building on Windows, `net10.0-macos` on Mac, plain `net10.0` on Linux. Windows-only code (e.g. WinForms printing) must be inside `#if WINDOWS`, and macOS-only code (AppKit etc. via the `Microsoft.macOS` bindings) inside `#if MACOS` — both defined automatically by the SDK for those TFMs — so the other builds still compile. Check the plain cross-platform build with `dotnet build AvPurplePen/AvPurplePen.csproj -p:TargetWindowsFramework=false` on Windows or `-p:TargetMacFramework=false` on Mac (`-f net10.0` does not work — restore ignores it). Installer scripts pass the matching `--framework` (`Innosetup/create-setup.bat` uses `net10.0-windows`; the Mac scripts use `net10.0-macos`; the Linux scripts use `net10.0`). Only AvPurplePen is OS-targeted; libraries and test projects stay `net10.0`.
+- **The Mac build needs the .NET `macos` workload and one exact Xcode version** (major.minor must match what the installed workload was built against, or the build fails with E0191). Select it with `xcode-select -s` or `DEVELOPER_DIR`. On a Mac, `dotnet build` produces a real `PurplePen.app` (`bin/<Config>/net10.0-macos/osx-arm64/`), with managed assemblies and data files in `Contents/MonoBundle` (= `AppContext.BaseDirectory`) and `Info.plist` merged from `AvPurplePen/Info.plist`. New `CopyToOutputDirectory` data files must be added to the `PlaceMacContentFiles` target in AvPurplePen.csproj or the SDK leaves them out of the bundle. See "Xcode and the .NET macOS workload" and "macOS SDK behavior" in `Installer/MacInstaller/README.md`.
 
 **PurplePenViewModels/** - ViewModels (separate project, no UI dependencies)
 - Namespace: `PurplePen.ViewModels`
@@ -843,6 +845,24 @@ private async Task FooCommand() {
 **Settings remembered across invocations**: dialogs whose last choices should persist (Create OCAD/Image/PDF, Print Descriptions/Punch Cards) store their settings in private fields on `MainWindowViewModel` (`ocadCreationSettingsPrevious`, `descPrintSettings`, etc.), reset to null when a new map file loads. The printer/paper/margins for print dialogs are stored as separate `PrinterNameAndSettings` + `PrintingPaperSizeWithMargins` fields (`BuildDefaultPaperSizeWithMargins()` seeds the default — Letter+0.25" / A4+7mm by locale).
 
 The convention has been: porting the dialog + ViewModel is one step; wiring its command is a separate follow-up. Don't assume — the dialog can be reviewed before the command is hooked up.
+
+### Print Preview (reusable for any IPrintingTarget-based output)
+
+Anything that prints via `PrintManager`/`IPrintingTarget` can be previewed:
+
+```csharp
+using (RecordingPrintTarget printTarget = new RecordingPrintTarget(PdfPrintTarget.PdfDpi)) {
+    if (controller.PrintDescriptions(printTarget, settings, paperSizeWithMargins)) {   // or PrintPunches, PrintCourses, ...
+        await Services.DialogService.ShowDialogAsync(new PrintPreviewDialogViewModel { PrintTarget = printTarget });
+    }
+}
+```
+
+- `RecordingPrintTarget` (PurplePenCore) records each page with a `RecordingGraphicsTarget` (Graphics2D, backend-independent). It takes an `IGraphicsBitmapLoader` (default `Services.BitmapLoader`) to load recorded bitmaps on playback; the loader must match the backend the page is played back onto (Skia loader for Skia targets), or bitmaps are dropped. `RecordedPrintPage.Draw(target, token)` plays a page back, thread-safely. Disposal is deferred until in-flight background playbacks finish, so disposing right after the dialog closes is safe.
+- `PrintPreviewDialog` + `PrintPreviewDialogViewModel`: generic dialog (thumbnails, page navigation, zoom). The VM only does navigation; zoom lives in the view.
+- `PrintPageViewer` (UserControl wrapping PanAndZoom) and `RecordedPageThumbnail` (Controls/) can be reused standalone. `RecordedPageDrawing` adapts a page to `IThreadsafeSkiaDrawing`; world units are mm with Y up, so zoom 1.0 = actual size.
+- The dialog that hosts a Preview button needs a `Controller` (see `PrintDescriptionsDialogViewModel.PreviewCommand`), and its code-behind must push non-bindable state (e.g. CourseSelector selection) into the VM before executing the command.
+- **`Skia_GraphicsTarget` canvas ownership:** both constructors take a required `bool ownCanvas`. Pass `true` only if the target should dispose the `SKCanvas` when it is disposed. For a canvas you don't own (a paint event's `e.Canvas`, `surface.Canvas`, or a canvas in your own `using`), pass `false`; the target can then safely go in a `using`.
 
 ### Small Avalonia Binding/Control Notes
 
