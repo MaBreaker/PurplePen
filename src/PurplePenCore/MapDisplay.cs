@@ -698,7 +698,7 @@ namespace PurplePen
         // the given clip region is applied.
         public void Draw(IGraphicsBitmap bitmap, Matrix transform, RectangleF? clipRect = null)
         {
-            Debug.Assert(colorModel == ColorModel.CMYK || colorModel == ColorModel.RGB || colorModel == ColorModel.OCADCompatible, "Unknown color model selected");
+            Debug.Assert(colorModel == ColorModel.CMYK || colorModel == ColorModel.RGB, "Unknown color model selected");
             IColorConverter colorConverter = (colorModel == ColorModel.CMYK) ? (IColorConverter) SwopColorConverter.Instance : (IColorConverter) DefaultColorConverter.Instance;
 
             if (bitmap.PixelHeight == 0 || bitmap.PixelWidth == 0)

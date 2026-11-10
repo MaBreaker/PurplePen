@@ -58,7 +58,7 @@ namespace AvPurplePen.Views.Livelox
             // Drawing in design mode causes the designer to crash.
             e.Canvas.Clear(SKColors.Empty);
             IGraphicsBitmap liveloxImage = ImageResources.LiveloxImage;
-            Skia_GraphicsTarget panel = new Skia_GraphicsTarget(e.Canvas);
+            Skia_GraphicsTarget panel = new Skia_GraphicsTarget(e.Canvas, false);
             panel.DrawBitmap(liveloxImage, new RectangleF(0, 0, Convert.ToSingle(e.LogicalSize.Width), Convert.ToSingle(e.LogicalSize.Height)), BitmapScaling.HighQuality);
         }
 
