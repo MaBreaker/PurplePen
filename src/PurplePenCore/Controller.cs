@@ -296,6 +296,11 @@ namespace PurplePen
             checkForUnrenderableObjects = true;   // warn about non-renderable objects.
 
             symbolDB.Standard = eventDB.GetEvent().descriptionStandard;
+
+            // Loading a PDF map pumps messages, so an idle update may already have run (and consumed the change
+            // at the top of this method) while the map was still loading. Make sure the UI updates again now.
+            ForceChangeUpdate(true);
+            QueueIdleEvent();
         }
 
         // Try to recover from a missing map file. If the map file can be found in the same directory as the event file, then
@@ -392,12 +397,9 @@ namespace PurplePen
                     try {
                         await ui.InfoMessage(string.Format(MiscText.MapFileChanged, changedReferencedFile));
 
-                        bool success = HandleExceptions(
-                            delegate {
-                                mapDisplay.SetMapFile(MapType, MapFileName);
-                            },
-                            MiscText.CannotLoadMapFile, MapFileName);
-
+                        // Clear the map display so that NewMapFileLoaded sees it doesn't match the event and
+                        // reloads the map, reporting any load error once.
+                        mapDisplay.SetMapFile(MapType.None, null);
                         NewMapFileLoaded(false);
                     }
                     finally {
@@ -1304,6 +1306,58 @@ namespace PurplePen
         }
 
 
+        // Print to a printer, through the platform's printing support. The print function draws the document onto the
+        // IPrintingTarget passed to it and returns success or failure, e.g.
+        //     target => controller.PrintDescriptions(target, settings, paperSizeWithMargins)
+        // If documentPrinting.PrintUsingPdf is true, the document is drawn into a temporary PDF file, which is then
+        // printed with documentPrinting.PrintPdfAsync and deleted. Otherwise, it is drawn onto documentPrinting.GetPrintingTarget.
+        // colorModel: the color model used to render the pages.
+        // Returns success or failure; any errors are already reported to the user. Cancelling the print isn't a failure.
+        public async Task<bool> PrintToPrinterAsync(IDocumentPrinting documentPrinting, ColorModel colorModel, Func<IPrintingTarget, bool> print)
+        {
+            if (!documentPrinting.PrintUsingPdf) {
+                return print(documentPrinting.GetPrintingTarget(colorModel));
+            }
+
+            string documentTitle = QueryEvent.GetEventTitle(eventDB, " ");
+
+            // The PDF goes into its own temporary directory, so it can be named after the document; the
+            // name of the file may be shown as the name of the print job.
+            string tempDirectory = Path.Combine(Path.GetTempPath(), "PurplePen-" + Guid.NewGuid().ToString("N"));
+            string fileName = Util.FilterInvalidPathChars(documentTitle).Trim();
+            if (fileName == "")
+                fileName = "PurplePen";
+            string pdfPath = Path.Combine(tempDirectory, fileName + ".pdf");
+
+            try {
+                if (!HandleExceptions(() => Directory.CreateDirectory(tempDirectory), MiscText.CannotPrint, documentTitle))
+                    return false;
+
+                if (!print(new PdfPrintTarget(pdfPath, cmykMode: colorModel == ColorModel.CMYK)))
+                    return false;
+
+                try {
+                    await documentPrinting.PrintPdfAsync(pdfPath);
+                    return true;
+                }
+                catch (Exception e) {
+                    await ui.ErrorMessage(string.Format(MiscText.CannotPrint, documentTitle) + "\r\n\r\n" + e.Message);
+                    return false;
+                }
+            }
+            finally {
+                try {
+                    if (Directory.Exists(tempDirectory))
+                        Directory.Delete(tempDirectory, true);
+                }
+                catch (IOException) {
+                    // Leaving a temporary file behind is harmless.
+                }
+                catch (UnauthorizedAccessException) {
+                }
+            }
+        }
+
         // Print or print preview the descriptions. Returns success or failure; any errors are already reported to the user.
         public bool PrintDescriptions(IPrintingTarget printingTarget, DescriptionPrintSettings descriptionPrintSettings, PrintingPaperSizeWithMargins paperSizeWithMargins)
         {
@@ -1822,6 +1876,9 @@ namespace PurplePen
         // Delete the current course
         public async Task<bool> DeleteCurrentCourse()
         {
+            // Changing the active course invalidates any current command mode (e.g., Add Control remembers whether it is in All Controls).
+            CancelMode();
+
             CourseDesignator courseDesignator = selectionMgr.Selection.ActiveCourseDesignator;
             if (courseDesignator.IsAllControls)
                 return false;
@@ -1880,6 +1937,9 @@ namespace PurplePen
         // The course kind cannot be changed.
         public void DuplicateCurrentCourse(string name, ControlLabelKind labelKind, int scoreColumn, string secondaryTitle, float printScale, float climb, float? length, DescriptionKind descriptionKind, int firstControlOrdinal, bool hideFromReports)
         {
+            // Changing the active course invalidates any current command mode (e.g., Add Control remembers whether it is in All Controls).
+            CancelMode();
+
             Id<Course> currentCourseId = selectionMgr.Selection.ActiveCourseDesignator.CourseId;
             Course currentCourse = eventDB.GetCourse(currentCourseId);
 
@@ -1905,6 +1965,9 @@ namespace PurplePen
         // Add a new course. If a unique start or finish control is found, it is added.
         public void NewCourse(CourseKind courseKind, string name, ControlLabelKind labelKind, int scoreColumn, string secondaryTitle, float printScale, float climb, float? length, DescriptionKind descriptionKind, int firstControlOrdinal, bool hideFromReports)
         {
+            // Changing the active course invalidates any current command mode (e.g., Add Control remembers whether it is in All Controls).
+            CancelMode();
+
             undoMgr.BeginCommand(713, CommandNameText.NewCourse);
             Id<Course> newCourse = ChangeEvent.CreateCourse(eventDB, courseKind, name, labelKind, scoreColumn, secondaryTitle, printScale, climb, length, descriptionKind, firstControlOrdinal, addStartAndFinish: true, hideFromReports: hideFromReports);
             selectionMgr.SelectCourseView(new CourseDesignator(newCourse));
@@ -2843,6 +2906,9 @@ namespace PurplePen
             //  Only crossing points (optional or mandatory) can be rotated.
             if ((selection.SelectionKind == SelectionKind.Special && eventDB.GetSpecial(selection.SelectedSpecial).kind == SpecialKind.OptCrossing) ||
                 (selection.SelectionKind == SelectionKind.Control && eventDB.GetControl(selection.SelectedControl).kind == ControlPointKind.CrossingPoint)) {
+                CrossingCourseObj crossingCourseObj = SelectedCrossingCourseObj();
+                if (crossingCourseObj != null)
+                    SetCommandMode(new RotateMode(this, crossingCourseObj));
                 SetCommandMode(new RotateMode(this, selectionMgr.SelectedCourseObjects[0]));
             }
             //JU: Rotated texts
@@ -2921,8 +2987,27 @@ namespace PurplePen
             //  Only crossing points (optional or mandatory) can be stretched.
             if ((selection.SelectionKind == SelectionKind.Special && eventDB.GetSpecial(selection.SelectedSpecial).kind == SpecialKind.OptCrossing) ||
                 (selection.SelectionKind == SelectionKind.Control && eventDB.GetControl(selection.SelectedControl).kind == ControlPointKind.CrossingPoint)) {
-                SetCommandMode(new StretchMode(this, (CrossingCourseObj)selectionMgr.SelectedCourseObjects[0]));
+                CrossingCourseObj crossingCourseObj = SelectedCrossingCourseObj();
+                if (crossingCourseObj != null)
+                    SetCommandMode(new StretchMode(this, crossingCourseObj));
             }
+        }
+
+        // Get the crossing point course object that is part of the current selection, or null if the
+        // selection has no crossing point course object (for example, the crossing point is not displayed
+        // on the map in the current course view).
+        private CrossingCourseObj SelectedCrossingCourseObj()
+        {
+            CourseObj[] selectedCourseObjects = selectionMgr.SelectedCourseObjects;
+            if (selectedCourseObjects == null)
+                return null;
+
+            foreach (CourseObj courseObj in selectedCourseObjects) {
+                if (courseObj is CrossingCourseObj crossingCourseObj)
+                    return crossingCourseObj;
+            }
+
+            return null;
         }
 
         // Stretch the selected object to the given new orientation.
@@ -3355,10 +3440,13 @@ namespace PurplePen
 
             if (selection.SelectionKind == SelectionKind.Control || selection.SelectionKind == SelectionKind.MapExchangeOrFlipAtControl) {
                 // Case 1 -- selected control.
+                // A control can be selected without a course control (e.g., one just added to All Controls); there is no fork then.
                 Id<CourseControl> courseControlId = selection.SelectedCourseControl;
-                CourseControl courseControl = eventDB.GetCourseControl(courseControlId);
-                if (!courseControl.split && QueryEvent.GetForkStart(eventDB, courseId, courseControlId).IsNotNone)
-                    return CommandStatus.Enabled;
+                if (courseControlId.IsNotNone) {
+                    CourseControl courseControl = eventDB.GetCourseControl(courseControlId);
+                    if (!courseControl.split && QueryEvent.GetForkStart(eventDB, courseId, courseControlId).IsNotNone)
+                        return CommandStatus.Enabled;
+                }
             }
             else if (selection.SelectionKind == SelectionKind.Leg) {
                 // Case 2 -- selected leg.
