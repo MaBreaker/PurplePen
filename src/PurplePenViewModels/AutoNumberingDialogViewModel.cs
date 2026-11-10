@@ -25,6 +25,12 @@ namespace PurplePen.ViewModels
         [ObservableProperty]
         private int firstCode = 31;
 
+        /// <summary>
+        /// Minimum code for NumericUpDown
+        /// </summary>
+        [ObservableProperty]
+        private int minimumCode = 31;
+
         /// <summary>Whether to skip codes that could be read upside-down (e.g. "68"/"89").</summary>
         [ObservableProperty]
         private bool disallowInvertibleCodes;

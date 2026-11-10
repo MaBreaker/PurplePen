@@ -4016,7 +4016,7 @@ namespace AvPurplePen {
         ///
         ///Would you like to open the document as a PDF file in your default PDF viewer, so that you can print it from there?
         ///
-        ///IMPORTANT: When printing from the PDF viewer, turn off any page scaling (such as "Fit to page" or "Shrink to printable area"), so that the document prints at the correct size..
+        ///IMPORTANT: When printing from the PDF viewer, turn off any page scaling (such as &quot;Fit to page&quot; or &quot;Shrink to printable area&quot;), so that the document prints at the correct size..
         /// </summary>
         public static string LinuxPrinting_PortalUnavailable {
             get {
@@ -8088,6 +8088,15 @@ namespace AvPurplePen {
         public static string NewEventStandards_radioButtonMapSpr2019_Text {
             get {
                 return ResourceManager.GetString("NewEventStandards_radioButtonMapSpr2019_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Street-O.
+        /// </summary>
+        public static string NewEventStandards_radioButtonMapStreetO_Text {
+            get {
+                return ResourceManager.GetString("NewEventStandards_radioButtonMapStreetO_Text", resourceCulture);
             }
         }
         

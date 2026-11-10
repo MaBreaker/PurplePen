@@ -77,7 +77,7 @@
                 <NumericUpDown x:Name="startingCodeNumericUpDown"
                                avutil:InitialFocus.IsEnabled="True"
                                Width="90"
-                               Minimum="31"
+                               Minimum="{Binding MinimumCode}"
                                Maximum="999"
                                Increment="1"
                                FormatString="0"

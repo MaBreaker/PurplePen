@@ -600,7 +600,6 @@
   <data name="ChangeText_label3_Text" xml:space="preserve">
     <value>Size:</value>
   </data>
-  <!-- JU: Rotation and Multiline -->
   <data name="ChangeText_label4_Text" xml:space="preserve">
     <value>Rotation:</value>
   </data>
@@ -613,7 +612,6 @@
   <data name="ChangeText_labelFontSizeMm_Text" xml:space="preserve">
     <value>mm</value>
   </data>
-  <!-- JU: Rotation and Multiline -->
   <data name="ChangeText_labelRotationDeg_Text" xml:space="preserve">
     <value>deg</value>
   </data>
@@ -2039,7 +2037,6 @@
   <data name="MainFrame_mapStdSpr2019Menu_Text" xml:space="preserve">
     <value>ISSprOM 2019 Map Standard</value>
   </data>
-  <!-- JU: Street-O -->
   <data name="MainFrame_mapStdStreetOMenu_Text" xml:space="preserve">
     <value>Street-O Map Standard</value>
   </data>
@@ -3931,5 +3928,8 @@ IMPORTANT: When printing from the PDF viewer, turn off any page scaling (such as
   </data>
   <data name="LinuxPrinting_XdgUtilsMissing" xml:space="preserve">
     <value>The PDF file could not be opened, because xdg-utils (which opens files in their default applications) is not installed.</value>
+  </data>
+  <data name="NewEventStandards_radioButtonMapStreetO_Text" xml:space="preserve">
+    <value>Street-O</value>
   </data>
 </root>

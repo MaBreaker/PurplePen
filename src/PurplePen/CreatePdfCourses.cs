@@ -32,6 +32,7 @@
  * OF SUCH DAMAGE.
  */
 
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -92,7 +93,7 @@ namespace PurplePen
 
             comboBoxPrintBaseMap.SelectedIndex = settings.DontPrintBaseMap ? 1 : 0;
             comboBoxMultiPage.SelectedIndex = settings.CropLargePrintArea ? 0 : 1;
-            comboBoxColorModel.SelectedIndex = (int)settings.ColorModel - 1;
+            comboBoxColorModel.SelectedIndex = (int)settings.ColorModel /* JU: - 1 */;
             checkBoxMergeParts.Checked = settings.PrintMapExchangesOnOneMap;
 
             int fileFormatIndex = (int)settings.FileCreation;
@@ -131,7 +132,7 @@ namespace PurplePen
             settings.DontPrintBaseMap = (comboBoxPrintBaseMap.SelectedIndex == 1);
             settings.CropLargePrintArea = (comboBoxMultiPage.SelectedIndex == 0);
             settings.PrintMapExchangesOnOneMap = checkBoxMergeParts.Checked;
-            settings.ColorModel = (ColorModel)(comboBoxColorModel.SelectedIndex + 1);
+            settings.ColorModel = (ColorModel)(comboBoxColorModel.SelectedIndex /* JU: + 1 */ );
 
             // Which folder?
             settings.mapDirectory = mapDirectory.Checked;

@@ -271,9 +271,9 @@ namespace PurplePen.ViewModels
         [NotifyPropertyChangedFor(nameof(CanProceed))]
         private bool isMapSpr2019;
 
+        //JU: Street-O
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(CanProceed))]
-        //JU: Street-O
         private bool isMapStreetO;
 
         [ObservableProperty]
@@ -290,6 +290,10 @@ namespace PurplePen.ViewModels
 
         [ObservableProperty]
         private int firstCode = 31;
+        
+        //JU: Street-O
+        [ObservableProperty]
+        private int minimumCode = 31;
 
         [ObservableProperty]
         private bool disallowInvertibleCodes;
@@ -334,7 +338,7 @@ namespace PurplePen.ViewModels
                         return !UseOtherFolder || DirectoryName.Length > 0;
                     case WizardPage.Standards:
                         return (IsDescriptions2004 || IsDescriptions2018) &&
-                               (IsMap2000 || IsMap2017 || IsMapSpr2019);
+                               (IsMap2000 || IsMap2017 || IsMapSpr2019 /* JU: Street-O */ || IsMapStreetO);
                     case WizardPage.Numbering:
                         return true;
                     case WizardPage.Final:
@@ -430,6 +434,12 @@ namespace PurplePen.ViewModels
 
                 case WizardPage.PaperSize:
                     InitializePaperSize();
+                    break;
+
+                //JU: Street-O
+                case WizardPage.Numbering:
+                    FirstCode = IsMapStreetO ? 11 : 31;
+                    MinimumCode = IsMapStreetO ? 11 : 31;
                     break;
 
                 case WizardPage.Final:

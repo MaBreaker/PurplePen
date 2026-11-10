@@ -62,260 +62,247 @@ namespace PurplePen
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CreatePdfCourses));
-            this.coursesGroupBox = new System.Windows.Forms.GroupBox();
-            this.courseSelector = new PurplePen.CourseSelector();
-            this.groupBoxAppearance = new System.Windows.Forms.GroupBox();
-            this.checkBoxMergeParts = new System.Windows.Forms.CheckBox();
-            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
-            this.labelColorModel = new System.Windows.Forms.Label();
-            this.comboBoxColorModel = new System.Windows.Forms.ComboBox();
-            this.labelPrintBaseMap = new System.Windows.Forms.Label();
-            this.comboBoxPrintBaseMap = new System.Windows.Forms.ComboBox();
-            this.comboBoxMultiPage = new System.Windows.Forms.ComboBox();
-            this.labelAppearanceInfo = new System.Windows.Forms.Label();
-            this.folderGroupBox = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.selectOtherDirectoryButton = new System.Windows.Forms.Button();
-            this.coursesDirectory = new System.Windows.Forms.RadioButton();
-            this.otherDirectoryTextBox = new System.Windows.Forms.TextBox();
-            this.mapDirectory = new System.Windows.Forms.RadioButton();
-            this.otherDirectory = new System.Windows.Forms.RadioButton();
-            this.outputGroupBox = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.fileNamePrefixLabel = new System.Windows.Forms.Label();
-            this.filenamePrefixTextBox = new System.Windows.Forms.TextBox();
-            this.filesLabel = new System.Windows.Forms.Label();
-            this.comboBoxFileFormat = new System.Windows.Forms.ComboBox();
-            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.coursesGroupBox.SuspendLayout();
-            this.groupBoxAppearance.SuspendLayout();
-            this.tableLayoutPanel4.SuspendLayout();
-            this.folderGroupBox.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
-            this.outputGroupBox.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
-            this.SuspendLayout();
+            coursesGroupBox = new System.Windows.Forms.GroupBox();
+            courseSelector = new CourseSelector();
+            groupBoxAppearance = new System.Windows.Forms.GroupBox();
+            checkBoxMergeParts = new System.Windows.Forms.CheckBox();
+            tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            labelColorModel = new System.Windows.Forms.Label();
+            comboBoxColorModel = new System.Windows.Forms.ComboBox();
+            labelPrintBaseMap = new System.Windows.Forms.Label();
+            comboBoxPrintBaseMap = new System.Windows.Forms.ComboBox();
+            comboBoxMultiPage = new System.Windows.Forms.ComboBox();
+            labelAppearanceInfo = new System.Windows.Forms.Label();
+            folderGroupBox = new System.Windows.Forms.GroupBox();
+            tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            selectOtherDirectoryButton = new System.Windows.Forms.Button();
+            coursesDirectory = new System.Windows.Forms.RadioButton();
+            otherDirectoryTextBox = new System.Windows.Forms.TextBox();
+            mapDirectory = new System.Windows.Forms.RadioButton();
+            otherDirectory = new System.Windows.Forms.RadioButton();
+            outputGroupBox = new System.Windows.Forms.GroupBox();
+            tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            fileNamePrefixLabel = new System.Windows.Forms.Label();
+            filenamePrefixTextBox = new System.Windows.Forms.TextBox();
+            filesLabel = new System.Windows.Forms.Label();
+            comboBoxFileFormat = new System.Windows.Forms.ComboBox();
+            folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            coursesGroupBox.SuspendLayout();
+            groupBoxAppearance.SuspendLayout();
+            tableLayoutPanel4.SuspendLayout();
+            folderGroupBox.SuspendLayout();
+            tableLayoutPanel1.SuspendLayout();
+            outputGroupBox.SuspendLayout();
+            tableLayoutPanel2.SuspendLayout();
+            SuspendLayout();
             // 
             // okButton
             // 
-            resources.ApplyResources(this.okButton, "okButton");
-            this.okButton.Click += new System.EventHandler(this.okButton_Click);
+            resources.ApplyResources(okButton, "okButton");
+            okButton.Click += okButton_Click;
             // 
             // cancelButton
             // 
-            resources.ApplyResources(this.cancelButton, "cancelButton");
+            resources.ApplyResources(cancelButton, "cancelButton");
             // 
             // coursesGroupBox
             // 
-            resources.ApplyResources(this.coursesGroupBox, "coursesGroupBox");
-            this.coursesGroupBox.Controls.Add(this.courseSelector);
-            this.coursesGroupBox.Name = "coursesGroupBox";
-            this.coursesGroupBox.TabStop = false;
+            resources.ApplyResources(coursesGroupBox, "coursesGroupBox");
+            coursesGroupBox.Controls.Add(courseSelector);
+            coursesGroupBox.Name = "coursesGroupBox";
+            coursesGroupBox.TabStop = false;
             // 
             // courseSelector
             // 
-            resources.ApplyResources(this.courseSelector, "courseSelector");
-            this.courseSelector.Filter = null;
-            this.courseSelector.Name = "courseSelector";
-            this.courseSelector.ShowAllControls = true;
-            this.courseSelector.ShowCourseParts = false;
-            this.courseSelector.ShowVariationChooser = true;
+            resources.ApplyResources(courseSelector, "courseSelector");
+            courseSelector.Name = "courseSelector";
             // 
             // groupBoxAppearance
             // 
-            resources.ApplyResources(this.groupBoxAppearance, "groupBoxAppearance");
-            this.groupBoxAppearance.Controls.Add(this.checkBoxMergeParts);
-            this.groupBoxAppearance.Controls.Add(this.tableLayoutPanel4);
-            this.groupBoxAppearance.Controls.Add(this.comboBoxMultiPage);
-            this.groupBoxAppearance.Controls.Add(this.labelAppearanceInfo);
-            this.groupBoxAppearance.Name = "groupBoxAppearance";
-            this.groupBoxAppearance.TabStop = false;
+            resources.ApplyResources(groupBoxAppearance, "groupBoxAppearance");
+            groupBoxAppearance.Controls.Add(checkBoxMergeParts);
+            groupBoxAppearance.Controls.Add(tableLayoutPanel4);
+            groupBoxAppearance.Controls.Add(comboBoxMultiPage);
+            groupBoxAppearance.Controls.Add(labelAppearanceInfo);
+            groupBoxAppearance.Name = "groupBoxAppearance";
+            groupBoxAppearance.TabStop = false;
             // 
             // checkBoxMergeParts
             // 
-            resources.ApplyResources(this.checkBoxMergeParts, "checkBoxMergeParts");
-            this.checkBoxMergeParts.Name = "checkBoxMergeParts";
-            this.checkBoxMergeParts.UseVisualStyleBackColor = true;
+            resources.ApplyResources(checkBoxMergeParts, "checkBoxMergeParts");
+            checkBoxMergeParts.Name = "checkBoxMergeParts";
+            checkBoxMergeParts.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel4
             // 
-            resources.ApplyResources(this.tableLayoutPanel4, "tableLayoutPanel4");
-            this.tableLayoutPanel4.Controls.Add(this.labelColorModel, 0, 1);
-            this.tableLayoutPanel4.Controls.Add(this.comboBoxColorModel, 1, 1);
-            this.tableLayoutPanel4.Controls.Add(this.labelPrintBaseMap, 0, 0);
-            this.tableLayoutPanel4.Controls.Add(this.comboBoxPrintBaseMap, 1, 0);
-            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            resources.ApplyResources(tableLayoutPanel4, "tableLayoutPanel4");
+            tableLayoutPanel4.Controls.Add(labelColorModel, 0, 1);
+            tableLayoutPanel4.Controls.Add(comboBoxColorModel, 1, 1);
+            tableLayoutPanel4.Controls.Add(labelPrintBaseMap, 0, 0);
+            tableLayoutPanel4.Controls.Add(comboBoxPrintBaseMap, 1, 0);
+            tableLayoutPanel4.Name = "tableLayoutPanel4";
             // 
             // labelColorModel
             // 
-            resources.ApplyResources(this.labelColorModel, "labelColorModel");
-            this.labelColorModel.Name = "labelColorModel";
+            resources.ApplyResources(labelColorModel, "labelColorModel");
+            labelColorModel.Name = "labelColorModel";
             // 
             // comboBoxColorModel
             // 
-            resources.ApplyResources(this.comboBoxColorModel, "comboBoxColorModel");
-            this.comboBoxColorModel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxColorModel.FormattingEnabled = true;
-            this.comboBoxColorModel.Items.AddRange(new object[] {
-            resources.GetString("comboBoxColorModel.Items"),
-            resources.GetString("comboBoxColorModel.Items1")});
-            this.comboBoxColorModel.Name = "comboBoxColorModel";
+            resources.ApplyResources(comboBoxColorModel, "comboBoxColorModel");
+            comboBoxColorModel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            comboBoxColorModel.FormattingEnabled = true;
+            comboBoxColorModel.Items.AddRange(new object[] { resources.GetString("comboBoxColorModel.Items"), resources.GetString("comboBoxColorModel.Items1") });
+            comboBoxColorModel.Name = "comboBoxColorModel";
             // 
             // labelPrintBaseMap
             // 
-            resources.ApplyResources(this.labelPrintBaseMap, "labelPrintBaseMap");
-            this.labelPrintBaseMap.Name = "labelPrintBaseMap";
+            resources.ApplyResources(labelPrintBaseMap, "labelPrintBaseMap");
+            labelPrintBaseMap.Name = "labelPrintBaseMap";
             // 
             // comboBoxPrintBaseMap
             // 
-            resources.ApplyResources(this.comboBoxPrintBaseMap, "comboBoxPrintBaseMap");
-            this.comboBoxPrintBaseMap.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxPrintBaseMap.FormattingEnabled = true;
-            this.comboBoxPrintBaseMap.Items.AddRange(new object[] {
-            resources.GetString("comboBoxPrintBaseMap.Items"),
-            resources.GetString("comboBoxPrintBaseMap.Items1")});
-            this.comboBoxPrintBaseMap.Name = "comboBoxPrintBaseMap";
+            resources.ApplyResources(comboBoxPrintBaseMap, "comboBoxPrintBaseMap");
+            comboBoxPrintBaseMap.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            comboBoxPrintBaseMap.FormattingEnabled = true;
+            comboBoxPrintBaseMap.Items.AddRange(new object[] { resources.GetString("comboBoxPrintBaseMap.Items"), resources.GetString("comboBoxPrintBaseMap.Items1") });
+            comboBoxPrintBaseMap.Name = "comboBoxPrintBaseMap";
             // 
             // comboBoxMultiPage
             // 
-            this.comboBoxMultiPage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxMultiPage.FormattingEnabled = true;
-            this.comboBoxMultiPage.Items.AddRange(new object[] {
-            resources.GetString("comboBoxMultiPage.Items"),
-            resources.GetString("comboBoxMultiPage.Items1")});
-            resources.ApplyResources(this.comboBoxMultiPage, "comboBoxMultiPage");
-            this.comboBoxMultiPage.Name = "comboBoxMultiPage";
+            comboBoxMultiPage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            comboBoxMultiPage.FormattingEnabled = true;
+            comboBoxMultiPage.Items.AddRange(new object[] { resources.GetString("comboBoxMultiPage.Items"), resources.GetString("comboBoxMultiPage.Items1") });
+            resources.ApplyResources(comboBoxMultiPage, "comboBoxMultiPage");
+            comboBoxMultiPage.Name = "comboBoxMultiPage";
             // 
             // labelAppearanceInfo
             // 
-            resources.ApplyResources(this.labelAppearanceInfo, "labelAppearanceInfo");
-            this.labelAppearanceInfo.Name = "labelAppearanceInfo";
+            resources.ApplyResources(labelAppearanceInfo, "labelAppearanceInfo");
+            labelAppearanceInfo.Name = "labelAppearanceInfo";
             // 
             // folderGroupBox
             // 
-            resources.ApplyResources(this.folderGroupBox, "folderGroupBox");
-            this.folderGroupBox.Controls.Add(this.tableLayoutPanel1);
-            this.folderGroupBox.Name = "folderGroupBox";
-            this.folderGroupBox.TabStop = false;
+            resources.ApplyResources(folderGroupBox, "folderGroupBox");
+            folderGroupBox.Controls.Add(tableLayoutPanel1);
+            folderGroupBox.Name = "folderGroupBox";
+            folderGroupBox.TabStop = false;
             // 
             // tableLayoutPanel1
             // 
-            resources.ApplyResources(this.tableLayoutPanel1, "tableLayoutPanel1");
-            this.tableLayoutPanel1.Controls.Add(this.selectOtherDirectoryButton, 0, 4);
-            this.tableLayoutPanel1.Controls.Add(this.coursesDirectory, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.otherDirectoryTextBox, 0, 3);
-            this.tableLayoutPanel1.Controls.Add(this.mapDirectory, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.otherDirectory, 0, 2);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            resources.ApplyResources(tableLayoutPanel1, "tableLayoutPanel1");
+            tableLayoutPanel1.Controls.Add(selectOtherDirectoryButton, 0, 4);
+            tableLayoutPanel1.Controls.Add(coursesDirectory, 0, 0);
+            tableLayoutPanel1.Controls.Add(otherDirectoryTextBox, 0, 3);
+            tableLayoutPanel1.Controls.Add(mapDirectory, 0, 1);
+            tableLayoutPanel1.Controls.Add(otherDirectory, 0, 2);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
             // 
             // selectOtherDirectoryButton
             // 
-            resources.ApplyResources(this.selectOtherDirectoryButton, "selectOtherDirectoryButton");
-            this.selectOtherDirectoryButton.Name = "selectOtherDirectoryButton";
-            this.selectOtherDirectoryButton.UseVisualStyleBackColor = true;
-            this.selectOtherDirectoryButton.Click += new System.EventHandler(this.selectOtherDirectoryButton_Click);
+            resources.ApplyResources(selectOtherDirectoryButton, "selectOtherDirectoryButton");
+            selectOtherDirectoryButton.Name = "selectOtherDirectoryButton";
+            selectOtherDirectoryButton.UseVisualStyleBackColor = true;
+            selectOtherDirectoryButton.Click += selectOtherDirectoryButton_Click;
             // 
             // coursesDirectory
             // 
-            resources.ApplyResources(this.coursesDirectory, "coursesDirectory");
-            this.coursesDirectory.Name = "coursesDirectory";
-            this.coursesDirectory.TabStop = true;
-            this.coursesDirectory.UseVisualStyleBackColor = true;
+            resources.ApplyResources(coursesDirectory, "coursesDirectory");
+            coursesDirectory.Name = "coursesDirectory";
+            coursesDirectory.TabStop = true;
+            coursesDirectory.UseVisualStyleBackColor = true;
             // 
             // otherDirectoryTextBox
             // 
-            resources.ApplyResources(this.otherDirectoryTextBox, "otherDirectoryTextBox");
-            this.otherDirectoryTextBox.Name = "otherDirectoryTextBox";
+            resources.ApplyResources(otherDirectoryTextBox, "otherDirectoryTextBox");
+            otherDirectoryTextBox.Name = "otherDirectoryTextBox";
             // 
             // mapDirectory
             // 
-            resources.ApplyResources(this.mapDirectory, "mapDirectory");
-            this.mapDirectory.Name = "mapDirectory";
-            this.mapDirectory.TabStop = true;
-            this.mapDirectory.UseVisualStyleBackColor = true;
+            resources.ApplyResources(mapDirectory, "mapDirectory");
+            mapDirectory.Name = "mapDirectory";
+            mapDirectory.TabStop = true;
+            mapDirectory.UseVisualStyleBackColor = true;
             // 
             // otherDirectory
             // 
-            resources.ApplyResources(this.otherDirectory, "otherDirectory");
-            this.otherDirectory.Name = "otherDirectory";
-            this.otherDirectory.TabStop = true;
-            this.otherDirectory.UseVisualStyleBackColor = true;
-            this.otherDirectory.CheckedChanged += new System.EventHandler(this.otherDirectory_CheckedChanged);
+            resources.ApplyResources(otherDirectory, "otherDirectory");
+            otherDirectory.Name = "otherDirectory";
+            otherDirectory.TabStop = true;
+            otherDirectory.UseVisualStyleBackColor = true;
+            otherDirectory.CheckedChanged += otherDirectory_CheckedChanged;
             // 
             // outputGroupBox
             // 
-            resources.ApplyResources(this.outputGroupBox, "outputGroupBox");
-            this.outputGroupBox.Controls.Add(this.tableLayoutPanel2);
-            this.outputGroupBox.Name = "outputGroupBox";
-            this.outputGroupBox.TabStop = false;
+            resources.ApplyResources(outputGroupBox, "outputGroupBox");
+            outputGroupBox.Controls.Add(tableLayoutPanel2);
+            outputGroupBox.Name = "outputGroupBox";
+            outputGroupBox.TabStop = false;
             // 
             // tableLayoutPanel2
             // 
-            resources.ApplyResources(this.tableLayoutPanel2, "tableLayoutPanel2");
-            this.tableLayoutPanel2.Controls.Add(this.fileNamePrefixLabel, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.filenamePrefixTextBox, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.filesLabel, 0, 1);
-            this.tableLayoutPanel2.Controls.Add(this.comboBoxFileFormat, 1, 1);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            resources.ApplyResources(tableLayoutPanel2, "tableLayoutPanel2");
+            tableLayoutPanel2.Controls.Add(fileNamePrefixLabel, 0, 0);
+            tableLayoutPanel2.Controls.Add(filenamePrefixTextBox, 1, 0);
+            tableLayoutPanel2.Controls.Add(filesLabel, 0, 1);
+            tableLayoutPanel2.Controls.Add(comboBoxFileFormat, 1, 1);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
             // 
             // fileNamePrefixLabel
             // 
-            resources.ApplyResources(this.fileNamePrefixLabel, "fileNamePrefixLabel");
-            this.fileNamePrefixLabel.Name = "fileNamePrefixLabel";
+            resources.ApplyResources(fileNamePrefixLabel, "fileNamePrefixLabel");
+            fileNamePrefixLabel.Name = "fileNamePrefixLabel";
             // 
             // filenamePrefixTextBox
             // 
-            resources.ApplyResources(this.filenamePrefixTextBox, "filenamePrefixTextBox");
-            this.filenamePrefixTextBox.Name = "filenamePrefixTextBox";
+            resources.ApplyResources(filenamePrefixTextBox, "filenamePrefixTextBox");
+            filenamePrefixTextBox.Name = "filenamePrefixTextBox";
             // 
             // filesLabel
             // 
-            resources.ApplyResources(this.filesLabel, "filesLabel");
-            this.filesLabel.Name = "filesLabel";
+            resources.ApplyResources(filesLabel, "filesLabel");
+            filesLabel.Name = "filesLabel";
             // 
             // comboBoxFileFormat
             // 
-            resources.ApplyResources(this.comboBoxFileFormat, "comboBoxFileFormat");
-            this.comboBoxFileFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxFileFormat.DropDownWidth = 280;
-            this.comboBoxFileFormat.FormattingEnabled = true;
-            this.comboBoxFileFormat.Items.AddRange(new object[] {
-            resources.GetString("comboBoxFileFormat.Items"),
-            resources.GetString("comboBoxFileFormat.Items1"),
-            resources.GetString("comboBoxFileFormat.Items2")});
-            this.comboBoxFileFormat.Name = "comboBoxFileFormat";
+            resources.ApplyResources(comboBoxFileFormat, "comboBoxFileFormat");
+            comboBoxFileFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            comboBoxFileFormat.DropDownWidth = 280;
+            comboBoxFileFormat.FormattingEnabled = true;
+            comboBoxFileFormat.Items.AddRange(new object[] { resources.GetString("comboBoxFileFormat.Items"), resources.GetString("comboBoxFileFormat.Items1"), resources.GetString("comboBoxFileFormat.Items2") });
+            comboBoxFileFormat.Name = "comboBoxFileFormat";
             // 
             // folderBrowserDialog
             // 
-            resources.ApplyResources(this.folderBrowserDialog, "folderBrowserDialog");
+            resources.ApplyResources(folderBrowserDialog, "folderBrowserDialog");
             // 
             // CreatePdfCourses
             // 
             resources.ApplyResources(this, "$this");
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.Controls.Add(this.outputGroupBox);
-            this.Controls.Add(this.folderGroupBox);
-            this.Controls.Add(this.groupBoxAppearance);
-            this.Controls.Add(this.coursesGroupBox);
-            this.HelpTopic = "FileCreatePdfFiles.htm";
-            this.Name = "CreatePdfCourses";
-            this.Controls.SetChildIndex(this.coursesGroupBox, 0);
-            this.Controls.SetChildIndex(this.groupBoxAppearance, 0);
-            this.Controls.SetChildIndex(this.folderGroupBox, 0);
-            this.Controls.SetChildIndex(this.outputGroupBox, 0);
-            this.Controls.SetChildIndex(this.okButton, 0);
-            this.Controls.SetChildIndex(this.cancelButton, 0);
-            this.coursesGroupBox.ResumeLayout(false);
-            this.groupBoxAppearance.ResumeLayout(false);
-            this.tableLayoutPanel4.ResumeLayout(false);
-            this.tableLayoutPanel4.PerformLayout();
-            this.folderGroupBox.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
-            this.outputGroupBox.ResumeLayout(false);
-            this.tableLayoutPanel2.ResumeLayout(false);
-            this.tableLayoutPanel2.PerformLayout();
-            this.ResumeLayout(false);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            Controls.Add(outputGroupBox);
+            Controls.Add(folderGroupBox);
+            Controls.Add(groupBoxAppearance);
+            Controls.Add(coursesGroupBox);
+            HelpTopic = "FileCreatePdfFiles.htm";
+            Name = "CreatePdfCourses";
+            Controls.SetChildIndex(coursesGroupBox, 0);
+            Controls.SetChildIndex(groupBoxAppearance, 0);
+            Controls.SetChildIndex(folderGroupBox, 0);
+            Controls.SetChildIndex(outputGroupBox, 0);
+            Controls.SetChildIndex(okButton, 0);
+            Controls.SetChildIndex(cancelButton, 0);
+            coursesGroupBox.ResumeLayout(false);
+            groupBoxAppearance.ResumeLayout(false);
+            tableLayoutPanel4.ResumeLayout(false);
+            tableLayoutPanel4.PerformLayout();
+            folderGroupBox.ResumeLayout(false);
+            tableLayoutPanel1.ResumeLayout(false);
+            tableLayoutPanel1.PerformLayout();
+            outputGroupBox.ResumeLayout(false);
+            tableLayoutPanel2.ResumeLayout(false);
+            tableLayoutPanel2.PerformLayout();
+            ResumeLayout(false);
 
         }
 

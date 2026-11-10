@@ -55,9 +55,8 @@
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageVersion Include="Semi.Avalonia" Version="12.1.0.1" />
     <PackageVersion Include="Semi.Avalonia.DataGrid" Version="12.1.0.1" />
-    <!-- JU: Security Cryptography and DBus -->
+    <!-- JU: Security Cryptography -->
     <PackageVersion Include="System.Security.Cryptography.Xml" Version="8.0.3" />
-    <PackageVersion Include="Tmds.DBus.Protocol" Version="0.94.2" />
     <!-- 
     Do not upgrade ImageSharp past 2.1.13! Later versions have a stricter license. We want the Apache 2.0 license. 
     There are security vulnerabilities in ImageSharp, but only if you are decoding untrusted images. We assuming people 

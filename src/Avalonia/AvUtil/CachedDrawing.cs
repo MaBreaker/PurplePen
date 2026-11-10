@@ -641,9 +641,10 @@ namespace AvUtil
 
             public override string ToString()
             {
-                return $"Type:{type} Ver:{renderVersion} Rect:({rect.Left:0.##},{rect.Top:0.##})-({rect.Right:0.##},{rect.Bottom:0.##}) Size:{pixelSize} Status:{task.Status}";
+                return $"Type:{type} Ver:{renderVersion} Rect:({rect.Left:0.##},{rect.Top:0.##})-({rect.Right:0.##},{rect.Bottom:0.##}) Size:{pixelSize} Status:{(task == null ? "Pending" : task.Status.ToString())}"; //JU: Null protection
             }
 
+            /*
             public void SaveAsPng(string filePath)
             {
                 // Open a file stream to write the PNG file
@@ -651,6 +652,7 @@ namespace AvUtil
                     task.Result.Bitmap.Save(stream, new PngBitmapEncoderOptions());
                 }
             }
+            */
 
             // Dispose the render now if it is done or was never started, otherwise as soon as the task finishes (a canceled
             // task can still run to completion if it was past its last cancellation check).

@@ -26,7 +26,7 @@
             <TextBlock VerticalAlignment="Center"
                        Text="{resx:Localize NewEventNumbering_startingCodeLabel_Text}"/>
             <NumericUpDown Width="80"
-                           Minimum="31" Maximum="999" Increment="1"
+                           Minimum="{Binding MinimumCode}" Maximum="999" Increment="1"
                            FormatString="0"
                            Value="{Binding FirstCode, Mode=TwoWay}"/>
         </StackPanel>

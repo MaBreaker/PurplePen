@@ -1745,6 +1745,7 @@ namespace PurplePen.ViewModels
                 FirstCode = firstCode,
                 DisallowInvertibleCodes = disallowInvertibleCodes,
                 RenumberExisting = false,
+                MinimumCode = controller.GetMapStandard() == "StreetO" ? 11 : 31
             };
 
             // Show the dialog; on OK, apply the chosen settings.

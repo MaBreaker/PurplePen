@@ -68,7 +68,6 @@ echo Creating setup for version %VERSION_STRING% as %SETUP_BASENAME%.exe
 if errorlevel 1 (
     echo.
     echo ERROR: Innosetup failed. Setup was not created.
-	PAUSE
     exit /b 1
 )
 

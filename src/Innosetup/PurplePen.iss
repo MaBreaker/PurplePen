@@ -785,7 +785,7 @@ Source: "dxwebsetup.exe"; Flags: dontcopy noencryption
 #endif
 
 Source: "{#BuildDir}\PurplePen.exe"; DestDir: "{app}"; Flags: ignoreversion 
-Source: "{#BuildDir}\PdfConverter.exe"; DestDir: "{app}"; Flags: ignoreversion 
+;Source: "{#BuildDir}\PdfConverter.exe"; DestDir: "{app}"; Flags: ignoreversion 
 ;Source: "{#BuildDir}\createdump.exe"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.dll"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "{#BuildDir}\*.config"; DestDir: "{app}"; Flags: ignoreversion 

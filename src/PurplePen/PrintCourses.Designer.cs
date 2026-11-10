@@ -62,238 +62,217 @@ namespace PurplePen
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PrintCourses));
-            this.printerGroup = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.printerChange = new System.Windows.Forms.Button();
-            this.printerName = new System.Windows.Forms.Label();
-            this.printerLabel = new System.Windows.Forms.Label();
-            this.previewButton = new System.Windows.Forms.Button();
-            this.coursesGroupBox = new System.Windows.Forms.GroupBox();
-            this.courseSelector = new PurplePen.CourseSelector();
-            this.copiesGroupBox = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.copiesUpDown = new System.Windows.Forms.NumericUpDown();
-            this.copiesLabel = new System.Windows.Forms.Label();
-            this.checkBoxPausePrinting = new System.Windows.Forms.CheckBox();
-            this.printDialog = new System.Windows.Forms.PrintDialog();
-            this.groupBoxAppearance = new System.Windows.Forms.GroupBox();
-            this.checkBoxMergeParts = new System.Windows.Forms.CheckBox();
-            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
-            this.labelColorModel = new System.Windows.Forms.Label();
-            this.comboBoxColorModel = new System.Windows.Forms.ComboBox();
-            this.comboBoxMultiPage = new System.Windows.Forms.ComboBox();
-            this.labelAppearanceInfo = new System.Windows.Forms.Label();
-            this.printerGroup.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
-            this.coursesGroupBox.SuspendLayout();
-            this.copiesGroupBox.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.copiesUpDown)).BeginInit();
-            this.groupBoxAppearance.SuspendLayout();
-            this.tableLayoutPanel4.SuspendLayout();
-            this.SuspendLayout();
+            printerGroup = new System.Windows.Forms.GroupBox();
+            tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            printerChange = new System.Windows.Forms.Button();
+            printerName = new System.Windows.Forms.Label();
+            printerLabel = new System.Windows.Forms.Label();
+            previewButton = new System.Windows.Forms.Button();
+            coursesGroupBox = new System.Windows.Forms.GroupBox();
+            courseSelector = new CourseSelector();
+            copiesGroupBox = new System.Windows.Forms.GroupBox();
+            tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            copiesUpDown = new System.Windows.Forms.NumericUpDown();
+            copiesLabel = new System.Windows.Forms.Label();
+            checkBoxPausePrinting = new System.Windows.Forms.CheckBox();
+            printDialog = new System.Windows.Forms.PrintDialog();
+            groupBoxAppearance = new System.Windows.Forms.GroupBox();
+            checkBoxMergeParts = new System.Windows.Forms.CheckBox();
+            tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            labelColorModel = new System.Windows.Forms.Label();
+            comboBoxColorModel = new System.Windows.Forms.ComboBox();
+            comboBoxMultiPage = new System.Windows.Forms.ComboBox();
+            labelAppearanceInfo = new System.Windows.Forms.Label();
+            printerGroup.SuspendLayout();
+            tableLayoutPanel1.SuspendLayout();
+            coursesGroupBox.SuspendLayout();
+            copiesGroupBox.SuspendLayout();
+            tableLayoutPanel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)copiesUpDown).BeginInit();
+            groupBoxAppearance.SuspendLayout();
+            tableLayoutPanel4.SuspendLayout();
+            SuspendLayout();
             // 
             // okButton
             // 
-            resources.ApplyResources(this.okButton, "okButton");
-            this.okButton.Click += new System.EventHandler(this.okButton_Click);
+            resources.ApplyResources(okButton, "okButton");
+            okButton.Click += okButton_Click;
             // 
             // cancelButton
             // 
-            resources.ApplyResources(this.cancelButton, "cancelButton");
+            resources.ApplyResources(cancelButton, "cancelButton");
             // 
             // printerGroup
             // 
-            this.printerGroup.Controls.Add(this.tableLayoutPanel1);
-            resources.ApplyResources(this.printerGroup, "printerGroup");
-            this.printerGroup.Name = "printerGroup";
-            this.printerGroup.TabStop = false;
+            printerGroup.Controls.Add(tableLayoutPanel1);
+            resources.ApplyResources(printerGroup, "printerGroup");
+            printerGroup.Name = "printerGroup";
+            printerGroup.TabStop = false;
             // 
             // tableLayoutPanel1
             // 
-            resources.ApplyResources(this.tableLayoutPanel1, "tableLayoutPanel1");
-            this.tableLayoutPanel1.Controls.Add(this.printerChange, 2, 0);
-            this.tableLayoutPanel1.Controls.Add(this.printerName, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.printerLabel, 0, 0);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            resources.ApplyResources(tableLayoutPanel1, "tableLayoutPanel1");
+            tableLayoutPanel1.Controls.Add(printerChange, 2, 0);
+            tableLayoutPanel1.Controls.Add(printerName, 1, 0);
+            tableLayoutPanel1.Controls.Add(printerLabel, 0, 0);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
             // 
             // printerChange
             // 
-            resources.ApplyResources(this.printerChange, "printerChange");
-            this.printerChange.Name = "printerChange";
-            this.printerChange.UseVisualStyleBackColor = true;
-            this.printerChange.Click += new System.EventHandler(this.printerChange_Click);
+            resources.ApplyResources(printerChange, "printerChange");
+            printerChange.Name = "printerChange";
+            printerChange.UseVisualStyleBackColor = true;
+            printerChange.Click += printerChange_Click;
             // 
             // printerName
             // 
-            resources.ApplyResources(this.printerName, "printerName");
-            this.printerName.Name = "printerName";
+            resources.ApplyResources(printerName, "printerName");
+            printerName.Name = "printerName";
             // 
             // printerLabel
             // 
-            resources.ApplyResources(this.printerLabel, "printerLabel");
-            this.printerLabel.Name = "printerLabel";
+            resources.ApplyResources(printerLabel, "printerLabel");
+            printerLabel.Name = "printerLabel";
             // 
             // previewButton
             // 
-            resources.ApplyResources(this.previewButton, "previewButton");
-            this.previewButton.Name = "previewButton";
-            this.previewButton.UseVisualStyleBackColor = true;
-            this.previewButton.Click += new System.EventHandler(this.previewButton_Click);
+            resources.ApplyResources(previewButton, "previewButton");
+            previewButton.Name = "previewButton";
+            previewButton.UseVisualStyleBackColor = true;
+            previewButton.Click += previewButton_Click;
             // 
             // coursesGroupBox
             // 
-            this.coursesGroupBox.Controls.Add(this.courseSelector);
-            resources.ApplyResources(this.coursesGroupBox, "coursesGroupBox");
-            this.coursesGroupBox.Name = "coursesGroupBox";
-            this.coursesGroupBox.TabStop = false;
+            coursesGroupBox.Controls.Add(courseSelector);
+            resources.ApplyResources(coursesGroupBox, "coursesGroupBox");
+            coursesGroupBox.Name = "coursesGroupBox";
+            coursesGroupBox.TabStop = false;
             // 
             // courseSelector
             // 
-            this.courseSelector.Filter = null;
-            resources.ApplyResources(this.courseSelector, "courseSelector");
-            this.courseSelector.Name = "courseSelector";
-            this.courseSelector.ShowAllControls = true;
-            this.courseSelector.ShowCourseParts = false;
-            this.courseSelector.ShowVariationChooser = true;
+            resources.ApplyResources(courseSelector, "courseSelector");
+            courseSelector.Name = "courseSelector";
             // 
             // copiesGroupBox
             // 
-            this.copiesGroupBox.Controls.Add(this.tableLayoutPanel2);
-            resources.ApplyResources(this.copiesGroupBox, "copiesGroupBox");
-            this.copiesGroupBox.Name = "copiesGroupBox";
-            this.copiesGroupBox.TabStop = false;
+            copiesGroupBox.Controls.Add(tableLayoutPanel2);
+            resources.ApplyResources(copiesGroupBox, "copiesGroupBox");
+            copiesGroupBox.Name = "copiesGroupBox";
+            copiesGroupBox.TabStop = false;
             // 
             // tableLayoutPanel2
             // 
-            resources.ApplyResources(this.tableLayoutPanel2, "tableLayoutPanel2");
-            this.tableLayoutPanel2.Controls.Add(this.copiesUpDown, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.copiesLabel, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.checkBoxPausePrinting, 0, 1);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            resources.ApplyResources(tableLayoutPanel2, "tableLayoutPanel2");
+            tableLayoutPanel2.Controls.Add(copiesUpDown, 1, 0);
+            tableLayoutPanel2.Controls.Add(copiesLabel, 0, 0);
+            tableLayoutPanel2.Controls.Add(checkBoxPausePrinting, 0, 1);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
             // 
             // copiesUpDown
             // 
-            resources.ApplyResources(this.copiesUpDown, "copiesUpDown");
-            this.copiesUpDown.Maximum = new decimal(new int[] {
-            9999,
-            0,
-            0,
-            0});
-            this.copiesUpDown.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.copiesUpDown.Name = "copiesUpDown";
-            this.copiesUpDown.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            resources.ApplyResources(copiesUpDown, "copiesUpDown");
+            copiesUpDown.Maximum = new decimal(new int[] { 9999, 0, 0, 0 });
+            copiesUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            copiesUpDown.Name = "copiesUpDown";
+            copiesUpDown.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // copiesLabel
             // 
-            resources.ApplyResources(this.copiesLabel, "copiesLabel");
-            this.copiesLabel.Name = "copiesLabel";
+            resources.ApplyResources(copiesLabel, "copiesLabel");
+            copiesLabel.Name = "copiesLabel";
             // 
             // checkBoxPausePrinting
             // 
-            this.tableLayoutPanel2.SetColumnSpan(this.checkBoxPausePrinting, 3);
-            resources.ApplyResources(this.checkBoxPausePrinting, "checkBoxPausePrinting");
-            this.checkBoxPausePrinting.Name = "checkBoxPausePrinting";
-            this.checkBoxPausePrinting.UseVisualStyleBackColor = true;
+            tableLayoutPanel2.SetColumnSpan(checkBoxPausePrinting, 3);
+            resources.ApplyResources(checkBoxPausePrinting, "checkBoxPausePrinting");
+            checkBoxPausePrinting.Name = "checkBoxPausePrinting";
+            checkBoxPausePrinting.UseVisualStyleBackColor = true;
             // 
             // printDialog
             // 
-            this.printDialog.AllowPrintToFile = false;
+            printDialog.AllowPrintToFile = false;
             // 
             // groupBoxAppearance
             // 
-            this.groupBoxAppearance.Controls.Add(this.checkBoxMergeParts);
-            this.groupBoxAppearance.Controls.Add(this.tableLayoutPanel4);
-            this.groupBoxAppearance.Controls.Add(this.comboBoxMultiPage);
-            this.groupBoxAppearance.Controls.Add(this.labelAppearanceInfo);
-            resources.ApplyResources(this.groupBoxAppearance, "groupBoxAppearance");
-            this.groupBoxAppearance.Name = "groupBoxAppearance";
-            this.groupBoxAppearance.TabStop = false;
+            groupBoxAppearance.Controls.Add(checkBoxMergeParts);
+            groupBoxAppearance.Controls.Add(tableLayoutPanel4);
+            groupBoxAppearance.Controls.Add(comboBoxMultiPage);
+            groupBoxAppearance.Controls.Add(labelAppearanceInfo);
+            resources.ApplyResources(groupBoxAppearance, "groupBoxAppearance");
+            groupBoxAppearance.Name = "groupBoxAppearance";
+            groupBoxAppearance.TabStop = false;
             // 
             // checkBoxMergeParts
             // 
-            resources.ApplyResources(this.checkBoxMergeParts, "checkBoxMergeParts");
-            this.checkBoxMergeParts.Name = "checkBoxMergeParts";
-            this.checkBoxMergeParts.UseVisualStyleBackColor = true;
+            resources.ApplyResources(checkBoxMergeParts, "checkBoxMergeParts");
+            checkBoxMergeParts.Name = "checkBoxMergeParts";
+            checkBoxMergeParts.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel4
             // 
-            resources.ApplyResources(this.tableLayoutPanel4, "tableLayoutPanel4");
-            this.tableLayoutPanel4.Controls.Add(this.labelColorModel, 0, 0);
-            this.tableLayoutPanel4.Controls.Add(this.comboBoxColorModel, 1, 0);
-            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            resources.ApplyResources(tableLayoutPanel4, "tableLayoutPanel4");
+            tableLayoutPanel4.Controls.Add(labelColorModel, 0, 0);
+            tableLayoutPanel4.Controls.Add(comboBoxColorModel, 1, 0);
+            tableLayoutPanel4.Name = "tableLayoutPanel4";
             // 
             // labelColorModel
             // 
-            resources.ApplyResources(this.labelColorModel, "labelColorModel");
-            this.labelColorModel.Name = "labelColorModel";
+            resources.ApplyResources(labelColorModel, "labelColorModel");
+            labelColorModel.Name = "labelColorModel";
             // 
             // comboBoxColorModel
             // 
-            resources.ApplyResources(this.comboBoxColorModel, "comboBoxColorModel");
-            this.comboBoxColorModel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxColorModel.FormattingEnabled = true;
-            this.comboBoxColorModel.Items.AddRange(new object[] {
-            resources.GetString("comboBoxColorModel.Items"),
-            resources.GetString("comboBoxColorModel.Items1"),
-            resources.GetString("comboBoxColorModel.Items2")});
-            this.comboBoxColorModel.Name = "comboBoxColorModel";
+            resources.ApplyResources(comboBoxColorModel, "comboBoxColorModel");
+            comboBoxColorModel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            comboBoxColorModel.FormattingEnabled = true;
+            comboBoxColorModel.Items.AddRange(new object[] { resources.GetString("comboBoxColorModel.Items"), resources.GetString("comboBoxColorModel.Items1") });
+            comboBoxColorModel.Name = "comboBoxColorModel";
             // 
             // comboBoxMultiPage
             // 
-            this.comboBoxMultiPage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxMultiPage.FormattingEnabled = true;
-            this.comboBoxMultiPage.Items.AddRange(new object[] {
-            resources.GetString("comboBoxMultiPage.Items"),
-            resources.GetString("comboBoxMultiPage.Items1")});
-            resources.ApplyResources(this.comboBoxMultiPage, "comboBoxMultiPage");
-            this.comboBoxMultiPage.Name = "comboBoxMultiPage";
+            comboBoxMultiPage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            comboBoxMultiPage.FormattingEnabled = true;
+            comboBoxMultiPage.Items.AddRange(new object[] { resources.GetString("comboBoxMultiPage.Items"), resources.GetString("comboBoxMultiPage.Items1") });
+            resources.ApplyResources(comboBoxMultiPage, "comboBoxMultiPage");
+            comboBoxMultiPage.Name = "comboBoxMultiPage";
             // 
             // labelAppearanceInfo
             // 
-            resources.ApplyResources(this.labelAppearanceInfo, "labelAppearanceInfo");
-            this.labelAppearanceInfo.Name = "labelAppearanceInfo";
+            resources.ApplyResources(labelAppearanceInfo, "labelAppearanceInfo");
+            labelAppearanceInfo.Name = "labelAppearanceInfo";
             // 
             // PrintCourses
             // 
             resources.ApplyResources(this, "$this");
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.Controls.Add(this.groupBoxAppearance);
-            this.Controls.Add(this.coursesGroupBox);
-            this.Controls.Add(this.previewButton);
-            this.Controls.Add(this.copiesGroupBox);
-            this.Controls.Add(this.printerGroup);
-            this.HelpTopic = "FilePrintCourses.htm";
-            this.Name = "PrintCourses";
-            this.Controls.SetChildIndex(this.printerGroup, 0);
-            this.Controls.SetChildIndex(this.copiesGroupBox, 0);
-            this.Controls.SetChildIndex(this.previewButton, 0);
-            this.Controls.SetChildIndex(this.coursesGroupBox, 0);
-            this.Controls.SetChildIndex(this.groupBoxAppearance, 0);
-            this.Controls.SetChildIndex(this.okButton, 0);
-            this.Controls.SetChildIndex(this.cancelButton, 0);
-            this.printerGroup.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
-            this.coursesGroupBox.ResumeLayout(false);
-            this.copiesGroupBox.ResumeLayout(false);
-            this.copiesGroupBox.PerformLayout();
-            this.tableLayoutPanel2.ResumeLayout(false);
-            this.tableLayoutPanel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.copiesUpDown)).EndInit();
-            this.groupBoxAppearance.ResumeLayout(false);
-            this.tableLayoutPanel4.ResumeLayout(false);
-            this.tableLayoutPanel4.PerformLayout();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            Controls.Add(groupBoxAppearance);
+            Controls.Add(coursesGroupBox);
+            Controls.Add(previewButton);
+            Controls.Add(copiesGroupBox);
+            Controls.Add(printerGroup);
+            HelpTopic = "FilePrintCourses.htm";
+            Name = "PrintCourses";
+            Controls.SetChildIndex(printerGroup, 0);
+            Controls.SetChildIndex(copiesGroupBox, 0);
+            Controls.SetChildIndex(previewButton, 0);
+            Controls.SetChildIndex(coursesGroupBox, 0);
+            Controls.SetChildIndex(groupBoxAppearance, 0);
+            Controls.SetChildIndex(okButton, 0);
+            Controls.SetChildIndex(cancelButton, 0);
+            printerGroup.ResumeLayout(false);
+            tableLayoutPanel1.ResumeLayout(false);
+            tableLayoutPanel1.PerformLayout();
+            coursesGroupBox.ResumeLayout(false);
+            copiesGroupBox.ResumeLayout(false);
+            copiesGroupBox.PerformLayout();
+            tableLayoutPanel2.ResumeLayout(false);
+            tableLayoutPanel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)copiesUpDown).EndInit();
+            groupBoxAppearance.ResumeLayout(false);
+            tableLayoutPanel4.ResumeLayout(false);
+            tableLayoutPanel4.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 
